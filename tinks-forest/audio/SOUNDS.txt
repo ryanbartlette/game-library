@@ -1,0 +1,49 @@
+Tink's Forest - sound list
+==========================
+Every clip here is trimmed, loop-joined where needed, and volume-matched for the game.
+Footstep, claw, rustle and creak files are "sprites": many short sounds placed one after another
+at a fixed spacing, so the game can pick a different one each time.
+
+music/
+  spring-title-theme.mp3            title screen; drifts in now and then on spring days
+  summer-song.mp3                   summer days (alternates with the medley)
+  summer-ghibli-medley.mp3          summer days (first ~4 min of the medley, faded out)
+  autumn-harmonica-waltz.mp3        autumn days
+  winter-days-long-gone.mp3         winter days
+  house-and-tunnel-piano.mp3        in the tower room, the walk to the tunnel and through the tunnel
+  beanstalk-sora-iro-no-tane.mp3    while the magic beanstalk grows and you stay near it
+
+ambient/  (background loops)
+  day-forest.mp3 / night-forest.mp3 general forest by day / night
+  dawn-chorus.mp3                   the first minute or two after night turns to morning
+  summer-cicadas.mp3                summer days
+  evening-cicadas.mp3               golden hour (spring-autumn), faintly on summer nights
+  night-crickets.mp3                warm nights (summer loudest, none in winter)
+  wind.mp3                          wind in spring and summer
+  wind-autumn.mp3 / wind-winter.mp3 wind in autumn / winter (winter always faintly there)
+  rain.mp3                          heavy rain, swelling and easing
+  rain-drizzle.mp3                  light rain, fills the lulls and the start/end of rain
+  rain-on-leaves.mp3                rain heard under the trees or a shelter
+  thunder-distant.mp3               faint far-off rumble now and then in heavy rain
+  stream-babble.mp3                 louder the closer you are to the stream
+  wading-water.mp3                  walking through shallow water
+  hollow-tree-hum.mp3               soft hum inside the giant hollow tree
+
+cats/  (Tink, Luca and Jack - Jack uses Luca's voice)
+  luca-meow-1..3, meow-high, tink-meow-1..4, trill, purr-1, purr-2, purr-meow,
+  yowl-1..3, hiss, scared, scream
+
+animals/
+  birdsong-1/2, robin-chirp-1..3, crow-caw, wing-flap, cuckoo (spring days), owl-hoot (nights),
+  woodpecker-drumming, squirrel-chirp / chatter / tease, frog-croak, dragonfly-buzz (close to a dragonfly)
+
+actions/
+  footsteps-leaves (forest floor), footsteps-dry-leaves (autumn), footsteps-snow (winter), footsteps-wood (tower room, veranda, logs),
+  footsteps-stone (rocks, bridges, stepping stones), footsteps-water, grass-rustle (moving through grass),
+  landing-thump, claws-on-bark (climbing), paw-swat, creaky-floor (tower room),
+  water-splash, water-jump
+
+magic/
+  item-found-chime (gifts, Jack, last puff caught), jack-shimmer (Jack appears / fades),
+  sparkle (a gift appears, the beanstalk becomes climbable), beanstalk-growing,
+  puff-giggle (a moss puff runs off), puff-pop (catching a puff), wind-chime (farmhouse chime in the wind)

@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Game Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap">
+<style>
+/* Layout: console home screen. Full-bleed art of the focused game behind a hero block, a tile shelf below, button hints pinned at the bottom. Single dark look by choice. */
+:root {
+  color-scheme: dark;
+  --bg: #07090f;
+  --panel: rgba(18, 22, 34, .72);
+  --line: rgba(255, 255, 255, .14);
+  --fg: #f2f4fb;
+  --muted: #a9b0c6;
+  --focus: #ffffff;
+  --accent: #6fd3ff;
+  --font-display: "Segoe UI Variable Display", "Segoe UI", "Open Sans", system-ui, sans-serif;
+  --font-body: "Segoe UI Variable Text", "Segoe UI", "Open Sans", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.45;
+  overflow-x: hidden;
+}
+
+/* Full-bleed background art */
+.bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
+.bg canvas {
+  position: absolute; inset: -4%; width: 108%; height: 108%;
+  object-fit: cover; filter: saturate(1.1);
+  opacity: 0; transition: opacity .6s ease;
+}
+.bg.canvas-mode canvas { opacity: 1; }
+.bg .layer {
+  position: absolute; inset: 0;
+  background: #07090f center / cover no-repeat;
+  opacity: 0; transform: scale(1);
+  transition: opacity .9s ease, transform 8s ease-out;
+}
+.bg .layer.on { opacity: 1; transform: scale(1.06); }
+.shade {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(7,9,15,.94) 0%, rgba(7,9,15,.7) 38%, rgba(7,9,15,.12) 70%),
+    linear-gradient(0deg, rgba(7,9,15,1) 0%, rgba(7,9,15,.88) 34%, rgba(7,9,15,0) 62%),
+    linear-gradient(180deg, rgba(7,9,15,.7) 0%, rgba(7,9,15,0) 18%);
+}
+
+.shell {
+  position: relative; z-index: 2;
+  min-height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.shell > * { min-width: 0; }
+.inner { min-width: 0; width: 100%; max-width: 1280px; margin: 0 auto; padding-inline: clamp(0px, 2.5vw, 32px); }
+
+/* Top bar */
+.top { padding-block: 22px 0; }
+.top .inner { display: flex; align-items: center; gap: 16px; }
+.profile { display: flex; align-items: center; gap: 12px; }
+.avatar {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: grid; place-items: center;
+  font-family: var(--font-body); font-weight: 600; font-size: 15px; color: #07090f;
+  background: conic-gradient(from 200deg, #6fd3ff, #ff5a3c, #e3a857, #6fd3ff);
+  box-shadow: 0 0 0 3px rgba(255,255,255,.18);
+}
+.who { display: grid; line-height: 1.15; }
+.who b { font-weight: 600; font-size: 16px; }
+.who span { font-size: 13px; color: var(--muted); }
+.brand {
+  margin-left: auto; font-size: 16px; font-weight: 600;
+  color: var(--fg);
+}
+.brand em { font-style: normal; font-weight: 400; color: var(--muted); }
+.clock { font-size: 18px; font-weight: 400; font-variant-numeric: tabular-nums; min-width: 4.5ch; text-align: right; }
+
+/* Hero */
+.hero { align-self: end; padding-block: clamp(32px, 8vh, 96px) 28px; }
+.hero .inner { display: grid; gap: 14px; max-width: 1280px; }
+.genre {
+  font-size: 15px; font-weight: 400; color: var(--muted);
+  transition: color .3s ease;
+}
+.hero h1 {
+  font-family: var(--font-display); font-weight: 600;
+  font-size: clamp(36px, 5vw, 60px); line-height: 1.05; margin: 0; letter-spacing: -.01em;
+  max-width: 16ch; text-wrap: balance;
+  text-shadow: 0 4px 30px rgba(0,0,0,.6);
+}
+.desc { margin: 0; max-width: 54ch; color: #d7dbe8; font-size: 16px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips span {
+  font-size: 13px; font-weight: 400;
+  padding: 3px 10px; border-radius: 4px; background: rgba(255,255,255,.1); border: 1px solid var(--line);
+}
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin-top: 6px; }
+.btn-play {
+  display: inline-flex; align-items: center; gap: 12px;
+  padding: 12px 26px 12px 14px; border-radius: 6px;
+  background: var(--fg); color: #07090f; text-decoration: none;
+  font-weight: 600; font-size: 16px;
+  transition: transform .12s ease, background .2s ease;
+}
+.btn-play:hover { transform: translateY(-1px); background: #fff; }
+.btn-play:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.keys { font-size: 14px; color: var(--muted); }
+
+/* Glyphs for controller buttons */
+.gl {
+  display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+  font-size: 13px; font-weight: 700; color: #07090f; flex: none;
+}
+.gl.a { background: #3fbf5a; }
+.gl.b { background: #e5484d; }
+.gl.y { background: #f2c230; }
+.gl.dpad { background: rgba(255,255,255,.18); color: var(--fg); border-radius: 6px; width: auto; padding: 0 7px; }
+
+/* Shelf */
+.shelf { padding-block: 6px 26px; }
+.shelf h2 {
+  margin: 0 0 12px; font-size: 20px; font-weight: 600; color: var(--fg);
+}
+.row {
+  display: flex; gap: 16px; align-items: flex-end;
+  overflow-x: auto; overscroll-behavior-x: contain;
+  padding: 14px 6px 16px; margin: -14px -6px 0;
+  scrollbar-width: none;
+}
+.row::-webkit-scrollbar { display: none; }
+.tile {
+  position: relative; flex: 0 0 auto;
+  width: clamp(220px, 21vw, 290px); aspect-ratio: 16 / 9; max-width: 100%;
+  border-radius: 8px; overflow: hidden;
+  background: #141826; color: var(--fg); text-decoration: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,.45);
+  outline: 3px solid transparent; outline-offset: 3px;
+  transform: scale(.94); transform-origin: center bottom;
+  opacity: .78;
+  transition: transform .18s ease, outline-color .18s ease, opacity .18s ease;
+}
+.tile canvas { width: 100%; height: 100%; display: block; }
+.tile .shots { position: absolute; inset: 0; background: #141826; }
+.tile .shots img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  opacity: 0; transition: opacity .6s ease;
+}
+.tile .shots img.on { opacity: 1; }
+.tile.previewing .shots img.on { animation: kenburns 3.4s ease-out both; }
+@keyframes kenburns { from { transform: scale(1); } to { transform: scale(1.09) translateX(-1.5%); } }
+.tile .pips {
+  position: absolute; right: 10px; bottom: 12px; display: flex; gap: 4px;
+  opacity: 0; transition: opacity .3s ease;
+}
+.tile.previewing .pips { opacity: 1; }
+.tile .pips i { width: 14px; height: 3px; border-radius: 2px; background: rgba(255,255,255,.35); }
+.tile .pips i.on { background: #fff; }
+.tile .live {
+  position: absolute; top: 12px; left: 10px;
+  font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 4px;
+  background: rgba(0,0,0,.6); color: #fff;
+  opacity: 0; transition: opacity .3s ease;
+}
+.tile.previewing .live { opacity: 1; }
+.tile .label {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 26px 12px 9px;
+  background: linear-gradient(0deg, rgba(0,0,0,.85), rgba(0,0,0,0));
+  font-weight: 600; font-size: 14px; padding-right: 110px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.tile .stripe { position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--tile-accent); }
+.tile.is-focused { transform: scale(1); opacity: 1; outline-color: var(--focus); }
+.tile:focus-visible { outline-color: var(--focus); }
+.tile:focus { outline-color: var(--focus); }
+.tile.soon {
+  width: clamp(180px, 16vw, 220px);
+  display: grid; place-items: center; text-align: center;
+  background: rgba(255,255,255,.04); border: 2px dashed var(--line); box-shadow: none;
+  color: var(--muted); font-size: 13px; font-weight: 400;
+}
+.tile.soon b { display: block; font-weight: 600; font-size: 16px; color: var(--fg); margin-bottom: 2px; }
+
+/* Bottom hint bar */
+.hints { padding-block: 12px max(14px, env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); background: rgba(7,9,15,.75); }
+.hints .inner { display: flex; flex-wrap: wrap; gap: 10px 26px; align-items: center; font-size: 14px; color: var(--muted); }
+.hints .hint { display: inline-flex; align-items: center; gap: 8px; }
+.hints .pad { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; }
+.pad .dot { width: 8px; height: 8px; border-radius: 50%; background: #4a5068; }
+.pad.on .dot { background: #3fbf5a; box-shadow: 0 0 8px #3fbf5a; }
+
+@media (max-width: 640px) {
+  .brand { display: none; }
+  .clock { margin-left: auto; }
+  .desc { font-size: 15px; }
+  .hints .hide-sm { display: none; }
+  .tile { width: 72vw; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tile, .btn-play, .bg canvas, .bg .layer { transition: none; }
+  .bg .layer.on { transform: none; }
+  .tile.previewing .shots img.on { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg" id="bg" aria-hidden="true"><div class="layer" id="layerA"></div><div class="layer" id="layerB"></div><canvas id="heroBg" width="640" height="360"></canvas></div>
+<div class="shade" aria-hidden="true"></div>
+
+<div class="shell">
+  <header class="top">
+    <div class="inner">
+      <div class="profile">
+        <div class="avatar" aria-hidden="true">P1</div>
+        <div class="who"><b>Player 1</b><span id="greeting">Welcome back</span></div>
+      </div>
+      <div class="brand">Game Library</div>
+      <div class="clock" id="clock">--:--</div>
+    </div>
+  </header>
+
+  <section class="hero" aria-live="polite">
+    <div class="inner">
+      <div class="genre" id="heroGenre">Drift · Night</div>
+      <h1 id="heroTitle">Initial Drift</h1>
+      <p class="desc" id="heroDesc">Word of the ghost of Akina is spreading. Drift the AE86 through the Touge Legends story, taking on the Takahashi brothers before facing the legend himself, or race the clock in time attack.</p>
+      <div class="chips" id="heroChips"></div>
+      <div class="actions">
+        <a class="btn-play" id="heroPlay" href="initial-drift/initial_drift.html"><span class="gl a">A</span>Play</a>
+        <span class="keys" id="heroKeys"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="shelf">
+    <div class="inner">
+      <h2>Your games</h2>
+      <nav class="row" id="row" aria-label="Games">
+        <a class="tile" data-game="0" href="initial-drift/initial_drift.html" style="--tile-accent:#ff5a3c">
+          <div class="shots"><img src="library-art/initial-drift/0-cover.webp" alt="" class="on"></div><span class="stripe"></span><span class="live">▶ Preview</span><span class="label">Initial Drift</span><span class="pips"></span>
+        </a>
+        <a class="tile" data-game="1" href="tinks-forest/index.html" style="--tile-accent:#9ad86a">
+          <div class="shots"><img src="library-art/tinks-forest/0-cover.webp" alt="" class="on"></div><span class="stripe"></span><span class="live">▶ Preview</span><span class="label">Tink's Forest</span><span class="pips"></span>
+        </a>
+        <div class="tile soon" aria-hidden="true"><div><b>More soon</b>New games on the way</div></div>
+      </nav>
+    </div>
+  </section>
+
+  <footer class="hints">
+    <div class="inner">
+      <span class="hint"><span class="gl a">A</span>Play</span>
+      <span class="hint"><span class="gl dpad">◀ ▶</span>Choose game</span>
+      <span class="hint hide-sm"><span class="gl dpad">Enter</span>Play with keyboard</span>
+      <span class="pad" id="pad"><span class="dot"></span><span id="padText">No controller</span></span>
+    </div>
+  </footer>
+</div>
+
+<script>
+(function () {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const ART = 'library-art/initial-drift/';
+  const games = [
+    {
+      title: 'Initial Drift', genre: 'Drift · Night', accent: '#ff5a3c',
+      href: 'initial-drift/initial_drift.html',
+      desc: 'Word of the ghost of Akina is spreading. Drift the AE86 through the Touge Legends story, taking on the Takahashi brothers before facing the legend himself, or race the clock in time attack.',
+      chips: ['Touge Legends story', 'Time attack', 'AE86', '3 rivals'],
+      keys: 'WASD or arrows drive · Space handbrake',
+      shots: ['0-cover', '1-drift', '2-menu', '3-vs-ryosuke', '4-fc-vs-evo', '5-vs-bunta'].map(n => ART + n + '.webp'),
+      // Shots with on-screen menus stay in the tile; only clean action shots go behind the page text.
+      bgShots: [0, 1, 4]
+    },
+    {
+      title: "Tink's Forest", genre: 'Adventure · Cats', accent: '#9ad86a',
+      href: 'tinks-forest/index.html',
+      desc: "An adventure with a forest spirit. Play as Tink or Luca, follow the glowing moss puffs, find Jack's gifts hidden around the woods, and see where the green-eyed spirit leads you, from summer through to spring.",
+      chips: ['Play as Tink or Luca', "Find Jack's gifts", 'Four seasons', 'Day, golden hour, night, rain'],
+      keys: 'WASD wander · Shift run · C stalk · Space hop · Click pounce · Right-click swat · Y season',
+      shots: ['0-cover', '1-tink-and-luca', '2-moonlit-tower', '3-spirit-tree', '4-title'].map(n => 'library-art/tinks-forest/' + n + '.webp'),
+      bgShots: [0]
+    }
+  ];
+
+  const tiles = Array.from(document.querySelectorAll('.tile[data-game]'));
+  const heroCanvas = document.getElementById('heroBg');
+  const hctx = heroCanvas.getContext('2d');
+  const bg = document.getElementById('bg');
+  const layers = [document.getElementById('layerA'), document.getElementById('layerB')];
+  let layerIdx = 0, bgUrl = '';
+  const root = document.documentElement;
+  const el = id => document.getElementById(id);
+
+  // Build each tile's preview: a stack of screenshots (or a live canvas scene when a game has no shots yet).
+  const ctxs = tiles.map((t, k) => {
+    const g = games[k];
+    if (g.shots.length) {
+      const box = t.querySelector('.shots');
+      g.shots.slice(1).forEach(src => { const im = document.createElement('img'); im.alt = ''; im.loading = 'lazy'; im.dataset.src = src; box.appendChild(im); });
+      t.querySelector('.pips').innerHTML = g.shots.map((_, n) => '<i' + (n === 0 ? ' class="on"' : '') + '></i>').join('');
+      return null;
+    }
+    t.querySelector('.live') && t.querySelector('.live').remove();
+    t.querySelector('.pips') && t.querySelector('.pips').remove();
+    return t.querySelector('canvas').getContext('2d');
+  });
+
+  function showBg(url) {
+    if (!url) { bg.classList.add('canvas-mode'); layers.forEach(l => l.classList.remove('on')); bgUrl = ''; return; }
+    bg.classList.remove('canvas-mode');
+    if (url === bgUrl) return;
+    bgUrl = url;
+    layerIdx = 1 - layerIdx;
+    const next = layers[layerIdx], prev = layers[1 - layerIdx];
+    next.style.backgroundImage = 'url("' + url + '")';
+    next.classList.remove('on'); void next.offsetWidth; next.classList.add('on');
+    prev.classList.remove('on');
+  }
+
+  // Preview cycling for the focused tile.
+  const DWELL = 3200, START_DELAY = 1400;
+  let shotIdx = 0, previewTimer = null, startTimer = null;
+  function setShot(k, n) {
+    const t = tiles[k], g = games[k];
+    const imgs = t.querySelectorAll('.shots img');
+    imgs.forEach((im, m) => {
+      if (m === n && im.dataset.src && !im.src) im.src = im.dataset.src;
+      im.classList.toggle('on', m === n);
+    });
+    t.querySelectorAll('.pips i').forEach((p, m) => p.classList.toggle('on', m === n));
+    // Restart the slow zoom on the visible shot.
+    const on = imgs[n]; if (on) { on.style.animation = 'none'; void on.offsetWidth; on.style.animation = ''; }
+    if (g.bgShots.includes(n)) showBg(g.shots[n]);
+  }
+  function stopPreview(k) {
+    clearTimeout(startTimer); clearInterval(previewTimer);
+    if (k != null && games[k].shots.length) { tiles[k].classList.remove('previewing'); setShot(k, 0); }
+    shotIdx = 0;
+  }
+  function startPreview(k) {
+    const g = games[k];
+    if (!g.shots.length || reduce) return;
+    // Warm the next images so the crossfade never shows a blank frame.
+    tiles[k].querySelectorAll('.shots img').forEach(im => { if (im.dataset.src && !im.src) im.src = im.dataset.src; });
+    startTimer = setTimeout(() => {
+      tiles[k].classList.add('previewing');
+      previewTimer = setInterval(() => { shotIdx = (shotIdx + 1) % g.shots.length; setShot(k, shotIdx); }, DWELL);
+      shotIdx = 1; setShot(k, 1);
+    }, START_DELAY);
+  }
+
+  let focused = 0;
+  try { const saved = parseInt(localStorage.getItem('oa-last-game-v2'), 10); if (saved >= 0 && saved < games.length) focused = saved; } catch (e) {}
+
+  function setFocus(i, moveDomFocus) {
+    const prev = focused;
+    stopPreview(prev);
+    focused = (i + games.length) % games.length;
+    const g = games[focused];
+    tiles.forEach((t, k) => {
+      t.classList.toggle('is-focused', k === focused);
+      t.tabIndex = k === focused ? 0 : -1;
+    });
+    root.style.setProperty('--accent', g.accent);
+    el('heroGenre').textContent = g.genre;
+    el('heroTitle').textContent = g.title;
+    el('heroDesc').textContent = g.desc;
+    el('heroChips').innerHTML = g.chips.map(c => '<span>' + c + '</span>').join('');
+    el('heroChips').hidden = !g.chips.length;
+    el('heroKeys').hidden = !g.keys;
+    el('heroKeys').textContent = g.keys;
+    el('heroPlay').href = g.href;
+    el('heroPlay').setAttribute('aria-label', 'Play ' + g.title);
+    showBg(g.shots[0] || '');
+    startPreview(focused);
+    if (moveDomFocus) tiles[focused].focus({ preventScroll: true });
+    tiles[focused].scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
+    try { localStorage.setItem('oa-last-game-v2', String(focused)); } catch (e) {}
+    if (prev !== focused) blip();
+  }
+
+  tiles.forEach((t, k) => {
+    t.addEventListener('mouseenter', () => { if (k !== focused) setFocus(k, false); else if (!t.classList.contains('previewing')) { stopPreview(k); startPreview(k); } });
+    t.addEventListener('focus', () => { if (k !== focused) setFocus(k, false); });
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') { e.preventDefault(); setFocus(focused + 1, true); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); setFocus(focused - 1, true); }
+    else if (e.key === 'Enter' && !(e.target instanceof HTMLAnchorElement)) { e.preventDefault(); launch(); }
+  });
+
+  function launch() { window.location.href = games[focused].href; }
+
+  // Quiet navigation tick, only after the visitor has interacted with the page.
+  let audio = null, armed = false;
+  ['pointerdown', 'keydown'].forEach(ev => window.addEventListener(ev, () => { armed = true; }, { once: true }));
+  function blip() {
+    if (!armed) return;
+    try {
+      audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+      const o = audio.createOscillator(), g = audio.createGain(), t = audio.currentTime;
+      o.type = 'sine'; o.frequency.setValueAtTime(880, t); o.frequency.exponentialRampToValueAtTime(1320, t + .05);
+      g.gain.setValueAtTime(.035, t); g.gain.exponentialRampToValueAtTime(.0001, t + .08);
+      o.connect(g).connect(audio.destination); o.start(t); o.stop(t + .09);
+    } catch (e) {}
+  }
+
+  // Controller support: d-pad or left stick to move, A to play.
+  let lastMove = 0, aHeld = true;
+  function pollPad(now) {
+    const pads = navigator.getGamepads ? Array.from(navigator.getGamepads()).filter(Boolean) : [];
+    const p = pads[0];
+    el('pad').classList.toggle('on', !!p);
+    el('padText').textContent = p ? 'Controller connected' : 'No controller';
+    if (p) {
+      const x = p.axes[0] || 0;
+      const right = (p.buttons[15] && p.buttons[15].pressed) || x > .6;
+      const left = (p.buttons[14] && p.buttons[14].pressed) || x < -.6;
+      if ((left || right) && now - lastMove > 220) { lastMove = now; armed = true; setFocus(focused + (right ? 1 : -1), true); }
+      const a = p.buttons[0] && p.buttons[0].pressed;
+      if (a && !aHeld) launch();
+      aHeld = !!a;
+    }
+  }
+
+  // Clock and greeting
+  function tick() {
+    const d = new Date();
+    el('clock').textContent = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    const h = d.getHours();
+    el('greeting').textContent = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+  }
+  tick(); setInterval(tick, 15000);
+
+  /* ---------- Scene art (drawn, no image files needed) ---------- */
+  const W = 640, H = 360;
+
+  const scenes = games.map(() => null);   // a game without screenshots could supply a drawn scene here
+
+  function frame(now) {
+    // Only the focused game animates; the others hold a still frame, like a console shelf.
+    if (scenes[focused]) {
+      scenes[focused](ctxs[focused], true);
+      hctx.drawImage(ctxs[focused].canvas, 0, 0);
+    }
+    pollPad(now || 0);
+    if (!reduce) requestAnimationFrame(frame);
+  }
+
+  // Paint every tile once so the shelf is complete before anything animates.
+  scenes.forEach((draw, i) => { if (draw) draw(ctxs[i], false); });
+  setFocus(focused, false);
+  frame(0);
+  if (reduce) setInterval(() => pollPad(performance.now()), 200);
+
+  window.addEventListener('gamepadconnected', () => pollPad(performance.now()));
+  window.addEventListener('pageshow', e => { if (e.persisted) setFocus(focused, false); });
+})();
+</script>
+</body>
+</html>

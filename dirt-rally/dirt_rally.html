@@ -1,0 +1,1870 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Forest Rally + Canyon Drift</title><style>
+*{box-sizing:border-box}html,body{margin:0;overflow:hidden;background:#101a16;font-family:Inter,system-ui,Arial;color:white}canvas{display:block}#hud{position:absolute;inset:0;pointer-events:none}#top{position:absolute;top:22px;left:25px;display:flex;gap:22px;align-items:flex-start}.panel{background:#07120fba;border:1px solid #ffffff24;border-radius:13px;padding:13px 17px;backdrop-filter:blur(9px)}.small{font-size:10px;letter-spacing:2px;color:#b9d6bd;text-transform:uppercase}.big{font-size:27px;font-weight:850;font-variant-numeric:tabular-nums}#speed{position:absolute;right:27px;bottom:28px;text-align:right}.speedval{font-size:68px;line-height:1;font-weight:900;font-variant-numeric:tabular-nums}#progress{position:absolute;left:25px;bottom:27px;width:260px}#bar{height:7px;background:#ffffff3b;border-radius:8px;margin-top:9px;overflow:hidden}#fill{height:100%;width:0%;background:#e4e978}#banner{position:absolute;top:23px;left:50%;transform:translateX(-50%);font-size:12px;letter-spacing:3px;font-weight:800;text-shadow:0 2px 10px black;white-space:nowrap}#help{position:absolute;right:25px;top:23px;text-align:right;font-size:12px;line-height:1.9;color:#e2ecdd;text-shadow:0 2px 6px #000}kbd{background:#ffffff2a;border:1px solid #ffffff3c;border-radius:4px;padding:2px 6px;color:white}#center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;display:none;background:#07120fe8;padding:28px 40px;border:1px solid #ffffff33;border-radius:18px}#crashNotice{position:absolute;left:50%;top:27%;transform:translateX(-50%);font-size:34px;font-weight:900;letter-spacing:3px;text-shadow:0 3px 12px #000;display:none;color:#ffdf92;white-space:nowrap}#center h1{font-size:42px;margin:0 0 8px}#center p{color:#d6e8d6}#center button{pointer-events:auto;background:#e1e875;color:#172018;border:0;border-radius:9px;padding:12px 23px;font-weight:800;cursor:pointer}@media(max-width:700px){#help{top:110px;font-size:10px}#top{top:12px;left:12px;gap:8px}.panel{padding:9px 11px}.big{font-size:20px}#speed{right:12px;bottom:12px}.speedval{font-size:45px}#progress{left:12px;bottom:12px;width:170px}#banner{top:83px;font-size:10px}}
+#minimap{position:absolute;right:25px;bottom:150px;padding:10px 12px;overflow:hidden;background:rgba(4,13,12,.94);border:2px solid #e6e7c5}#mapCanvas{width:250px;height:230px;display:block;margin-top:5px}#minimap .small{font-weight:800}@media(max-width:700px){#minimap{right:12px;bottom:112px;padding:7px}#mapCanvas{width:180px;height:160px}}
+#pacenote{position:absolute;top:12%;left:50%;transform:translateX(-50%);min-width:215px;text-align:center;background:rgba(8,17,18,.89);border:2px solid #e6e6bd;border-radius:16px;padding:11px 22px;box-shadow:0 6px 25px #0009}#noteSymbol{font-size:45px;font-weight:950;line-height:1;color:#ffe47b}#noteText{font-size:20px;font-weight:900;letter-spacing:1px}#noteDistance{font-size:13px;color:#d5e2df;margin-top:4px}#pacenote.quiet{opacity:.4}@media(max-width:700px){#pacenote{top:14%;min-width:165px;padding:7px 12px}#noteSymbol{font-size:31px}#noteText{font-size:15px}}#crashNotice{top:39%;text-align:center;background:#09130cdd;border:2px solid #ffd37a;border-radius:14px;padding:18px 32px}.resetPrompt{font-size:18px;letter-spacing:2px;margin-top:12px;color:white}#pacenote{z-index:2}#crashNotice{z-index:4}#modeToggle{position:absolute;top:112px;right:25px;pointer-events:auto;background:#10201fe8;color:#fff;border:1px solid #e7ebbf88;border-radius:10px;padding:11px 15px;font-weight:800;cursor:pointer;z-index:5}#modeToggle:hover{background:#30433b}@media(max-width:700px){#modeToggle{top:183px;right:12px;padding:8px 10px}}#soundToggle{position:absolute;right:25px;top:165px;pointer-events:auto;background:#10201fe8;color:#fff;border:1px solid #e7ebbf88;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer;z-index:6}@media(max-width:700px){#soundToggle{right:12px;top:232px}} #courseMenu{position:fixed;inset:0;z-index:100;background:linear-gradient(135deg,#070b16f5,#151b27f2);display:flex;align-items:center;justify-content:center;pointer-events:auto}#courseMenu .menuInner{max-width:930px;width:94%;text-align:center}#courseMenu h1{font-size:clamp(32px,5vw,62px);margin:0 0 8px;letter-spacing:4px}#courseMenu .subtitle{color:#bfc9d9;letter-spacing:3px;margin:0 0 28px}#courseMenu .choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}#courseMenu button{min-height:235px;cursor:pointer;border-radius:18px;border:2px solid #ffffff33;background:linear-gradient(155deg,#293f39,#0a1419);color:#fff;text-align:left;padding:27px;transition:.18s;pointer-events:auto}#courseMenu button:hover{border-color:#f9e3a0;transform:translateY(-4px)}#courseMenu button.touge{background:linear-gradient(155deg,#373943,#11121b)}#courseMenu .emoji{font-size:48px;display:block;margin-bottom:15px}#courseMenu strong{display:block;font-size:26px;margin-bottom:12px}#courseMenu .desc{color:#c6ced3;line-height:1.55}#courseMenu .menuFoot{margin-top:23px;color:#aeb6c4;font-size:13px}#chooseCourse{position:absolute;top:257px;left:25px;z-index:8;pointer-events:auto;background:#141b25e8;border:1px solid #fff5;border-radius:9px;padding:9px 12px;color:#fff;cursor:pointer;font-weight:750}@media(max-width:650px){#courseMenu .choices{grid-template-columns:1fr}#courseMenu button{min-height:140px;padding:16px}#courseMenu .emoji{font-size:27px;margin:0 0 5px}#courseMenu strong{font-size:20px}#chooseCourse{top:255px;left:12px}} body:has(#courseMenu[style*="none"]) #hud{isolation:isolate}body:has(#courseMenu[style*="none"]) #hud::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(ellipse at center,transparent 45%,#070b1d44 100%)} 
+/* Arcade drift interface: controls at the top, rival image beside opponent HUD. */
+#help{position:absolute!important;top:9px!important;left:50%!important;bottom:auto!important;right:auto!important;transform:translateX(-50%)!important;width:max-content!important;max-width:95vw!important;z-index:15!important;text-align:center!important;font-size:10px!important;letter-spacing:.5px!important;white-space:normal!important;background:#061426d9!important;border:1px solid #7191a877!important;border-radius:5px!important;padding:7px 12px!important;line-height:1.5!important;color:#eaf4ff!important}
+#rivalPortrait{position:absolute;right:22px;top:66px;width:146px;z-index:12;background:#081321eb;border:1px solid #a7b8d0a8;padding:5px;box-shadow:0 3px 15px #000a}
+#rivalPortrait img{display:block;width:100%;height:77px;object-fit:cover}
+#rivalPortraitLabel{text-align:center;color:#fff;font:bold 10px Arial,sans-serif;letter-spacing:.5px;padding:5px 1px 1px}
+#raceHud{right:178px!important;top:81px!important;max-width:225px!important;font-size:11px!important}
+#assistHud{display:none!important}
+@media(max-width:800px){#rivalPortrait{width:95px;right:8px;top:55px}#rivalPortrait img{height:52px}#rivalPortraitLabel{font-size:8px}#raceHud{right:115px!important;top:68px!important;font-size:9px!important;max-width:130px!important}#help{font-size:8px!important;padding:5px!important}}
+</style><style>
+#difficultyChoices .difficultyButton{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:8px;overflow:hidden;min-width:0;padding:10px!important;transition:transform .2s,border-color .2s}
+#difficultyChoices .rivalPreview{display:block;width:100%;aspect-ratio:600/345;object-fit:cover;border-radius:9px;border:1px solid #ffffff35;box-shadow:0 6px 16px #0008}
+#difficultyChoices .difficultyButton strong{margin:2px 0 0;font-size:21px!important}
+#difficultyChoices .difficultyButton .desc{font-size:12px;line-height:1.4;display:block}
+#difficultyChoices .difficultyButton:hover .rivalPreview{filter:brightness(1.13)}
+@media(max-width:650px){#difficultyChoices>div:last-child{flex-direction:column!important}#difficultyChoices .difficultyButton{min-height:0!important}#difficultyChoices .rivalPreview{max-height:150px}}
+</style><style id="arcadeHudRestyle">
+/* Touge-era arcade HUD. Keep the rally HUD available with the same IDs. */
+body:has(#courseMenu[style*="none"]) #hud{font-family:Verdana,Arial,sans-serif}
+#minimap{left:20px!important;right:auto!important;bottom:18px!important;top:auto!important;width:clamp(240px,27vw,390px);padding:10px 12px 12px!important;border:2px solid #6d9b98!important;border-radius:4px!important;background:linear-gradient(135deg,#0a1e2fe9,#041019e9)!important;box-shadow:0 4px 0 #0a0b13,0 10px 32px #000a!important;z-index:9!important}
+#mapCanvas{width:100%!important;height:auto!important;aspect-ratio:360/330;image-rendering:pixelated}
+#miniTitle{color:#e9f7f1!important;font-weight:900;font-size:12px;letter-spacing:2px!important;text-shadow:2px 2px #000}
+#mapProgress{padding:4px 1px 0;display:grid;gap:5px}
+#mapProgressLabel{font-size:11px;font-weight:900;letter-spacing:1.8px;color:#f7edb1;text-shadow:1px 1px #000}
+#mapProgressTrack{height:11px;background:#172832;border:1px solid #86b8aa;box-shadow:inset 0 2px 4px #000}
+#mapProgressFill{height:100%;width:0;background:linear-gradient(90deg,#ecae2b,#f5f17d);box-shadow:0 0 8px #f4dc59}
+#progress{display:none!important}
+#top{top:17px!important;left:17px!important;gap:6px!important;flex-direction:column!important}
+#top .panel{border:0;border-left:5px solid #e3d35b;background:linear-gradient(90deg,#182e35e8,#0b1722b5);border-radius:2px;min-width:175px;padding:5px 12px;box-shadow:2px 3px 0 #0008}
+#top .small{color:#f8de77;font-weight:900;letter-spacing:1.3px}
+#top .big{font-style:italic;font-size:27px;text-shadow:2px 3px #000}
+#splitHud{top:150px!important;left:17px!important;background:#07131ca8;border-radius:2px!important}
+#weatherHud{top:201px!important;left:17px!important}
+#assistHud{top:252px!important;left:17px!important}
+#speed{bottom:22px!important;right:23px!important;border-radius:50%;width:204px;height:204px;background:radial-gradient(circle at 48% 50%,#122235 0%,#080b17 66%,#22364c 68%,#000 71%);border:3px solid #8ba2b5;box-shadow:0 0 0 4px #090e19,0 0 22px #000b;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center!important;transform:rotate(-3deg)}
+#speed .small{font-size:11px;color:#e9c767;font-weight:900}
+#speed .speedval{font-size:63px!important;line-height:1.1;color:#fff;text-shadow:2px 4px #000}
+#speed #gear{color:#ffd65b;font-size:12px}
+#speed:before{content:'● ● ● ● ● ● ●';position:absolute;top:27px;font-size:11px;letter-spacing:3px;color:#f26654}
+#banner{top:14px!important;letter-spacing:2px;background:#111e28b8;padding:7px 12px;border-bottom:3px solid #e9c65b}
+#raceHud{top:72px!important;right:22px!important;background:#071b2fc9!important;border-radius:3px!important}
+#help{right:18px!important;top:132px!important;font-size:10px!important;max-width:345px}
+#chooseCourse{top:315px!important;left:17px!important}
+#modeToggle{top:18px!important;right:22px!important}
+#soundToggle{top:64px!important;right:22px!important}
+@media(max-width:720px){#minimap{width:190px!important;left:8px!important;bottom:8px!important;padding:5px!important}#speed{width:130px!important;height:130px!important;right:9px!important;bottom:9px!important}#speed .speedval{font-size:37px!important}#speed:before{top:12px;font-size:7px}#top .big{font-size:20px}#top .panel{min-width:125px}#help{display:none}#banner{top:93px!important;font-size:9px}#splitHud{top:125px!important}#weatherHud,#assistHud{display:none}#chooseCourse{top:175px!important}}
+</style><style id="canyonReferenceHUD">
+/* Reference-inspired, compact arcade layout. Forest Rally keeps its existing UI. */
+body.canyon-mode #help{position:absolute!important;left:17px!important;right:auto!important;top:234px!important;bottom:auto!important;transform:none!important;width:171px!important;max-width:171px!important;padding:9px 10px!important;text-align:left!important;white-space:normal!important;background:linear-gradient(145deg,#111b28ed,#07101bdc)!important;border:1px solid #e0c78a99!important;border-radius:4px!important;box-shadow:3px 4px 0 #0009!important;z-index:11!important;letter-spacing:0!important;line-height:1.2!important;display:block!important}
+body.canyon-mode #help .controlsTitle{color:#e6ce83;font:bold 11px Arial,sans-serif;letter-spacing:2px;border-bottom:1px solid #d9bb6a70;padding-bottom:6px;margin-bottom:6px}
+body.canyon-mode #help .controlRow{display:flex;align-items:center;justify-content:space-between;gap:5px;margin:5px 0;font:700 10px Arial,sans-serif;color:#eaf1f9}
+body.canyon-mode #help .controlRow .keyset{display:flex;gap:2px;align-items:center;flex-shrink:0}
+body.canyon-mode #help kbd{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:21px;padding:1px 4px;background:linear-gradient(#333b48,#0d111b)!important;border:1px solid #c3cbd2!important;border-bottom:3px solid #606c7a!important;border-radius:4px!important;box-shadow:0 1px 2px #000!important;color:#fff!important;font:900 10px Arial,sans-serif!important;text-shadow:0 1px #000}
+body.canyon-mode #help .arrows{display:grid;grid-template-columns:repeat(3,15px);grid-template-rows:repeat(2,14px);gap:1px}
+body.canyon-mode #help .arrows kbd{min-width:15px;width:15px;height:14px;padding:0;font-size:10px!important;border-bottom-width:1px!important}
+body.canyon-mode #help .arrows .up{grid-column:2;grid-row:1}body.canyon-mode #help .arrows .left{grid-column:1;grid-row:2}body.canyon-mode #help .arrows .down{grid-column:2;grid-row:2}body.canyon-mode #help .arrows .right{grid-column:3;grid-row:2}
+body.canyon-mode #help .controlRow.primary{margin-bottom:9px}
+body.canyon-mode #chooseCourse{top:463px!important;left:17px!important;font-size:10px!important;padding:6px 10px!important}
+body.canyon-mode #top{top:18px!important;left:17px!important}
+body.canyon-mode #rivalPortrait{right:20px!important;top:100px!important;width:155px!important}
+body.canyon-mode #raceHud{top:66px!important;right:20px!important;max-width:230px!important}
+body.canyon-mode #banner{top:15px!important}
+@media(max-height:700px){body.canyon-mode #help{top:166px!important}body.canyon-mode #chooseCourse{top:394px!important}body.canyon-mode #splitHud{display:none!important}}
+@media(max-width:720px){body.canyon-mode #help{top:162px!important;left:7px!important;width:139px!important;max-width:139px!important;padding:6px!important}body.canyon-mode #help .controlRow{font-size:9px!important;margin:3px 0}body.canyon-mode #help kbd{min-width:18px;height:18px;font-size:9px!important}body.canyon-mode #help .arrows kbd{min-width:15px;height:14px}body.canyon-mode #chooseCourse{top:366px!important;left:7px!important}body.canyon-mode #rivalPortrait{width:98px!important;right:8px!important;top:76px!important}body.canyon-mode #raceHud{right:112px!important;top:68px!important;max-width:130px!important}}
+</style>
+<style id="referenceArcadeHudV2">
+/* Mountain racing arcade HUD: asymmetric corner layout, metallic plaques, dial. */
+body.canyon-mode #hud{font-family:Arial,Helvetica,sans-serif!important}
+body.canyon-mode #top{left:28px!important;top:25px!important;gap:5px!important}
+body.canyon-mode #top .panel{padding:0!important;background:none!important;border:0!important;box-shadow:none!important;min-width:0!important}
+body.canyon-mode #top .small{display:block;background:linear-gradient(105deg,#b19a5e,#f7e4a4 48%,#b69a55);border:2px solid #514b3e;outline:1px solid #f3dfaa;color:#161720!important;font:bold 14px Arial!important;text-align:center;letter-spacing:1px!important;width:220px;padding:3px 6px;clip-path:polygon(6% 0,100% 0,94% 100%,0 100%)}
+body.canyon-mode #top .panel:first-child .small{background:linear-gradient(#bd2a21,#5d0c12);color:white!important;border-color:#4b0d0e;outline-color:#e25544;font-size:19px!important}
+body.canyon-mode #top .big{font:bold italic 26px Arial!important;color:#fff9e5;text-shadow:3px 3px #09090a, -1px -1px #161515!important;letter-spacing:1px;padding:4px 9px}
+body.canyon-mode #top .panel:first-child .big{font-size:76px!important;line-height:.98;padding:2px 12px 4px}
+body.canyon-mode #splitHud{top:264px!important;left:28px!important;min-width:220px!important;background:none!important;border:0!important;box-shadow:none!important;color:#fff!important;font:bold italic 17px Arial!important;padding:3px 8px!important;text-shadow:2px 2px #000}
+body.canyon-mode #banner{display:none!important}
+body.canyon-mode #help{top:315px!important;left:28px!important;width:170px!important;max-width:170px!important;background:rgba(6,10,18,.64)!important;border:1px solid #b4a7798c!important;border-radius:2px!important;padding:8px!important;box-shadow:2px 2px #0007}
+body.canyon-mode #help .controlsTitle{color:#f4d988!important}
+body.canyon-mode #chooseCourse{top:545px!important;left:28px!important}
+body.canyon-mode #minimap{left:28px!important;bottom:25px!important;width:225px!important;padding:6px!important;border:3px solid #0b1117!important;border-radius:0!important;background:linear-gradient(135deg,#b7c7a6db,#809b8cde)!important;box-shadow:3px 4px #0008!important}
+body.canyon-mode #mapCanvas{max-height:205px!important}
+body.canyon-mode #miniTitle{color:#17251f!important;text-shadow:none!important;font-size:10px!important}
+body.canyon-mode #mapProgressLabel{color:#17251f!important;text-shadow:none!important}
+body.canyon-mode #rivalPortrait{right:35px!important;top:105px!important;width:218px!important;padding:5px!important;background:linear-gradient(#75746d,#323238)!important;border:3px solid #d5b66e!important;clip-path:polygon(7% 0,100% 0,100% 89%,94% 100%,0 100%,0 12%)}
+body.canyon-mode #rivalPortrait img{height:113px!important}
+body.canyon-mode #raceHud{right:35px!important;top:26px!important;width:255px!important;max-width:255px!important;padding:5px 12px!important;background:linear-gradient(105deg,#bda15c,#f1dda1,#ab9254)!important;border:2px solid #6c5b38!important;color:#171921!important;text-align:center;font:bold italic 15px Arial!important;letter-spacing:.4px!important;clip-path:polygon(6% 0,100% 0,94% 100%,0 100%)}
+body.canyon-mode #speed{right:35px!important;bottom:36px!important;width:260px!important;height:260px!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;text-align:center!important}
+body.canyon-mode #speed:before{display:none!important}
+body.canyon-mode #speed .small{display:none!important}
+body.canyon-mode #speed .speedval{position:absolute;bottom:0;left:0;width:78%;background:linear-gradient(#e8501c,#9f210e);border:4px solid #1b1b1d;box-shadow:inset 0 2px #f9974b,3px 3px #000a;font:bold italic 46px Arial!important;color:white!important;line-height:1.04!important;text-shadow:2px 2px #361010!important;padding:3px 2px!important;z-index:2}
+body.canyon-mode #speed .speedval:after{content:' km/h';font-size:17px;font-style:normal}
+body.canyon-mode #speed #gear{position:absolute;bottom:0;right:0;width:23%;height:61px;background:#151821;border:4px solid #1b1b1d;color:white!important;font:bold 13px Arial!important;display:flex;align-items:center;justify-content:center;text-align:center;z-index:3}
+body.canyon-mode #arcadeTach{position:absolute;top:0;left:0;width:100%;height:100%;overflow:visible}
+body.canyon-mode #soundToggle{right:310px!important;top:20px!important;opacity:.65;font-size:10px!important;padding:5px!important}
+body.canyon-mode #modeToggle{display:none!important}
+@media(max-height:820px){body.canyon-mode #top .panel:first-child .big{font-size:54px!important}body.canyon-mode #splitHud{top:233px!important}body.canyon-mode #help{top:270px!important}body.canyon-mode #chooseCourse{top:495px!important}body.canyon-mode #minimap{width:180px!important}body.canyon-mode #mapCanvas{max-height:140px!important}body.canyon-mode #speed{width:210px!important;height:210px!important}body.canyon-mode #speed .speedval{font-size:34px!important}body.canyon-mode #speed #gear{height:49px}}
+@media(max-width:850px){body.canyon-mode #rivalPortrait{width:132px!important;right:10px!important;top:85px!important}body.canyon-mode #rivalPortrait img{height:69px!important}body.canyon-mode #raceHud{right:10px!important;top:20px!important;width:175px!important;max-width:175px!important;font-size:11px!important}body.canyon-mode #top{left:9px!important;top:9px!important}body.canyon-mode #top .small{width:150px;font-size:10px!important}body.canyon-mode #top .panel:first-child .big{font-size:44px!important}body.canyon-mode #splitHud{left:9px!important;top:190px!important;min-width:120px!important;font-size:11px!important}body.canyon-mode #help{left:9px!important;top:225px!important;width:140px!important}body.canyon-mode #chooseCourse{left:9px!important;top:440px!important}body.canyon-mode #minimap{left:9px!important;bottom:9px!important;width:140px!important}body.canyon-mode #speed{right:8px!important;bottom:9px!important;width:165px!important;height:165px!important}body.canyon-mode #speed .speedval{font-size:28px!important}body.canyon-mode #speed #gear{height:42px;font-size:10px!important}}
+</style>
+<style id="canyonSingleMap">
+body.canyon-mode #minimap{width:clamp(270px,25vw,370px)!important;padding:7px 8px!important;border:3px solid #a5ada8!important;border-radius:12px 20px 14px 12px!important;background:rgba(18,25,30,.87)!important;box-shadow:0 0 0 2px #222b30,4px 5px 18px #0009!important;clip-path:polygon(5% 0,95% 0,100% 10%,100% 92%,94% 100%,0 100%,0 8%)}
+body.canyon-mode #mapCanvas{width:100%!important;height:auto!important;max-height:none!important;aspect-ratio:360/330!important;image-rendering:auto!important;display:block}
+body.canyon-mode #miniTitle{font-size:12px!important;color:#f2f4ed!important;letter-spacing:1px!important;text-shadow:1px 2px #000!important;padding:3px 12px}
+body.canyon-mode #mapProgress{padding:4px 8px 2px}
+body.canyon-mode #mapProgressLabel{color:#e4e6db!important}
+@media(max-height:820px){body.canyon-mode #minimap{width:clamp(215px,22vw,285px)!important}}
+@media(max-width:850px){body.canyon-mode #minimap{width:clamp(145px,22vw,220px)!important}}
+</style><style id="stageModeCSS">#stageExit{border:2px solid #8494aa;border-radius:5px;padding:12px 22px;font-weight:900;cursor:pointer}#center button{min-width:150px}#difficultyChoices{display:none!important}</style>
+<style id="rivalStoryStyle">
+#rivalStory{position:fixed;inset:0;z-index:3000;display:none;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(14,24,44,.89),rgba(1,3,9,.97));font-family:Arial,Helvetica,sans-serif;color:#fff;padding:18px;box-sizing:border-box}
+#rivalStory .storyPanel{width:min(850px,94vw);border:3px solid #e1c17d;background:linear-gradient(145deg,#1b2534,#090d16);box-shadow:0 0 0 6px #0a0d15,0 25px 70px #000;border-radius:6px;overflow:hidden}
+#rivalStory .storyBar{background:linear-gradient(90deg,#a9231b,#4c1117);padding:12px 24px;font-weight:900;font-style:italic;letter-spacing:3px;font-size:clamp(15px,2.3vw,22px);text-transform:uppercase}
+#rivalStory .storyContent{display:grid;grid-template-columns:240px 1fr;gap:24px;padding:24px;align-items:center}
+#rivalStory #storyFace{width:100%;aspect-ratio:1;object-fit:cover;border:3px solid #c8ad71;box-shadow:5px 5px 0 #0008}
+#rivalStory #storyCar{width:100%;max-height:150px;object-fit:contain;background:#18212c;border:1px solid #536475;margin-top:12px}
+#rivalStory #storyName{font-size:clamp(22px,4vw,38px);font-weight:950;font-style:italic;letter-spacing:1px}
+#rivalStory #storyVehicle{font-size:13px;letter-spacing:2px;color:#e8cd91;margin:8px 0 25px}
+#rivalStory #storyQuote{font-size:clamp(18px,2.6vw,27px);line-height:1.38;font-weight:700;font-style:italic;min-height:90px}
+#rivalStory #storyHint{padding:16px 24px;background:#121824;border-top:1px solid #5c6571;display:flex;align-items:center;justify-content:space-between;gap:12px;color:#cfd5e2;font-size:13px}
+#rivalStory .storyButton{background:linear-gradient(#f3d78c,#b99442);border:2px solid #ffe5a0;color:#15141a;font-size:18px;font-weight:900;padding:12px 22px;cursor:pointer}
+#rivalStory .storyButton:focus-visible{outline:3px solid white}
+#rivalStory .storySecondary{background:#202c3b;color:white;border:1px solid #8d9ba8;font-weight:800;padding:12px;cursor:pointer}
+@media(max-width:620px){#rivalStory .storyContent{grid-template-columns:115px 1fr;gap:12px;padding:12px}#rivalStory #storyQuote{font-size:17px;min-height:0}#rivalStory #storyVehicle{margin-bottom:12px;font-size:10px}#rivalStory #storyName{font-size:20px}#rivalStory .storyBar{padding:10px}}
+</style>
+<style id="arcadeCountdownStyle">
+body.canyon-mode #countdown{position:fixed!important;top:48%!important;left:50%!important;transform:translate(-50%,-50%) skew(-9deg)!important;font-family:Impact,'Arial Black',sans-serif!important;font-size:clamp(130px,23vw,360px)!important;font-style:italic!important;font-weight:1000!important;letter-spacing:-.045em!important;line-height:1!important;color:#fff5b8!important;-webkit-text-stroke:clamp(4px,.8vw,11px) #16101d!important;paint-order:stroke fill!important;text-shadow:8px 8px 0 #ef442e,16px 16px 0 #681f33,22px 24px 30px #000!important;filter:drop-shadow(0 0 25px #faad3e8a);z-index:40!important;pointer-events:none!important}
+body.canyon-mode #launchHint{position:fixed!important;top:68%!important;left:50%!important;font-size:clamp(15px,2.3vw,29px)!important;font-weight:1000!important;letter-spacing:2px!important;color:#fff!important;-webkit-text-stroke:1px #000;text-shadow:3px 4px #000,0 0 12px #f4a64c!important;z-index:40!important}
+@media(max-width:720px){body.canyon-mode #countdown{font-size:clamp(115px,27vw,210px)!important}}
+</style><style id="singleGameOnly">#courseMenu .choices{grid-template-columns:1fr;max-width:570px;margin:auto}#courseMenu #selectTouge{display:none!important}#chooseCourse{font-size:0!important}#chooseCourse:after{content:"MENU";font-size:12px}</style></head><body><div id="rivalStory" role="dialog" aria-modal="true" aria-label="Rival story">
+<div class="storyPanel"><div id="storyBar" class="storyBar">STAGE 1 · CHALLENGER</div>
+<div class="storyContent"><div><img id="storyFace" alt="Rival character portrait"/><img id="storyCar" alt="Rival car"/></div>
+<div><div id="storyName"></div><div id="storyVehicle"></div><div id="storyQuote"></div></div></div>
+<div id="storyHint"><span>PRESS <kbd>ENTER</kbd> TO CONTINUE</span><div><button class="storySecondary" id="storyExit" style="display:none">EXIT TO ARCADE</button> <button class="storyButton" id="storyContinue">START RACE ↵</button></div></div></div></div><div id="courseMenu"><div class="menuInner"><h1>DIRT RALLY</h1><p class="subtitle">FOREST STAGES · GRAVEL RALLY</p><div class="choices"><button id="selectRally"><span class="emoji">🏁🌲</span><strong>DIRT RALLY</strong><span class="desc">Blue-and-gold Subaru · AWD gravel racing · forest stage · rally co-driver · heavy dirt launches.</span></button><button id="selectTouge" class="touge"><span class="emoji">🌙🏔️</span><strong>INITIAL DRIFT</strong><span class="desc">Panda AE86 Trueno · RWD asphalt drifting · Flowing Japanese mountain S-curves · safe open road · night-run atmosphere.</span></button></div><div id="driftModeChoices" style="display:none;margin:18px auto 0;max-width:620px"><div style="color:#cbd5e1;font-size:15px;letter-spacing:2px;margin-bottom:12px">INITIAL DRIFT · CHOOSE EVENT</div><div style="display:flex;gap:12px"><button id="driftTimeTrial" style="min-height:92px;flex:1;padding:16px;text-align:center;background:#182a37"><strong style="font-size:21px">TIME TRIAL</strong><span class="desc">Solo downhill run · Beat your best time</span></button><button id="driftRace" style="min-height:92px;flex:1;padding:16px;text-align:center;background:#28334a"><strong style="font-size:21px">HEAD-TO-HEAD RACE</strong><span class="desc">Win three stages · RX-7 FC → RX-7 FD → Subaru Impreza</span></button></div><div id="difficultyChoices" style="display:none;margin:14px auto 0;max-width:850px"><div style="color:#cbd5e1;font-size:14px;letter-spacing:2px;margin-bottom:10px">HEAD-TO-HEAD · CHOOSE DIFFICULTY</div><div style="display:flex;gap:10px"><button class="difficultyButton" data-difficulty="easy" style="min-height:78px;flex:1;text-align:center;padding:12px;background:#17372e"><img class="rivalPreview" alt="White Mazda RX-7 FC" src="assets/images/ryosuke-car.webp"><strong style="font-size:19px">EASY</strong><span class="desc">Ryosuke Takahashi · White Mazda RX-7 FC</span></button><button class="difficultyButton" data-difficulty="medium" style="min-height:78px;flex:1;text-align:center;padding:12px;background:#2b3548;border-color:#ffe08a"><img class="rivalPreview" alt="Yellow Mazda RX-7 FD" src="assets/images/keisuke-car.webp"><strong style="font-size:19px">MEDIUM</strong><span class="desc">Keisuke Takahashi · Yellow Mazda RX-7 FD</span></button><button class="difficultyButton" data-difficulty="hard" style="min-height:78px;flex:1;text-align:center;padding:12px;background:#41252e"><img class="rivalPreview" alt="Blue Subaru Impreza" src="assets/images/bunta-car.webp"><strong style="font-size:19px">HARD</strong><span class="desc">Bunta Fujiwara · Blue Subaru Impreza</span></button></div></div></div><p class="menuFoot">Arrow keys / WASD drive · SPACE handbrake · ESC return to course selection</p></div></div><audio id="driftSfx" src="assets/audio/drift-trimed.mp3" preload="auto"></audio><audio id="canyonTrack" src="assets/audio/canyon_drift_music.mp3" loop preload="none"></audio><div id="hud"><div id="minimap" style="bottom:22px;right:22px;z-index:9;border-radius:14px;border:1px solid #ffffff55;background:#08111bdc;box-shadow:0 4px 20px #0009"><div class="small" id="miniTitle" style="color:#fff;letter-spacing:1.5px">COURSE MAP</div><canvas id="mapCanvas" width="360" height="330"></canvas><div id="mapProgress"><div id="mapProgressLabel">COURSE · 0%</div><div id="mapProgressTrack"><div id="mapProgressFill"></div></div></div></div><button id="chooseCourse">☰ COURSES · ESC</button><button id="soundToggle" type="button">🔈 ENABLE SOUND</button><button id="modeToggle" type="button">☾ NIGHT MODE · N</button><div id="top"><div class="panel"><div class="small">Stage time</div><div id="timer" class="big">00:00.00</div></div><div class="panel"><div class="small">Best time</div><div id="best" class="big">--:--.--</div></div></div><div id="rivalPortrait" style="display:none"><img id="rivalPortraitImage" alt="Rival car"/><div id="rivalPortraitLabel">RIVAL</div></div><div id="raceHud" style="display:none;position:absolute;top:100px;right:25px;z-index:8;padding:13px 16px;background:#091521df;border:1px solid #8db1d5;border-radius:10px;color:white;font-size:14px;font-weight:800;letter-spacing:1px">RIVAL · READY</div><div id="launchHint" style="position:absolute;top:53%;left:50%;transform:translateX(-50%);font-size:15px;font-weight:800;letter-spacing:1px;text-align:center;color:#fff;text-shadow:0 2px 8px #000;z-index:9;pointer-events:none">HOLD ↑ / W · GET READY TO LAUNCH</div><div id="countdown" style="position:absolute;top:38%;left:50%;transform:translate(-50%,-50%);font-size:96px;font-weight:950;color:#ffe477;text-shadow:0 5px 28px #000;z-index:9;pointer-events:none">3</div><div id="splitHud" class="panel" style="position:absolute;top:99px;left:25px;font-size:13px;min-width:150px">SPLIT 1 / 3 · --:--.--</div><div id="weatherHud" class="panel" style="position:absolute;top:151px;left:25px;font-size:12px">☀ CLEAR · <kbd>V</kbd> WEATHER</div><div id="assistHud" class="panel" style="position:absolute;top:202px;left:25px;font-size:12px">KEYBOARD ASSIST · BALANCED · H</div><div id="banner">DIRT RALLY · GRAVEL LAUNCH EDITION</div><div id="crashNotice">CRASH!<div class="resetPrompt">PRESS F TO RESET CAR</div></div><div id="help">ARROWS · DRIVE &amp; STEER &nbsp; | &nbsp; SPACE · DRIFT &nbsp; | &nbsp; F · RESET &nbsp; | &nbsp; R · RESTART &nbsp; | &nbsp; C · CAMERA &nbsp; | &nbsp; M · AUDIO &nbsp; | &nbsp; ESC · COURSES</div><div id="pacenote"><div id="noteSymbol" aria-label="Upcoming road shape">↑</div><div id="noteText">STRAIGHT</div><div id="noteDistance">STAGE START</div></div><div id="speed"><svg id="arcadeTach" viewBox="0 0 260 260" aria-label="RPM tachometer"><circle cx="130" cy="120" r="111" fill="#11151b" stroke="#778087" stroke-width="6"/><circle cx="130" cy="120" r="102" fill="#080b10" stroke="#262a30" stroke-width="2"/><g id="tachTicks"></g><text x="130" y="76" fill="#dedede" font-size="10" text-anchor="middle">×1000 r/min</text><text x="130" y="154" fill="#b7bdc5" font-size="10" text-anchor="middle">CANYON DRIFT</text><line id="tachNeedle" x1="130" y1="120" x2="130" y2="35" stroke="#f32621" stroke-width="4" stroke-linecap="round" transform="rotate(-125 130 120)"/><circle cx="130" cy="120" r="9" fill="#b6b8bd"/></svg><div class="small">SPEED · KM/H</div><div id="speednum" class="speedval">000</div><div id="gear" class="small">GEAR 1</div></div><div id="progress" class="panel"><div class="small" id="distance">STAGE PROGRESS · 0%</div><div id="bar"><div id="fill"></div></div></div><div id="center"><h1>STAGE COMPLETE</h1><p id="result"></p><button id="again">RACE AGAIN</button><button id="stageExit" style="display:none;margin-left:12px;background:#293446;color:white">EXIT</button></div></div><script>window.addEventListener('error',function(e){if(!document.querySelector('canvas')){const m=document.getElementById('courseMenu');if(m){const p=document.createElement('p');p.style.color='#ffb7a7';p.textContent='Game failed to initialize: '+(e.message||'check browser WebGL and network access');m.querySelector('.menuInner').appendChild(p)}}});</script><script>
+(function(){
+ const ticks=document.getElementById('tachTicks');
+ if(!ticks)return;
+ const ns='http://www.w3.org/2000/svg';
+ for(let i=0;i<=45;i++){
+  const angle=(-125+i*250/45)*Math.PI/180;
+  const major=i%5===0;
+  const r1=major?85:94,r2=101;
+  const line=document.createElementNS(ns,'line');
+  line.setAttribute('x1',130+Math.sin(angle)*r1);
+  line.setAttribute('y1',120-Math.cos(angle)*r1);
+  line.setAttribute('x2',130+Math.sin(angle)*r2);
+  line.setAttribute('y2',120-Math.cos(angle)*r2);
+  line.setAttribute('stroke',i>=36?'#f03b31':'#f2f1e9');
+  line.setAttribute('stroke-width',major?'3':'1.4');
+  ticks.appendChild(line);
+  if(major){const t=document.createElementNS(ns,'text');t.setAttribute('x',130+Math.sin(angle)*69);t.setAttribute('y',124-Math.cos(angle)*69);t.setAttribute('fill','#f0f0ed');t.setAttribute('font-size','16');t.setAttribute('text-anchor','middle');t.textContent=String(i/5);ticks.appendChild(t);}
+ }
+})();
+</script><script type="module">
+const showGameError=(err)=>{console.error('Forest Rally / Canyon Drift startup:',err);const menu=document.getElementById('courseMenu');menu.style.display='flex';const old=document.getElementById('gameError');if(old)old.remove();const el=document.createElement('p');el.id='gameError';el.style.cssText='color:#ffb3a8;background:#381b22;padding:12px;border-radius:10px;overflow-wrap:anywhere';el.textContent='Unable to start the 3D game: '+(err?.message||String(err))+'. Try opening the downloaded HTML in Chrome with internet access and WebGL enabled.';menu.querySelector('.menuInner').appendChild(el)};
+try {
+const THREE=await import('https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js');
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x9eb6aa);scene.fog=new THREE.FogExp2(0x9eb6aa,0.0065);
+const camera=new THREE.PerspectiveCamera(64,innerWidth/innerHeight,.1,800);const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.23;document.body.prepend(renderer.domElement);renderer.setClearColor(0xb8cbd0);
+const skyLight=new THREE.HemisphereLight(0xd8e8ff,0x3c4e36,1.6);scene.add(skyLight);const sun=new THREE.DirectionalLight(0xffeac8,2.4);sun.position.set(-65,110,50);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=-105;sun.shadow.camera.right=105;sun.shadow.camera.top=105;sun.shadow.camera.bottom=-105;sun.shadow.bias=-0.0002;sun.shadow.normalBias=.018;sun.shadow.radius=2.2;scene.add(sun);
+const mat=(c,r=1)=>new THREE.MeshStandardMaterial({color:c,roughness:r});const grass=mat(0x526d44),roadmat=mat(0x927b60),edgeMat=mat(0x796448),lineMat=mat(0xc3ad80),trunkMat=mat(0x514435),pineMat=[mat(0x284e35),mat(0x365e3c),mat(0x426747)],rockMat=mat(0x72766b);
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(1800,1800),mat(0x495447));ground.rotation.x=-Math.PI/2;ground.position.y=-24;ground.receiveShadow=true;scene.add(ground);scene.background=new THREE.Color(0xb8cbd0);scene.fog=new THREE.FogExp2(0xb8cbd0,.0027);
+// Procedural high-resolution gravel and soil textures, no external assets.
+function terrainTexture(kind){const c=document.createElement('canvas');c.width=c.height=512;const ctx=c.getContext('2d');const base=kind==='road'?'#887963':kind==='edge'?'#655844':'#516d43';ctx.fillStyle=base;ctx.fillRect(0,0,512,512);let v=73821;const r=()=>((v=(1664525*v+1013904223)>>>0)/4294967296);for(let i=0;i<36000;i++){let x=r()*512,y=r()*512,rad=(kind==='road'?0.5:1)+r()*3;const light=r()>.48;ctx.fillStyle=kind==='road'?(light?'rgba(217,202,170,.20)':'rgba(40,35,29,.17)'):(light?'rgba(170,184,126,.16)':'rgba(23,39,22,.20)');ctx.fillRect(x,y,rad,rad)}if(kind==='road'){for(let i=0;i<2600;i++){ctx.fillStyle='rgba(40,34,29,.12)';ctx.fillRect(r()*512,r()*512,1+r()*2,2+r()*6)}}const tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.anisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),8);return tex}
+roadmat.map=terrainTexture('road');roadmat.color.set(0xffffff);edgeMat.map=terrainTexture('edge');edgeMat.color.set(0xffffff);grass.map=terrainTexture('grass');grass.color.set(0xffffff);roadmat.side=THREE.DoubleSide;edgeMat.side=THREE.DoubleSide;
+// Detail normal/roughness maps are synthesized locally so the game remains a single HTML file.
+function surfaceMaps(kind){
+ const n=document.createElement('canvas'),r=document.createElement('canvas');n.width=n.height=r.width=r.height=512;
+ const a=n.getContext('2d'),b=r.getContext('2d'),img=a.createImageData(512,512),rough=b.createImageData(512,512);
+ let seed=kind==='gravel'?18819:2827;function rnd(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296}
+ const field=new Float32Array(512*512);
+ for(let y=0;y<512;y++)for(let x=0;x<512;x++){
+ const i=y*512+x,grain=rnd(),wave=Math.sin(x*.15+Math.sin(y*.07))*0.11;
+ field[i]=grain*.62+wave+(rnd()>.986?.6:0);
+ }
+ for(let y=0;y<512;y++)for(let x=0;x<512;x++){
+ const i=y*512+x,at=i*4;
+ const dx=field[y*512+((x+1)%512)]-field[y*512+((x+511)%512)];
+ const dy=field[((y+1)%512)*512+x]-field[((y+511)%512)*512+x];
+ const scale=kind==='gravel'?1.4:.7;let nx=-dx*scale,ny=-dy*scale,nz=1;const inv=127.5/Math.hypot(nx,ny,nz);
+ img.data[at]=128+nx*inv;img.data[at+1]=128+ny*inv;img.data[at+2]=128+nz*inv;img.data[at+3]=255;
+ const roughness=kind==='gravel'?205+field[i]*35:175+field[i]*65;
+ rough.data[at]=rough.data[at+1]=rough.data[at+2]=Math.min(255,roughness);rough.data[at+3]=255;
+ }
+ a.putImageData(img,0,0);b.putImageData(rough,0,0);
+ return [n,r].map(canvas=>{const t=new THREE.CanvasTexture(canvas);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=Math.min(16,renderer.capabilities.getMaxAnisotropy());return t});
+}
+[roadmat.normalMap,roadmat.roughnessMap]=surfaceMaps('gravel');roadmat.normalScale.set(.72,.72);
+[grass.normalMap,grass.roughnessMap]=surfaceMaps('grass');grass.normalScale.set(.4,.4);
+roadmat.map.repeat.set(1,1);roadmat.normalMap.repeat.set(1,1);roadmat.roughnessMap.repeat.set(1,1);
+// Better atmospheric color grading while retaining playable night visibility.
+renderer.toneMappingExposure=1.16;
+
+// Track is a smooth open rally stage; its centerline also supplies checkpoints and off-road detection.
+const points=[];for(let i=0;i<54;i++){const z=14-i*12.5;const x=23*Math.sin(i*.36)+16*Math.sin(i*.16)+5*Math.sin(i*.76)+(i>13&&i<23?17*Math.sin((i-13)*.70):0)+(i>34&&i<44?20*Math.sin((i-34)*.67):0);points.push(new THREE.Vector3(x,2.1*Math.sin(i*.24)+1.5*Math.sin(i*.47)+.8*Math.sin(i*.11),z));}
+points[0].x=points[1].x;const curve=new THREE.CatmullRomCurve3(points,false,'catmullrom',.35);const N=1100,WIDTH=10.2;const centers=[],tangents=[],roadverts=[],roaduv=[],roadindices=[],shoulderVerts=[],shoulderIndices=[];
+for(let i=0;i<=N;i++){const t=i/N,p=curve.getPoint(t),tan=curve.getTangent(t).normalize(),side=new THREE.Vector3(-tan.z,0,tan.x);centers.push(p);tangents.push(tan);for(const s of [-WIDTH/2,WIDTH/2]){const q=p.clone().addScaledVector(side,s);roadverts.push(q.x,p.y+.16,q.z);roaduv.push(s/WIDTH+.5,i*.18)}for(const s of [-WIDTH/2-1.2,WIDTH/2+1.2]){const q=p.clone().addScaledVector(side,s);shoulderVerts.push(q.x,p.y+.045,q.z)}if(i<N){const a=i*2;roadindices.push(a,a+1,a+2,a+1,a+3,a+2);shoulderIndices.push(a,a+1,a+2,a+1,a+3,a+2)}}
+function strip(vertices,indices,material,y){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));g.setIndex(indices);const uv=[];for(let j=0;j<vertices.length/3;j++){uv.push(j%2?1:0,Math.floor(j/2)*.17)}g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.computeVertexNormals();const mesh=new THREE.Mesh(g,material);mesh.receiveShadow=true;scene.add(mesh);return mesh}strip(shoulderVerts,shoulderIndices,edgeMat);strip(roadverts,roadindices,roadmat);
+// Continuous subtle tire-worn grooves and scattered pebble texture following the full road.
+const rutMat=new THREE.MeshStandardMaterial({color:0x574b3e,transparent:true,opacity:.27,roughness:1,depthWrite:false,side:THREE.DoubleSide});
+for(const offset of [-1.04,1.04]){
+ const vv=[],ii=[];
+ for(let i=0;i<=N;i++){
+  const p=centers[i],t=tangents[i],side=new THREE.Vector3(-t.z,0,t.x);
+  for(const d of [-.21,.21]){const q=p.clone().addScaledVector(side,offset+d);vv.push(q.x,p.y+.185,q.z)}
+  if(i<N){const a=i*2;ii.push(a,a+1,a+2,a+1,a+3,a+2)}
+ }
+ strip(vv,ii,rutMat);
+}
+// Forest hills: broad, gentle embankments instead of canyons or cliffs.
+const cliffZones=[];function cliffSide(){return 0}
+function makeForestBanks(sign){const verts=[],inds=[];const widths=[WIDTH*.5,WIDTH*.5+1.2,WIDTH*.5+3.5,WIDTH*.5+7,WIDTH*.5+14,WIDTH*.5+28];
+for(let i=0;i<=N;i+=2){const p=centers[i],t=tangents[i],side=new THREE.Vector3(-t.z,0,t.x);for(let j=0;j<widths.length;j++){const q=p.clone().addScaledVector(side,sign*widths[j]);const rise=[-.09,-.12,-.3,-.55,-.85,-1.15][j];verts.push(q.x,p.y+rise+Math.sin(i*.033+j*.9)*.14*(j>1?1:0),q.z)}if(i>=2){const base=(i/2-1)*widths.length;for(let j=0;j<widths.length-1;j++){inds.push(base+j,base+j+1,base+j+widths.length,base+j+1,base+j+widths.length+1,base+j+widths.length)}}}
+const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));g.setIndex(inds);const uv=[];for(let j=0;j<verts.length/3;j++){uv.push((j%6)*.8,Math.floor(j/6)*.12)}g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.computeVertexNormals();const mesh=new THREE.Mesh(g,new THREE.MeshStandardMaterial({map:terrainTexture('grass'),color:0xffffff,roughness:1,side:THREE.DoubleSide}));mesh.receiveShadow=true;scene.add(mesh)}makeForestBanks(-1);makeForestBanks(1);
+const featureNotice=document.createElement('div');featureNotice.style.cssText='position:absolute;top:17%;left:50%;transform:translateX(-50%);font-weight:900;letter-spacing:3px;font-size:20px;text-shadow:0 2px 9px black;pointer-events:none;color:#ffed9b';document.getElementById('hud').appendChild(featureNotice);
+function roadElevation(x,z){const n=nearestInfo(x,z);const i=n.index;const a=centers[Math.max(0,i-1)],b=centers[Math.min(N,i+1)];const dx=b.x-a.x,dz=b.z-a.z;const u=Math.max(0,Math.min(1,((x-a.x)*dx+(z-a.z)*dz)/(dx*dx+dz*dz||1)));return a.y+(b.y-a.y)*u}
+// Road edge marker posts.
+const postgeo=new THREE.BoxGeometry(.13,.9,.13),postmat=mat(0xe8e2ce);for(let i=0;i<=N;i+=17){const p=centers[i],t=tangents[i],side=new THREE.Vector3(-t.z,0,t.x);for(const s of [-1,1]){const post=new THREE.Mesh(postgeo,postmat);post.position.copy(p).addScaledVector(side,s*6.5);post.position.y=p.y+.45;scene.add(post)}}
+// Deterministic scenery placement avoids trees growing on the track.
+let seed=123456;function rand(){seed=(1664525*seed+1013904223)>>>0;return seed/4294967296}const treeTrunk=new THREE.CylinderGeometry(.22,.34,3,7),treeTop=new THREE.ConeGeometry(2.15,6,11),treeTop2=new THREE.ConeGeometry(1.75,5.5,11);const trunks=new THREE.InstancedMesh(treeTrunk,trunkMat,1100),tops=new THREE.InstancedMesh(treeTop,pineMat[0],1100),tops2=new THREE.InstancedMesh(treeTop2,pineMat[1],1100);const dummy=new THREE.Object3D();let treeCount=0;const treeLocations=[];
+function nearestInfo(x,z){let best=1e12,idx=0;for(let i=0;i<centers.length;i+=3){const p=centers[i],d=(p.x-x)**2+(p.z-z)**2;if(d<best){best=d;idx=i}}for(let i=Math.max(0,idx-4);i<=Math.min(N,idx+4);i++){const p=centers[i],d=(p.x-x)**2+(p.z-z)**2;if(d<best){best=d;idx=i}}return {distance:Math.sqrt(best),index:idx}}
+for(let i=0;i<2400&&treeCount<1100;i++){const x=(rand()-.5)*370,z=35-rand()*670;if(nearestInfo(x,z).distance<7.5)continue; if(nearestInfo(x,z).distance>95)continue;const sc=.75+rand()*1.25;treeLocations.push({x,z,r:.35*sc});dummy.position.set(x,roadElevation(x,z)+1.5*sc-.45,z);dummy.scale.set(sc,sc,sc);dummy.rotation.y=rand()*6.28;dummy.updateMatrix();trunks.setMatrixAt(treeCount,dummy.matrix);dummy.position.y=roadElevation(x,z)+5.3*sc-.45;dummy.updateMatrix();tops.setMatrixAt(treeCount,dummy.matrix);dummy.position.y=roadElevation(x,z)+7.4*sc-.45;dummy.scale.set(sc*.82,sc*.8,sc*.82);dummy.updateMatrix();tops2.setMatrixAt(treeCount,dummy.matrix);treeCount++}for(const m of [trunks,tops,tops2]){m.count=treeCount;m.instanceMatrix.needsUpdate=true;m.castShadow=true;m.receiveShadow=true;scene.add(m)}
+// Lightweight roadside vegetation: clumps of grass, shrubs, fallen twigs and stones.
+const foliageColors=[0x36563b,0x4a7044,0x66804a,0x7b8451];
+const shrubGeo=new THREE.IcosahedronGeometry(1,0);
+const shrubs=foliageColors.map(c=>new THREE.InstancedMesh(shrubGeo,new THREE.MeshStandardMaterial({color:c,roughness:1,flatShading:true}),480));
+const shrubCounts=[0,0,0,0];
+const bladeGeo=new THREE.ConeGeometry(.12,.9,3);
+const bladeMats=[0x678653,0x8b9461,0x425e3e].map(c=>new THREE.MeshStandardMaterial({color:c,side:THREE.DoubleSide,roughness:1}));
+const blades=bladeMats.map(m=>new THREE.InstancedMesh(bladeGeo,m,1250));const bladeCounts=[0,0,0];
+for(let i=0;i<6200;i++){
+ const idx=Math.floor(rand()*N),p=centers[idx],t=tangents[idx],side=new THREE.Vector3(-t.z,0,t.x);
+ const lateral=(rand()>.5?1:-1)*(6.5+rand()*23),q=p.clone().addScaledVector(side,lateral);
+ const y=roadElevation(q.x,q.z)-.2;
+ if(rand()<.36){const type=Math.floor(rand()*4);if(shrubCounts[type]>=480)continue;const scale=.22+rand()*.62;dummy.position.set(q.x,y+scale*.65,q.z);dummy.scale.set(scale*1.3,scale*.8,scale*1.2);dummy.rotation.set(0,rand()*6.28,0);dummy.updateMatrix();shrubs[type].setMatrixAt(shrubCounts[type]++,dummy.matrix)}
+ else {const type=Math.floor(rand()*3);if(bladeCounts[type]>=1250)continue;const scale=.5+rand()*1.2;dummy.position.set(q.x,y+scale*.32,q.z);dummy.scale.set(scale,scale,scale);dummy.rotation.set(0,rand()*6.28,0);dummy.updateMatrix();blades[type].setMatrixAt(bladeCounts[type]++,dummy.matrix)}
+}
+shrubs.forEach((m,i)=>{m.count=shrubCounts[i];m.instanceMatrix.needsUpdate=true;m.receiveShadow=true;scene.add(m)});
+blades.forEach((m,i)=>{m.count=bladeCounts[i];m.instanceMatrix.needsUpdate=true;scene.add(m)});
+// Distinct layered evergreen branches on prominent trees, without expensive per-tree meshes.
+const branchGeo=new THREE.ConeGeometry(1.65,3.8,9);
+const branches=new THREE.InstancedMesh(branchGeo,pineMat[2],1100);
+for(let i=0;i<treeCount;i++){
+ const m=new THREE.Matrix4();tops.getMatrixAt(i,m);m.decompose(dummy.position,dummy.quaternion,dummy.scale);
+ dummy.position.y-=2.0*dummy.scale.y;dummy.scale.multiply(new THREE.Vector3(1.22,.7,1.22));dummy.updateMatrix();branches.setMatrixAt(i,dummy.matrix);
+}
+branches.count=treeCount;branches.instanceMatrix.needsUpdate=true;branches.castShadow=true;scene.add(branches);
+// Distant layered mountain silhouettes add depth without hazardous cliff gameplay.
+for(let layer=0;layer<3;layer++){const shape=new THREE.BufferGeometry(),v=[],ids=[];const z=-730-layer*85;for(let i=0;i<=90;i++){const x=-750+i*17;const ridge=-11+layer*8+Math.sin(i*.23+layer)*12+Math.sin(i*.51+layer*2)*7+Math.sin(i*.083)*18;v.push(x,-55,z,x,ridge,z);if(i<90){const a=i*2;ids.push(a,a+1,a+2,a+1,a+3,a+2)}}shape.setAttribute('position',new THREE.Float32BufferAttribute(v,3));shape.setIndex(ids);shape.computeVertexNormals();scene.add(new THREE.Mesh(shape,new THREE.MeshBasicMaterial({color:[0x667a70,0x81958b,0x9baca6][layer],side:THREE.DoubleSide,fog:true})))}
+const rockgeo=new THREE.DodecahedronGeometry(1,0);for(let i=0;i<180;i++){const x=(rand()-.5)*290,z=25-rand()*650;if(nearestInfo(x,z).distance<8)continue;const r=new THREE.Mesh(rockgeo,rockMat);r.position.set(x,roadElevation(x,z)+.15,z);r.scale.set(.3+rand()*1.3,.25+rand()*.6,.4+rand());r.rotation.y=rand()*6.28;scene.add(r)}
+
+// Weathered rock clusters, fern clumps and low forest-floor debris, instanced for speed.
+const naturalStone=new THREE.MeshStandardMaterial({color:0x777c70,roughness:.98,flatShading:true});
+const pebbleGeom=new THREE.IcosahedronGeometry(1,0),pebbles=new THREE.InstancedMesh(pebbleGeom,naturalStone,2200);
+const fernMat=new THREE.MeshStandardMaterial({color:0x426b39,roughness:1,side:THREE.DoubleSide});
+const fernGeom=new THREE.ConeGeometry(.55,1.5,5),ferns=new THREE.InstancedMesh(fernGeom,fernMat,1300);
+let pebbleCount=0,fernCount=0;
+for(let i=0;i<4200;i++){
+ const idx=Math.floor(rand()*N),p=centers[idx],tan=tangents[idx],sgn=rand()>.5?1:-1;
+ const lateral=sgn*(5.6+rand()*31),x=p.x-tan.z*lateral,z=p.z+tan.x*lateral,y=roadElevation(x,z);
+ if(rand()<.58&&pebbleCount<2200){const size=.08+rand()*.32;dummy.position.set(x,y+size*.24,z);dummy.rotation.set(rand()*.25,rand()*6.28,rand()*.25);dummy.scale.set(size*1.5,size*.55,size);dummy.updateMatrix();pebbles.setMatrixAt(pebbleCount++,dummy.matrix)}
+ else if(fernCount<1300){const size=.4+rand()*.85;dummy.position.set(x,y+size*.6,z);dummy.rotation.set(0,rand()*6.28,0);dummy.scale.set(size,size,size);dummy.updateMatrix();ferns.setMatrixAt(fernCount++,dummy.matrix)}
+}
+for(const [mesh,count] of [[pebbles,pebbleCount],[ferns,fernCount]]){mesh.count=count;mesh.instanceMatrix.needsUpdate=true;mesh.receiveShadow=true;scene.add(mesh)}
+// Thin golden sunlight shafts near the treeline, only active during daylight.
+const shaftGeo=new THREE.CylinderGeometry(.1,3.3,38,12,1,true);
+const shafts=[];
+for(let i=0;i<20;i++){
+ const idx=Math.floor(rand()*N),p=centers[idx],tan=tangents[idx],side=(rand()>.5?1:-1)*(12+rand()*28);
+ const m=new THREE.Mesh(shaftGeo,new THREE.MeshBasicMaterial({color:0xffeac0,transparent:true,opacity:.017,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending}));
+ m.position.set(p.x-tan.z*side,p.y+18,p.z+tan.x*side);m.rotation.z=-.32;m.rotation.x=.22;scene.add(m);shafts.push(m);
+}
+
+// Independent Japanese mountain-pass environment, built once and swapped without losing the rally course.
+const forestCenters=centers.slice(),forestTangents=tangents.slice();
+const rallyWorld=scene.children.slice();
+const tougeWorld=new THREE.Group();scene.add(tougeWorld);tougeWorld.visible=false;
+const tougePts=[];
+// Course traced from the user's Tsubaki Line reference map, running from the
+// upper START / FINISH down through switchbacks to the lower FINISH / START.
+// Coordinates are stylized and smoothed into a drivable 3D mountain pass.
+// Purpose-built flowing downhill course inspired by the reference map, not a traced
+// image. The Z coordinate always advances, so the road never loops over itself.
+// Broad linked S-bends and spaced hairpin-like curves keep both lanes drivable.
+for(let i=0;i<66;i++){
+ const z=18-i*27;
+ const x=36*Math.sin(i*.235)+23*Math.sin(i*.47+.5)+12*Math.sin(i*.115+1.1);
+ const y=18-i*.10+1.5*Math.sin(i*.18);
+ tougePts.push(new THREE.Vector3(x,y,z));
+}
+// Validate separation of non-neighbouring centerline sections. This route's
+// strictly descending Z and 27m point spacing leave generous clearances.
+// Keep the exact start position from the reference course.
+const tougeCurve=new THREE.CatmullRomCurve3(tougePts,false,'catmullrom',.24),tougeCenters=[],tougeTangents=[];
+const tougeWidth=9.7,tougeRoadV=[],tougeRoadUV=[],tougeRoadI=[],tougeShoulderV=[],tougeShoulderI=[];
+for(let i=0;i<=N;i++){
+ const p=tougeCurve.getPoint(i/N),t=tougeCurve.getTangent(i/N).normalize(),side=new THREE.Vector3(-t.z,0,t.x);
+ tougeCenters.push(p);tougeTangents.push(t);
+ for(const w of [-tougeWidth/2,tougeWidth/2]){const q=p.clone().addScaledVector(side,w);tougeRoadV.push(q.x,p.y+.15,q.z);tougeRoadUV.push(w/tougeWidth+.5,i*.17)}
+ for(const w of [-tougeWidth/2-.9,tougeWidth/2+.9]){const q=p.clone().addScaledVector(side,w);tougeShoulderV.push(q.x,p.y+.09,q.z)}
+ if(i<N){let j=i*2;tougeRoadI.push(j,j+1,j+2,j+1,j+3,j+2);tougeShoulderI.push(j,j+1,j+2,j+1,j+3,j+2)}
+}
+function tougeStrip(verts,indices,material){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));g.setIndex(indices);const uv=[];for(let j=0;j<verts.length/3;j++)uv.push(j%2,Math.floor(j/2)*.17);g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.computeVertexNormals();const m=new THREE.Mesh(g,material);m.receiveShadow=true;tougeWorld.add(m);return m;}
+const asphalt=new THREE.MeshStandardMaterial({color:0x343943,roughness:.94,side:THREE.DoubleSide});
+const asphaltCanvas=document.createElement('canvas');asphaltCanvas.width=asphaltCanvas.height=256;const ac=asphaltCanvas.getContext('2d');ac.fillStyle='#43464a';ac.fillRect(0,0,256,256);for(let i=0;i<11000;i++){const k=Math.random()*60|0;ac.fillStyle=`rgba(${k+50},${k+50},${k+52},.15)`;ac.fillRect(Math.random()*256,Math.random()*256,1.4,1.4)}asphalt.map=new THREE.CanvasTexture(asphaltCanvas);asphalt.map.wrapS=asphalt.map.wrapT=THREE.RepeatWrapping;
+tougeStrip(tougeShoulderV,tougeShoulderI,mat(0x77746a));tougeStrip(tougeRoadV,tougeRoadI,asphalt);
+
+// Runout road beyond both endpoints: the camera must never reveal a rectangular void.
+// Straight extensions follow the endpoint tangent and preserve asphalt/markings.
+function canyonRunout(atStart){
+ const index=atStart?0:N,p=tougeCenters[index],t=tougeTangents[index].clone().normalize();
+ const side=new THREE.Vector3(-t.z,0,t.x),direction=atStart?-1:1;
+ const lengths=[0,18,42,75,115,170,240];
+ function strip(width,offset,material,yOffset=.15){
+  const verts=[],indices=[];
+  for(let j=0;j<lengths.length;j++){
+   const base=p.clone().addScaledVector(t,direction*lengths[j]);
+   for(const w of [offset-width/2,offset+width/2]){
+    const q=base.clone().addScaledVector(side,w);verts.push(q.x,base.y+yOffset,q.z);
+   }
+   if(j){const k=(j-1)*2;indices.push(k,k+1,k+2,k+1,k+3,k+2)}
+  }
+  return tougeStrip(verts,indices,material);
+ }
+ strip(240,0,new THREE.MeshLambertMaterial({color:0x26303c,side:THREE.DoubleSide}),-.65);
+ strip(tougeWidth+1.8,0,mat(0x77746a),.07);
+ strip(tougeWidth,0,asphalt,.15);
+ for(const x of [-4.33,4.33])strip(.13,x,new THREE.MeshBasicMaterial({color:0xd3d7d2,side:THREE.DoubleSide}),.19);
+ // Broken center line: discrete strips rather than an unbroken yellow stripe.
+ for(let j=0;j<lengths.length-1;j++){
+  if(j%2)continue;
+  const mid=(lengths[j]+lengths[j+1])*.5;
+  const line=new THREE.Mesh(new THREE.BoxGeometry(.13,.012,Math.min(11,lengths[j+1]-lengths[j]-2)),new THREE.MeshBasicMaterial({color:0xd8ba62}));
+  const q=p.clone().addScaledVector(t,direction*mid);line.position.set(q.x,q.y+.19,q.z);line.rotation.y=Math.atan2(-t.x,-t.z);tougeWorld.add(line);
+ }
+}
+canyonRunout(true);canyonRunout(false);
+// A real checkered finish gantry, spanning the full road, independent of the rally gate.
+const canyonFinish=new THREE.Group();
+const finishPoint=tougeCenters[N],finishDir=tougeTangents[N];
+canyonFinish.position.copy(finishPoint);
+canyonFinish.rotation.y=Math.atan2(-finishDir.x,-finishDir.z);
+tougeWorld.add(canyonFinish);
+const postMaterial=new THREE.MeshStandardMaterial({color:0xc2c8cd,metalness:.65,roughness:.4});
+for(const x of [-5.7,5.7]){
+ const post=new THREE.Mesh(new THREE.BoxGeometry(.27,5.7,.27),postMaterial);
+ post.position.set(x,2.85,0);canyonFinish.add(post);
+}
+const checkCanvas=document.createElement('canvas');checkCanvas.width=1024;checkCanvas.height=160;
+const checkCtx=checkCanvas.getContext('2d');
+for(let row=0;row<4;row++)for(let col=0;col<32;col++){
+ checkCtx.fillStyle=(row+col)%2===0?'#f6f7ed':'#13151c';checkCtx.fillRect(col*32,row*40,32,40);
+}
+checkCtx.fillStyle='#d21f25';checkCtx.fillRect(275,35,474,90);
+checkCtx.strokeStyle='#f6f7ed';checkCtx.lineWidth=7;checkCtx.strokeRect(275,35,474,90);
+checkCtx.font='900 75px Arial';checkCtx.textAlign='center';checkCtx.textBaseline='middle';checkCtx.fillStyle='white';checkCtx.fillText('FINISH',512,83);
+const checkTexture=new THREE.CanvasTexture(checkCanvas);checkTexture.colorSpace=THREE.SRGBColorSpace;
+const checkBanner=new THREE.Mesh(new THREE.PlaneGeometry(11.4,1.8),new THREE.MeshBasicMaterial({map:checkTexture,side:THREE.DoubleSide}));
+checkBanner.position.y=5.25;canyonFinish.add(checkBanner);
+// Matching checkered line painted on the asphalt.
+const finishMark=new THREE.Group();finishMark.position.y=.19;canyonFinish.add(finishMark);
+for(let row=0;row<4;row++)for(let col=0;col<20;col++){
+ const tile=new THREE.Mesh(new THREE.PlaneGeometry(tougeWidth/20,.3),new THREE.MeshBasicMaterial({color:(row+col)%2===0?0xf3f4ef:0x101216,side:THREE.DoubleSide}));
+ tile.rotation.x=-Math.PI/2;tile.position.set(-tougeWidth/2+(col+.5)*tougeWidth/20,.015,(row-1.5)*.3);finishMark.add(tile);
+}
+
+// White shoulder lines, dashed centre line, steel guardrails and reflective red/white posts.
+const whitePaint=new THREE.MeshBasicMaterial({color:0xd3d7d2,side:THREE.DoubleSide}),yellowPaint=new THREE.MeshBasicMaterial({color:0xd8ba62,side:THREE.DoubleSide});
+for(const offset of [-4.33,4.33,0]){
+ const v=[],idx=[];for(let i=0;i<=N;i++){
+  const p=tougeCenters[i],t=tougeTangents[i],sd=new THREE.Vector3(-t.z,0,t.x);for(const w of [-.065,.065]){const q=p.clone().addScaledVector(sd,offset+w);v.push(q.x,p.y+.175,q.z)}
+  if(i<N&&(offset!==0||Math.floor(i/12)%2===0)){const j=i*2;idx.push(j,j+1,j+2,j+1,j+3,j+2)}
+ }tougeStrip(v,idx,offset===0?yellowPaint:whitePaint);
+}
+const railMaterial=mat(0xbfc4c5,.52),railPost=mat(0x848b90,.7);
+for(const sideSign of [-1,1]){
+ const v=[],ii=[];
+ for(let i=0;i<=N;i+=2){const p=tougeCenters[i],t=tougeTangents[i],side=new THREE.Vector3(-t.z,0,t.x);for(const h of [.52,.78]){const q=p.clone().addScaledVector(side,sideSign*5.65);v.push(q.x,p.y+h,q.z)}if(i>=2){const j=(i/2-1)*2;ii.push(j,j+1,j+2,j+1,j+3,j+2)}}tougeStrip(v,ii,railMaterial);
+ for(let i=0;i<=N;i+=23){const p=tougeCenters[i],t=tougeTangents[i],sd=new THREE.Vector3(-t.z,0,t.x),q=p.clone().addScaledVector(sd,sideSign*5.65);const post=new THREE.Mesh(new THREE.BoxGeometry(.13,1.1,.13),railPost);post.position.set(q.x,p.y+.49,q.z);tougeWorld.add(post);const reflector=new THREE.Mesh(new THREE.BoxGeometry(.23,.13,.08),mat(i%2?0xd84d45:0xf2eee1));reflector.position.set(q.x,p.y+.87,q.z);tougeWorld.add(reflector)}
+}
+// Repeating roadside chevrons warn of upcoming bends, in the direction of travel.
+// Signs are purely decorative and sit beyond the guardrails, outside the collision zone.
+const chevronTextureCanvas=document.createElement('canvas');
+chevronTextureCanvas.width=256;chevronTextureCanvas.height=192;
+const chevronCtx=chevronTextureCanvas.getContext('2d');
+// High-contrast retro arcade warning sign: one oversized solid arrow per board.
+chevronCtx.fillStyle='#fffdf2';chevronCtx.fillRect(0,0,256,192);
+chevronCtx.strokeStyle='#181b20';chevronCtx.lineWidth=12;chevronCtx.strokeRect(6,6,244,180);
+chevronCtx.fillStyle='#ff4016';
+chevronCtx.beginPath();
+chevronCtx.moveTo(25,22);chevronCtx.lineTo(128,22);
+chevronCtx.lineTo(229,96);chevronCtx.lineTo(128,170);
+chevronCtx.lineTo(25,170);chevronCtx.lineTo(128,96);
+chevronCtx.closePath();chevronCtx.fill();
+// Dark outline ensures the arrow reads clearly even against headlight glare.
+chevronCtx.strokeStyle='#29140c';chevronCtx.lineWidth=6;chevronCtx.lineJoin='round';chevronCtx.stroke();
+const chevronTexture=new THREE.CanvasTexture(chevronTextureCanvas);
+chevronTexture.colorSpace=THREE.SRGBColorSpace;
+const chevronMaterial=new THREE.MeshBasicMaterial({map:chevronTexture,side:THREE.DoubleSide});
+const chevronPostMaterial=new THREE.MeshStandardMaterial({color:0x9ba0a0,roughness:.7});
+const chevronFaceGeometry=new THREE.PlaneGeometry(2.15,1.55);
+const chevronPostGeometry=new THREE.CylinderGeometry(.065,.075,2.25,5);
+const chevronFacingAxis=new THREE.Vector3(0,0,1);
+function placeChevronAt(index,turnSign){
+ const p=tougeCenters[index],t=tougeTangents[index];
+ const side=new THREE.Vector3(-t.z,0,t.x);
+ // Signs are outside the turn on the outer shoulder, behind the rail.
+ const edge=turnSign>0?-1:1;
+ const base=p.clone().addScaledVector(side,edge*7.25);
+ const group=new THREE.Group();group.position.set(base.x,p.y+.1,base.z);
+ const post=new THREE.Mesh(chevronPostGeometry,chevronPostMaterial);post.position.y=1.13;group.add(post);
+ const face=new THREE.Mesh(chevronFaceGeometry,chevronMaterial);
+ face.position.y=2.47;
+ // Plane normal faces oncoming traffic, while the face is visible from either side.
+ face.quaternion.setFromUnitVectors(chevronFacingAxis,new THREE.Vector3(-t.x,0,-t.z).normalize());
+ // For left bends mirror the sign's arrows without reversing the sign face.
+ if(turnSign<0)face.scale.x=-1;
+ group.add(face);tougeWorld.add(group);
+}
+// Detect groups of curves using the road's real centerline rather than manual coordinates.
+let lastChevronCorner=-70;
+for(let i=35;i<N-35;i+=4){
+ const a=tougeTangents[i-20],b=tougeTangents[i+20];
+ const signedTurn=Math.atan2(a.x*b.z-a.z*b.x,a.x*b.x+a.z*b.z);
+ if(Math.abs(signedTurn)<.23||i-lastChevronCorner<55)continue;
+ // Only place a cluster near a local peak in curvature, not on each tiny wiggle.
+ const p=tougeTangents[Math.max(0,i-12)],q=tougeTangents[Math.min(N,i+12)];
+ const local=Math.abs(Math.atan2(p.x*q.z-p.z*q.x,p.x*q.x+p.z*q.z));
+ if(local<.10)continue;
+ const sign=Math.sign(signedTurn);
+ // Four or five repeated warnings cover the entry and apex of the bend.
+ for(const d of [-27,-13,1,15,29]){
+  const at=i+d;if(at<8||at>N-8)continue;
+  placeChevronAt(at,sign);
+ }
+ lastChevronCorner=i;
+}
+
+// Mountain-side terrain ribbons and low-poly rock outcrops.
+for(const sideSign of [-1,1]){
+ const v=[],ii=[],offsets=[5.1,8,14,24,40,65];
+ for(let i=0;i<=N;i+=3){const p=tougeCenters[i],t=tougeTangents[i],sd=new THREE.Vector3(-t.z,0,t.x);for(let j=0;j<offsets.length;j++){const q=p.clone().addScaledVector(sd,sideSign*offsets[j]);v.push(q.x,p.y+[-.08,-.32,-.9,sideSign===1?5:-4,sideSign===1?14:-8,sideSign===1?22:-13][j]+Math.sin(i*.03+j)*1.2,q.z)}if(i>=3){const base=(i/3-1)*offsets.length;for(let j=0;j<offsets.length-1;j++)ii.push(base+j,base+j+1,base+j+offsets.length,base+j+1,base+j+offsets.length+1,base+j+offsets.length)}}
+ tougeStrip(v,ii,mat(sideSign===1?0x434d45:0x4e5551));
+}
+
+// Continuous canyon terrain: broad, double-sided banks plus deep vertical skirts.
+// The original 65m ribbons stopped abruptly, exposing the empty sky below.
+const canyonEarth=new THREE.MeshLambertMaterial({color:0x303c4a,side:THREE.DoubleSide,flatShading:true});
+const canyonFarEarth=new THREE.MeshLambertMaterial({color:0x273542,side:THREE.DoubleSide,flatShading:true});
+for(const sign of [-1,1]){
+ const near=[],nearIndices=[],far=[],farIndices=[];
+ const offsets=[5.8,9,16,27,44,72,110,160,230,320];
+ for(let i=0;i<=N;i+=2){
+  const p=tougeCenters[i],t=tougeTangents[i],side=new THREE.Vector3(-t.z,0,t.x);
+  for(let j=0;j<offsets.length;j++){
+   const d=offsets[j],q=p.clone().addScaledVector(side,sign*d);
+   const elevation=[-.38,-.7,-1.7,-2.5,-3.4,-5.8,-8,-13,-19,-28][j];
+   const undulation=(j>2?1.7:0)*Math.sin(i*.028+j*.9);
+   near.push(q.x,p.y+elevation+undulation,q.z);
+  }
+  // An outer wall reaches below the visible terrain, hiding the horizon gap.
+  const q=p.clone().addScaledVector(side,sign*offsets[offsets.length-1]);
+  far.push(q.x,p.y-27,q.z,q.x,-100,q.z);
+  if(i>=2){
+   const row=i/2-1,k=row*offsets.length;
+   for(let j=0;j<offsets.length-1;j++)
+    nearIndices.push(k+j,k+j+offsets.length,k+j+1,k+j+1,k+j+offsets.length,k+j+offsets.length+1);
+   const f=row*2;farIndices.push(f,f+2,f+1,f+1,f+2,f+3);
+  }
+ }
+ tougeStrip(near,nearIndices,canyonEarth);
+ tougeStrip(far,farIndices,canyonFarEarth);
+}
+// A deep background floor fills any gaps at the extreme edges of the scene.
+const canyonBase=new THREE.Mesh(new THREE.PlaneGeometry(6500,6500),canyonFarEarth);
+canyonBase.rotation.x=-Math.PI/2;canyonBase.position.set(0,-100,-800);
+tougeWorld.add(canyonBase);
+
+// Japanese cedars, roadside rocks and warm streetlights.
+const cedarTrunk=new THREE.CylinderGeometry(.18,.25,2.8,6),cedarLeaves=new THREE.ConeGeometry(1.65,6.8,8),cedarBrown=mat(0x3c332c),cedarGreen=mat(0x1b3430);
+for(let i=7;i<N;i+=7){const p=tougeCenters[i],t=tougeTangents[i],sd=new THREE.Vector3(-t.z,0,t.x);for(const sign of [-1,1]){if(Math.random()<.25)continue;const q=p.clone().addScaledVector(sd,sign*(10+Math.random()*22));const scale=.75+Math.random()*.7;const trunk=new THREE.Mesh(cedarTrunk,cedarBrown),leaves=new THREE.Mesh(cedarLeaves,cedarGreen);trunk.position.set(q.x,p.y+scale*1.1,q.z);trunk.scale.setScalar(scale);leaves.position.set(q.x,p.y+scale*4.8,q.z);leaves.scale.setScalar(scale);tougeWorld.add(trunk,leaves)}}
+// Soft radial alpha textures prevent the rectangular glow artifacts from untextured sprites.
+function lampHaloTexture(){const canvas=document.createElement('canvas');canvas.width=canvas.height=128;const ctx=canvas.getContext('2d');const g=ctx.createRadialGradient(64,64,2,64,64,64);g.addColorStop(0,'rgba(255,251,215,.9)');g.addColorStop(.15,'rgba(255,227,160,.5)');g.addColorStop(.45,'rgba(255,204,120,.13)');g.addColorStop(1,'rgba(255,190,100,0)');ctx.fillStyle=g;ctx.fillRect(0,0,128,128);return new THREE.CanvasTexture(canvas)}
+function lampRoadTexture(){const canvas=document.createElement('canvas');canvas.width=canvas.height=128;const ctx=canvas.getContext('2d');const g=ctx.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(255,225,152,.30)');g.addColorStop(.4,'rgba(255,209,125,.15)');g.addColorStop(1,'rgba(255,190,90,0)');ctx.fillStyle=g;ctx.fillRect(0,0,128,128);return new THREE.CanvasTexture(canvas)}
+const lampHaloMat=new THREE.SpriteMaterial({map:lampHaloTexture(),color:0xffe1b0,transparent:true,opacity:.82,depthWrite:false,blending:THREE.AdditiveBlending});
+const lampRoadMat=new THREE.MeshBasicMaterial({map:lampRoadTexture(),transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-3});
+const lampRoadGeo=new THREE.PlaneGeometry(17,20);
+for(let i=45;i<N;i+=220){const p=tougeCenters[i],t=tougeTangents[i],sd=new THREE.Vector3(-t.z,0,t.x),q=p.clone().addScaledVector(sd,7.5);
+ const pole=new THREE.Mesh(new THREE.CylinderGeometry(.085,.12,8,8),mat(0x5d666c));pole.position.set(q.x,p.y+4,q.z);tougeWorld.add(pole);
+ const bulb=new THREE.Mesh(new THREE.SphereGeometry(.20,12,9),new THREE.MeshBasicMaterial({color:0xffedc4}));bulb.position.set(q.x,p.y+7.9,q.z);tougeWorld.add(bulb);
+ const glow=new THREE.Sprite(lampHaloMat);glow.scale.set(5.8,5.8,1);glow.position.copy(bulb.position);tougeWorld.add(glow);
+ // Pool of warm light on the asphalt directly beside the pole.
+ const roadPool=new THREE.Mesh(lampRoadGeo,lampRoadMat);roadPool.rotation.x=-Math.PI/2;roadPool.position.set(p.x+sd.x*2.8,p.y+.065,p.z+sd.z*2.8);tougeWorld.add(roadPool);
+ const light=new THREE.PointLight(0xffdb9a,8,22,2);light.position.set(q.x,p.y+7.5,q.z);tougeWorld.add(light);
+}
+
+// Small animated spectator groups appear occasionally behind the guardrails.
+// Lightweight low-poly people match the retro night look; they never enter the roadway.
+const canyonSpectators=[];
+const fanSkin=new THREE.MeshLambertMaterial({color:0xe6b68d});
+const fanPants=new THREE.MeshLambertMaterial({color:0x25283b});
+const fanShirts=[0xe94b65,0x42a8d7,0xf3b94b,0x8bd18c,0xa88fe2].map(c=>new THREE.MeshLambertMaterial({color:c}));
+const fanHeadGeo=new THREE.SphereGeometry(.16,7,5);
+const fanTorsoGeo=new THREE.BoxGeometry(.36,.59,.22);
+const fanLegGeo=new THREE.BoxGeometry(.13,.65,.15);
+const fanArmGeo=new THREE.BoxGeometry(.12,.52,.13);
+function canyonFan(position,heading,colorIndex,phase){
+ const root=new THREE.Group();root.position.copy(position);root.rotation.y=heading;
+ const shirt=fanShirts[colorIndex%fanShirts.length];
+ function piece(geo,material,x,y,z,parent=root){const m=new THREE.Mesh(geo,material);m.position.set(x,y,z);parent.add(m);return m;}
+ piece(fanTorsoGeo,shirt,0,1.14,0);
+ piece(fanHeadGeo,fanSkin,0,1.61,0);
+ piece(fanLegGeo,fanPants,-.115,.51,0);piece(fanLegGeo,fanPants,.115,.51,0);
+ const left=new THREE.Group();left.position.set(-.25,1.35,0);root.add(left);
+ piece(fanArmGeo,shirt,0,-.23,0,left);
+ const right=new THREE.Group();right.position.set(.25,1.35,0);root.add(right);
+ piece(fanArmGeo,shirt,0,-.23,0,right);
+ canyonSpectators.push({root,left,right,phase});tougeWorld.add(root);
+}
+// Short cheering clusters spaced widely along the course.
+for(let i=90,cluster=0;i<N-70;i+=165,cluster++){
+ const p=tougeCenters[i],t=tougeTangents[i],normal=new THREE.Vector3(-t.z,0,t.x);
+ const sign=cluster%2?1:-1;
+ for(let j=0;j<3+(cluster%3);j++){
+  const idx=Math.min(N,i+j*3),center=tougeCenters[idx],tangent=tougeTangents[idx];
+  const side=new THREE.Vector3(-tangent.z,0,tangent.x);
+  const distance=8.3+(j%2)*1.1;
+  const q=center.clone().addScaledVector(side,sign*distance);
+  // Ground adjacent to the road is slightly below the road surface.
+  q.y=center.y-.5;
+  canyonFan(q,Math.atan2(-sign*side.x,-sign*side.z),cluster+j,cluster*.9+j*1.7);
+ }
+}
+function animateCanyonSpectators(time){
+ if(gameStyle!=='touge')return;
+ for(const f of canyonSpectators){
+  const t=time*4.8+f.phase;
+  f.left.rotation.z=.9+.35*Math.sin(t);
+  f.right.rotation.z=-1.7-.45*Math.sin(t+1.3);
+  f.root.position.y+=0; // Keep feet planted, only arms wave.
+ }
+}
+
+// Night arcade mode uses the existing natural mountain geometry, not added blocky scenery.
+// A reduced-resolution framebuffer creates crisp retro pixels while preserving 3D depth.
+const arcadePixelScale=0.53;
+function applyRetroPixels(drift){
+ renderer.setPixelRatio(1);
+ renderer.setSize(drift?Math.max(320,Math.floor(innerWidth*arcadePixelScale)):innerWidth,
+                  drift?Math.max(180,Math.floor(innerHeight*arcadePixelScale)):innerHeight,false);
+ renderer.domElement.style.width='100vw';renderer.domElement.style.height='100vh';
+ renderer.domElement.style.imageRendering=drift?'pixelated':'auto';
+ renderer.domElement.style.position='fixed';renderer.domElement.style.inset='0';
+}
+const forestRoadMeshes=rallyWorld.filter(o=>o.isMesh||o.isInstancedMesh);
+let gameStyle='rally',courseChosen=false;
+const canyonTrack=document.getElementById('canyonTrack');canyonTrack.volume=.88;
+const driftSfx=document.getElementById('driftSfx');driftSfx.volume=.94;driftSfx.loop=true;
+// Dedicated launch player lets the same squeal play at GO without interrupting later handbrake sounds.
+const canyonLaunchSfx=new Audio('assets/audio/drift-trimed.mp3');canyonLaunchSfx.preload='auto';canyonLaunchSfx.volume=.86;
+function playCanyonLaunchSqueal(){
+ if(gameStyle!=='touge'||soundMuted||!courseChosen)return;
+ canyonLaunchSfx.pause();canyonLaunchSfx.currentTime=0;
+ const p=canyonLaunchSfx.play();if(p&&p.catch)p.catch(()=>{});
+}
+
+// Loop the supplied drift recording for as long as Space is held during a live run.
+function stopHandbrakeSqueal(){
+ driftSfx.pause();driftSfx.currentTime=0;
+}
+function playHandbrakeSqueal(){
+ if(gameStyle!=='touge'||!courseChosen||soundMuted||countdown>0||crash||finished||storyActive)return;
+ if(!driftSfx.paused)return;
+ driftSfx.loop=true;
+ const play=driftSfx.play();if(play&&play.catch)play.catch(()=>{});
+}
+
+function syncCanyonTrack(){if(gameStyle==='touge'&&courseChosen&&!soundMuted){const p=canyonTrack.play();if(p&&p.catch)p.catch(()=>{});}else canyonTrack.pause();}
+function applyCourse(style){canyonLaunchSfx.pause();canyonLaunchSfx.currentTime=0;stopHandbrakeSqueal();camMode=0;if(style==='touge'&&'speechSynthesis' in window)try{speechSynthesis.cancel()}catch(e){};canyonMusicStep=0;canyonMusicNext=0;gameStyle=style;const drift=style==='touge';document.body.classList.toggle('canyon-mode',drift);for(const o of forestRoadMeshes)o.visible=!drift;tougeWorld.visible=drift;if(drift&&typeof gravel!=='undefined')for(const g of gravel){g.life=0;g.m.visible=false;}centers.splice(0,centers.length,...(drift?tougeCenters:forestCenters));tangents.splice(0,tangents.length,...(drift?tougeTangents:forestTangents));end=centers[N];gate.visible=!drift;roadmat.visible=!drift;scene.background.setHex(drift?0x10152d:0xb8cbd0);scene.fog.color.setHex(drift?0x202641:0xb8cbd0);scene.fog.density=drift?.0033:.0027;document.getElementById('banner').textContent=drift?'INITIAL DRIFT · PANDA TRUENO AE86':'DIRT RALLY · SUBARU WRC';document.getElementById('launchHint').textContent=drift?'HOLD ↑ / W · READY FOR THE DOWNHILL RUN':'HOLD ↑ / W · GET READY TO LAUNCH';document.getElementById('pacenote').style.display=drift?'none':'block';document.getElementById('weatherHud').style.display=drift?'none':'block';document.getElementById('modeToggle').style.display=drift?'none':'block';document.getElementById('assistHud').style.display='none';document.getElementById('help').innerHTML=drift?`<div class="controlsTitle">CONTROLS</div>
+<div class="controlRow primary"><span>DRIVE / STEER</span><span class="keyset"><span class="arrows"><kbd class="up">↑</kbd><kbd class="left">←</kbd><kbd class="down">↓</kbd><kbd class="right">→</kbd></span></span></div>
+<div class="controlRow"><span>DRIFT</span><span class="keyset"><kbd>SPACE</kbd></span></div>
+<div class="controlRow"><span>RESET CAR</span><span class="keyset"><kbd>F</kbd></span></div>
+<div class="controlRow"><span>RESTART</span><span class="keyset"><kbd>R</kbd></span></div>
+<div class="controlRow"><span>CAMERA</span><span class="keyset"><kbd>C</kbd></span></div>
+<div class="controlRow"><span>AUDIO</span><span class="keyset"><kbd>M</kbd></span></div>
+<div class="controlRow"><span>MENU</span><span class="keyset"><kbd>ESC</kbd></span></div>`:'ARROWS / WASD DRIVE &nbsp; · &nbsp; SPACE HANDBRAKE &nbsp; · &nbsp; F RESET &nbsp; · &nbsp; R RESTART &nbsp; · &nbsp; C CAMERA &nbsp; · &nbsp; V WEATHER &nbsp; · &nbsp; P CO-DRIVER &nbsp; · &nbsp; N DAY/NIGHT &nbsp; · &nbsp; M SOUND';document.getElementById('best').textContent='--:--.--';try{const best=localStorage.getItem(drift?'canyon-drift-best':'canyon-rally-best');if(best)document.getElementById('best').textContent=fmt(+best)}catch{}try{setNightMode(drift)}catch(e){console.warn("Lighting mode:",e)};if(drift){scene.background.setHex(0x10152d);scene.fog.color.setHex(0x202641);scene.fog.density=.0033;skyLight.color.setHex(0x8d8acb);skyLight.intensity=.83;sun.color.setHex(0x7c7cc9);sun.intensity=.55;renderer.toneMappingExposure=1.33;}applyRetroPixels(drift);if(typeof ae86!=='undefined'){for(const child of subaruParts)child.visible=!drift;ae86.visible=drift;}restart();}
+
+// 1990s Group A-inspired blue-and-gold rally sedan, heading toward -Z.
+const car=new THREE.Group();scene.add(car);
+// Soft grounding shadow makes the vehicle visually sit on the gravel.
+const shadowCanvas=document.createElement('canvas');shadowCanvas.width=shadowCanvas.height=128;
+const shadowCtx=shadowCanvas.getContext('2d'),grad=shadowCtx.createRadialGradient(64,64,8,64,64,63);
+grad.addColorStop(0,'rgba(0,0,0,.55)');grad.addColorStop(.48,'rgba(0,0,0,.27)');grad.addColorStop(1,'rgba(0,0,0,0)');shadowCtx.fillStyle=grad;shadowCtx.fillRect(0,0,128,128);
+const contactShadow=new THREE.Mesh(new THREE.PlaneGeometry(3.7,6.4),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(shadowCanvas),transparent:true,depthWrite:false,opacity:.65}));
+contactShadow.rotation.x=-Math.PI/2;scene.add(contactShadow);
+// Headlights use car-local coordinates so beams turn and pitch with the vehicle.
+const headlamps=[];
+for(const side of [-1,1]){
+ const beam=new THREE.SpotLight(0xfff1d8,0,125,Math.PI/5.7,.72,1.05);
+ beam.position.set(side*.70,1.04,-2.24);
+ const target=new THREE.Object3D();target.position.set(side*.70,-.55,-48);
+ car.add(target);beam.target=target;car.add(beam);headlamps.push(beam);
+ const lens=new THREE.Mesh(new THREE.BoxGeometry(.48,.17,.035),new THREE.MeshBasicMaterial({color:0xffeac1}));
+ lens.position.set(side*.70,1.02,-2.29);lens.visible=false;car.add(lens);headlamps.push(lens);
+}
+// Additional long-range rally spotlights spread illumination across bends and shoulders.
+for(const side of [-1,1]){
+ const rallyBeam=new THREE.SpotLight(0xfff0cf,0,165,Math.PI/8,.55,.85);
+ rallyBeam.position.set(side*.46,.80,-2.46);
+ const aim=new THREE.Object3D();aim.position.set(side*7,-.4,-75);
+ car.add(aim);rallyBeam.target=aim;car.add(rallyBeam);headlamps.push(rallyBeam);
+ const rallyLens=new THREE.Mesh(new THREE.CylinderGeometry(.18,.18,.09,14),new THREE.MeshBasicMaterial({color:0xfff5d8}));
+ rallyLens.rotation.x=Math.PI/2;rallyLens.position.set(side*.46,.80,-2.46);rallyLens.visible=false;car.add(rallyLens);headlamps.push(rallyLens);
+}
+let nightMode=false;
+function setNightMode(enabled){
+ nightMode=enabled;
+ scene.background.setHex(enabled?0x283b50:0xb8cbd0);
+ scene.fog.color.setHex(enabled?0x283b50:0xb8cbd0);
+ scene.fog.density=enabled?.0029:.0027;
+ skyLight.intensity=enabled?.43:1.6;
+ skyLight.color.setHex(enabled?0xb2c7e5:0xd8e8ff);
+ sun.intensity=enabled?.22:2.4;
+ sun.color.setHex(enabled?0xb5c7e4:0xffeac8);
+ renderer.toneMappingExposure=enabled?1.04:1.23;
+ for(const shaft of shafts)shaft.visible=!enabled;
+ for(const item of headlamps){if(item.isSpotLight)item.intensity=enabled?(item.distance>140?165:185):0;else item.visible=enabled;}
+ document.getElementById('modeToggle').textContent=enabled?'☀ DAY MODE · N':'☾ NIGHT MODE · N';
+}
+document.getElementById('modeToggle').addEventListener('click',()=>setNightMode(!nightMode));
+
+const body=new THREE.MeshPhysicalMaterial({color:0x073ca9,roughness:.19,metalness:.53,clearcoat:1,clearcoatRoughness:.12}), blueLight=mat(0x1253ca,.3),dark=mat(0x121820,.55),glass=mat(0x172e43,.13),lights=mat(0xfff5cf,.22),red=mat(0xbe2532),gold=mat(0xd9a82e,.36),silver=mat(0xaebbc5,.3),yellow=mat(0xffd327,.4);
+body.metalness=.53;body.roughness=.19;body.clearcoat=1;body.clearcoatRoughness=.12;body.envMapIntensity=1.5;function box(w,h,d,m,x,y,z,parent=car){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=true;parent.add(o);return o}
+// Square-shouldered four-door saloon body, with distinct bonnet and boot.
+box(2.06,.51,4.36,body,0,.86,0);box(1.94,.12,1.38,blueLight,0,1.145,-1.45);box(1.94,.12,.96,body,0,1.145,1.66);
+box(1.77,.65,2.02,body,0,1.43,.15);box(1.58,.10,1.46,blueLight,0,1.805,.17);
+// Windscreens, rear glass and dark side windows.
+box(1.59,.47,.10,glass,0,1.51,-.88);box(1.58,.42,.10,glass,0,1.52,1.12);
+for(const side of [-1,1]){box(.035,.39,.78,glass,side*.9,1.5,-.37);box(.035,.39,.67,glass,side*.9,1.5,.66);box(.13,.12,.29,dark,side*1.04,1.39,-.77);box(.085,.06,2.4,dark,side*1.038,.67,0);}
+// Rally bonnet scoop and front bumper / grille.
+box(.58,.17,.49,body,0,1.255,-1.19);box(.42,.09,.19,dark,0,1.335,-1.44);
+box(1.9,.24,.12,dark,0,.83,-2.18);box(1.0,.13,.14,silver,0,.89,-2.254);box(1.87,.10,.15,dark,0,.55,-2.22);
+for(const side of [-1,1]){box(.57,.21,.12,lights,side*.69,1.02,-2.204);box(.23,.12,.13,yellow,side*.91,.79,-2.215);box(.48,.2,.1,red,side*.72,.99,2.23);}
+// Dynamic rear lamps: stop lamps brighten under braking, white lamps illuminate in reverse.
+const brakeLampMaterial=new THREE.MeshStandardMaterial({color:0x9b1018,emissive:0xff1622,emissiveIntensity:.08,roughness:.28});
+const reverseLampMaterial=new THREE.MeshStandardMaterial({color:0xb7bdc1,emissive:0xf5f9ff,emissiveIntensity:0,roughness:.22});
+const brakeGlow=[],reverseGlow=[];
+for(const side of [-1,1]){
+ const stop=box(.39,.155,.035,brakeLampMaterial,side*.74,1.00,2.302);
+ const backup=box(.18,.12,.038,reverseLampMaterial,side*.40,.995,2.309);
+ const redGlow=new THREE.PointLight(0xff1c20,0,3.8,2);redGlow.position.set(side*.74,1.01,2.43);car.add(redGlow);brakeGlow.push(redGlow);
+ const whiteGlow=new THREE.PointLight(0xe5f1ff,0,4.4,2);whiteGlow.position.set(side*.40,.99,2.43);car.add(whiteGlow);reverseGlow.push(whiteGlow);
+}
+function updateRearLamps(){
+ const braking=!!(keys.ArrowDown||keys.KeyS)&&speed>=-.25&&!crash;
+ const reversing=speed<-.45&&!crash;
+ brakeLampMaterial.emissiveIntensity=braking?2.9:.10;
+ reverseLampMaterial.emissiveIntensity=reversing?3.2:0;
+ for(const lamp of brakeGlow)lamp.intensity=braking?1.65:0;
+ for(const lamp of reverseGlow)lamp.intensity=reversing?1.8:0;
+}
+// Period-correct 1997 Impreza WRC wing: tall squared end pylons and a slender
+// full-width blade with a broad, genuinely open rear-window gap.
+const wingBlue=new THREE.MeshPhysicalMaterial({color:0x0642a8,metalness:.36,roughness:.22,clearcoat:1});
+for(const side of [-1,1]){
+ const x=side*.94;
+ // Swept wedge pylons taper toward the roof-height airfoil.
+ const outline=new THREE.Shape();
+ outline.moveTo(1.43,1.21);outline.lineTo(1.91,1.21);
+ outline.lineTo(2.22,1.83);outline.lineTo(1.99,1.83);
+ outline.lineTo(1.73,1.46);outline.lineTo(1.43,1.35);outline.closePath();
+ const geo=new THREE.ExtrudeGeometry(outline,{depth:.065,bevelEnabled:true,bevelSize:.013,bevelThickness:.013,bevelSegments:2});
+ // shape coordinates are longitudinal z and vertical y
+ const pillar=new THREE.Mesh(geo,wingBlue);pillar.rotation.y=-Math.PI/2; // Local longitudinal outline maps to REAR (+Z), not hood (-Z)
+ pillar.position.x=x;pillar.castShadow=true;car.add(pillar);
+ const plate=box(.075,.205,.56,wingBlue,side*1.035,1.81,2.005);
+ plate.rotation.x=-.075;
+}
+const spoilerBlade=box(2.17,.065,.49,wingBlue,0,1.83,2.065);
+spoilerBlade.rotation.x=-.065;
+box(2.03,.026,.052,dark,0,1.847,2.306);
+// Impreza GC8 period details: hood vents, side marker lamps, grille badge,
+// door seams, wheel arch lips, number panels, and gold multi-spoke alloys.
+const trim=mat(0x242d35,.66),white=mat(0xe9e9db,.72);
+for(const side of [-1,1]){
+  // Removed the two raised hood-side vent blocks; the WRC bonnet stays clean.
+  box(.075,.11,.20,yellow,side*1.045,1.00,-1.57);
+  box(.025,.018,.83,trim,side*1.05,1.095,.34);
+  box(.06,.10,.26,trim,side*1.057,1.30,-.62);
+  box(.055,.035,.62,trim,side*1.06,.78,1.30);
+  for(const z of [-1.39,1.39]){
+    const arch=new THREE.Mesh(new THREE.TorusGeometry(.465,.035,7,24,Math.PI),trim);
+    arch.rotation.y=Math.PI/2;arch.position.set(side*1.043,.51,z);car.add(arch);
+  }
+}
+box(.46,.10,.045,trim,0,.99,-2.265);
+box(.12,.07,.048,gold,0,1.025,-2.299);
+for(const side of [-1,1])box(.24,.10,.06,white,side*.62,.74,-2.32);
+// High-resolution WRC period livery: bespoke 2048px canvas decals, not generic stars.
+function canvasDecal(draw,w,h,x,y,z,rotationY=0,rotationX=0){
+ const c=document.createElement('canvas');c.width=2048;c.height=1024;
+ const q=c.getContext('2d');q.clearRect(0,0,c.width,c.height);draw(q,2048,1024);
+ const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;
+ t.anisotropy=Math.min(16,renderer.capabilities.getMaxAnisotropy());
+ const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:t,transparent:true,side:THREE.DoubleSide,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2}));
+ m.position.set(x,y,z);m.rotation.set(rotationX,rotationY,0);car.add(m);return m;
+}
+function txt(q,text,x,y,size,color='#ffe02d',weight=900){q.fillStyle=color;q.font=weight+' '+size+'px Arial Black,Arial,sans-serif';q.textAlign='center';q.textBaseline='middle';q.fillText(text,x,y)}
+function wrcSide(q,w,h){
+ // Yellow curling 555 swoosh wraps around the rally door panel.
+ q.fillStyle='#ffdb16';q.beginPath();q.moveTo(180,650);q.bezierCurveTo(250,180,900,90,1700,190);q.bezierCurveTo(1030,185,610,400,410,860);q.closePath();q.fill();
+ q.fillStyle='#0642a8';q.beginPath();q.moveTo(560,670);q.bezierCurveTo(920,250,1340,250,1750,315);q.bezierCurveTo(1170,380,930,560,770,870);q.closePath();q.fill();
+ txt(q,'555',1390,490,380,'#ffde20');
+ q.fillStyle='rgba(250,250,246,.98)';q.fillRect(705,510,420,420);
+ txt(q,'3',915,730,350,'#161b24');
+ q.fillStyle='#c6282e';q.fillRect(705,510,420,60);txt(q,'RALLY CHAMPIONSHIP',915,539,31,'#fff');
+ txt(q,'PIRELLI',355,920,74,'#ffdf20');
+}
+for(const side of [-1,1]){
+ // Both door graphics are separately rendered so the sides remain legible.
+ canvasDecal(wrcSide,3.15,1.30,side*1.078,1.01,.08,side*Math.PI/2);
+ canvasDecal((q)=>{txt(q,'McRAE   GRIST',1024,330,112,'#f5f6f6');txt(q,'SUBARU',1024,650,155,'#f5f6f6');},1.20,.52,side*.944,1.54,.58,side*Math.PI/2);
+ // Door handles, mirror housings, sill lips and flared rear arches.
+ for(const z of [-.46,.58])box(.058,.045,.21,silver,side*1.078,1.24,z);
+ // Compact door-mounted mirrors sit beside the A-pillars, not out on the hood.
+ const mirror=box(.16,.10,.21,body,side*1.025,1.40,-.64);mirror.rotation.y=side*.18;
+ box(.09,.20,2.58,body,side*1.048,.59,.02);
+ // Red flexible rally mudflaps behind each tire.
+ const mud=mat(0x9d1b23,.75);
+ for(const z of [-1.70,1.71])box(.32,.36,.032,mud,side*.93,.29,z);
+}
+// Rear hatch graphic, nameplate, rally identification and period sponsor marks.
+canvasDecal((q)=>{
+ q.fillStyle='#ffda16';q.beginPath();q.moveTo(100,690);q.bezierCurveTo(400,70,1000,180,1400,230);q.bezierCurveTo(850,240,580,550,520,870);q.closePath();q.fill();
+ txt(q,'555',1190,450,280);txt(q,'SUBARU',1050,760,125);
+},1.75,.65,0,1.25,2.315,0);
+canvasDecal((q)=>{q.fillStyle='#f5b51a';q.fillRect(230,250,1580,540);txt(q,'P2 WRC',1024,530,310,'#13181c');},.86,.25,0,.70,2.335,0);
+for(const side of [-1,1])canvasDecal((q)=>{txt(q,'PIRELLI',1024,510,285);},.43,.17,side*.70,.67,2.34,0);
+// Windshield sunstrip, roof scoop and fine bodywork seams.
+canvasDecal((q)=>{q.fillStyle='#06398f';q.fillRect(0,0,2048,1024);txt(q,'SUBARU',1024,510,390,'#f2f4f8');},1.53,.14,0,1.75,-.969,0,-.20);
+box(.48,.14,.43,body,0,1.90,-.10);box(.37,.06,.12,dark,0,1.96,-.34);
+for(const side of [-1,1]){
+ box(.018,.39,.014,trim,side*.91,1.48,.20);
+ box(.022,.018,1.65,trim,side*.905,1.81,.15);
+}
+// Gold multi-spoke wheels and chunky tyres.
+const wheels=[];const wheelGeo=new THREE.CylinderGeometry(.43,.43,.32,20),wheelMat=mat(0x17191a);
+for(const z of [-1.39,1.39])for(const x of [-1.10,1.10]){const pivot=new THREE.Group();pivot.position.set(x,.49,z);car.add(pivot);const w=new THREE.Mesh(wheelGeo,wheelMat);w.rotation.z=Math.PI/2;w.castShadow=true;pivot.add(w);const rim=new THREE.Mesh(new THREE.CylinderGeometry(.295,.295,.334,12),gold);rim.rotation.z=Math.PI/2;pivot.add(rim);const hub=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,.347,12),gold);hub.rotation.z=Math.PI/2;pivot.add(hub);
+// Gold wheel spokes sit outside the tire and rotate with the wheel.
+for(let k=0;k<10;k++){const spoke=new THREE.Mesh(new THREE.BoxGeometry(.032,.045,.24),gold);spoke.position.set(Math.sign(x)*.185,Math.cos(k*Math.PI/5)*.17,Math.sin(k*Math.PI/5)*.17);spoke.rotation.x=k*Math.PI/5;pivot.add(spoke)}
+wheels.push({pivot,w,x,z,restY:.49})}
+// Crash damage components: deformable panels, broken glass, and detachable parts.
+const damageParts=[];const damageBlue=new THREE.MeshStandardMaterial({color:0x174aaf,metalness:.5,roughness:.52,side:THREE.DoubleSide});
+function damagePanel(w,h,d,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),damageBlue.clone());m.position.set(x,y,z);m.castShadow=true;car.add(m);damageParts.push({m,home:m.position.clone(),rot:m.rotation.clone()});return m}
+const hoodDamage=damagePanel(1.78,.045,1.05,0,1.19,-1.62);
+const bumperDamage=damagePanel(1.93,.23,.19,0,.69,-2.27);
+const rearDamage=damagePanel(1.88,.17,.15,0,.76,2.29);
+const wingDamage=spoilerBlade;
+const glassDamage=new THREE.Mesh(new THREE.PlaneGeometry(1.52,.42),new THREE.MeshBasicMaterial({color:0x8da7b2,transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false}));glassDamage.position.set(0,1.52,-.955);glassDamage.rotation.x=-.24;car.add(glassDamage);
+const debris=[];const debrisGeo=new THREE.BoxGeometry(.22,.09,.28);
+for(let i=0;i<34;i++){const m=new THREE.Mesh(debrisGeo,new THREE.MeshStandardMaterial({color:i%3===0?0xd7b740:i%3===1?0x174ca6:0x5b6668,metalness:.35,roughness:.65}));m.visible=false;scene.add(m);debris.push({m,life:0,v:new THREE.Vector3(),spin:new THREE.Vector3()})}
+function restoreDamage(){wingDamage.visible=true;wingDamage.rotation.z=0;for(const p of damageParts){p.m.position.copy(p.home);p.m.rotation.copy(p.rot);p.m.scale.set(1,1,1);p.m.visible=true}glassDamage.material.opacity=0;for(const d of debris){d.life=0;d.m.visible=false}}
+function applyDamage(impact){const amount=Math.min(1,impact/46);hoodDamage.rotation.x=-amount*.35;hoodDamage.position.y-=amount*.12;hoodDamage.scale.z=1-amount*.24;bumperDamage.rotation.y=amount*(rand()-.5)*.9;bumperDamage.position.z+=amount*.28;rearDamage.rotation.z=amount*(rand()-.5)*.4;wingDamage.rotation.z=amount*(rand()-.5)*.35;if(impact>38&&rand()>.65)wingDamage.visible=false;glassDamage.material.opacity=Math.min(.78,amount*.83);
+for(let i=0;i<Math.min(debris.length,Math.round(impact*.68));i++){const d=debris[i];d.life=1+rand()*2;d.m.visible=true;d.m.position.copy(pos).add(new THREE.Vector3((rand()-.5)*2,1+rand(),(rand()-.5)*2));d.v.set((rand()-.5)*13,3+rand()*10,(rand()-.5)*13);d.spin.set(rand()*14,rand()*14,rand()*14);d.m.scale.setScalar(.45+rand()*1.4)}}
+function updateDebris(dt){for(const d of debris){if(d.life<=0)continue;d.life-=dt;d.v.y-=19*dt;d.m.position.addScaledVector(d.v,dt);d.m.rotation.x+=d.spin.x*dt;d.m.rotation.y+=d.spin.y*dt;d.m.rotation.z+=d.spin.z*dt;const floor=roadElevation(d.m.position.x,d.m.position.z)+.12;if(d.m.position.y<floor){d.m.position.y=floor;d.v.y=Math.abs(d.v.y)*.23;d.v.x*=.74;d.v.z*=.74}d.m.visible=d.life>0}}
+// Additional Subaru details: front fog lamps, rally plate, door handles and wheel arches.
+const chrome=mat(0xc2c8c8,.32),rubber=mat(0x111318,.94);
+for(const side of [-1,1]){box(.30,.17,.10,lights,side*.47,.68,-2.30);box(.17,.06,.28,chrome,side*1.035,1.17,.38);box(.17,.06,.28,chrome,side*1.035,1.17,-.48);box(.10,.08,1.12,rubber,side*1.065,.47,0);}
+box(.75,.16,.04,chrome,0,.75,-2.36);
+const shadow=new THREE.Mesh(new THREE.PlaneGeometry(2.7,5),new THREE.MeshBasicMaterial({color:0x111711,transparent:true,opacity:.2,depthWrite:false}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.06;car.add(shadow);
+// Exhaust tip and short-lived throttle-lift backfire sprites, parented to the Subaru.
+const exhaustMetal=new THREE.MeshStandardMaterial({color:0x727a81,metalness:.85,roughness:.26});
+const exhaustTip=new THREE.Mesh(new THREE.CylinderGeometry(.105,.105,.38,12),exhaustMetal);
+exhaustTip.rotation.x=Math.PI/2;exhaustTip.position.set(.68,.43,2.13);car.add(exhaustTip);
+const backfireGroup=new THREE.Group();backfireGroup.position.set(.68,.46,2.57);car.add(backfireGroup);
+const flameCore=new THREE.Mesh(new THREE.ConeGeometry(.105,.65,9),new THREE.MeshBasicMaterial({color:0xffe9a0,transparent:true,opacity:.96,depthWrite:false}));
+const flameOuter=new THREE.Mesh(new THREE.ConeGeometry(.17,.9,9),new THREE.MeshBasicMaterial({color:0xff751b,transparent:true,opacity:.68,depthWrite:false}));
+// Cone tips point backward (+Z) from the rear exhaust.
+flameCore.rotation.x=Math.PI/2;flameOuter.rotation.x=Math.PI/2;
+flameCore.position.z=.32;flameOuter.position.z=.42;backfireGroup.add(flameOuter,flameCore);
+const flameLight=new THREE.PointLight(0xff792a,0,2.8,2);backfireGroup.add(flameLight);
+backfireGroup.visible=false;
+let backfireRemaining=0,backfireDuration=0,wasAccelerating=false;
+function updateBackfire(dt,gas){
+ const throttleReleased=wasAccelerating&&!gas;
+ if(throttleReleased&&!crash&&!finished&&speed>5){
+  backfireDuration=.12+Math.random()*.11;
+  backfireRemaining=backfireDuration;
+ }
+ wasAccelerating=!!gas;
+ backfireRemaining=Math.max(0,backfireRemaining-dt);
+ const active=backfireRemaining>0&&!crash;
+ backfireGroup.visible=active;
+ if(active){const fade=Math.min(1,backfireRemaining/.07);const length=.75+Math.min(1,Math.abs(speed)/35)*.75;
+  flameCore.scale.set(.8+Math.random()*.4,length,.8+Math.random()*.4);
+  flameOuter.scale.set(.85+Math.random()*.35,length,.85+Math.random()*.35);
+  flameLight.intensity=1.4*fade;
+  flameCore.material.opacity=.95*fade;flameOuter.material.opacity=.7*fade;
+ }else flameLight.intensity=0;
+}
+// Finish gate.
+let end=centers[N],finishTan=tangents[N],finishSide=new THREE.Vector3(-finishTan.z,0,finishTan.x);const gate=new THREE.Group();gate.position.copy(end);gate.rotation.y=Math.atan2(-finishTan.x,-finishTan.z);scene.add(gate);box(.3,5,.3,mat(0xe6e9d7),-6,2.5,0,gate);box(.3,5,.3,mat(0xe6e9d7),6,2.5,0,gate);box(12.3,.8,.4,mat(0x252b29),0,4.8,0,gate);
+const finishTexture=document.createElement('canvas');finishTexture.width=512;finishTexture.height=64;const ctx=finishTexture.getContext('2d');ctx.fillStyle='#242a27';ctx.fillRect(0,0,512,64);ctx.fillStyle='#f7e77b';ctx.font='bold 36px Arial';ctx.textAlign='center';ctx.fillText('FINISH',256,45);const sign=new THREE.Mesh(new THREE.PlaneGeometry(10,.9),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(finishTexture),side:THREE.DoubleSide}));sign.position.y=4.8;gate.add(sign);
+const dustGeo=new THREE.SphereGeometry(.35,6,5),dustMat=new THREE.MeshBasicMaterial({color:0xbca98c,transparent:true,opacity:.35,depthWrite:false});const dust=[];for(let i=0;i<110;i++){const m=new THREE.Mesh(dustGeo,dustMat.clone());m.visible=false;scene.add(m);dust.push({m,life:0})}let dustCursor=0;
+// Handbrake gravel spray: small stones thrown backward and outward by the rear tyres.
+const gravelGeo=new THREE.IcosahedronGeometry(.085,0);
+const gravelMats=[0x8c806c,0xb4a48b,0x6c665b,0xc8b99b].map(c=>new THREE.MeshLambertMaterial({color:c}));
+const gravel=[];for(let i=0;i<180;i++){const m=new THREE.Mesh(gravelGeo,gravelMats[i%gravelMats.length]);m.visible=false;scene.add(m);gravel.push({m,life:0,v:new THREE.Vector3(),spin:new THREE.Vector3()})}
+let gravelCursor=0,gravelAccumulator=0;
+function gravelBurst(dt,hand){
+ if(gameStyle==='touge')return;
+ const velocity=Math.abs(speed),sliding=Math.abs(sideVel),intensity=hand?Math.min(1,velocity/13):Math.min(.5,sliding/9);
+ if(velocity<3||intensity<.08)return;
+ gravelAccumulator+=dt*(hand?105:28)*intensity;
+ const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));
+ const right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));
+ while(gravelAccumulator>=1){gravelAccumulator--;
+  const side=rand()<.5?-1:1;
+  const particle=gravel[gravelCursor++%gravel.length];
+  particle.life=.35+rand()*.6;particle.m.visible=true;
+  particle.m.position.copy(pos).addScaledVector(forward,-1.42).addScaledVector(right,side*1.12);
+  particle.m.position.y=pos.y+.22+rand()*.18;
+  particle.m.scale.setScalar(.5+rand()*1.5);
+  particle.v.copy(forward).multiplyScalar(-(2+rand()*5+velocity*.14))
+    .addScaledVector(right,side*(2+rand()*5+sliding*.2))
+    .add(new THREE.Vector3(0,2+rand()*4));
+  particle.spin.set((rand()-.5)*16,(rand()-.5)*16,(rand()-.5)*16);
+ }
+}
+const tireTracks=[];
+const trackMaterial=new THREE.MeshBasicMaterial({color:0x443d32,transparent:true,opacity:.25,depthWrite:false});
+const canyonSkidMaterial=new THREE.MeshBasicMaterial({color:0x080b0f,transparent:true,opacity:.48,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2});
+const trackGeometry=new THREE.PlaneGeometry(.27,.95);
+for(let i=0;i<320;i++){const m=new THREE.Mesh(trackGeometry,i<240?trackMaterial:canyonSkidMaterial);m.rotation.x=-Math.PI/2;m.visible=false;scene.add(m);tireTracks.push(m);}
+let trackIndex=0;
+function stampTracks(dt){
+ const canyon=gameStyle==='touge';
+ const hand=!!keys.Space;
+ // On tarmac, lay down skid marks only when the rear tires are sliding.
+ if(canyon&&!(hand&&Math.abs(speed)>5 || Math.abs(sideVel)>2.1&&Math.abs(speed)>7))return;
+ if(Math.abs(speed)<4)return;
+ trackClock+=dt*Math.abs(speed);
+ if(trackClock<(canyon?.78:1.4))return;
+ trackClock=0;
+ const heading=yaw+(canyon?canyonVisualYaw:0);
+ const f=new THREE.Vector3(-Math.sin(heading),0,-Math.cos(heading));
+ const r=new THREE.Vector3(Math.cos(heading),0,-Math.sin(heading));
+ for(const side of [-1,1]){
+  const start=canyon?240:0,count=canyon?80:240;
+  const m=tireTracks[start+(trackIndex++%count)];
+  m.position.copy(pos).addScaledVector(f,-1.35).addScaledVector(r,side*.79);
+  m.position.y=roadElevation(m.position.x,m.position.z)+.075;
+  m.rotation.set(-Math.PI/2,0,-heading);
+  m.scale.set(canyon?1.13:1,canyon?1.18:1,1);
+  m.visible=true;
+ }
+}
+function updateGravel(dt){for(const p of gravel){if(p.life<=0)continue;p.life-=dt;p.v.y-=15*dt;p.m.position.addScaledVector(p.v,dt);p.m.rotation.x+=p.spin.x*dt;p.m.rotation.y+=p.spin.y*dt;p.m.rotation.z+=p.spin.z*dt;
+ const ground=roadElevation(p.m.position.x,p.m.position.z)+.06;
+ if(p.m.position.y<ground){p.m.position.y=ground;p.v.y=Math.abs(p.v.y)*.17;p.v.x*=.58;p.v.z*=.58;}
+ if(p.life<=0)p.m.visible=false;
+}}
+
+// Procedural rally audio: generated locally with Web Audio, no external sound files.
+const soundButton=document.getElementById('soundToggle');
+let audioCtx=null, audioMaster=null, engineOsc=[],engineGain=null,roadGain=null,driftGain=null,roadFilter=null,driftFilter=null, lastThrottle=false, lastBackfireSound=0,enginePulse=null,enginePulseFilter=null,gravelScrub=null,gravelCrunch=null,launchGravel=null,launchGravelTime=0,gravelAudioClock=0;
+function makeNoiseBuffer(ctx,seconds=2){const buffer=ctx.createBuffer(1,Math.floor(ctx.sampleRate*seconds),ctx.sampleRate);const a=buffer.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1;return buffer;}
+function loopNoise(ctx,buffer,frequency){const src=ctx.createBufferSource();src.buffer=buffer;src.loop=true;const filter=ctx.createBiquadFilter();filter.type='bandpass';filter.frequency.value=frequency;filter.Q.value=.55;const gain=ctx.createGain();gain.gain.value=0;src.connect(filter).connect(gain).connect(audioMaster);src.start();return {src,filter,gain};}
+let canyonSqueal=null,canyonSquealTone=null,canyonSquealToneGain=null;
+function startAudio(){if(audioCtx){if(audioCtx.state==='suspended')audioCtx.resume();return;}const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return;try{audioCtx=new Ctx();audioMaster=audioCtx.createGain();audioMaster.gain.value=.48;audioMaster.connect(audioCtx.destination);engineGain=audioCtx.createGain();engineGain.gain.value=.0001;engineGain.connect(audioMaster);for(const [type,mul,volume] of [['sawtooth',.25,.36],['triangle',.5,.48],['sawtooth',.75,.19],['triangle',1,.26],['sawtooth',1.5,.065]]){const osc=audioCtx.createOscillator(),g=audioCtx.createGain();osc.type=type;osc.frequency.value=65*mul;g.gain.value=volume;osc.connect(g).connect(engineGain);osc.start();engineOsc.push({osc,mul});}const noise=makeNoiseBuffer(audioCtx);gearboxNoise=loopNoise(audioCtx,noise,540);gearboxFilter=gearboxNoise.filter;windNoise=loopNoise(audioCtx,noise,380);windFilter=windNoise.filter;suspensionNoise=loopNoise(audioCtx,noise,135);suspensionFilter=suspensionNoise.filter;enginePulse=loopNoise(audioCtx,noise,155);enginePulseFilter=enginePulse.filter;enginePulse.filter.Q.value=.85;enginePulse.gain.gain.value=.025;const road=loopNoise(audioCtx,noise,230);roadGain=road.gain;roadFilter=road.filter;const drift=loopNoise(audioCtx,noise,1200);driftGain=drift.gain;driftFilter=drift.filter;gravelScrub=loopNoise(audioCtx,noise,920);gravelScrub.filter.Q.value=.68;gravelCrunch=loopNoise(audioCtx,noise,3100);gravelCrunch.filter.Q.value=1.05;launchGravel=loopNoise(audioCtx,noise,1550);launchGravel.filter.Q.value=.82;canyonSqueal=loopNoise(audioCtx,noise,2050);canyonSqueal.filter.Q.value=3.1;canyonSqueal.gain.gain.value=0;
+ canyonSquealTone=audioCtx.createOscillator();canyonSquealTone.type='sawtooth';canyonSquealTone.frequency.value=820;
+ canyonSquealToneGain=audioCtx.createGain();canyonSquealToneGain.gain.value=0;
+ canyonSquealTone.connect(canyonSquealToneGain).connect(audioMaster);canyonSquealTone.start();
+ soundButton.textContent='🔊 SOUND ON · M';}catch(err){console.warn('Audio unavailable:',err);}}
+let soundMuted=false;
+function toggleAudio(){if(!audioCtx)startAudio();soundMuted=!soundMuted;if(audioMaster)audioMaster.gain.setTargetAtTime(soundMuted?0:.48,audioCtx.currentTime,.035);soundButton.textContent=soundMuted?'🔇 SOUND OFF · M':'🔊 SOUND ON · M';syncCanyonTrack();}
+function noiseBurst(duration,volume,filterFrequency,filterType='bandpass'){if(!audioCtx||soundMuted)return;const t=audioCtx.currentTime;const src=audioCtx.createBufferSource(),filter=audioCtx.createBiquadFilter(),gain=audioCtx.createGain();src.buffer=makeNoiseBuffer(audioCtx,Math.max(.15,duration+.04));filter.type=filterType;filter.frequency.value=filterFrequency;gain.gain.setValueAtTime(Math.max(.001,volume),t);gain.gain.exponentialRampToValueAtTime(.001,t+duration);src.connect(filter).connect(gain).connect(audioMaster);src.start(t);src.stop(t+duration+.02);}
+function blowOff(){
+ // A short, high-pitched compressor-surge chirp with rapidly decaying flutter pulses.
+ if(!audioCtx||soundMuted)return;
+ const t=audioCtx.currentTime, duration=.43;
+ const src=audioCtx.createBufferSource(),filter=audioCtx.createBiquadFilter(),gain=audioCtx.createGain();
+ src.buffer=makeNoiseBuffer(audioCtx,.57);
+ filter.type='bandpass';filter.Q.value=2.4;
+ filter.frequency.setValueAtTime(4600,t);
+ filter.frequency.exponentialRampToValueAtTime(2550,t+duration);
+ gain.gain.setValueAtTime(.001,t);
+ for(let i=0;i<7;i++){
+  const onset=t+i*.049,level=1.65*Math.exp(-i*.23);
+  gain.gain.setValueAtTime(.001,onset);
+  gain.gain.linearRampToValueAtTime(level,onset+.007);
+  gain.gain.exponentialRampToValueAtTime(.001,onset+.045);
+ }
+ src.connect(filter).connect(gain).connect(audioMaster);src.start(t);src.stop(t+.50);
+ const whistle=audioCtx.createOscillator(),wg=audioCtx.createGain();
+ whistle.type='sine';whistle.frequency.setValueAtTime(3200,t);
+ whistle.frequency.exponentialRampToValueAtTime(1750,t+.19);
+ wg.gain.setValueAtTime(.23,t);wg.gain.exponentialRampToValueAtTime(.001,t+.19);
+ whistle.connect(wg).connect(audioMaster);whistle.start(t);whistle.stop(t+.20);
+}
+function crashSound(impact){
+ if(!audioCtx||soundMuted)return;
+ const power=Math.min(1.4,.45+impact/58),t=audioCtx.currentTime;
+ // Heavy chassis impact, buckling sheet metal and the brittle windshield break.
+ noiseBurst(.44,power*1.15,240,'lowpass');
+ noiseBurst(.19,power*.68,970,'bandpass');
+ noiseBurst(.34,power*.60,4200,'highpass');
+ // Several asynchronous glass shards and bouncing metal fragments.
+ for(let i=0;i<12;i++){
+  const at=t+.025+i*.027+Math.random()*.065;
+  const glass=i<7,osc=audioCtx.createOscillator(),gain=audioCtx.createGain(),filter=audioCtx.createBiquadFilter();
+  osc.type=glass?'sine':'triangle';
+  const hz=glass?1800+Math.random()*4400:280+Math.random()*1150;
+  osc.frequency.setValueAtTime(hz,at);
+  osc.frequency.exponentialRampToValueAtTime(hz*(glass?.56:.38),at+(glass?.12:.24));
+  filter.type='highpass';filter.frequency.value=glass?1300:180;
+  gain.gain.setValueAtTime(.0001,at);
+  gain.gain.linearRampToValueAtTime(power*(glass?.11:.19),at+.004);
+  gain.gain.exponentialRampToValueAtTime(.0001,at+(glass?.12:.24));
+  osc.connect(filter).connect(gain).connect(audioMaster);osc.start(at);osc.stop(at+.27);
+ }
+ for(let i=0;i<4;i++){
+  const at=t+.07+i*.105+Math.random()*.055;
+  const src=audioCtx.createBufferSource(),filter=audioCtx.createBiquadFilter(),gain=audioCtx.createGain();
+  src.buffer=makeNoiseBuffer(audioCtx,.16);filter.type='bandpass';filter.frequency.value=1600+Math.random()*3900;filter.Q.value=1.7;
+  gain.gain.setValueAtTime(power*.15,at);gain.gain.exponentialRampToValueAtTime(.001,at+.09);
+  src.connect(filter).connect(gain).connect(audioMaster);src.start(at);src.stop(at+.11);
+ }
+}
+function exhaustPop(){noiseBurst(.09,.19,520,'lowpass');}
+function updateGravelAudio(dt){
+ if(!audioCtx||!gravelScrub||!gravelCrunch||!launchGravel)return;
+ const t=audioCtx.currentTime,velocity=Math.abs(speed),turn=Math.abs(steer),slide=Math.abs(sideVel);
+ const hand=!!keys.Space,gas=!!(keys.KeyW||keys.ArrowUp);
+ // Tire scrubbing is audible on ordinary gravel corners, not just handbrake slides.
+ const cornerLoad=Math.min(1,turn*velocity/17);
+ const slideLoad=Math.min(1,slide/5.5);
+ const scrub=crash||finished||countdown>0?0:Math.min(.72,(cornerLoad*.34+slideLoad*.37+(hand&&velocity>3?.20:0))*(.42+Math.min(1,velocity/12)*.58));
+ gravelAudioClock+=dt;
+ const grittyVariation=.82+.10*Math.sin(gravelAudioClock*19)+.045*Math.sin(gravelAudioClock*43)+.035*Math.sin(gravelAudioClock*67);
+ gravelScrub.gain.gain.setTargetAtTime(gameStyle==='touge'?0:scrub*.19*grittyVariation,t,.055);
+ gravelScrub.filter.frequency.setTargetAtTime(390+velocity*14+slideLoad*390,t,.07);
+ gravelCrunch.gain.gain.setTargetAtTime(gameStyle==='touge'?0:scrub*.065*(.72+.28*Math.sin(gravelAudioClock*47)),t,.045);
+ gravelCrunch.filter.frequency.setTargetAtTime(1400+velocity*23,t,.08);
+ // Wheelspin and stones kicked up during the first seconds after the green light.
+ if(countdown>0||crash||finished){launchGravelTime=0;}
+ else if(launchSoundTime>0){launchGravelTime=Math.min(1,launchGravelTime+dt*8);}
+ else {launchGravelTime=Math.max(0,launchGravelTime-dt*1.9);}
+ const launchIntensity=launchGravelTime*Math.max(0,1-velocity/30)*(gas?1:.25)*Math.min(1,launchSoundTime*2);
+ launchGravel.gain.gain.setTargetAtTime(gameStyle==='touge'?0:launchIntensity*.37*(.84+.16*Math.sin(gravelAudioClock*41)),t,.035);
+ launchGravel.filter.frequency.setTargetAtTime(680+velocity*39,t,.06);
+}
+// Original, low-volume synth-driven canyon soundtrack (no external audio files).
+// 152 BPM, four-on-the-floor beat, syncopated bass and bright arpeggios.
+let canyonMusicStep=0,canyonMusicNext=0;
+const canyonMusicTempo=152,canyonStepSeconds=60/canyonMusicTempo/4;
+const canyonBass=[40,40,43,40,45,45,43,38,40,40,47,43,45,43,40,38];
+const canyonLead=[64,67,71,76,74,71,67,64,69,72,76,79,76,72,69,67];
+function canyonTone(midi,when,duration,volume,type='sawtooth',cutoff=1800){
+ const freq=440*Math.pow(2,(midi-69)/12),o=audioCtx.createOscillator(),g=audioCtx.createGain(),f=audioCtx.createBiquadFilter();
+ o.type=type;o.frequency.setValueAtTime(freq,when);f.type='lowpass';f.frequency.value=cutoff;
+ g.gain.setValueAtTime(.0001,when);g.gain.exponentialRampToValueAtTime(Math.max(.0002,volume),when+.008);
+ g.gain.exponentialRampToValueAtTime(.0001,when+duration);
+ o.connect(f).connect(g).connect(audioMaster);o.start(when);o.stop(when+duration+.015);
+}
+function canyonDrum(when,kind){
+ const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+ if(kind==='kick'){o.type='sine';o.frequency.setValueAtTime(140,when);o.frequency.exponentialRampToValueAtTime(46,when+.13);g.gain.setValueAtTime(.105,when);g.gain.exponentialRampToValueAtTime(.0001,when+.17)}
+ else {o.type='triangle';o.frequency.setValueAtTime(kind==='snare'?180:4800,when);o.frequency.exponentialRampToValueAtTime(kind==='snare'?75:1500,when+.045);g.gain.setValueAtTime(kind==='snare'?.032:.009,when);g.gain.exponentialRampToValueAtTime(.0001,when+(kind==='snare'?.11:.035))}
+ o.connect(g).connect(audioMaster);o.start(when);o.stop(when+.2);
+}
+function updateCanyonMusic(){return; /* replaced by user-supplied MP3 */
+ if(!audioCtx)return;
+ if(gameStyle!=='touge'||!courseChosen||soundMuted){canyonMusicNext=0;return;}
+ const now=audioCtx.currentTime;
+ if(!canyonMusicNext||canyonMusicNext<now-.25)canyonMusicNext=now+.035;
+ let scheduled=0;
+ while(canyonMusicNext<now+.14&&scheduled++<8){
+  const step=canyonMusicStep++,beat=step%16,t=canyonMusicNext;
+  if(beat%4===0)canyonDrum(t,'kick');
+  if(beat===4||beat===12)canyonDrum(t,'snare');
+  if(beat%2===0)canyonDrum(t,'hat');
+  if(beat%2===0)canyonTone(canyonBass[beat]-12,t,canyonStepSeconds*1.7,.027,'sawtooth',480);
+  if(beat%2===1)canyonTone(canyonLead[(beat+Math.floor(step/16)*3)%16],t,canyonStepSeconds*.8,.012,'square',2300);
+  if(beat===0||beat===6||beat===10)canyonTone([52,57,55,50][Math.floor(step/16)%4],t,canyonStepSeconds*3,.009,'triangle',1250);
+  canyonMusicNext+=canyonStepSeconds;
+ }
+}
+function updateAudio(dt){if(!audioCtx||!engineGain)return;updateCanyonMusic();if(soundMuted)return;updateGravelAudio(dt);
+ if(canyonSqueal){const t=audioCtx.currentTime,active=gameStyle==='touge'&&courseChosen&&!crash&&countdown<=0;
+ const amount=active?Math.min(1,Math.abs(speed)/7)*(keys.Space?1:Math.min(.8,Math.abs(sideVel)/5)) : 0;
+ canyonSqueal.gain.gain.setTargetAtTime(amount*.12,t,.045);
+ canyonSqueal.filter.frequency.setTargetAtTime(2900+Math.abs(speed)*54+Math.sin(t*23)*320,t,.045);
+ canyonSquealToneGain.gain.setTargetAtTime(amount*.025,t,.045);
+ canyonSquealTone.frequency.setTargetAtTime(1350+Math.abs(speed)*24+Math.sin(t*17)*115,t,.05);
+ }const t=audioCtx.currentTime;const gas=!!(keys.KeyW||keys.ArrowUp);const moving=Math.abs(speed),slip=Math.abs(sideVel),hand=!!keys.Space;const launchRev=gas&&countdown>0&&!finished&&!crash;const revPhase=audioCtx.currentTime*49;const limiterPulse=launchRev?(Math.sin(revPhase)>-.08?1:.24):1;const rpm=crash?45:launchRev?335+Math.sin(revPhase)*25:Math.max(58,engineRPM/25);for(const {osc,mul} of engineOsc)osc.frequency.setTargetAtTime(rpm*mul,t,.065);if(enginePulse){enginePulse.filter.frequency.setTargetAtTime(75+rpm*.72,t,.07);enginePulse.gain.gain.setTargetAtTime(crash?.008:launchRev?.23*limiterPulse:.074+Math.min(.065,moving/950)+(gas?.044:0),t,launchRev?.02:.09);}engineGain.gain.setTargetAtTime(crash?.05:launchRev?(.91*limiterPulse):.37+Math.min(.62,moving/82)+(gas?.16:0),t,launchRev?.018:.065);roadGain.gain.setTargetAtTime(crash?0:Math.min(gameStyle==='touge'?.025:.13,moving/340),t,.09);roadFilter.frequency.setTargetAtTime(190+moving*15,t,.09);driftGain.gain.setTargetAtTime(gameStyle==='touge'||crash?0:Math.min(.17,Math.max(0,slip-1.1)*.018+(hand&&moving>4?.065:0)),t,.08);driftFilter.frequency.setTargetAtTime(950+moving*16,t,.08);if(lastThrottle&&!gas&&!crash&&!finished&&moving>5){blowOff();exhaustPop();}if(gearboxNoise){gearboxNoise.gain.gain.setTargetAtTime(crash?0:Math.min(.095,.017+engineRPM/105000),t,.1);gearboxFilter.frequency.setTargetAtTime(320+engineRPM*.12,t,.1);windNoise.gain.gain.setTargetAtTime(crash?0:Math.min(.12,moving/490),t,.16);windFilter.frequency.setTargetAtTime(180+moving*14,t,.12);suspensionNoise.gain.gain.setTargetAtTime(crash?0:Math.min(.09,roadRumble*.12),t,.06);}lastThrottle=gas;}
+soundButton.addEventListener('click',()=>{if(!audioCtx)startAudio();else toggleAudio();});
+
+
+// Separate, low-slung 1980s Japanese hatchback: Panda AE86-inspired Trueno.
+const subaruParts=car.children.slice();const ae86=new THREE.Group();car.add(ae86);ae86.visible=false;
+const bodyWhite=mat(0xe3e2da,.45),pandaBlack=mat(0x16191b,.52),windowDark=new THREE.MeshStandardMaterial({color:0x18262b,metalness:.22,roughness:.2}),aeRubber=mat(0x131417),aeSilver=mat(0xabb0af,.3),aeTailRed=mat(0xd62e32,.3);
+function aBox(w,h,d,x,y,z,m,parent=ae86){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);parent.add(o);return o;}
+// Accurate AE86 Trueno silhouette: long low hood, upright windshield, thin roof,
+// sharply sloping rear hatch, short tail and narrow 1980s hatchback proportions.
+function aePrism(sections, material, parent=ae86){
+ const verts=[],indices=[];
+ for(const [z,halfWidth,bottom,top] of sections){
+  verts.push(-halfWidth,bottom,z,halfWidth,bottom,z,-halfWidth,top,z,halfWidth,top,z);
+ }
+ for(let i=0;i<sections.length-1;i++){
+  const a=i*4,b=(i+1)*4;
+  indices.push(a,b,a+1,a+1,b,b+1,a+2,a+3,b+2,a+3,b+3,b+2);
+  indices.push(a,a+2,b,a+2,b+2,b,a+1,b+1,a+3,a+3,b+1,b+3);
+ }
+ indices.push(0,1,2,1,3,2);
+ const k=(sections.length-1)*4;indices.push(k,k+2,k+1,k+1,k+2,k+3);
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));g.setIndex(indices);g.computeVertexNormals();
+ const solidMaterial=material.clone();solidMaterial.side=THREE.DoubleSide;solidMaterial.transparent=false;solidMaterial.depthWrite=true;const m=new THREE.Mesh(g,solidMaterial);parent.add(m);return m;
+}
+// Front is negative Z. Black lower rocker and white shoulder line.
+aePrism([[-2.18,.78,.48,.76],[-1.95,.90,.46,.92],[-.95,.93,.46,1.04],[.95,.93,.46,1.04],[1.83,.89,.46,.91],[2.13,.81,.49,.78]],bodyWhite);
+aePrism([[-2.19,.78,.40,.65],[-1.97,.93,.38,.68],[-.96,.95,.38,.68],[.96,.95,.38,.68],[1.86,.91,.38,.67],[2.15,.82,.42,.65]],pandaBlack);
+// Dark hood: flat, long and slightly tapered toward the grille.
+aePrism([[-2.10,.76,.94,.965],[-1.88,.83,.99,1.018],[-.80,.84,1.045,1.066]],pandaBlack);
+// Glasshouse: trapezoidal roof profile, sloped hatch, compact rear quarter.
+aePrism([[-.80,.74,1.045,1.10],[-.36,.73,1.08,1.58],[.87,.72,1.08,1.58],[1.72,.72,.95,1.03]],bodyWhite);
+aBox(1.43,.065,1.24,0,1.603,.26,bodyWhite);
+// Front windshield slanted back from hood to roof.
+function aePanel(corners, material, parent=ae86){
+ const g=new THREE.BufferGeometry(),v=[];
+ for(const p of corners)v.push(...p);
+ g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setIndex([0,1,2,0,2,3]);g.computeVertexNormals();
+ const mesh=new THREE.Mesh(g,material);mesh.material.side=THREE.DoubleSide;parent.add(mesh);return mesh;
+}
+const glassMat=new THREE.MeshStandardMaterial({color:0x142027,metalness:.25,roughness:.13,side:THREE.DoubleSide});
+aePanel([[-.69,1.11,-.79],[.69,1.11,-.79],[.69,1.55,-.35],[-.69,1.55,-.35]],glassMat);
+const rearBlackGlass=new THREE.MeshBasicMaterial({color:0x030405,side:THREE.DoubleSide,transparent:false,depthWrite:true});
+// Position the dark rear glass ABOVE the opaque white hatch surface, not inside it.
+aePanel([[-.695,1.635,.88],[.695,1.635,.88],[.695,1.115,1.72],[-.695,1.115,1.72]],rearBlackGlass);
+for(const side of [-1,1]){
+ const x=side*.746;
+ // Solid opaque exterior door and rear-quarter body panels prevent any see-through sides.
+ // The upper white body sits above a black lower rocker, like the actual Panda Trueno.
+ aePanel([[side*.948,.68,-.94],[side*.948,1.045,-.94],[side*.948,1.045,.92],[side*.948,.68,.92]],bodyWhite);
+ aePanel([[side*.945,.68,.93],[side*.945,1.005,.93],[side*.865,.91,1.82],[side*.865,.68,1.82]],bodyWhite);
+ aePanel([[side*.956,.42,-1.95],[side*.956,.675,-1.95],[side*.956,.675,1.85],[side*.956,.42,1.85]],pandaBlack);
+ // Opaque dark glazing instead of transparent windows showing through the shell.
+ // Side glass forms recognizable long-door coupe and triangular rear quarter.
+ aePanel([[x,1.10,-.70],[x,1.51,-.30],[x,1.51,.49],[x,1.10,.49]],glassMat);
+ aePanel([[x,1.10,.57],[x,1.51,.58],[x,1.10,1.52],[x,1.10,1.52]],glassMat);
+ // A and B pillars, sloping rear C pillar, window surround.
+ const pillar=mat(0x191a1c,.35);
+ aBox(.047,.48,.045,side*.756,1.33,.53,pillar);
+ const mirror=aBox(.20,.14,.27,side*.96,1.13,-.65,pandaBlack);
+ // Black trim at belt line and around wheel arches.
+ aBox(.045,.07,3.48,side*.935,.78,.02,pandaBlack);
+ // Pop-up headlamps in raised position, with thin rectangular housing.
+ aBox(.34,.11,.41,side*.60,1.08,-1.79,pandaBlack);
+ aBox(.30,.22,.08,side*.60,1.18,-1.97,aeSilver);
+ aBox(.36,.15,.06,side*.65,.78,-2.13,mat(0xff9a3d));
+ aBox(.43,.15,.06,side*.64,.82,2.12,aeTailRed);
+ // Wheels: black five-spoke rims rather than silver flat cylinders.
+ for(const z of [-1.28,1.38]){
+  const wheel=new THREE.Group();wheel.position.set(side*.95,.46,z);ae86.add(wheel);
+  const tire=new THREE.Mesh(new THREE.CylinderGeometry(.405,.405,.24,24),aeRubber);
+  tire.rotation.z=Math.PI/2;wheel.add(tire);
+  const rim=new THREE.Mesh(new THREE.CylinderGeometry(.265,.265,.251,24),pandaBlack);
+  rim.rotation.z=Math.PI/2;wheel.add(rim);
+  for(let spoke=0;spoke<5;spoke++){
+   const ang=spoke*Math.PI*2/5;
+   const part=aBox(.025,.22,.055,side*.135,Math.sin(ang)*.12,Math.cos(ang)*.12,aeSilver,wheel);
+   part.rotation.x=ang;
+  }
+  const hub=new THREE.Mesh(new THREE.CylinderGeometry(.065,.065,.265,12),aeSilver);
+  hub.rotation.z=Math.PI/2;wheel.add(hub);
+ }
+}
+// Narrow grille, low bumpers, hatch spoiler lip and rear hatch trim.
+aBox(1.53,.14,.06,0,.74,-2.20,pandaBlack);
+aBox(1.75,.13,.13,0,.54,-2.20,pandaBlack);
+aBox(1.74,.16,.13,0,.55,2.18,pandaBlack);
+aBox(1.52,.045,.21,0,.94,2.04,pandaBlack);
+// Canyon-specific headlights, glowing rear lamps and fading world-space light streaks.
+const canyonHeadlights=[],canyonTailGlow=[];
+for(const side of [-1,1]){
+ const lamp=new THREE.SpotLight(0xfff4dd,32,110,Math.PI/5.8,.68,1.05);
+ lamp.position.set(side*.66,1.02,-1.96);lamp.target.position.set(side*.55,-.55,-19);
+ ae86.add(lamp);ae86.add(lamp.target);canyonHeadlights.push(lamp);
+ const lens=aBox(.37,.13,.05,side*.63,.80,-2.11,new THREE.MeshBasicMaterial({color:0xfff5d7}));
+ const tail=aBox(.45,.18,.07,side*.65,.87,2.13,new THREE.MeshBasicMaterial({color:0xff2535}));
+ const glow=new THREE.PointLight(0xff1829,1.6,6,2);glow.position.set(side*.65,.89,2.23);ae86.add(glow);canyonTailGlow.push(glow);
+}
+// No taillight ribbons: keep only the physical glowing brake and tail lamps.
+function updateCanyonLighting(dt){
+ const enabled=gameStyle==='touge'&&courseChosen;
+ for(const lamp of canyonHeadlights)lamp.intensity=enabled?32:0;
+ for(const lamp of canyonTailGlow)lamp.intensity=enabled?((keys.KeyS||keys.ArrowDown)?4.2:2.1):0;
+}
+// Door lettering evokes the mountain-pass tofu-delivery silhouette without copied decals.
+const doorCanvas=document.createElement('canvas');doorCanvas.width=512;doorCanvas.height=128;const dc=doorCanvas.getContext('2d');dc.clearRect(0,0,512,128);dc.fillStyle='#111';dc.font='bold 61px sans-serif';dc.textAlign='center';dc.fillText('藤原とうふ店',256,78);const doorTex=new THREE.CanvasTexture(doorCanvas);const doorMat=new THREE.MeshBasicMaterial({map:doorTex,transparent:true,side:THREE.DoubleSide});
+for(const side of [-1,1]){const panel=new THREE.Mesh(new THREE.PlaneGeometry(1.45,.36),doorMat);panel.position.set(side*.953,.76,.18);panel.rotation.y=side*Math.PI/2;ae86.add(panel)}
+
+const keys={};addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code))e.preventDefault();keys[e.code]=true;if(e.code==='Space'&&!e.repeat)playHandbrakeSqueal();if(!e.repeat&&['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','KeyW','KeyS','KeyA','KeyD','Space'].includes(e.code))startAudio();if(e.code==='KeyM'&&!e.repeat)toggleAudio();if(e.code==='KeyR'&&!e.repeat&&courseChosen)restart();if(e.code==='Escape'&&!e.repeat){courseChosen=false;document.getElementById('courseMenu').style.display='flex';syncCanyonTrack();}if(e.code==='KeyF'&&!e.repeat)resetCar();if(e.code==='KeyC'&&!e.repeat)camMode=(camMode+1)%(gameStyle==='touge'?2:3);if(e.code==='KeyV'&&!e.repeat&&gameStyle!=='touge')setWeather((weatherMode+1)%4);if(e.code==='KeyP'&&!e.repeat&&gameStyle!=='touge')voiceEnabled=!voiceEnabled;if(e.code==='KeyN'&&!e.repeat&&gameStyle!=='touge')setNightMode(!nightMode)});addEventListener('keyup',e=>{keys[e.code]=false;if(e.code==='Space')stopHandbrakeSqueal();});addEventListener('blur',()=>{for(const k in keys)keys[k]=false;stopHandbrakeSqueal();});document.getElementById('again').onclick=restart;document.getElementById('stageExit').onclick=returnToArcade;
+
+// Yellow Mazda RX-7 FD-inspired rival: rounded low coupe, swept glasshouse,
+// pop-up headlight covers, large rear wing and circular taillights.
+let canyonStage=1;let canyonDifficulty='easy';let canyonEvent='time',rivalProgress=2,rivalSpeed=0,rivalDone=false,rivalFinishTime=0,rivalCollisionTimer=0,rivalDriftYaw=0,rivalLateral=0,rivalHitFlash=0;
+const rival=new THREE.Group();scene.add(rival);rival.visible=false;
+const rivalBody=new THREE.Group();rival.add(rivalBody);
+const rxYellow=new THREE.MeshStandardMaterial({color:0xffd018,metalness:.26,roughness:.28,side:THREE.DoubleSide});
+const rxDark=new THREE.MeshStandardMaterial({color:0x13151a,metalness:.12,roughness:.4,side:THREE.DoubleSide});
+const rxGlass=new THREE.MeshStandardMaterial({color:0x101e2c,metalness:.23,roughness:.12,side:THREE.DoubleSide});
+const rxRed=new THREE.MeshBasicMaterial({color:0xff2536,side:THREE.DoubleSide});
+const rxSilver=new THREE.MeshStandardMaterial({color:0x92979b,metalness:.7,roughness:.3});
+// Tapered sports-car body, front toward negative Z.
+aePrism([[-2.25,.66,.39,.65],[-2.03,.84,.38,.83],[-1.20,.95,.37,.96],[.65,.96,.38,1.02],[1.65,.89,.39,.89],[2.16,.70,.43,.69]],rxYellow,rivalBody);
+// Distinct long curved hood, swept windshield, and short rounded rear deck.
+aePrism([[-2.10,.72,.85,.87],[-1.27,.84,.95,.975],[-.79,.82,1.00,1.025]],rxYellow,rivalBody);
+aePrism([[-.78,.72,1.01,1.06],[-.32,.70,1.08,1.47],[.70,.69,1.07,1.50],[1.43,.64,.91,1.00]],rxYellow,rivalBody);
+aePanel([[-.67,1.07,-.76],[.67,1.07,-.76],[.64,1.44,-.29],[-.64,1.44,-.29]],rxGlass,rivalBody);
+aePanel([[-.64,1.45,.72],[.64,1.45,.72],[.61,.98,1.40],[-.61,.98,1.40]],rxGlass,rivalBody);
+// FD rear hatch window: explicitly outside the solid yellow cabin roof.
+// The prior pane was UNDER the opaque body mesh and therefore invisible.
+const fdRearWindowBlack=new THREE.MeshBasicMaterial({color:0x030509,side:THREE.DoubleSide,depthWrite:true});
+const fdRearWindow=aePanel([
+ [-.655,1.575,.735],[.655,1.575,.735],
+ [.625,1.100,1.415],[-.625,1.100,1.415]
+],fdRearWindowBlack,rivalBody);
+fdRearWindow.renderOrder=4;
+
+for(const side of [-1,1]){
+ const x=side*.725;
+ aePanel([[x,1.06,-.67],[x,1.45,-.27],[x,1.45,.57],[x,1.07,.66]],rxGlass,rivalBody);
+ aePanel([[x,1.06,.73],[x,1.43,.75],[side*.65,1.03,1.32],[side*.65,1.03,1.32]],rxGlass,rivalBody);
+ aBox(.18,.12,.24,side*.92,1.08,-.72,rxYellow,rivalBody);
+ // FD pop-up headlight lids in the closed position.
+ aBox(.41,.035,.34,side*.56,.905,-1.77,rxYellow,rivalBody);
+ aBox(.43,.07,.075,side*.56,.64,-2.16,rxDark,rivalBody);
+ aBox(.16,.07,.07,side*.82,.63,-2.13,rxSilver,rivalBody);
+ // Black tire, silver five-spoke alloy rim.
+ for(const z of [-1.33,1.39]){
+  const tire=new THREE.Mesh(new THREE.CylinderGeometry(.405,.405,.26,20),rxDark);
+  tire.rotation.z=Math.PI/2;tire.position.set(side*.93,.43,z);rivalBody.add(tire);
+  const rim=new THREE.Mesh(new THREE.CylinderGeometry(.275,.275,.271,20),rxSilver);
+  rim.rotation.z=Math.PI/2;rim.position.copy(tire.position);rivalBody.add(rim);
+  for(let k=0;k<5;k++){
+   const angle=k*Math.PI*2/5;
+   const spoke=aBox(.045,.23,.08,side*1.072,.43+Math.sin(angle)*.12,z+Math.cos(angle)*.12,rxDark,rivalBody);
+   spoke.rotation.x=angle;
+  }
+ }
+
+ // Tall wing end plates and a high horizontal rear aerofoil.
+ aBox(.09,.45,.39,side*.75,1.36,1.76,rxYellow,rivalBody);
+}
+aBox(1.65,.09,.39,0,1.60,1.80,rxYellow,rivalBody);
+aBox(1.50,.19,.09,0,.55,2.18,rxDark,rivalBody);
+aBox(1.55,.16,.10,0,.48,-2.23,rxYellow,rivalBody);
+aBox(.42,.09,.055,0,.57,2.23,rxSilver,rivalBody);
+
+// RedSuns club script on BOTH rear quarter panels, based on the supplied reference.
+// The decal is a transparent texture so the yellow paint stays visible underneath.
+const rxLogoCanvas=document.createElement('canvas');
+rxLogoCanvas.width=1024;rxLogoCanvas.height=256;
+const rxLogoCtx=rxLogoCanvas.getContext('2d');
+rxLogoCtx.clearRect(0,0,1024,256);
+rxLogoCtx.fillStyle='#b7190e';
+rxLogoCtx.font='bold 170px Georgia, Times New Roman, serif';
+rxLogoCtx.textAlign='center';rxLogoCtx.textBaseline='middle';
+rxLogoCtx.fillText('RedSuns',512,134,1000);
+const rxLogoTexture=new THREE.CanvasTexture(rxLogoCanvas);
+rxLogoTexture.colorSpace=THREE.SRGBColorSpace;
+const rxLogoMaterial=new THREE.MeshBasicMaterial({map:rxLogoTexture,transparent:true,depthWrite:false,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-2});
+for(const side of [-1,1]){
+ const decal=new THREE.Mesh(new THREE.PlaneGeometry(.79,.205),rxLogoMaterial);
+ // Side of the rear quarter, immediately above the rear wheel arch.
+ decal.position.set(side*.965,1.014,1.02);
+ decal.rotation.y=side*Math.PI/2;
+ rivalBody.add(decal);
+}
+
+// FD3S RX-7: distinctive smoked, continuous black rear lamp panel.
+// Body rear is +Z; all lens geometry sits in front of the yellow rear hatch.
+const rxSmoked=new THREE.MeshStandardMaterial({color:0x08090d,metalness:.26,roughness:.24,side:THREE.DoubleSide});
+const rxLensRed=new THREE.MeshBasicMaterial({color:0xe82029,side:THREE.DoubleSide});
+const rxLensDim=new THREE.MeshBasicMaterial({color:0x2b0d15,side:THREE.DoubleSide});
+// Full-width black wraparound panel, softly rounded on the ends.
+aBox(1.67,.33,.09,0,.81,2.205,rxSmoked,rivalBody);
+for(const side of [-1,1]){
+ const corner=new THREE.Mesh(new THREE.SphereGeometry(.173,12,8),rxSmoked);
+ corner.scale.set(.68,1,.30);corner.position.set(side*.81,.81,2.23);rivalBody.add(corner);
+ // Four circular lenses in a black housing, paired closely as on the anime RX-7.
+ for(const x of [side*.44,side*.66]){
+  const surround=new THREE.Mesh(new THREE.CylinderGeometry(.124,.124,.027,24),rxLensDim);
+  surround.rotation.x=Math.PI/2;surround.position.set(x,.82,2.267);rivalBody.add(surround);
+  const lamp=new THREE.Mesh(new THREE.CylinderGeometry(.088,.088,.032,24),rxLensRed);
+  lamp.rotation.x=Math.PI/2;lamp.position.set(x,.82,2.29);rivalBody.add(lamp);
+ }
+ // Slim dark intake behind the door and correct black rocker trim.
+ aBox(.035,.16,.51,side*.958,.71,.92,rxDark,rivalBody);
+ aBox(.055,.055,1.15,side*.96,.63,-.28,rxDark,rivalBody);
+ aBox(.045,.20,.26,side*.73,1.20,1.68,rxDark,rivalBody);
+ // Rear wing vertical supports and black inner brackets.
+ aBox(.075,.37,.095,side*.60,1.37,1.76,rxDark,rivalBody);
+ // Small front amber indicators.
+ aBox(.18,.055,.06,side*.72,.68,-2.21,new THREE.MeshBasicMaterial({color:0xffa94a}),rivalBody);
+}
+// Rear deck brake lamp, license plate recess and single round exhaust.
+aBox(.55,.035,.04,0,1.025,2.23,rxSmoked,rivalBody);
+aBox(.54,.17,.055,0,.56,2.26,rxSmoked,rivalBody);
+aBox(.42,.115,.063,0,.56,2.298,rxSilver,rivalBody);
+const rxExhaust=new THREE.Mesh(new THREE.TorusGeometry(.12,.035,7,16),rxSilver);
+rxExhaust.position.set(.58,.38,2.29);rivalBody.add(rxExhaust);
+// Wing underside retains the wide yellow FD wing and dark supports.
+aBox(1.48,.045,.34,0,1.54,1.78,rxDark,rivalBody);
+
+
+// Difficulty-specific rival models: separate meshes, not recolors of the same FD.
+const fcBody=new THREE.Group();rival.add(fcBody);
+const subaruBody=new THREE.Group();rival.add(subaruBody);
+const fcWhite=new THREE.MeshStandardMaterial({color:0xdce1e8,roughness:.35,metalness:.16,side:THREE.DoubleSide});
+const subBlue=new THREE.MeshStandardMaterial({color:0x3a4f91,roughness:.29,metalness:.24,side:THREE.DoubleSide});
+const darkTrim=new THREE.MeshStandardMaterial({color:0x10151f,roughness:.42,side:THREE.DoubleSide});
+const glassTint=new THREE.MeshStandardMaterial({color:0x101a28,roughness:.12,metalness:.2,side:THREE.DoubleSide});
+const lampGlow=new THREE.MeshBasicMaterial({color:0xff3447});
+function rivalWheel(parent,side,z,rimMat){
+ const tire=new THREE.Mesh(new THREE.CylinderGeometry(.405,.405,.25,20),darkTrim);
+ tire.rotation.z=Math.PI/2;tire.position.set(side*.91,.43,z);parent.add(tire);
+ const rim=new THREE.Mesh(new THREE.CylinderGeometry(.27,.27,.264,20),rimMat);
+ rim.rotation.z=Math.PI/2;rim.position.copy(tire.position);parent.add(rim);
+ for(let j=0;j<5;j++){const a=j*Math.PI*2/5;
+  const spoke=aBox(.035,.18,.07,side*1.055,.43+Math.sin(a)*.12,z+Math.cos(a)*.12,darkTrim,parent);spoke.rotation.x=a;}
+}
+// Ryosuke's FC3S: angular wedge, squared hatch, pop-up headlamps and wide black rear lamp bar.
+aePrism([[-2.22,.68,.40,.67],[-1.94,.85,.39,.81],[-.94,.91,.39,.96],[.95,.91,.39,.99],[1.98,.83,.41,.76],[2.17,.76,.44,.69]],fcWhite,fcBody);
+aePrism([[-2.08,.70,.83,.86],[-1.16,.82,.95,.98],[-.70,.80,1.00,1.03]],fcWhite,fcBody);
+aePrism([[-.74,.73,1.00,1.07],[-.27,.70,1.05,1.51],[.87,.70,1.04,1.52],[1.72,.71,.87,.94]],fcWhite,fcBody);
+aePanel([[-.68,1.08,-.73],[.68,1.08,-.73],[.67,1.48,-.25],[-.67,1.48,-.25]],glassTint,fcBody);
+aePanel([[-.66,1.49,.88],[.66,1.49,.88],[.68,.98,1.70],[-.68,.98,1.70]],glassTint,fcBody);
+for(const side of [-1,1]){
+ const x=side*.74;
+ aePanel([[x,1.05,-.66],[x,1.49,-.24],[x,1.49,.65],[x,1.05,.65]],glassTint,fcBody);
+ aePanel([[x,1.05,.74],[x,1.49,.78],[x,1.02,1.61],[x,1.02,1.61]],glassTint,fcBody);
+ rivalWheel(fcBody,side,-1.31,rxSilver);rivalWheel(fcBody,side,1.38,rxSilver);
+ // Raised rectangular pop-up headlamps.
+ aBox(.37,.18,.28,side*.57,1.04,-1.78,fcWhite,fcBody);
+ aBox(.32,.16,.045,side*.57,1.07,-1.94,new THREE.MeshBasicMaterial({color:0xfff5c6}),fcBody);
+ aBox(.05,.16,.54,side*.92,.63,.15,darkTrim,fcBody);
+ for(const xLamp of [side*.45,side*.66]){
+  const lamp=new THREE.Mesh(new THREE.CylinderGeometry(.115,.115,.035,18),lampGlow);
+  lamp.rotation.x=Math.PI/2;lamp.position.set(xLamp,.79,2.22);fcBody.add(lamp);
+ }
+ aBox(.09,.38,.14,side*.62,1.28,1.82,darkTrim,fcBody);
+}
+aBox(1.70,.29,.08,0,.80,2.17,darkTrim,fcBody);
+aBox(1.75,.075,.30,0,1.48,1.91,darkTrim,fcBody);
+aBox(1.55,.12,.12,0,.46,2.23,fcWhite,fcBody);
+// Bunta's 2-door Impreza GC8: short upright sedan/coupe cabin, hood scoop,
+// squared headlights, blue paint and gold wheels.
+const goldWheel=new THREE.MeshStandardMaterial({color:0xb89b4b,metalness:.62,roughness:.29});
+aePrism([[-2.12,.77,.43,.73],[-1.85,.91,.42,.89],[-.91,.95,.41,1.01],[1.12,.94,.42,1.03],[1.92,.89,.44,.87],[2.15,.80,.45,.73]],subBlue,subaruBody);
+aePrism([[-2.03,.75,.90,.92],[-1.15,.87,1.01,1.04],[-.78,.85,1.03,1.06]],subBlue,subaruBody);
+aePrism([[-.76,.79,1.03,1.10],[-.33,.75,1.08,1.61],[.89,.74,1.08,1.61],[1.42,.77,.98,1.04]],subBlue,subaruBody);
+aePanel([[-.72,1.10,-.74],[.72,1.10,-.74],[.71,1.58,-.31],[-.71,1.58,-.31]],glassTint,subaruBody);
+aePanel([[-.72,1.57,.91],[.72,1.57,.91],[.74,1.04,1.41],[-.74,1.04,1.41]],glassTint,subaruBody);
+for(const side of [-1,1]){
+ const x=side*.785;
+ aePanel([[x,1.08,-.71],[x,1.57,-.29],[x,1.57,.45],[x,1.08,.45]],glassTint,subaruBody);
+ aePanel([[x,1.08,.52],[x,1.57,.53],[x,1.08,1.34],[x,1.08,1.34]],glassTint,subaruBody);
+ rivalWheel(subaruBody,side,-1.31,goldWheel);rivalWheel(subaruBody,side,1.37,goldWheel);
+ aBox(.42,.18,.06,side*.58,.79,-2.16,new THREE.MeshBasicMaterial({color:0xffffd9}),subaruBody);
+ aBox(.44,.16,.06,side*.59,.81,2.17,lampGlow,subaruBody);
+ aBox(.085,.35,.15,side*.68,1.37,1.80,subBlue,subaruBody);
+}
+aBox(.63,.13,.46,0,1.095,-1.06,subBlue,subaruBody);
+aBox(.43,.075,.08,0,1.18,-1.27,darkTrim,subaruBody);
+aBox(1.78,.095,.34,0,1.57,1.81,subBlue,subaruBody);
+aBox(1.57,.17,.06,0,.69,-2.20,darkTrim,subaruBody);
+// Opaque dark rear hatch glass on both rival cars. The glass sits just above
+// the sloping painted hatch, avoiding z-fighting and paint occlusion.
+const opaqueRearGlass=new THREE.MeshBasicMaterial({color:0x080d16,side:THREE.DoubleSide,depthWrite:true,polygonOffset:true,polygonOffsetFactor:-3});
+function addRivalRearWindow(parent,upperZ,lowerZ,upperY,lowerY,upperHalfWidth,lowerHalfWidth){
+ const vertices=[
+  -upperHalfWidth,upperY+.065,upperZ+.07,
+   upperHalfWidth,upperY+.065,upperZ+.07,
+   lowerHalfWidth,lowerY+.075,lowerZ+.11,
+  -upperHalfWidth,upperY+.065,upperZ+.07,
+   lowerHalfWidth,lowerY+.075,lowerZ+.11,
+  -lowerHalfWidth,lowerY+.075,lowerZ+.11
+ ];
+ const geometry=new THREE.BufferGeometry();
+ geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));
+ geometry.computeVertexNormals();
+ const pane=new THREE.Mesh(geometry,opaqueRearGlass);
+ pane.renderOrder=3;
+ parent.add(pane);
+}
+addRivalRearWindow(fcBody,.88,1.70,1.49,.98,.66,.68);
+addRivalRearWindow(subaruBody,.91,1.41,1.57,1.04,.72,.74);
+function selectRivalCar(){
+ const preview=document.querySelector('.difficultyButton[data-difficulty="'+canyonDifficulty+'"] .rivalPreview');
+ const portrait=document.getElementById('rivalPortraitImage');if(preview&&portrait)portrait.src=preview.src;
+ const label=document.getElementById('rivalPortraitLabel');if(label)label.textContent=canyonDifficulty==='easy'?'RYOSUKE · RX-7 FC':canyonDifficulty==='hard'?'BUNTA · IMPREZA':'KEISUKE · RX-7 FD';
+ rivalBody.visible=canyonDifficulty==='medium';
+ fcBody.visible=canyonDifficulty==='easy';
+ subaruBody.visible=canyonDifficulty==='hard';
+ const hud=document.getElementById('raceHud');
+ hud.title=canyonDifficulty==='easy'?'Ryosuke Takahashi · Mazda RX-7 FC':canyonDifficulty==='hard'?'Bunta Fujiwara · Subaru Impreza':'Keisuke Takahashi · Mazda RX-7 FD';
+}
+selectRivalCar();
+// No floating opponent marker above the roof. Rival is shown on the minimap instead.
+function rivalPoint(index,offset=1.85){
+ const i=Math.max(0,Math.min(N,Math.floor(index))),p=tougeCenters[i],t=tougeTangents[i];
+ return new THREE.Vector3(p.x-t.z*offset,p.y,p.z+t.x*offset);
+}
+function updateRival(dt){
+ const active=courseChosen&&gameStyle==='touge'&&canyonEvent==='race';
+ rival.visible=active;
+ const hud=document.getElementById('raceHud');hud.style.display=active?'block':'none';document.getElementById('rivalPortrait').style.display=active?'block':'none';
+ if(!active)return;
+ const i0=Math.max(2,Math.min(N-12,Math.floor(rivalProgress)));
+ const prev=tougeTangents[Math.max(0,i0-7)],next=tougeTangents[Math.min(N,i0+14)];
+ const cross=prev.x*next.z-prev.z*next.x;
+ const dot=Math.max(-1,Math.min(1,prev.x*next.x+prev.z*next.z));
+ const curve=Math.atan2(cross,dot);
+ const severity=Math.min(1,Math.abs(curve)*2.8);
+ if(countdown<=0&&!finished&&!rivalDone){
+  // Brake for hairpins, accelerate on straights; the rival actually slows to drift.
+  // Catch-up pace only while the RX-7 trails the player's road progress.
+  // 270 km/h on straights, 180 km/h through the tightest bends.
+  const rivalBehind=rivalProgress<progress-0.5;
+  const straightPace=rivalBehind?75:72.2222;
+  const cornerReduction=rivalBehind?25:37;
+  // All tiers retain corner braking and catch-up behavior; only rival pace changes.
+  // Rebalanced tiers: Hard = previous Medium; Medium = previous Easy; Easy = 12% slower than previous Easy.
+  const difficultyFactor=canyonDifficulty==='easy'?.82:canyonDifficulty==='medium'?.93:1;
+  const hardCornerBrake=0;
+  const target=Math.max(23,(straightPace-cornerReduction*severity)*difficultyFactor-hardCornerBrake+2.0*Math.sin(rivalProgress*.014));
+  rivalSpeed+=(target-rivalSpeed)*Math.min(1,dt*(target<rivalSpeed?3.7:2.2));
+  let remaining=rivalSpeed*dt;
+  while(remaining>0&&rivalProgress<N){
+   const k=Math.min(N-1,Math.floor(rivalProgress));
+   const length=tougeCenters[k].distanceTo(tougeCenters[k+1])||1;
+   const step=Math.min(remaining/length,1-(rivalProgress-k));
+   rivalProgress+=step;remaining-=step*length;
+  }
+  if(rivalProgress>=N-3){rivalDone=true;rivalFinishTime=elapsed;}
+ }
+ const i=Math.min(N-1,Math.floor(rivalProgress)),alpha=rivalProgress-i;
+ const tangent=tougeTangents[i],future=tougeTangents[Math.min(N,i+9)];
+ const curvature=tangent.x*future.z-tangent.z*future.x;
+ // Slide tail outward through bends while the center of mass follows the road.
+ const driftTarget=Math.max(-1.10,Math.min(1.10,-curvature*8.6))*(.82+severity*.18);
+ rivalDriftYaw+=(driftTarget-rivalDriftYaw)*Math.min(1,dt*(Math.abs(driftTarget)>Math.abs(rivalDriftYaw)?6.4:4.1));
+ rivalLateral+=(Math.max(-.85,Math.min(.85,curvature*2.6))-rivalLateral)*Math.min(1,dt*3.2);
+ const a=rivalPoint(i,1.85+rivalLateral),b=rivalPoint(i+1,1.85+rivalLateral);
+ rival.position.copy(a.lerp(b,alpha));rival.position.y+=.03;
+ rival.rotation.y=Math.atan2(-tangent.x,-tangent.z)+rivalDriftYaw;
+ rivalBody.rotation.z=-rivalDriftYaw*.035+Math.sin(rivalProgress*.1)*.012;
+ const delta=rivalProgress-progress;
+ hud.textContent='STAGE '+canyonStage+'/3 · '+(canyonDifficulty==='easy'?'RYOSUKE · ':canyonDifficulty==='hard'?'BUNTA · ':'KEISUKE · ')+(rivalDone?'RIVAL FINISHED · '+fmt(rivalFinishTime):delta>3?'RIVAL AHEAD · '+Math.round(delta)+' pts':delta< -3?'YOU LEAD · '+Math.round(-delta)+' pts':'SIDE BY SIDE');
+ // Continuous bumper-to-bumper collision with positional separation and impulse.
+ // Unlike a cooldown-only hit, this cannot let the cars overlap on later frames.
+ const dx=pos.x-rival.position.x,dz=pos.z-rival.position.z;
+ const dist=Math.hypot(dx,dz);
+ const minDist=2.35;
+ if(countdown<=0&&!finished&&dist<minDist){
+  const nx=dist>.001?dx/dist:Math.cos(yaw),nz=dist>.001?dz/dist:Math.sin(yaw);
+  const penetration=minDist-dist;
+  // A rail-locked player has priority: deflect the rival, not the player.
+  const railProtected=false;
+  const playerShare=railProtected?0:.5;
+  const rivalShare=1-playerShare;
+  pos.x+=nx*penetration*playerShare;pos.z+=nz*penetration*playerShare;
+  rival.position.x-=nx*penetration*rivalShare;rival.position.z-=nz*penetration*rivalShare;
+  // Persist the sideways deflection in the AI's path-following offset.
+  rivalLateral=Math.max(-1.65,Math.min(1.65,rivalLateral-(nx*tangent.z-nz*tangent.x)*penetration*rivalShare*.75));
+  const impact=Math.min(1,Math.abs(speed-rivalSpeed)/35+.2);
+  // Ordinary contact is a bump rather than a major brake; rail grinds do not lose speed.
+  if(!railProtected){speed=Math.max(4,speed*(1-.035*impact));sideVel+=Math.max(-2,Math.min(2,(nx*Math.cos(yaw)-nz*Math.sin(yaw))*impact*1.5));}
+  rivalSpeed=Math.max(8,rivalSpeed*(1-(railProtected?.09:.035)*impact));
+  if(rivalCollisionTimer<=0){
+   rivalCollisionTimer=.35;
+   try{playCrashSound?.(.35+impact*.35)}catch(e){}
+  }
+ }
+ rivalCollisionTimer=Math.max(0,rivalCollisionTimer-dt);
+}
+let canyonDriftBlend=0,canyonVisualYaw=0,railReleaseGrace=0;
+let railSlideActive=false,railSlideSide=0,railSparkClock=0;
+const railSparks=[];
+const railSparkMaterial=new THREE.MeshBasicMaterial({color:0xffd52b,transparent:true,opacity:.95,depthWrite:false});
+for(let i=0;i<36;i++){
+ const mesh=new THREE.Mesh(new THREE.SphereGeometry(.10,5,4),railSparkMaterial.clone());
+ mesh.visible=false;scene.add(mesh);
+ railSparks.push({mesh,life:0,vx:0,vy:0,vz:0});
+}
+let railSparkCursor=0;
+function emitRailSpark(x,y,z,tx,tz){
+ const sp=railSparks[railSparkCursor++%railSparks.length];
+ sp.mesh.visible=true;sp.mesh.position.set(x,y,z);sp.mesh.scale.setScalar(.8+Math.random()*1.9);
+ sp.life=.22+Math.random()*.23;sp.mesh.material.opacity=.95;
+ sp.vx=tx*(2+Math.random()*5)+(Math.random()-.5)*3;
+ sp.vy=1+Math.random()*3;sp.vz=tz*(2+Math.random()*5)+(Math.random()-.5)*3;
+}
+function updateRailSparks(dt){for(const sp of railSparks){if(sp.life<=0)continue;sp.life-=dt;
+ sp.mesh.visible=sp.life>0;if(!sp.mesh.visible)continue;
+ sp.mesh.position.x+=sp.vx*dt;sp.mesh.position.y+=sp.vy*dt;sp.mesh.position.z+=sp.vz*dt;
+ sp.vy-=12*dt;sp.mesh.material.opacity=Math.min(.95,sp.life*3);
+}}
+const assistMode=1;let smoothedGas=0,smoothedBrake=0,steerVelocity=0;const assistNames=["OFF","BALANCED","HIGH"];let rivalGear=1,rivalRPM=1100,rivalShiftTimer=0;let gearNumber=1,engineRPM=1100,shiftPause=0,shiftSoundAt=0,driftAngle=0,tractionSlip=0,roadRumble=0,crestLoad=1,prevRoadY=0,prevRoadSlope=0,camShake=0,trackClock=0;let gearboxNoise=null,windNoise=null,suspensionNoise=null,gearboxFilter=null,windFilter=null,suspensionFilter=null;let launchKick=0,launchSmokeClock=0,launchBurnTime=0,launchSoundTime=0;let countdown=3.8,splitTimes=[null,null,null],weatherMode=0,voiceEnabled=true,lastCalledNote=-1,bodyRoll=0,bodyPitch=0,bodyBounce=0,previousSpeed=0;let airTime=0,airDuration=0,airHeight=0,lastRamp=-1,falling=false;let crash=null,collisionCooldown=0,carRoll=0,carPitch=0;let pos=new THREE.Vector3(),yaw=0,speed=0,sideVel=0,steer=0,elapsed=0,progress=0,finished=false,camMode=0,started=false,last=performance.now(),dustAccumulator=0;const camTarget=new THREE.Vector3();const fmt=s=>{const m=Math.floor(s/60),sec=(s%60).toFixed(2).padStart(5,'0');return String(m).padStart(2,'0')+':'+sec};try{const best=localStorage.getItem('canyon-rally-best');if(best)document.getElementById('best').textContent=fmt(+best)}catch{}
+// Co-driver notes use sampled course curvature; severity 1 = tight, 6 = gentle.
+const stageDistances=[0];for(let i=1;i<=N;i++)stageDistances[i]=stageDistances[i-1]+centers[i].distanceTo(centers[i-1]);
+const paceNotes=[];
+const rainDrops=[];const rainGeometry=new THREE.BufferGeometry();const rainPositions=new Float32Array(260*3);for(let i=0;i<260;i++){rainPositions[i*3]=(Math.random()-.5)*65;rainPositions[i*3+1]=Math.random()*28;rainPositions[i*3+2]=(Math.random()-.5)*65;}rainGeometry.setAttribute('position',new THREE.BufferAttribute(rainPositions,3));const rainMaterial=new THREE.PointsMaterial({color:0xc5deeb,size:.115,transparent:true,opacity:.58,depthWrite:false});const rainMesh=new THREE.Points(rainGeometry,rainMaterial);rainMesh.visible=false;scene.add(rainMesh);
+const weatherLabels=['☀ CLEAR','☁ OVERCAST','🌫 FOG','🌧 RAIN'];function setWeather(mode){weatherMode=mode;rainMesh.visible=mode===3;document.getElementById('weatherHud').innerHTML=weatherLabels[mode]+' · <kbd>V</kbd> WEATHER';}
+let australianVoice=null;
+function selectCoDriverVoice(){if(!('speechSynthesis' in window))return;const voices=speechSynthesis.getVoices();australianVoice=voices.find(v=>/^en-AU$/i.test(v.lang)&&/male|austral|daniel|lee/i.test(v.name))||voices.find(v=>/^en-AU$/i.test(v.lang))||voices.find(v=>/austral/i.test(v.name))||null;}
+if('speechSynthesis' in window){selectCoDriverVoice();speechSynthesis.addEventListener?.('voiceschanged',selectCoDriverVoice);}
+function sayNote(note,severity,dir){if(gameStyle==='touge'||!voiceEnabled||!('speechSynthesis' in window))return;try{speechSynthesis.cancel();const phrase=severity===1?`${dir.toLowerCase()} hairpin, brake hard`: `${dir.toLowerCase()} ${severity}${severity<=2?', tightens, brake early':''}`;const utter=new SpeechSynthesisUtterance(phrase);if(australianVoice)utter.voice=australianVoice;utter.lang='en-AU';utter.rate=1.11;utter.pitch=.78;utter.volume=1;speechSynthesis.speak(utter);}catch(e){}}
+
+// Find real corner apexes from the road centerline. Group sustained curves into one call.
+let activeCorner=null;
+for(let i=12;i<N-12;i+=3){
+ const a=tangents[i-8],b=tangents[i+8];
+ const signed=Math.atan2(a.x*b.z-a.z*b.x,a.x*b.x+a.z*b.z);
+ const strength=Math.abs(signed);
+ if(strength<.105){if(activeCorner){paceNotes.push(activeCorner);activeCorner=null;}continue;}
+ const sign=Math.sign(signed);
+ if(activeCorner&&activeCorner.sign!==sign){paceNotes.push(activeCorner);activeCorner=null;}
+ if(!activeCorner){activeCorner={index:i,meters:stageDistances[i],angleAbs:strength,sign};}
+ else if(strength>activeCorner.angleAbs){activeCorner.index=i;activeCorner.meters=stageDistances[i];activeCorner.angleAbs=strength;}
+}
+if(activeCorner)paceNotes.push(activeCorner);
+paceNotes.sort((a,b)=>a.meters-b.meters);
+// SVG road silhouettes: a gentle bend, medium corner, tight turn, or true U-shaped hairpin.
+// The line begins at the bottom (the car) and follows the road toward the top.
+function turnDiagram(sign,severity){
+ const right=sign>0;
+ let path;
+ if(severity===1) path='M 50 98 L 50 67 Q 50 34 79 34 Q 101 34 101 55 L 101 76';
+ else if(severity===2) path='M 49 98 L 49 73 Q 49 47 78 43 L 102 43';
+ else if(severity===3) path='M 43 98 L 43 78 Q 43 57 63 48 L 102 28';
+ else if(severity===4) path='M 40 98 L 43 76 Q 48 53 66 43 L 92 28';
+ else if(severity===5) path='M 39 98 Q 44 63 65 47 Q 76 37 89 24';
+ else path='M 40 98 Q 43 65 57 48 Q 69 33 80 19';
+ // Flip horizontally for left-hand corners while preserving the forward travel direction.
+ const transform=right?'':'translate(140 0) scale(-1 1)';
+ return `<svg viewBox="0 0 140 116" width="106" height="88" role="img" aria-label="${right?'Right':'Left'} turn severity ${severity}" style="display:block;margin:auto;overflow:visible"><g transform="${transform}"><path d="${path}" fill="none" stroke="#222b2b" stroke-width="19" stroke-linecap="round" stroke-linejoin="round"/><path d="${path}" fill="none" stroke="#ffe47b" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/><path d="${path}" fill="none" stroke="#fff5bc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5 10"/></g></svg>`;
+}
+function updatePaceNotes(){
+ if(gameStyle==='touge')return;
+ const nearest=nearestInfo(pos.x,pos.z).index;const at=stageDistances[nearest];
+ const upcoming=paceNotes.find(n=>n.meters>at-12&&n.meters<at+220);
+ const root=document.getElementById('pacenote'),symbol=document.getElementById('noteSymbol'),label=document.getElementById('noteText'),dist=document.getElementById('noteDistance');
+ if(!upcoming){root.classList.add('quiet');symbol.textContent='↑';delete symbol.dataset.noteKey;label.textContent='STRAIGHT';dist.textContent='CLEAR ROAD';return}
+ root.classList.remove('quiet');const meters=Math.max(0,Math.round((upcoming.meters-at)/10)*10);
+ const severity=upcoming.angleAbs>.95?1:upcoming.angleAbs>.72?2:upcoming.angleAbs>.53?3:upcoming.angleAbs>.37?4:upcoming.angleAbs>.25?5:6;
+ const dir=upcoming.sign>0?'RIGHT':'LEFT';
+ // Only update the diagram when the upcoming corner changes, not every animation frame.
+ const noteKey=upcoming.index+':'+severity;if(upcoming.index!==lastCalledNote && upcoming.meters-at < Math.max(75,Math.min(180,Math.abs(speed)*4.3+65))){lastCalledNote=upcoming.index;sayNote(upcoming,severity,dir);}
+ if(symbol.dataset.noteKey!==noteKey){symbol.innerHTML=turnDiagram(upcoming.sign,severity);symbol.dataset.noteKey=noteKey;}
+ label.textContent=severity===1?dir+' HAIRPIN':dir+' '+severity;
+ dist.textContent=meters+' m AHEAD'+(severity<=2?' · BRAKE EARLY':'');
+ root.style.borderColor=severity<=2?'#ff9367':'#e6e6bd';
+}
+// High contrast, driver-centered zoom map: nearby turns remain readable.
+function resetCar(){if(finished)return;recoverFromCrash();}
+function restart(){rivalGear=1;rivalRPM=1100;rivalShiftTimer=0;stopHandbrakeSqueal();rivalProgress=gameStyle==='touge'&&canyonEvent==='race'?2:0;rivalSpeed=0;rivalDone=false;rivalFinishTime=0;rivalCollisionTimer=0;rivalDriftYaw=0;rivalLateral=0;if(gameStyle==='touge'){camMode=0;window.canyonCamHeading=Math.atan2(-tangents[0].x,-tangents[0].z);}canyonDriftBlend=0;canyonVisualYaw=0;window.__canyonYawRate=0;railSlideActive=false;railReleaseGrace=0;railSparkClock=0;for(const sp of railSparks){sp.life=0;sp.mesh.visible=false;}backfireRemaining=0;wasAccelerating=false;backfireGroup.visible=false;restoreDamage();airTime=0;airDuration=0;airHeight=0;lastRamp=-1;falling=false;crash=null;collisionCooldown=0;carRoll=0;carPitch=0;document.getElementById("crashNotice").style.display="none";const p=centers[0],t=tangents[0];pos.set(p.x,p.y,p.z);if(gameStyle==='touge'&&canyonEvent==='race'){const right=new THREE.Vector3(t.z,0,-t.x);pos.addScaledVector(right,1.85);}yaw=Math.atan2(-t.x,-t.z);speed=0;sideVel=0;steer=0;steerVelocity=0;smoothedGas=0;smoothedBrake=0;elapsed=0;progress=0;finished=false;started=false;countdown=3.8;launchKick=0;launchSmokeClock=0;launchBurnTime=0;launchSoundTime=0;splitTimes=[null,null,null];lastCalledNote=-1;bodyRoll=0;bodyPitch=0;bodyBounce=0;gearNumber=1;engineRPM=1100;shiftPause=0;tractionSlip=0;driftAngle=0;prevRoadSlope=0;for(const m of tireTracks)m.visible=false;trackIndex=0;trackClock=0;document.getElementById("countdown").style.display="block";document.getElementById("launchHint").style.display="block";document.getElementById("splitHud").textContent="SPLIT 1 / 3 · --:--.--";document.getElementById('center').style.display='none';for(const d of dust){d.life=0;d.m.visible=false}for(const g of gravel){g.life=0;g.m.visible=false}gravelAccumulator=0;car.position.copy(pos);car.rotation.set(0,yaw,0);if(gameStyle==='touge'&&canyonEvent==='race'){rival.position.copy(rivalPoint(2,1.85));rival.rotation.y=Math.atan2(-tougeTangents[2].x,-tougeTangents[2].z);}const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));camera.position.copy(pos).addScaledVector(forward,-10).add(new THREE.Vector3(0,5,0));camTarget.copy(pos).add(new THREE.Vector3(0,1.2,0));camera.lookAt(camTarget)}restart();
+// Asphalt smoke reuses the existing soft-particle pool but has its own light gray material.
+const asphaltSmokeMaterial=new THREE.MeshBasicMaterial({color:0xdce2e6,transparent:true,opacity:.23,depthWrite:false,side:THREE.DoubleSide});
+function smokeEmit(x,z){const d=dust[dustCursor++%dust.length];d.life=.75+rand()*.65;d.m.visible=true;d.m.material=asphaltSmokeMaterial.clone();d.m.position.set(x,roadElevation(x,z)+.17,z);d.m.scale.setScalar(.45+rand()*.6);d.m.material.opacity=.23;}
+function dustEmit(x,z){if(gameStyle==='touge'){smokeEmit(x,z);return;}const d=dust[dustCursor++%dust.length];d.life=.65+rand()*.6;d.m.visible=true;d.m.position.set(x,roadElevation(x,z)+.24,z);d.m.scale.setScalar(.5+rand()*.55);d.m.material.opacity=.3}
+function beginCrash(tree,impact){
+ const dx=pos.x-tree.x,dz=pos.z-tree.z,side=Math.sign(Math.cos(yaw)*dx-Math.sin(yaw)*dz)||1;
+ const heavy=impact>27,violent=impact>36;
+ crash={time:0,duration:heavy?1.35:1.05,origin:pos.clone(),baseYaw:yaw,side,impact,rolls:violent?.65+rand()*.25:heavy?.27+rand()*.18:.055+rand()*.07,travel:Math.min(5.2,impact*.10),height:violent?.85:heavy?.42:.12};
+ speed=0;sideVel=0;crashSound(impact);applyDamage(impact);
+ document.getElementById('crashNotice').innerHTML=(violent?'HARD ROLLOVER!':heavy?'MAJOR CRASH!':'CRASH!')+'<div class="resetPrompt">PRESS F TO RESET CAR</div>';document.getElementById('crashNotice').style.display='block';
+ for(let i=0;i<Math.min(35,Math.floor(impact));i++)dustEmit(pos.x+(rand()-.5)*4,pos.z+(rand()-.5)*4);
+}
+function recoverFromCrash(){
+ const index=Math.min(N-2,Math.max(0,nearestInfo(pos.x,pos.z).index));
+ // Respawn at the last safe stretch of road rather than resetting the stage timer.
+ const i=Math.max(0,Math.min(index,Math.floor(progress)));const p=centers[i],t=tangents[i];
+ pos.set(p.x,p.y,p.z);if(gameStyle==='touge'&&canyonEvent==='race'){const right=new THREE.Vector3(t.z,0,-t.x);pos.addScaledVector(right,1.85);}yaw=Math.atan2(-t.x,-t.z);speed=0;sideVel=0;steer=0;steerVelocity=0;smoothedGas=0;smoothedBrake=0;carRoll=0;carPitch=0;
+ pos.y=roadElevation(pos.x,pos.z);car.rotation.set(0,yaw,0);car.position.copy(pos);restoreDamage();crash=null;collisionCooldown=2.2;
+ document.getElementById('crashNotice').style.display='none';
+}
+
+// Distant canyon night sky. Fog-free sky objects track the camera, remaining
+// behind the mountain geometry without visible square sprite backgrounds.
+const canyonSky=new THREE.Group();scene.add(canyonSky);
+const starCoords=[],starColors=[];
+let starSeed=71931;
+function skyRand(){starSeed=(1664525*starSeed+1013904223)>>>0;return starSeed/4294967296;}
+for(let i=0;i<1150;i++){
+ const az=skyRand()*Math.PI*2,el=.09+skyRand()*1.34;
+ const r=390,rr=r*Math.cos(el);
+ starCoords.push(Math.cos(az)*rr,Math.sin(el)*r,Math.sin(az)*rr);
+ const v=.54+skyRand()*.46;
+ starColors.push(v*.78,v*.86,v);
+}
+const starGeo=new THREE.BufferGeometry();
+starGeo.setAttribute('position',new THREE.Float32BufferAttribute(starCoords,3));
+starGeo.setAttribute('color',new THREE.Float32BufferAttribute(starColors,3));
+const starField=new THREE.Points(starGeo,new THREE.PointsMaterial({size:1.45,sizeAttenuation:false,vertexColors:true,transparent:true,opacity:.94,depthWrite:false,fog:false}));
+canyonSky.add(starField);
+// Procedural moon texture, with soft glow and faint crater detail.
+const moonCanvas=document.createElement('canvas');moonCanvas.width=256;moonCanvas.height=256;
+const moonCtx=moonCanvas.getContext('2d'),cx=128,cy=128;
+const halo=moonCtx.createRadialGradient(cx,cy,49,cx,cy,126);
+halo.addColorStop(0,'rgba(245,244,220,.43)');halo.addColorStop(.49,'rgba(205,219,245,.18)');halo.addColorStop(1,'rgba(190,215,255,0)');
+moonCtx.fillStyle=halo;moonCtx.fillRect(0,0,256,256);
+moonCtx.beginPath();moonCtx.arc(cx,cy,49,0,Math.PI*2);
+moonCtx.fillStyle='#f5f1d8';moonCtx.fill();
+moonCtx.save();moonCtx.beginPath();moonCtx.arc(cx,cy,49,0,Math.PI*2);moonCtx.clip();
+for(let i=0;i<34;i++){const x=82+skyRand()*92,y=82+skyRand()*92,r=3+skyRand()*10;
+ moonCtx.beginPath();moonCtx.arc(x,y,r,0,Math.PI*2);moonCtx.fillStyle='rgba(111,122,129,'+(.035+skyRand()*.065)+')';moonCtx.fill();}
+moonCtx.restore();
+const moonTex=new THREE.CanvasTexture(moonCanvas);moonTex.colorSpace=THREE.SRGBColorSpace;
+const moon=new THREE.Sprite(new THREE.SpriteMaterial({map:moonTex,transparent:true,depthWrite:false,depthTest:true,fog:false}));
+const moonDirection=new THREE.Vector3(-.66,.48,-.58).normalize();
+moon.position.copy(moonDirection).multiplyScalar(320);moon.scale.set(120,120,1);
+canyonSky.add(moon);canyonSky.visible=false;
+
+function update(dt){if(!courseChosen||storyActive){if(!driftSfx.paused)stopHandbrakeSqueal();return;}if((!keys.Space||soundMuted||finished||crash||countdown>0)&&!driftSfx.paused)stopHandbrakeSqueal();
+ canyonSky.visible=gameStyle==='touge';if(canyonSky.visible)canyonSky.position.copy(camera.position);
+ if(gameStyle==='touge'){weatherMode=0;rainMesh.visible=false;}const sky=gameStyle==='touge'?0x1a2535:weatherMode===0?(nightMode?0x344656:0xb8cbd0):weatherMode===1?0x89969b:weatherMode===2?0x8b9898:0x637987;
+ scene.background.setHex(sky);scene.fog.color.setHex(sky);scene.fog.density=gameStyle==='touge'?.0035:weatherMode===2?.013:weatherMode===3?.006:weatherMode===1?.004:.0027;
+ rainMesh.visible=weatherMode===3;rainMesh.position.set(pos.x,0,pos.z);if(weatherMode===3){const a=rainGeometry.attributes.position;for(let i=0;i<a.count;i++){let y=a.getY(i)-dt*24;if(y<0)y+=28;a.setY(i,y);}a.needsUpdate=true;}
+ if(countdown>0&&!finished){
+  const holdingThrottle=!!(keys.KeyW||keys.ArrowUp);
+  // Stage start: rev freely before GO, then a short, dramatic gravel burnout.
+  const previousCountdown=countdown;
+  countdown=Math.max(0,countdown-dt);
+  if(previousCountdown>0&&countdown===0&&holdingThrottle){
+    if(gameStyle==='touge')playCanyonLaunchSqueal();
+    launchKick=.75;
+    launchBurnTime=1.45;
+    launchSoundTime=1.8;
+    smoothedGas=1;
+    engineRPM=6500;
+    started=true;
+    tractionSlip+=.23;
+    for(let i=0;i<(gameStyle==='touge'?8:18);i++)dustEmit(pos.x+(rand()-.5)*2.1,pos.z+(rand()-.5)*2.1);
+    if(audioCtx&&!soundMuted&&gameStyle!=='touge'){noiseBurst(.65,.49,760,'bandpass');noiseBurst(.92,.31,1950,'bandpass');}
+  }
+  const e=document.getElementById('countdown');
+  e.textContent=countdown>1?Math.ceil(countdown-1):'GO!';
+  e.style.display=countdown===0?'none':'block';
+  document.getElementById('launchHint').style.display=countdown===0?'none':'block';
+  document.getElementById('launchHint').textContent=holdingThrottle?'REVS UP · READY TO LAUNCH':'HOLD ↑ / W · GET READY TO LAUNCH';
+}
+ updateDebris(dt);if(collisionCooldown>0)collisionCooldown-=dt;
+ if(crash){
+  crash.time=Math.min(crash.duration,crash.time+dt);const t=Math.min(1,crash.time/crash.duration),ease=1-Math.pow(1-t,2);
+  const travel=crash.travel*ease;
+  pos.copy(crash.origin).add(new THREE.Vector3(crash.side*travel*.6,0,travel*.7));
+  const roll=crash.side*(Math.PI*2*crash.rolls)*(t<.77?Math.pow(t/.77,.85):1);
+  const pitch=Math.sin(t*Math.PI*2)*(.10+crash.impact*.003)*(1-t);
+  const lift=Math.max(0,Math.sin(Math.PI*Math.min(1,t*1.3)))*crash.height;
+  // Car center stays above the road, even while inverted: no sinking below terrain.
+  const rotatedClearance=2.05+Math.abs(Math.sin(roll))*.35+Math.abs(Math.sin(pitch))*.2;
+  const floor=roadElevation(pos.x,pos.z);
+  pos.y=floor;
+  car.position.set(pos.x,floor+rotatedClearance+lift,pos.z);
+  car.rotation.set(pitch,crash.baseYaw+crash.side*ease*Math.PI*.9,roll);
+  if(t>=1){crash.time=crash.duration; /* wait for F recovery */}
+ }else if(!finished && countdown<=0){const gas=keys.KeyW||keys.ArrowUp,brake=keys.KeyS||keys.ArrowDown,hand=keys.Space,left=keys.KeyA||keys.ArrowLeft,right=keys.KeyD||keys.ArrowRight;updateBackfire(dt,gas);const info=nearestInfo(pos.x,pos.z),onRoad=info.distance<WIDTH*.54;if(gas||brake||Math.abs(speed)>.3)started=true;if(started)elapsed+=dt;const max=gameStyle==='touge'?59:48;const grade=tangents[info.index].y;smoothedGas+=(Number(!!gas)-smoothedGas)*Math.min(1,dt*(gas?5.0:9));smoothedBrake+=(Number(!!brake)-smoothedBrake)*Math.min(1,dt*(brake?7.0:11));const accel=smoothedGas*(shiftPause>0?4:(gameStyle==='touge'?25:18))*(1+launchKick*.65);launchKick=Math.max(0,launchKick-dt*.9);launchBurnTime=Math.max(0,launchBurnTime-dt);launchSoundTime=Math.max(0,launchSoundTime-dt);if(launchBurnTime>0&&gas){launchSmokeClock+=dt;if(launchSmokeClock>.035){launchSmokeClock=0;for(let i=0;i<5;i++){const back=1.4+rand()*.6,lateral=(i%2?1:-1)*.82;dustEmit(pos.x+Math.cos(yaw)*lateral+Math.sin(yaw)*back+(rand()-.5)*.5,pos.z-Math.sin(yaw)*lateral+Math.cos(yaw)*back+(rand()-.5)*.5);}if(gameStyle!=='touge')gravelBurst(.12,true);}}const reverseAccel=13; if(brake){speed-= (speed>0.6?32:reverseAccel)*dt*smoothedBrake;if(speed>10&&Math.abs(steer)>.15)tractionSlip+=steer*dt*.48;}else if(gas){speed+= (speed<-.6?28*smoothedGas:accel)*dt;}if(!gas&&!brake)speed-=Math.sign(speed)*Math.min(Math.abs(speed),5.2*dt);speed-=grade*9.81*dt;speed=Math.max(-12,Math.min(max,speed));
+// Six-speed sequential transmission: RPM is coupled to wheel speed, with a short shift cut.
+const ratios=[0,3.65,2.45,1.75,1.35,1.08,.88], finalDrive=3.45;
+const wheelRPM=Math.abs(speed)*60/(2*Math.PI*.43);
+let coupledRPM=1050+wheelRPM*ratios[gearNumber]*finalDrive*.76;
+const shiftUp=[0,6500,6500,6500,6500,6500,7600];
+if(shiftPause>0)shiftPause=Math.max(0,shiftPause-dt);
+if(gas&&gearNumber<6&&coupledRPM>shiftUp[gearNumber]&&shiftPause<=0){gearNumber++;coupledRPM=1050+wheelRPM*ratios[gearNumber]*finalDrive*.76;shiftPause=.13;if(audioCtx&&!soundMuted){const t=audioCtx.currentTime;const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='triangle';o.frequency.setValueAtTime(740,t);o.frequency.exponentialRampToValueAtTime(250,t+.13);g.gain.setValueAtTime(.07,t);g.gain.exponentialRampToValueAtTime(.001,t+.14);o.connect(g).connect(audioMaster);o.start(t);o.stop(t+.15);}}
+if(gearNumber>1&&coupledRPM<2250&&shiftPause<=0){gearNumber--;coupledRPM=1050+wheelRPM*ratios[gearNumber]*finalDrive*.76;shiftPause=.09;}
+engineRPM+=(Math.min(7550,Math.max(1050,coupledRPM+(gas?520:0)))-engineRPM)*Math.min(1,dt*10);
+if(!gas&&speed>0)speed=Math.max(0,speed-(.75+engineRPM/5800)*dt);
+// Keyboard steering: progressive input, speed-aware steering lock, and fast self-centering.
+const input=(left?1:0)-(right?1:0),velocityKmh=Math.abs(speed)*3.6;
+const speedBlend=Math.min(1,velocityKmh/140);
+const steerLock=1-(gameStyle==='touge'?.40:.66)*speedBlend;
+const response=(gameStyle==='touge'?4.2:assistMode===0?5.8:assistMode===1?3.25:2.65)*(1-.20*speedBlend);
+const desiredSteer=input*steerLock;
+steer+=(desiredSteer-steer)*(1-Math.exp(-dt*(input?response:response*2.25)));
+const speedFactor=Math.min(Math.abs(speed)/18,1);
+const lowSpeedBoost=1+.48*Math.pow(1-Math.min(Math.abs(speed)/16,1),1.35);
+const turning=steer*(.49+.26*speedFactor)*lowSpeedBoost;
+if(gameStyle!=='touge')yaw+=turning*speed*dt/10.5;
+// Hairpin handbrake: reduced rear grip plus deliberate yaw authority at low/medium speed.
+// Use the driver's requested direction, so quick keyboard taps rotate the car promptly.
+const hbSpeed=Math.min(1,Math.abs(speed)/11);
+const hbInput=hand?input:0;
+if(gameStyle!=='touge'&&hand&&Math.abs(speed)>1.2&&hbInput!==0){
+ const hairpinBias=1-.48*Math.min(1,Math.abs(speed)/30);
+ const hbTurnRate=(1.05+1.85*hbSpeed)*hairpinBias*Math.min(1,.38+Math.abs(steer)*1.35);
+ yaw+=Math.sign(speed)*Math.sign(hbInput)*hbTurnRate*dt;
+ speed*=Math.exp(-.24*dt);
+}
+featureNotice.textContent='';
+// Rear wheels lose lateral grip with the handbrake; sliding persists briefly after release.
+// AWD throttle yaw and slip-angle model: throttle rotates the rear, countersteer catches it.
+const velocity=Math.abs(speed), throttle=gas?1:0;
+const loadShift=(brake&&speed>3)?.18:0;
+const slipTarget=steer*Math.min(1,velocity/16)*(throttle*(gameStyle==='touge'?.18:assistMode===0?.82:assistMode===1?.57:.42)+loadShift*.55)+(hand?input*(gameStyle==='touge'?1.55:1.4):0);
+tractionSlip+=(slipTarget-tractionSlip)*Math.min(1,dt*(hand?4.2:2.8));
+const yawAssist=tractionSlip*(.24+velocity*.012)*(hand?1.25:assistMode===0?1:assistMode===1?.72:.52);
+if(gameStyle!=='touge')yaw+=yawAssist*dt*Math.sign(speed||1);
+// Gentle yaw damping and lateral-grip recovery, disabled during intentional handbrake slides.
+if(!hand&&assistMode>0){const assist=assistMode===1?.36:.63;const recovery=Math.min(1,Math.abs(sideVel)/9);yaw-=Math.sign(speed||1)*Math.atan2(sideVel,Math.max(5,velocity))*assist*dt*(.9+recovery);tractionSlip*=Math.exp(-dt*assist*(input===0?2.2:1.0));}
+const grip=(hand?(gameStyle==='touge'?1.15:.98):(gameStyle==='touge'?5.8:3.15)+(assistMode===0?0:assistMode===1?.85:1.65)*(1-Math.min(1,Math.abs(steer)*.55)))*(weatherMode===3?.84:1)*(.86+.14*crestLoad);
+sideVel+=(hand?input:steer)*speed*(hand?(gameStyle==='touge'?.85:1.38):gameStyle==='touge'?.075:assistMode===0?.21:.145)*dt;
+sideVel+=tractionSlip*velocity*(gameStyle==='touge'?.12:.47)*dt;
+sideVel-=sideVel*grip*dt;
+sideVel=Math.max(gameStyle==='touge'?-3.5:-13,Math.min(gameStyle==='touge'?3.5:13,sideVel));
+ // Canyon handbrake removes rear grip, but never steers by itself.
+ // Arrow keys remain the sole source of yaw, including during a drift.
+ if(gameStyle==='touge'){
+  const active=hand&&velocity>2.3;
+  canyonDriftBlend+=(Number(active)-canyonDriftBlend)*(1-Math.exp(-dt*(active?8:5)));
+  const turnAuthority=18.4+Math.min(9,velocity*.11);
+  // Normal steering intentionally falls short of the tightest hairpins.
+  // Holding Drift restores turn authority but constrains yaw to the road.
+  const handSteering=active?1.08:.77;
+  yaw+=turning*speed*dt/turnAuthority*handSteering;
+  // Light arcade guidance: soften excessive rotation and nudge toward the road's
+  // upcoming heading. No lane snapping, no steering input generated for the player.
+  // Handbrake drifts remain entirely manual.
+  if(!active && velocity>3 && info.distance<WIDTH*.63){
+   const guideIndex=Math.min(N-2,info.index+Math.max(4,Math.round(velocity*.22)));
+   const guideT=tangents[guideIndex];
+   const guideHeading=Math.atan2(-guideT.x,-guideT.z);
+   const delta=Math.atan2(Math.sin(guideHeading-yaw),Math.cos(guideHeading-yaw));
+   const strength=(input!==0?.58:.17)*Math.min(1,velocity/12);
+   yaw+=Math.max(-.38,Math.min(.38,delta*strength))*dt;
+  }
+  // Drift path assist: align the *actual travel direction* to the road's tangent.
+  // Limit heading error to prevent spins and remove the unwanted sharp yaw.
+  if(active && info.distance<WIDTH*.78){
+   const ahead=Math.min(N-2,info.index+Math.max(3,Math.round(velocity*.16)));
+   const tangent=tangents[ahead];
+   const heading=Math.atan2(-tangent.x,-tangent.z);
+   const headingError=Math.atan2(Math.sin(heading-yaw),Math.cos(heading-yaw));
+   const maxError=.16; // roughly 9 degrees actual travel heading error
+   const targetError=Math.max(-maxError,Math.min(maxError,headingError));
+   const correction=Math.max(-1.15,Math.min(1.15,targetError*2.4));
+   yaw+=correction*dt;
+   // Clamp only when the player is drifting, not during normal steering.
+   const remaining=Math.atan2(Math.sin(heading-yaw),Math.cos(heading-yaw));
+   if(Math.abs(remaining)>.26){
+    yaw+=Math.sign(remaining)*(Math.abs(remaining)-.26)*Math.min(1,dt*5.2);
+   }
+   // Gentle acceleration through a bend; no boost on straight roads.
+   const future=tangents[Math.min(N-2,ahead+7)];
+   const bendAngle=Math.abs(Math.atan2(tangent.x*future.z-tangent.z*future.x,tangent.x*future.x+tangent.z*future.z));
+   if(bendAngle>.016 && gas && speed>8) speed=Math.min(max,speed+2.6*dt);
+  }
+  const driftDirection=Math.sign(input||steer);
+  const targetVisual=active&&driftDirection!==0?driftDirection*(.47+.16*Math.min(1,velocity/33)):0;
+  canyonVisualYaw+=(targetVisual-canyonVisualYaw)*(1-Math.exp(-dt*(active?5.8:4.8)));
+  if(active){
+   sideVel+=steer*velocity*.12*dt;
+   sideVel=Math.max(-3.2,Math.min(3.2,sideVel));
+   speed*=Math.exp(-dt*.07);
+  }
+ }
+
+driftAngle=Math.atan2(sideVel,Math.max(3,velocity));
+roadRumble=Math.min(1.4,velocity/38+Math.abs(sideVel)/13);const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw)),rightward=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));pos.addScaledVector(forward,speed*dt).addScaledVector(rightward,sideVel*dt);
+  // Canyon guardrails are ordinary solid barriers. No rail lock or speed boost.
+  // Resolve only penetration and outward velocity so the car can slide past.
+  railSlideActive=false;
+  railSparkClock=0;
+  if(gameStyle==='touge'){
+   const rail=nearestInfo(pos.x,pos.z),p=centers[rail.index],t=tangents[rail.index];
+   const sx=-t.z,sz=t.x,offset=(pos.x-p.x)*sx+(pos.z-p.z)*sz;
+   const safeHalfWidth=4.48;
+   if(Math.abs(offset)>safeHalfWidth){
+    const sign=Math.sign(offset),over=Math.abs(offset)-safeHalfWidth;
+    pos.x-=sx*sign*over;
+    pos.z-=sz*sign*over;
+    const outward=(rightward.x*sx+rightward.z*sz)*sideVel+(forward.x*sx+forward.z*sz)*speed;
+    if(outward*sign>0){
+     const nx=sx*sign,nz=sz*sign;
+     const vx=forward.x*speed+rightward.x*sideVel;
+     const vz=forward.z*speed+rightward.z*sideVel;
+     const tx=vx-nx*outward*sign,tz=vz-nz*outward*sign;
+     speed=tx*forward.x+tz*forward.z;
+     sideVel=tx*rightward.x+tz*rightward.z;
+    }
+   }
+  }
+ updateRailSparks(dt);
+
+ // The forest has soft shoulders, no cliff-edge falls or invisible rock walls.
+ pos.y=roadElevation(pos.x,pos.z);
+ const ahead=roadElevation(pos.x-Math.sin(yaw)*2.4,pos.z-Math.cos(yaw)*2.4);
+ const behind=roadElevation(pos.x+Math.sin(yaw)*2.4,pos.z+Math.cos(yaw)*2.4);
+ const slope=(ahead-behind)/4.8;
+ const slopeRate=(slope-prevRoadSlope)/Math.max(.02,dt);
+ crestLoad=Math.max(.48,Math.min(1.35,1-slopeRate*.09));prevRoadSlope=slope;
+ // Trees are solid: low-speed bumps stop the car, high-speed hits cause a tumbling crash.
+ if(collisionCooldown<=0){for(const tree of (gameStyle==='touge'?[]:treeLocations)){const dx=pos.x-tree.x,dz=pos.z-tree.z;const hitRadius=1.18+tree.r;if(dx*dx+dz*dz<hitRadius*hitRadius){
+ const impact=Math.hypot(speed,sideVel);const dist=Math.hypot(dx,dz)||.001;
+ pos.x=tree.x+dx/dist*(hitRadius+.08);pos.z=tree.z+dz/dist*(hitRadius+.08);
+ if(impact>=14){beginCrash(tree,impact);}else{speed*=-.13;sideVel*=.18;collisionCooldown=.65;for(let j=0;j<5;j++)dustEmit(pos.x+(rand()-.5)*2,pos.z+(rand()-.5)*2)}
+ break;
+ }}}
+ if(crash){car.position.set(pos.x,roadElevation(pos.x,pos.z)+1.4,pos.z);}
+ if(info.index>progress-23&&info.index<progress+125)progress=Math.max(progress,info.index);
+ for(let k=0;k<3;k++)if(splitTimes[k]===null&&progress>=N*(k+1)/3){splitTimes[k]=elapsed;document.getElementById('splitHud').textContent=k===2?'FINISH SPLIT · '+fmt(elapsed):'SPLIT '+(k+1)+' · '+fmt(elapsed)+'  |  NEXT '+(k+2)+'/3';}
+if(progress>=N-9&&pos.distanceTo(end)<14){finished=true;speed=0;document.getElementById('center').style.display='block';if(gameStyle==='touge'&&canyonEvent==='race'){document.getElementById('center').style.display='none';openRivalStory('result',!rivalDone||elapsed<rivalFinishTime);}else{document.getElementById('center').querySelector('h1').textContent='STAGE COMPLETE';document.getElementById('result').textContent='Your time: '+fmt(elapsed);document.getElementById('again').textContent='RACE AGAIN';document.getElementById('again').onclick=restart;document.getElementById('stageExit').style.display='none';}try{const b=+(localStorage.getItem(gameStyle==='touge'?'canyon-drift-best':'canyon-rally-best')||Infinity);if(elapsed<b){localStorage.setItem(gameStyle==='touge'?'canyon-drift-best':'canyon-rally-best',elapsed);document.getElementById('best').textContent=fmt(elapsed)}}catch{}}if(!crash){car.position.copy(pos);car.position.y=pos.y+airHeight;const gradePitch=-Math.atan2(tangents[nearestInfo(pos.x,pos.z).index].y,.96);const targetRoll=-steer*Math.min(Math.abs(speed)/24,1)*.12-sideVel*.031+(1-crestLoad)*.05;bodyRoll+=(targetRoll-bodyRoll)*Math.min(1,dt*4.8);const brakingAccel=(speed-previousSpeed)/Math.max(.01,dt);bodyPitch+=((gradePitch+Math.max(-.10,Math.min(.10,brakingAccel*.004)))-bodyPitch)*Math.min(1,dt*4);bodyBounce+=(Math.sin(elapsed*17)*Math.min(.035,Math.abs(speed)*.0007)-bodyBounce)*Math.min(1,dt*7);car.position.y+=bodyBounce;car.rotation.set(bodyPitch,yaw+(gameStyle==='touge'?canyonVisualYaw:0),bodyRoll);previousSpeed=speed;}for(const item of wheels){item.w.rotation.x-=speed*dt/.43;if(item.z<0)item.pivot.rotation.y=steer*.42;
+ const contact=roadElevation(pos.x+Math.cos(yaw)*item.x-Math.sin(yaw)*item.z,pos.z-Math.sin(yaw)*item.x-Math.cos(yaw)*item.z);
+ const compression=Math.max(-.13,Math.min(.15,(contact-pos.y)*.5+(1-crestLoad)*.08));
+ item.pivot.position.y+=((item.restY+compression)-item.pivot.position.y)*Math.min(1,dt*12);
+ }stampTracks(dt);if(gameStyle!=='touge')gravelBurst(dt,hand);if(Math.abs(speed)>7&&(hand||Math.abs(sideVel)>1.4||!onRoad)){dustAccumulator+=dt*Math.min(gameStyle==='touge'?85:65,Math.abs(speed)*(gameStyle==='touge'?2.5:1.2));while(dustAccumulator>1){dustAccumulator--;dustEmit(pos.x+Math.sin(yaw)*1.7+(rand()-.5)*1.4,pos.z+Math.cos(yaw)*1.7+(rand()-.5)*1.4)}}document.getElementById('timer').textContent=fmt(elapsed);document.getElementById('speednum').textContent=String(Math.round(Math.abs(speed)*3.6)).padStart(3,'0');document.getElementById('gear').textContent=speed<-.1?'REVERSE':`GEAR ${gearNumber} · ${Math.round(engineRPM)} RPM`;if(gameStyle==='touge'){document.getElementById('gear').textContent=speed<-.1?'R':`AT ${gearNumber}`;if(canyonEvent==='race'){
+ rivalShiftTimer=Math.max(0,rivalShiftTimer-dt);
+ const rkmh=Math.abs(rivalSpeed)*3.6;
+ const rivalShiftSpeeds=[0,46,85,128,173,218];
+ if(rivalGear<6&&rkmh>rivalShiftSpeeds[rivalGear]&&rivalShiftTimer===0){rivalGear++;rivalShiftTimer=.19;}
+ else if(rivalGear>1&&rkmh<rivalShiftSpeeds[rivalGear-1]-17&&rivalShiftTimer===0){rivalGear--;rivalShiftTimer=.14;}
+ rivalRPM+=(Math.max(1100,Math.min(7600,1700+(rkmh-(rivalShiftSpeeds[rivalGear-1]||0))*105))-rivalRPM)*Math.min(1,dt*7);
+ }const n=document.getElementById('tachNeedle');if(n)n.setAttribute('transform',`rotate(${-125+Math.min(1,Math.max(0,engineRPM/9000))*250} 130 120)`);}const pct=Math.min(100,Math.floor(progress/N*100));document.getElementById('distance').textContent='STAGE PROGRESS · '+pct+'%';document.getElementById('fill').style.width=pct+'%';document.getElementById('mapProgressLabel').textContent='COURSE · '+pct+'%';document.getElementById('mapProgressFill').style.width=pct+'%'}updateRearLamps();updateCanyonLighting(dt);updatePaceNotes();updateGravel(dt);for(const d of dust){if(d.life<=0)continue;d.life-=dt;d.m.visible=d.life>0;d.m.scale.multiplyScalar(1+dt*.85);d.m.position.y+=dt*.3;d.m.material.opacity=Math.max(0,d.life*(gameStyle==='touge'?.17:.21))}const f=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));const chaseStretch=Math.min(2.1,Math.abs(speed)*.043),cornerLook=Math.max(-1.2,Math.min(1.2,steer*Math.abs(speed)*.021));
+// Canyon camera follows the road and keeps the car in frame even at 75-degree drift angles.
+const roadHeading=gameStyle==='touge'?Math.atan2(-tangents[nearestInfo(pos.x,pos.z).index].x,-tangents[nearestInfo(pos.x,pos.z).index].z):yaw;
+// Smooth the camera heading independently of car yaw and road segments.
+if(typeof canyonCamHeading==='undefined')window.canyonCamHeading=roadHeading;
+const camHeadingError=Math.atan2(Math.sin(roadHeading-window.canyonCamHeading),Math.cos(roadHeading-window.canyonCamHeading));
+window.canyonCamHeading+=camHeadingError*(1-Math.exp(-dt*2.5));
+const followHeading=gameStyle==='touge'?window.canyonCamHeading:yaw;
+const cf=new THREE.Vector3(-Math.sin(followHeading),0,-Math.cos(followHeading));
+const rightCam=new THREE.Vector3(Math.cos(followHeading),0,-Math.sin(followHeading));
+const desired=pos.clone().addScaledVector(cf,gameStyle==='touge'?-10.5-Math.min(2,Math.abs(speed)*.025):camMode===0?-10-chaseStretch:camMode===1?-5.7-chaseStretch*.4:2.65).addScaledVector(rightCam,gameStyle==='touge'?0:camMode===2?0:-cornerLook*.42).add(new THREE.Vector3(0,gameStyle==='touge'?5.0:camMode===0?5+chaseStretch*.13:camMode===1?2.4:1.75));
+if(camMode!==2&&gameStyle!=='touge'){const shake=Math.min(.027,Math.abs(speed)*.00055)*Math.min(1,roadRumble);desired.x+=(Math.random()-.5)*shake;desired.y+=(Math.random()-.5)*shake;}
+camera.position.lerp(desired,1-Math.exp(-(gameStyle==='touge'?4.5:camMode===2?22:6.8)*dt));
+const look=pos.clone().addScaledVector(cf,gameStyle==='touge'?4.8:camMode>=2?26:camMode===0?7:13).add(new THREE.Vector3(0,gameStyle==='touge'?1.0:camMode===2?1.65:1.35,0));
+camTarget.lerp(look,1-Math.exp(-(gameStyle==='touge'?5.8:9)*dt));camera.lookAt(camTarget);camera.fov=gameStyle==='touge'?Math.min(75,66+Math.abs(speed)*.11):camMode===2?76:Math.min(83,67+Math.abs(speed)*.23);camera.updateProjectionMatrix();car.visible=gameStyle==='touge'||camMode!==2;if(gameStyle==='touge'){ae86.visible=true;for(const child of subaruParts)child.visible=false;}
+updateRival(dt);animateCanyonSpectators(performance.now()*.001);updateMiniMap();}
+
+document.getElementById('selectRally').addEventListener('click',()=>{document.getElementById('driftModeChoices').style.display='none';document.getElementById('difficultyChoices').style.display='none';applyCourse('rally');courseChosen=true;document.getElementById('courseMenu').style.display='none';try{startAudio()}catch(e){console.warn('Audio unavailable:',e)}syncCanyonTrack();});
+document.getElementById('selectTouge').addEventListener('click',()=>{document.getElementById('driftModeChoices').style.display='block';document.getElementById('difficultyChoices').style.display='none';});
+
+const storyFaces=['assets/images/ryosuke-portrait.webp', 'assets/images/keisuke-portrait.webp', 'assets/images/bunta-portrait.webp'];
+const storyCars=['assets/images/ryosuke-car.webp', 'assets/images/keisuke-car.webp', 'assets/images/bunta-car.webp'];
+const storyRivals=[
+ {name:'RYOSUKE TAKAHASHI',vehicle:'WHITE MAZDA RX-7 FC',intro:"I've calculated every corner. Unfortunately, I didn't calculate how stubborn you are.",lose:"My perfect racing theory just got passed by a tofu delivery car. I need a new spreadsheet.",win:"That was a very educational defeat. For you, obviously."},
+ {name:'KEISUKE TAKAHASHI',vehicle:'YELLOW MAZDA RX-7 FD',intro:"Hope your tofu is strapped in. I'm about to deliver a very fast lesson.",lose:"I lost to a tofu car? Don't tell my brother. He'll make a chart about it.",win:"Don't feel bad. My RX-7 needs a warm-up lap before breakfast."},
+ {name:'BUNTA FUJIWARA',vehicle:'BLUE SUBARU IMPREZA',intro:"I'm Bunta Fujiwara. Takumi's dad. I own the tofu shop, and I taught him these roads. Try not to spill the tofu.",lose:"Huh. I think it's time I retired. Maybe it's time you ran the tofu shop. Don't forget the morning deliveries.",win:"Not bad. But the tofu's getting warm. Go practice and come back."}
+];
+let storyActive=false,storyAction=null,storyKind='';
+function openRivalStory(kind,won=false){
+ stopHandbrakeSqueal();
+ const r=storyRivals[canyonStage-1],last=won&&canyonStage===3;
+ storyActive=true;storyKind=kind;
+ document.getElementById('rivalStory').style.display='flex';
+ document.getElementById('storyFace').src=storyFaces[canyonStage-1];
+ document.getElementById('storyCar').src=storyCars[canyonStage-1];
+ document.getElementById('storyName').textContent=r.name;
+ document.getElementById('storyVehicle').textContent=r.vehicle+(canyonStage===3?' · TAKUMI\'S FATHER · FUJIWARA TOFU SHOP':'');
+ document.getElementById('storyQuote').textContent='“'+(kind==='intro'?r.intro:won?r.lose:r.win)+'”';
+ document.getElementById('storyBar').textContent=kind==='intro'?'STAGE '+canyonStage+' / 3 · YOUR NEXT RIVAL':last?'CHAMPIONSHIP COMPLETE':won?'STAGE '+canyonStage+' CLEAR · YOU WIN':'STAGE '+canyonStage+' · RIVAL WINS';
+ const label=kind==='intro'?'START RACE':last?'PLAY AGAIN':won?'CONTINUE':'RETRY';
+ document.getElementById('storyContinue').textContent=label+' ↵';
+ document.getElementById('storyExit').style.display=last?'inline-block':'none';
+ storyAction=()=>{
+  document.getElementById('rivalStory').style.display='none';
+  storyActive=false;
+  if(kind==='intro'){restart();return;}
+  if(last){startCanyonStage(1);return;}
+  startCanyonStage(won?canyonStage+1:canyonStage);
+ };
+ document.getElementById('storyContinue').focus();
+}
+document.getElementById('storyContinue').addEventListener('click',()=>{if(storyActive&&storyAction)storyAction();});
+document.getElementById('storyExit').addEventListener('click',()=>{storyActive=false;document.getElementById('rivalStory').style.display='none';returnToArcade();});
+window.addEventListener('keydown',e=>{if(storyActive&&e.code==='Enter'){e.preventDefault();e.stopImmediatePropagation();if(!e.repeat&&storyAction)storyAction();}},true);
+
+function startCanyonEvent(event){canyonEvent=event;applyCourse('touge');courseChosen=true;document.getElementById('courseMenu').style.display='none';document.getElementById('driftModeChoices').style.display='none';document.getElementById('difficultyChoices').style.display='none';try{startAudio()}catch(e){console.warn('Audio unavailable:',e)}syncCanyonTrack();}
+function startCanyonStage(stage){
+ canyonStage=stage;
+ canyonDifficulty=['easy','medium','hard'][stage-1];
+ selectRivalCar();
+ startCanyonEvent('race');
+ openRivalStory('intro');
+}
+function returnToArcade(){
+ courseChosen=false;
+ document.getElementById('center').style.display='none';
+ document.getElementById('courseMenu').style.display='flex';
+ document.getElementById('driftModeChoices').style.display='none';
+ document.getElementById('difficultyChoices').style.display='none';
+ syncCanyonTrack();
+}
+function showCanyonStageResult(won){
+ const panel=document.getElementById('center');
+ const title=panel.querySelector('h1');
+ const result=document.getElementById('result');
+ const again=document.getElementById('again');
+ const exit=document.getElementById('stageExit');
+ const last=won&&canyonStage===3;
+ title.textContent=last?'ALL 3 STAGES COMPLETE':won?'STAGE '+canyonStage+' CLEARED':'STAGE '+canyonStage+' LOST';
+ result.textContent=(won?'YOU WIN':'RIVAL WINS')+' · '+fmt(elapsed)+(last?' · CANYON CHAMPION':'');
+ again.textContent=last?'PLAY AGAIN':won?'CONTINUE':'RETRY';
+ again.onclick=()=>{
+  if(last)startCanyonStage(1);
+  else if(won)startCanyonStage(canyonStage+1);
+  else startCanyonStage(canyonStage);
+ };
+ exit.style.display=last?'inline-block':'none';
+}
+document.getElementById('driftTimeTrial').addEventListener('click',()=>startCanyonEvent('time'));
+document.getElementById('driftRace').addEventListener('click',()=>{startCanyonStage(1);});
+document.querySelectorAll('.difficultyButton').forEach(button=>button.addEventListener('click',()=>{canyonDifficulty=button.dataset.difficulty;selectRivalCar();startCanyonEvent('race');}));
+document.getElementById('chooseCourse').addEventListener('click',()=>{courseChosen=false;document.getElementById('courseMenu').style.display='flex';syncCanyonTrack();});
+const miniCanvas=document.getElementById('mapCanvas'),miniCtx=miniCanvas.getContext('2d');
+function updateMiniMap(){
+ const c=miniCtx,w=miniCanvas.width,h=miniCanvas.height;if(!c)return;
+ c.clearRect(0,0,w,h);
+ const canyon=gameStyle==='touge';
+ c.fillStyle=canyon?'rgba(17,24,29,.90)':'#0a1a2a';
+ c.fillRect(0,0,w,h);
+ const idx=nearestInfo(pos.x,pos.z).index,course=centers;
+ // One enlarged map: follow the player while exposing much more of the winding road.
+ // Smooth the heading over a longer road segment so the map doesn't snap on hairpins.
+ const ahead=tangents[Math.min(N,idx+26)]||tangents[idx];
+ const behind=tangents[Math.max(0,idx-26)]||tangents[idx];
+ const hd=Math.atan2(-(ahead.x+behind.x),-(ahead.z+behind.z));
+ const co=Math.cos(hd),si=Math.sin(hd);
+ // Fit the visible route vertically to the entire map, rather than leaving
+ // empty bands at its top and bottom. Recalculate on every frame as the road bends.
+ const first=Math.max(0,idx-270),last=Math.min(N,idx+450);
+ function rotated(p){const dx=p.x-pos.x,dz=p.z-pos.z;return [dx*co-dz*si,dx*si+dz*co]}
+ let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+ for(let i=first;i<=last;i+=3){const [x,y]=rotated(course[i]);minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y)}
+ // Keep the route touching both vertical boundaries, including on hairpins.
+ const scale=(h+18)/Math.max(1,maxY-minY);
+ const ox=w*.5-(minX+maxX)*.5*scale;
+ const oy=h*.5-(minY+maxY)*.5*scale;
+ function pt(p){const [x,y]=rotated(p);return [ox+x*scale,oy+y*scale]}
+ const [playerX,playerY]=pt(pos);
+ c.lineCap='round';c.lineJoin='round';
+ // Lightly tinted road corridor with a bold, high-contrast center route.
+ for(const [width,color] of canyon?[[23,'rgba(156,172,166,.13)'],[12,'#292e31'],[7,'#eeeac8']]:[[13,'#203746'],[7,'#bad6a1']]){
+  c.beginPath();c.lineWidth=width;c.strokeStyle=color;
+  for(let i=first;i<=last;i+=2){const [x,y]=pt(course[i]);if(i===first)c.moveTo(x,y);else c.lineTo(x,y)}
+  c.stroke();
+ }
+ // Finished route becomes muted; the road ahead remains bright.
+ c.beginPath();c.lineWidth=canyon?6:3;c.strokeStyle=canyon?'#92988c':'#f8d35b';
+ for(let i=first;i<=idx;i+=2){const [x,y]=pt(course[i]);if(i===first)c.moveTo(x,y);else c.lineTo(x,y)}
+ c.stroke();
+ // Player and opponent dots, visible without a second inset map.
+ c.save();c.shadowBlur=7;c.shadowColor='#37e36c';c.fillStyle='#31e76b';c.strokeStyle='#d5ffda';c.lineWidth=2.5;
+ c.beginPath();c.arc(playerX,playerY,8,0,Math.PI*2);c.fill();c.stroke();c.restore();
+ c.beginPath();c.fillStyle='#207ed4';c.arc(playerX+3,playerY-3,4,0,Math.PI*2);c.fill();
+ if(canyon&&canyonEvent==='race'){
+  const [rx,ry]=pt(rival.position);
+  c.save();c.shadowBlur=5;c.shadowColor='#ff3e39';c.fillStyle='#ed3939';c.strokeStyle='#ffc6bc';c.lineWidth=2;
+  c.beginPath();c.arc(rx,ry,7,0,Math.PI*2);c.fill();c.stroke();c.restore();
+ }
+}
+
+function frame(now){try{const dt=Math.min((now-last)/1000,.05);last=now;update(dt);updateAudio(dt);contactShadow.position.set(car.position.x,roadElevation(car.position.x,car.position.z)+.20,car.position.z);contactShadow.rotation.z=0;contactShadow.rotation.set(-Math.PI/2,0,-car.rotation.y);renderer.render(scene,camera);requestAnimationFrame(frame)}catch(err){console.error('Game frame failed',err);const warning=document.createElement('div');warning.style.cssText='position:fixed;z-index:99999;top:16px;left:16px;background:#521e22;color:white;padding:14px;border-radius:8px;font:16px sans-serif';warning.textContent='Game error: '+err.message;document.body.appendChild(warning);}}requestAnimationFrame(frame);addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();applyRetroPixels(gameStyle==='touge')});
+} catch(error) {showGameError(error)}
+</script></body></html>

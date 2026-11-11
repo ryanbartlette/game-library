@@ -1,0 +1,39 @@
+# Initial Drift · Apache settings for GoDaddy (cPanel / Linux hosting)
+# Put this file in the same folder as initial_drift.html.
+
+# Make sure every file type the game uses is served with the right type
+<IfModule mod_mime.c>
+  AddType application/wasm .wasm
+  AddType image/webp .webp
+  AddType model/gltf-binary .glb
+  AddType font/woff2 .woff2
+  AddType font/woff .woff
+  AddType font/ttf .ttf
+  AddType text/javascript .js .mjs
+</IfModule>
+
+# Compress text files on the way out (the game page, the 3D engine, the model decoder)
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json application/wasm image/svg+xml model/gltf-binary
+</IfModule>
+
+# Let browsers keep the big files, so the second visit loads almost instantly.
+# The game page itself is always re-checked, so updates show up straight away.
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/webp "access plus 30 days"
+  ExpiresByType image/png "access plus 30 days"
+  ExpiresByType image/jpeg "access plus 30 days"
+  ExpiresByType audio/mpeg "access plus 30 days"
+  ExpiresByType model/gltf-binary "access plus 30 days"
+  ExpiresByType application/wasm "access plus 30 days"
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType font/woff "access plus 1 year"
+  ExpiresByType font/ttf "access plus 1 year"
+  ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+<IfModule mod_headers.c>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>

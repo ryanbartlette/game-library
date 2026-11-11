@@ -1,0 +1,116 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cat Studio</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kaisei+Decol:wght@500;700&family=Zen+Maru+Gothic:wght@500;700&family=Klee+One:wght@600&display=swap">
+<style>
+:root{
+  --paper:#f6eedb; --paper-2:#efe3c6; --ink:#33402c; --ink-dim:rgba(51,64,44,.66); --ink-faint:rgba(51,64,44,.4);
+  --leaf:#5f8f45; --leaf-deep:#3e6b33; --sky:#7fb3cf; --sunset:#e39a4f; --sunset-soft:rgba(227,154,79,.2); --line:rgba(80,70,45,.18);
+  --paperTex:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' seed='4'/><feColorMatrix values='0 0 0 0 .45  0 0 0 0 .38  0 0 0 0 .25  0 0 0 .09 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); --washTex:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='400'><filter id='w'><feTurbulence type='fractalNoise' baseFrequency='.008 .02' numOctaves='4' seed='9'/><feColorMatrix values='0 0 0 0 .55  0 0 0 0 .5  0 0 0 0 .32  0 0 0 .16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23w)'/></svg>");
+  --f-display:"Kaisei Decol", "Hiragino Mincho ProN", Georgia, serif; --f-ui:"Zen Maru Gothic", "Nunito", system-ui, sans-serif; --f-hand:"Klee One", "Zen Maru Gothic", sans-serif;
+  color-scheme:light;
+}
+[hidden]{display:none!important}
+html,body{height:100%;background:#20342e;color:var(--ink);overflow:hidden}
+body{font-family:var(--f-ui);font-size:14px;-webkit-font-smoothing:antialiased}
+#app{position:fixed;inset:0}
+canvas{display:block;width:100%;height:100%;outline:none}
+.panel{position:relative;background:var(--paperTex),var(--washTex),linear-gradient(170deg,rgba(250,244,228,.94),rgba(240,229,203,.92));
+  border-radius:22px 18px 24px 16px / 18px 24px 16px 22px;
+  box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 0 0 1.5px rgba(120,100,60,.16) inset,0 0 18px rgba(160,130,80,.18) inset,0 10px 30px -12px rgba(10,30,25,.45),0 2px 6px rgba(10,30,25,.16)}
+.panel::after{content:"";position:absolute;inset:5px;border-radius:inherit;border:1px dashed rgba(120,100,60,.16);pointer-events:none}
+#toast{position:fixed;top:20%;left:50%;transform:translateX(-50%);font-family:var(--f-display);font-weight:700;font-size:36px;color:#fffaf0;text-shadow:0 0 18px rgba(255,220,160,.8),0 2px 14px rgba(20,50,40,.45);opacity:0;transition:opacity .4s;pointer-events:none;white-space:nowrap}
+#tune{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));right:calc(16px + env(safe-area-inset-right,0px));width:300px;max-height:calc(100% - 200px);overflow:auto;padding:16px 18px}
+#tune>*{position:relative;z-index:1}
+#tune h2{font-family:var(--f-display);font-weight:700;font-size:20px;margin:0 0 2px;color:var(--leaf-deep)}
+#tune p.lede{margin:0 0 10px;color:var(--ink-dim);font-size:12px;font-family:var(--f-hand)}
+#tune h3{font-size:12px;letter-spacing:.06em;color:#9a5a22;margin:14px 0 6px;font-weight:700}
+.row{display:grid;grid-template-columns:1fr 56px;gap:2px 8px;align-items:center;margin:4px 0}
+.row label{font-size:12.5px;color:var(--ink)}
+.row output{font-size:11px;text-align:right;color:var(--ink-dim)}
+.row input{grid-column:1/3;width:100%;accent-color:var(--leaf);margin:0}
+.btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.btns button{all:unset;cursor:pointer;font-size:12px;font-weight:700;padding:7px 13px;border-radius:999px;background:rgba(95,143,69,.14);color:var(--leaf-deep)}
+.btns button:hover{background:rgba(95,143,69,.24)}
+.btns button:focus-visible{outline:2px solid var(--sunset)}
+#tune{top:calc(60px + env(safe-area-inset-top,0px))}
+#studio{position:fixed;left:calc(16px + env(safe-area-inset-left,0px));top:calc(14px + env(safe-area-inset-top,0px));width:330px;padding:14px 16px;z-index:6;display:flex;flex-direction:column;gap:9px}
+#studio>*{position:relative;z-index:1}
+#studio .st-head{display:flex;align-items:center;justify-content:space-between;font-family:var(--f-display);font-size:19px;color:var(--leaf-deep)}
+#studio .st-row{display:flex;gap:6px;align-items:center}
+#studio button{all:unset;cursor:pointer;font-weight:700;font-size:13px;padding:6px 12px;border-radius:999px;background:rgba(95,143,69,.14);color:var(--leaf-deep);white-space:nowrap}
+#studio button:hover{background:rgba(95,143,69,.26)}
+#studio button[aria-pressed="true"]{background:var(--leaf);color:#fffaf0}
+#studio button:focus-visible{outline:2px solid var(--sunset)}
+#studio select{flex:1;min-width:0;font:inherit;font-size:13px;padding:6px 8px;border-radius:10px;border:1px solid var(--line);background:#fffdf6;color:var(--ink)}
+#studio .st-lab{font-family:var(--f-hand);font-weight:600;font-size:13px;color:var(--ink-dim)}
+#studio input[type=range]{flex:1;accent-color:var(--leaf)}
+#studio output{font-size:12px;color:var(--ink-dim);width:28px;text-align:right}
+#studio .st-sep{height:1px;background:var(--line);margin:2px 0}
+#studio .st-list{max-height:150px;overflow:auto;font-size:12px;color:var(--ink-dim);line-height:1.5}
+#studio .st-list b{color:var(--leaf-deep);font-weight:700}
+#studio .st-list .ch{color:#9a5a22}
+#studio{max-height:calc(100% - 28px);overflow:auto}
+#studio .st-tip{margin:0;font-family:var(--f-hand);font-size:12.5px;color:var(--ink-dim)}
+#studioBtn{right:calc(158px + env(safe-area-inset-right,0px))}
+html,body{margin:0}
+#studio{max-height:calc(100% - 28px);overflow:auto}
+#studio .st-sub{font-family:var(--f-display);font-size:15px;color:var(--leaf-deep);margin-top:4px}
+#studio .st-jl .st-row{gap:8px}
+#studio input[type=color]{width:38px;height:24px;border:1px solid var(--line);border-radius:8px;padding:0;background:none;cursor:pointer}
+body[data-kind="jack"] .only-cat{display:none!important}
+body:not([data-kind="jack"]) .only-jack{display:none!important}
+#tune{z-index:6}
+#load{position:fixed;inset:0;display:grid;place-items:center;background:#20342e;color:#f6eedb;font-family:var(--f-display);font-size:20px;z-index:20;transition:opacity .5s}
+#load .bar{width:220px;height:6px;border-radius:9px;background:rgba(255,255,255,.15);margin-top:14px;overflow:hidden}#load .bar i{display:block;height:100%;width:0;background:#e39a4f;transition:width .3s}
+body.ready #load{opacity:0;pointer-events:none}
+#gameLink{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));font-family:var(--f-hand);font-size:13px;color:rgba(51,64,44,.7);text-decoration:none;z-index:5;background:rgba(246,238,219,.75);padding:6px 12px;border-radius:999px}
+@media (max-width:720px){#studio{width:auto;right:16px;max-height:52%;top:auto;bottom:14px}#tune{left:16px;width:auto;max-height:40%}}
+</style>
+<div id="app"></div>
+<div id="load"><div>Opening the cat studio…<div class="bar"><i id="goFill"></i></div><div id="goTxt" style="font-size:13px;margin-top:10px;opacity:.7"></div></div></div>
+
+<div id="tune" class="panel" hidden>
+  <h2>Coat, size &amp; movement</h2>
+  <p class="lede">Changes apply live and are saved for the game. Copy the values to send them to Claude.</p>
+  <div id="tuneRows"></div>
+  <div class="btns"><button id="copyT">Copy values</button><button id="resetT">Reset</button><button id="qualT"></button></div>
+</div>
+
+<div id="studio" class="panel">
+  <div class="st-head"><b>Cat studio</b></div>
+  <div class="st-row" role="group" aria-label="Who to show"><button id="st_tink" aria-pressed="true">Tink</button><button id="st_luca" aria-pressed="false">Luca</button><button id="st_jack" aria-pressed="false">Jack the spirit</button></div>
+  <div class="st-row only-cat"><span class="st-lab" style="flex:1">Look</span><button id="lkCur" aria-pressed="true" title="Exactly how the cat looks in the game">Game look</button><button id="lkNew" aria-pressed="false" title="A separate look to experiment with, including its colours, painted finish, edge light and ear size">Test look</button></div>
+  <label class="st-lab" for="stAnim">Animation <span id="stCount"></span></label>
+  <div class="st-row"><button id="stPrev" title="Previous (left arrow)">&#8592;</button><select id="stAnim"></select><button id="stNext" title="Next (right arrow)">&#8594;</button></div>
+  <div class="st-row"><button id="stPlay" title="Space">Pause</button><label class="st-lab" for="stSpeed">Speed</label><input id="stSpeed" type="range" min="0" max="2" step="0.05" value="1"><output id="stSpeedO">1.0</output></div>
+  <div class="st-row"><button id="stNight" aria-pressed="false" title="A dark glade, to see glows the way they look at night">Night backdrop</button><button id="stPaint" aria-pressed="false" title="The painted brush filter the game uses (it makes fine edges look blocky up close)">Painted filter</button></div>
+  <div class="st-row"><button id="stTune" aria-pressed="false">Coat, shape &amp; size sliders</button><button id="stCam">Reset view</button></div>
+
+  <div class="only-jack">
+    <div class="st-sep"></div>
+    <div class="st-sub">Jack's look</div>
+    <div class="st-row"><button id="jlReset">Reset look</button><button id="jlCopy">Copy Jack look for Claude</button><button id="jlShow" hidden>Show</button></div>
+    <div id="jlRows" class="st-jl"></div>
+  </div>
+
+  <div id="altEx" class="only-cat" hidden></div>
+  <div class="only-cat">
+    <div class="st-sep"></div>
+    <label class="st-lab" for="stAct">Use the animation above for…</label>
+    <div class="st-row"><select id="stAct"></select><button id="stAssign">Assign</button></div>
+    <div class="st-row"><button id="stPreview" title="Show what this action uses now">Show current</button><button id="stUnassign">Back to default</button></div>
+    <div id="stList" class="st-list"></div>
+    <div class="st-row"><button id="stCopy">Copy assignments</button><button id="stResetAll">Reset all</button></div>
+  </div>
+  <p class="st-tip">Drag to turn around · right-drag (or Shift-drag) to slide the view · scroll to zoom · arrow keys step through animations.</p>
+</div>
+<a id="gameLink" href="index.html">Back to the game →</a>
+<div id="toast"></div>
+<script type="importmap">{"imports":{"three":"./three.module.js","three/addons/":"./jsm/"}}</script>
+<script>(async()=>{const u="./studio.js?v=343";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
+ if(!txt){document.getElementById("goTxt").textContent="Could not download the studio. Please reload";return}
+ const sc=document.createElement("script");sc.type="module";sc.src=URL.createObjectURL(new Blob([txt],{type:"text/javascript"}));document.body.appendChild(sc)})()</script>
