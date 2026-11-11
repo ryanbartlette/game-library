@@ -85,7 +85,7 @@ app.appendChild(renderer.domElement);
 const scene=new THREE.Scene();
 const FOG=new THREE.Color(0xd2b48a);
 scene.fog=new THREE.FogExp2(FOG,0.017);
-const TUNFOG_C=new THREE.Color(),TUNFOG_M=new THREE.Color(0x9fb2ba);
+const TUNFOG_C=new THREE.Color(),TUNFOG_M=new THREE.Color(0x6f6a9a);
 const camera=new THREE.PerspectiveCamera(T.fov,innerWidth/innerHeight,0.03,900);
 let composer=null,GRADE=null,PAINT=null,BLOOM=null;
 if(!LOW){composer=new EffectComposer(renderer);for(const rt of [composer.renderTarget1,composer.renderTarget2]){rt.depthTexture=new THREE.DepthTexture(rt.width,rt.height);rt.depthTexture.type=THREE.UnsignedIntType}composer.addPass(new RenderPass(scene,camera));

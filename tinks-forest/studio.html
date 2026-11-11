@@ -10,7 +10,7 @@
   --paper:#f6eedb; --paper-2:#efe3c6; --ink:#33402c; --ink-dim:rgba(51,64,44,.66); --ink-faint:rgba(51,64,44,.4);
   --leaf:#5f8f45; --leaf-deep:#3e6b33; --sky:#7fb3cf; --sunset:#e39a4f; --sunset-soft:rgba(227,154,79,.2); --line:rgba(80,70,45,.18);
   --paperTex:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' seed='4'/><feColorMatrix values='0 0 0 0 .45  0 0 0 0 .38  0 0 0 0 .25  0 0 0 .09 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); --washTex:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='400'><filter id='w'><feTurbulence type='fractalNoise' baseFrequency='.008 .02' numOctaves='4' seed='9'/><feColorMatrix values='0 0 0 0 .55  0 0 0 0 .5  0 0 0 0 .32  0 0 0 .16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23w)'/></svg>");
-  --f-display:"Kaisei Decol", "Hiragino Mincho ProN", Georgia, serif; --f-ui:"Zen Maru Gothic", "Nunito", system-ui, sans-serif; --f-hand:"Klee One", "Zen Maru Gothic", sans-serif;
+  --f-display:"Fraunces", Georgia, serif; --f-ui:"Montserrat", system-ui, sans-serif; --f-hand:"Montserrat", system-ui, sans-serif;
   color-scheme:light;
 }
 [hidden]{display:none!important}
@@ -56,6 +56,8 @@ canvas{display:block;width:100%;height:100%;outline:none}
 #studio{max-height:calc(100% - 28px);overflow:auto}
 #studio .st-tip{margin:0;font-family:var(--f-hand);font-size:12.5px;color:var(--ink-dim)}
 #studioBtn{right:calc(158px + env(safe-area-inset-right,0px))}
+:root{--f-ui:"Montserrat",system-ui,sans-serif;--f-title:"Fraunces",Georgia,serif}
+body{font-family:Montserrat,system-ui,sans-serif}
 html,body{margin:0}
 #studio{max-height:calc(100% - 28px);overflow:auto}
 #studio .st-sub{font-family:var(--f-display);font-size:15px;color:var(--leaf-deep);margin-top:4px}
@@ -111,6 +113,6 @@ body.ready #load{opacity:0;pointer-events:none}
 <a id="gameLink" href="index.html">Back to the game →</a>
 <div id="toast"></div>
 <script type="importmap">{"imports":{"three":"./three.module.js","three/addons/":"./jsm/"}}</script>
-<script>(async()=>{const u="./studio.js?v=343";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
+<script>(async()=>{const u="./studio.js?v=365";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
  if(!txt){document.getElementById("goTxt").textContent="Could not download the studio. Please reload";return}
  const sc=document.createElement("script");sc.type="module";sc.src=URL.createObjectURL(new Blob([txt],{type:"text/javascript"}));document.body.appendChild(sc)})()</script>
