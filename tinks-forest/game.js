@@ -1514,7 +1514,7 @@ const gate=document.getElementById('gate');
 {const pops={gHow:'gHowP',gCred:'gCredP'};for(const k in pops)document.getElementById(k).addEventListener('click',e=>{e.stopPropagation();for(const q in pops){const el=document.getElementById(pops[q]);el.hidden=q===k?!el.hidden:true}});for(const k in pops)document.getElementById(pops[k]).addEventListener('click',e=>{e.stopPropagation();e.currentTarget.hidden=true})}
 // the title theme: plays on the title screen (browsers only allow sound after a click, so it starts on the first click if it can't start by itself) and fades as you enter
 const THEME=window.__THEME||{stop(){}};
-gate.addEventListener('click',()=>{if(!window.__ready||!window.__canEnter)return;THEME.stop(3000);gate.hidden=true;started=true;tryLock();audioInit()});
+gate.addEventListener('click',e=>{/* Build 375: only the Enter the forest button starts the game; a click anywhere else just wakes the music */if(!(e.target&&e.target.closest&&e.target.closest('#goBtn')))return;if(!window.__ready||!window.__canEnter)return;THEME.stop(3000);gate.hidden=true;started=true;tryLock();audioInit()});
 function onKey(c){
  if(c==='KeyT'){const p=document.getElementById('tune');p.hidden=!p.hidden;if(!p.hidden&&locked)document.exitPointerLock()}
  if(P.summit&&c==='Space'){if(window.__leapReady)summitLeave();return}if(c==='KeyX'&&(P.summit||P.deep))return;if(c==='KeyX'){P.watch=!P.watch;P.watchT=0;P.watchA=cam.yaw;P.autoWatch=false;if(P.watch){P.groom=true;LIFE.swell=30;toast('Sit and watch',1200)}else P.camBack={t:0,p:camera.position.clone(),q:camera.quaternion.clone()};return}
