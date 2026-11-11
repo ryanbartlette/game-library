@@ -133,6 +133,7 @@ addEventListener('resize',()=>{renderer.setSize(innerWidth,innerHeight);camera.a
 if(PAINT)PAINT.uniforms.uRes.value.set(innerWidth*renderer.getPixelRatio(),innerHeight*renderer.getPixelRatio());
 const SUN_EL=0.30, SUN_AZ=2.35;
 const sunDir=new V3(Math.cos(SUN_EL)*Math.sin(SUN_AZ),Math.sin(SUN_EL),Math.cos(SUN_EL)*Math.cos(SUN_AZ)).normalize();
+window.__sunDir=sunDir;
 const sun=new THREE.DirectionalLight(0xffd29a,4.2);
 sun.castShadow=true;
 sun.shadow.mapSize.set(LOW?1024:2048,LOW?1024:2048);
