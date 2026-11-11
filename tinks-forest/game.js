@@ -1435,8 +1435,8 @@ function updateCrows(dt,time){const R=Math.max(5.5,detectRadius()*1.6);
    if(c.state==='land'&&dist<.4){c.state='ground';c.y=c.wp.y;c.st.visible=true;c.fl.visible=false;c.timer=0}}
   c.g.position.set(c.x,c.y,c.z)}}
 /* Build 372: birds and squirrels keep daytime hours, dawn to sunset; from dusk through the night the forest belongs to the crickets, the frogs and the owl */
-const DAYLIFE=()=>weather!=='dusk'&&weather!=='night';window.__DAYLIFE=DAYLIFE;let critAway=false;
-function critterDay(dt,time){const day=DAYLIFE();const all=()=>[...squirrels.map(s=>s.g),...crows.map(c=>c.g),...finches.map(f=>f.g),...woodpeckers.map(w=>w.g),...flocks.map(f=>f.g)];
+const WETWX=()=>{const E=window.__EV;return !!E&&((E.rain||0)>.4||(E.snow||0)>.4)};/* Build 375: in rain or snow the birds and squirrels shelter too */const DAYLIFE=()=>weather!=='dusk'&&weather!=='night'&&!WETWX();window.__DAYLIFE=DAYLIFE;let critAway=false;
+let wetChirpT=30;function critterDay(dt,time){const day=DAYLIFE();/* sheltering birds still call now and then from somewhere out of sight */if(!day&&weather!=='dusk'&&weather!=='night'&&WETWX()){wetChirpT-=dt;if(wetChirpT<=0){wetChirpT=35+Math.random()*50;try{const a=Math.random()*6.283;sfx(Math.random()<.5?'bird_song_1':'robin_chirp_2',{at:new V3(P.pos.x+Math.cos(a)*14,P.pos.y+4,P.pos.z+Math.sin(a)*14),vol:.3,maxDist:30})}catch(e){}}}const all=()=>[...squirrels.map(s=>s.g),...crows.map(c=>c.g),...finches.map(f=>f.g),...woodpeckers.map(w=>w.g),...flocks.map(f=>f.g)];
  if(day){if(critAway){critAway=false;for(const g of all())if(g&&g.userData.dayVis!=null){g.visible=g.userData.dayVis;g.userData.dayVis=null}}updateSquirrels(dt,time);updateCrows(dt,time);updateFinches(dt);updateWoodpeckers(dt,time);return}
  if(!critAway){critAway=true;for(const g of all())if(g&&!(P.carry&&P.carry.g===g)){g.userData.dayVis=g.visible;g.visible=false}}
  for(const f of flocks)if(f.g)f.g.visible=false}
