@@ -1,4 +1,9 @@
 <meta charset="utf-8">
+<script>/* Build 375: pausing stops the story too - timers set during play wait out the pause, and the game's own clock (__gnow) stands still */(()=>{let p=false,acc=0,t0=0;Object.defineProperty(window,'__pause',{configurable:true,get(){return p},set(v){v=!!v;if(v===p)return;const n=performance.now();p=v;if(v){t0=n;document.documentElement.classList.add('gpaused')}else{acc+=n-t0;document.documentElement.classList.remove('gpaused')}}});const PA=()=>acc+(p?performance.now()-t0:0);window.__pauseAcc=PA;window.__gnow=()=>performance.now()-PA();
+ const ST=window.setTimeout.bind(window),CT=window.clearTimeout.bind(window),map=new Map();let nid=9e8;
+ window.setTimeout=function(fn,ms,...a){if(typeof fn!=='function'||p)return ST(fn,ms,...a);const id=nid++;let base=PA();const run=()=>{if(p){map.set(id,ST(run,150));return}const a2=PA(),owe=a2-base;if(owe>5){base=a2;map.set(id,ST(run,owe));return}map.delete(id);fn(...a)};map.set(id,ST(run,ms||0));return id};
+ window.clearTimeout=function(id){if(map.has(id)){CT(map.get(id));map.delete(id)}else CT(id)}})()</script>
+<style>html.gpaused body *:not(#pause):not(#pause *):not(#qmenu):not(#qmenu *){animation-play-state:paused!important}</style>
 <link rel="icon" href="data:,"><title>Tink's Magical Forest</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..900,0..100,0..1&family=Montserrat:wght@500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,500&family=Cinzel:wght@600;700&family=Kaisei+Decol:wght@500;700&family=Zen+Maru+Gothic:wght@500;700&family=Klee+One:wght@600&family=Questrial&family=Cormorant+Garamond:ital,wght@1,400;1,500;1,600&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap">
@@ -326,6 +331,7 @@ body :not(#gate):not(#gate *):not(#jackq):not(#jackq *){text-shadow:0 1px 2px rg
 #jackq *{text-shadow:0 1px 2px rgba(4,18,22,.72),0 2px 14px rgba(4,18,22,.55)!important}
 #jackq>div:nth-of-type(1),#jackq>div:nth-of-type(1) *{text-shadow:0 1px 2px rgba(4,18,22,.75),0 2px 12px rgba(4,18,22,.6),0 0 18px rgba(93,255,200,.5),0 0 38px rgba(93,255,200,.28)!important}
 body.adv #cutSkip kbd,body.adv #viewP kbd{font-family:Montserrat,sans-serif!important;font-style:normal!important;font-weight:600!important;font-style:normal!important}
+/* Build 375: every action you're asked to take sits in the same centred pill */html body.adv #viewP,html body.adv #ad-pe{position:fixed!important;left:50%!important;right:auto!important;bottom:15vh!important;top:auto!important;transform:translateX(-50%)!important;padding:11px 22px!important;border-radius:999px!important;border:1px solid rgba(255,255,255,.75)!important;background:rgba(10,20,30,.28)!important;backdrop-filter:blur(6px);color:#fff!important;font-family:Montserrat,sans-serif!important;font-style:normal!important;font-variation-settings:normal!important;font-weight:600!important;font-size:13px!important;letter-spacing:.18em!important;text-transform:uppercase!important;text-shadow:0 1px 4px rgba(0,0,0,.6)!important;z-index:32;white-space:nowrap;display:flex;align-items:center;gap:10px}html body.adv #ad-pe[hidden]{display:none!important}
 </style>
 
 <div id="app"></div>
@@ -458,6 +464,6 @@ window.__THEME=(()=>{let done=false;const a=new Audio('audio/music/spring-title-
  b.addEventListener('click',e=>{e.stopPropagation();if(on){want=false;stop(600)}else{want=true;start()}});
  start();for(const ev of ['pointerdown','keydown'])addEventListener(ev,start,{once:true,capture:true});return {stop,play:()=>{done=false;want=true;start()}}})();</script>
 <script type="importmap">{"imports":{"three":"./three.module.js","three/addons/":"./jsm/"}}</script>
-<script>(async()=>{const u="./game.js?v=1794429480";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
+<script>(async()=>{const u="./game.js?v=1794430010";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
  if(!txt){const g=document.getElementById("goTxt");if(g)g.textContent="Could not download the game. Please reload";return}
  const sc=document.createElement("script");sc.type="module";sc.src=URL.createObjectURL(new Blob([txt],{type:"text/javascript"}));document.body.appendChild(sc)})()</script>
