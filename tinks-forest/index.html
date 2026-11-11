@@ -89,7 +89,7 @@ canvas{display:block;width:100%;height:100%;outline:none}
 #gate .credit{max-height:4.5em;overflow:auto}
 #gate .go{margin-top:20px;display:inline-flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:700;font-size:18px;color:#fffaf0;
   background:radial-gradient(120% 140% at 30% 20%,#8cc066,#4f8a3a);padding:11px 22px;border-radius:26px 22px 28px 20px;box-shadow:0 3px 0 #3a6a2c,0 8px 18px -6px rgba(30,60,30,.5);transition:transform .2s}
-#gate:hover .go{transform:translateY(-1px) rotate(-1deg)}
+#gate .go:not(.loading):hover{transform:translateY(-1px) rotate(-1deg)}
 #gate .go::before{content:"";width:14px;height:14px;background:#d8f0a8;border-radius:0 70% 0 70%;transform:rotate(10deg)}
 #gate .credit{font-size:11px;margin-top:18px;color:var(--ink-faint);line-height:1.5}
 #gate .credit a{color:inherit}
@@ -133,8 +133,8 @@ body.studio #brand,body.studio #status,body.studio #help,body.studio #hudBtn,bod
 #gate .go{all:unset;cursor:pointer;display:flex;align-items:center;gap:18px;font-family:"Montserrat",var(--f-ui);font-weight:700;font-size:clamp(15px,1.6vw,19px);letter-spacing:.26em;text-transform:uppercase;padding:10px 6px;text-shadow:0 2px 14px rgba(8,22,18,.6);transition:letter-spacing .4s ease,text-shadow .4s}
 #gate .go::before,#gate .go::after{content:"";width:46px;height:1px;background:linear-gradient(90deg,rgba(255,253,244,0),rgba(255,253,244,.85));transition:width .4s}
 #gate .go::before{transform:none;border-radius:0}#gate .go::after{transform:scaleX(-1)}
-#gate:hover .go{letter-spacing:.3em;text-shadow:0 0 18px rgba(190,255,200,.55),0 2px 14px rgba(8,22,18,.6)}
-#gate:hover .go::before,#gate:hover .go::after{width:64px}
+#gate .go:not(.loading):hover{letter-spacing:.3em;text-shadow:0 0 18px rgba(190,255,200,.55),0 2px 14px rgba(8,22,18,.6)}
+#gate .go:not(.loading):hover::before,#gate .go:not(.loading):hover::after{width:64px}
 #gate .go .go-w{display:flex;flex-direction:column;align-items:center;gap:9px}
 #gate .go .go-bar{display:block;width:100%;min-width:220px;height:3px;border-radius:2px;background:rgba(255,253,244,.16);overflow:hidden;transition:opacity .6s}
 #gate .go #goFill{display:block;height:100%;width:0;border-radius:2px;background:linear-gradient(90deg,rgba(184,255,207,.6),#e8fff0);box-shadow:0 0 8px rgba(184,255,207,.6);transition:width .4s ease}
@@ -464,6 +464,6 @@ window.__THEME=(()=>{let done=false;const a=new Audio('audio/music/spring-title-
  b.addEventListener('click',e=>{e.stopPropagation();if(on){want=false;stop(600)}else{want=true;start()}});
  const tk=setInterval(()=>{if(done||on){if(done)clearInterval(tk);return}start()},300);for(const ev of ['pointerdown','keydown'])addEventListener(ev,start,{capture:true});return {el:a,stop,play:()=>{done=false;want=true;start()},state:()=>({on,want,done,ready:ready()})}})();</script>
 <script type="importmap">{"imports":{"three":"./three.module.js","three/addons/":"./jsm/"}}</script>
-<script>(async()=>{const u="./game.js?v=1794435485";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
+<script>(async()=>{const u="./game.js?v=1794435795";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
  if(!txt){const g=document.getElementById("goTxt");if(g)g.textContent="Could not download the game. Please reload";return}
  const sc=document.createElement("script");sc.type="module";sc.src=URL.createObjectURL(new Blob([txt],{type:"text/javascript"}));document.body.appendChild(sc)})()</script>
