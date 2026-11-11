@@ -69,7 +69,7 @@ canvas{display:block;width:100%;height:100%;outline:none}
 .btns button:hover{background:rgba(95,143,69,.24)}
 .btns button:focus-visible{outline:2px solid var(--sunset)}
 /* welcome: a painted sky with drifting clouds and layered hills, card like a page from a sketchbook */
-#gate{position:fixed;inset:0;display:grid;align-items:start;justify-items:start;padding:clamp(16px,4vw,56px);cursor:pointer;overflow:hidden;background:#3c5e55 url('title-screen.webp?v=6') center 60%/cover no-repeat !important;
+#gate{position:fixed;inset:0;display:grid;align-items:start;justify-items:start;padding:clamp(16px,4vw,56px);cursor:default;overflow:hidden;background:#3c5e55 url('title-screen.webp?v=6') center 60%/cover no-repeat !important;
   background:linear-gradient(180deg,#5f9fd0 0%,#8fc1df 38%,#d9e9e4 64%,#f3e7c8 78%,#cfe0b0 100%)}
 #gate .sky{position:absolute;inset:0;pointer-events:none}
 #gate .cloud{position:absolute;border-radius:50%;filter:blur(1.5px);opacity:.95;
@@ -464,6 +464,6 @@ window.__THEME=(()=>{let done=false;const a=new Audio('audio/music/spring-title-
  b.addEventListener('click',e=>{e.stopPropagation();if(on){want=false;stop(600)}else{want=true;start()}});
  const tk=setInterval(()=>{if(done||on){if(done)clearInterval(tk);return}start()},300);for(const ev of ['pointerdown','keydown'])addEventListener(ev,start,{capture:true});return {el:a,stop,play:()=>{done=false;want=true;start()},state:()=>({on,want,done,ready:ready()})}})();</script>
 <script type="importmap">{"imports":{"three":"./three.module.js","three/addons/":"./jsm/"}}</script>
-<script>(async()=>{const u="./game.js?v=1794435032";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
+<script>(async()=>{const u="./game.js?v=1794435259";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
  if(!txt){const g=document.getElementById("goTxt");if(g)g.textContent="Could not download the game. Please reload";return}
  const sc=document.createElement("script");sc.type="module";sc.src=URL.createObjectURL(new Blob([txt],{type:"text/javascript"}));document.body.appendChild(sc)})()</script>
