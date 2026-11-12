@@ -2061,8 +2061,8 @@ function compAI(dt,pl){const A=comp.ai;A.t+=dt;A.cool=Math.max(0,A.cool-dt);
     compPick(A,x,z,8+Math.random()*8);A.trot=Math.random()<.25;A.pause=0;tx=A.tx;tz=A.tz}
    const dd=Math.hypot(tx-P.pos.x,tz-P.pos.z);
    if(dd<.6){A.pause+=dt;v=0;label=P.sit>.5?'Groom':'Sniff';if(A.pause>(A.sitFor||(A.sitFor=2+Math.random()*7))){A.tx=null;A.sitFor=0}}
-   else v=A.trot?T.run*.85:T.walk;
-   if(dPl<14&&Math.random()<dt/16){A.state='follow';A.t=0;A.dur=12+Math.random()*16;A.side=Math.random()<.5?-1:1}
+   else v=A.chaseDot?T.sprint*.75:A.trot?T.run*.85:T.walk;/* Build 375: dashing after the red dot */if(A.chaseDot){A.chaseDot=0;A.pause=0;label='Run'}
+   if(!A.chaseDot&&dPl<14&&Math.random()<dt/16){A.state='follow';A.t=0;A.dur=12+Math.random()*16;A.side=Math.random()<.5?-1:1}
    if(Math.random()<dt/8){let best=null,bd=7;for(const q of squirrels){if(q.kind==='robin'||!['forage','nibble'].includes(q.state))continue;const d=Math.hypot(q.x-P.pos.x,q.z-P.pos.z);if(d<bd){bd=d;best=q}}if(best){A.state='stalk';A.sq=best;A.t=0;A.dur=14}}
    break}
   case 'follow':{const f=fwdOf(pl.yaw);tx=pl.x-f.x*1.5+f.z*A.side*1.1;tz=pl.z-f.z*1.5-f.x*A.side*1.1;const d=Math.hypot(tx-P.pos.x,tz-P.pos.z);
@@ -4912,6 +4912,26 @@ const TOYS=(()=>{const T={};let ball=null,pill=null,hintT=0;
   /* the prompt */const busy=(window.__FCS&&window.__FCS.lock)||document.body.classList.contains('cut')||(window.__JACK&&window.__JACK.showing);const h=holder();hintT=Math.max(0,hintT-dt);if(busy)say(null);else if(h&&hintT>0)say(K+'Drop '+h.name);else if(!h){const n=T.near();say(n?K+'Pick up '+n.name:null)}else say(null)};
  {const prev=scene.onBeforeRender;scene.onBeforeRender=function(){try{if(prev)prev.apply(this,arguments)}catch(e){}try{tick()}catch(e){if(!T.err){T.err=1;console.warn('toys',e)}}}}
  window.__TOYS=T;return T})();
+
+/* ---------- Build 375: after the story, the red dot comes back now and then on its own: it circles on the ground, begging to be chased. Pounce near it and it darts off; the other cat joins in if it's close. */
+const FREEDOT=(()=>{const F={st:'off',t:0,next:90+Math.random()*120,c:new V3(),p:new V3(),tgt:new V3(),ang:0,life:0};
+ const g=new THREE.Group();g.visible=false;scene.add(g);const disc=new THREE.Mesh(new THREE.CircleGeometry(.022,16).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:0xff2a2a,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));disc.renderOrder=6;const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:softTex,color:0xff3030,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:.75,fog:false}));glow.scale.setScalar(.16);glow.position.y=.02;glow.renderOrder=6;g.add(disc,glow);
+ const after=()=>{const A=window.__QAPI;return !!(A&&A.Q&&A.Q.p&&(A.Q.p.finDone||A.Q.done&&A.Q.done.home))};
+ const free=()=>started&&!window.__pause&&!(window.__FCS&&window.__FCS.lock)&&!document.body.classList.contains('cut')&&!document.body.classList.contains('fin')&&P.mode==='ground'&&!P.inWater&&!(ROOM&&ROOM.active)&&!window.__inFarm;
+ const spot=(from,rmin,rmax)=>{for(let k=0;k<14;k++){const a=Math.random()*6.283,r=rmin+Math.random()*(rmax-rmin);const x=from.x+Math.sin(a)*r,z=from.z+Math.cos(a)*r;if(blocked(x,z,from.y))continue;if(waterLevelAt(x,z)>heightAt(x,z)-.02)continue;const y=groundAt(x,z,from.y+.6);if(Math.abs(y-from.y)>.8)continue;return new V3(x,y,z)}return null};
+ let last=performance.now();
+ const tick=()=>{const now=performance.now(),dt=Math.min(.1,(now-last)/1000);last=now;if(window.__pause)return;
+  if(F.st==='off'){g.visible=false;if(!after()||!free())return;F.next-=dt;if(F.next>0)return;const f=fwdOf(P.yaw);const at=spot(new V3(P.pos.x+f.x*3,P.pos.y,P.pos.z+f.z*3),0,1.8);if(!at){F.next=10;return}F.c.copy(at);F.p.copy(at);F.st='beg';F.t=0;F.life=0;F.ang=0;F.op=0;g.visible=true;return}
+  F.life+=dt;F.t+=dt;F.op=Math.min(1,(F.op||0)+dt*1.5);
+  const endIt=F.life>55||!free()||P.pos.distanceTo(F.c)>22;if(endIt){F.op-=dt*3;if(F.op<=0){F.st='off';F.next=150+Math.random()*240;g.visible=false;return}}
+  if(F.st==='beg'){F.ang+=dt*(5+Math.sin(F.t*1.3)*2);const r=.32+.08*Math.sin(F.t*2.1);const x=F.c.x+Math.sin(F.ang)*r,z=F.c.z+Math.cos(F.ang)*r;F.p.set(x,groundAt(x,z,F.c.y+.4),z)}
+  else if(F.st==='dart'){const d=F.tgt.clone().sub(F.p).setY(0),L=d.length();const sp=5.5;if(L<.08){F.c.copy(F.tgt);F.st='beg';F.t=0}else{F.p.addScaledVector(d.normalize(),Math.min(L,sp*dt));F.p.y=groundAt(F.p.x,F.p.z,F.p.y+.4)}}
+  /* a cat gets close: off it zips */const dart=who=>{const nt=spot(F.p,1.8,3.6);if(nt){F.tgt.copy(nt);F.st='dart'}};
+  if(!endIt&&F.st==='beg'){if(Math.hypot(P.pos.x-F.p.x,P.pos.z-F.p.z)<.38)dart('p');else if(comp&&comp.P&&Math.hypot(comp.P.pos.x-F.p.x,comp.P.pos.z-F.p.z)<.36)dart('c')}
+  /* the other cat joins the chase if it's nearby */try{if(!endIt&&comp&&comp.ai&&comp.P&&comp.P.mode==='ground'&&comp.P.pos.distanceTo(F.p)<10&&['wander','follow'].includes(comp.ai.state)){const A=comp.ai;A.state='wander';A.tx=F.p.x;A.tz=F.p.z;A.t=0;A.dur=6;A.chaseDot=1}}catch(e){}
+  g.position.copy(F.p);g.position.y+=.012;disc.material.opacity=.95*F.op;glow.material.opacity=(.6+.25*Math.sin(now/60))*F.op};
+ {const prev=scene.onBeforeRender;scene.onBeforeRender=function(){try{if(prev)prev.apply(this,arguments)}catch(e){}try{tick()}catch(e){if(!F.err){F.err=1;console.warn('freedot',e)}}}}
+ window.__FREEDOT=F;return F})();
 
 /* ---------- ferns and toadstools across the forest floor */
 {const rnd=Math.random;const clear=(x,z)=>{for(const t of trees)if(Math.hypot(t.x-x,t.z-z)<t.r+.5)return false;if(streamGap(x,z)<1.2)return false;if(ROOM&&Math.hypot(ROOM.root.position.x-x,ROOM.root.position.z-z)<(window.__TOWER?16:5))return false;if(window.__TRAIL&&window.__TRAIL.pts)for(const q of window.__TRAIL.pts)if(Math.hypot(q.x-x,q.z-z)<2.3)return false;if(LIFE.tree&&Math.hypot(LIFE.tree.x-x,LIFE.tree.z-z)<15)return false;if(window.__MORE&&window.__MORE.house&&Math.hypot(window.__MORE.house.x-x,window.__MORE.house.z-z)<9)return false;return true};
