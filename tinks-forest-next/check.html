@@ -17,7 +17,7 @@ button{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid var(--li
 @media (max-width:640px){.row{grid-template-columns:1fr}}
 </style></head><body><main>
 <h1>Visual check: live vs staging</h1>
-<p class="mut">Loads the live game, takes a fixed set of camera shots, then does the same for staging, and compares them pixel by pixel on your graphics card. Takes a few minutes. It never touches your save: time of day, season and weather are put back after each run.</p>
+<p class="mut">Loads the live game twice and staging once, takes the same 40 camera shots each time, and compares them pixel by pixel on your graphics card. The two live runs show what moves naturally; only differences beyond that are counted. Takes about ten minutes; keep this tab in front. It never touches your save: time of day, season and weather are put back after each run.</p>
 <button id="go">Start the check</button>
 <div id="status"></div><div id="sum"></div><div id="out"></div>
 <iframe id="frame"></iframe>
@@ -45,15 +45,23 @@ async function shoot(url,label){const f=$('frame');f.src=url;say('Loading '+labe
    const src=L.renderer.domElement;const cv=document.createElement('canvas');cv.width=480;cv.height=270;cv.getContext('2d').drawImage(src,0,0,480,270);out[ln+'|'+pn]=cv}}
  W.__pause=false;W.__camOverride=ov;C.setEvent(null,0);C.setT(keep.prog.w,keep.prog.f);if(C.season!==keep.season)C.setSeason(keep.season,true);
  f.src='about:blank';await wait(1500);return out}
-function diff(a,b){const A=a.getContext('2d').getImageData(0,0,480,270).data,B=b.getContext('2d').getImageData(0,0,480,270).data;const cv=document.createElement('canvas');cv.width=480;cv.height=270;const x=cv.getContext('2d');const D=x.createImageData(480,270);let n=0;
- for(let i=0;i<A.length;i+=4){const m=Math.max(Math.abs(A[i]-B[i]),Math.abs(A[i+1]-B[i+1]),Math.abs(A[i+2]-B[i+2]));const g=A[i]*.3;if(m>12){n++;D.data[i]=255;D.data[i+1]=40;D.data[i+2]=40}else{D.data[i]=D.data[i+1]=D.data[i+2]=g}D.data[i+3]=255}
- x.putImageData(D,0,0);return {pct:100*n/(480*270),cv}}
+const px=c=>c.getContext('2d').getImageData(0,0,480,270).data;
+// a pixel counts as a real difference only if staging differs from BOTH live runs, at a spot where the two live runs agreed
+// (with a 2-pixel margin around anything that moved between the two live runs)
+function diff3(a1,a2,b){const A=px(a1),A2=px(a2),B=px(b),W=480,H=270;const d=(X,Y,i)=>Math.max(Math.abs(X[i]-Y[i]),Math.abs(X[i+1]-Y[i+1]),Math.abs(X[i+2]-Y[i+2]));
+ const noise=new Uint8Array(W*H);let nN=0;for(let k=0;k<W*H;k++)if(d(A,A2,k*4)>12){noise[k]=1;nN++}
+ const near=new Uint8Array(W*H);for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(noise[y*W+x])for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const yy=y+dy,xx=x+dx;if(yy>=0&&yy<H&&xx>=0&&xx<W)near[yy*W+xx]=1}
+ const cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');const D=x.createImageData(W,H);let n=0;
+ for(let k=0;k<W*H;k++){const i=k*4;const g=A[i]*.3;let r=g,gg=g,bb=g;
+  if(near[k]){r=g*.6+90;gg=g*.6+70;bb=g*.6}else if(d(A,B,i)>12&&d(A2,B,i)>12){n++;r=255;gg=40;bb=40}
+  D.data[i]=r;D.data[i+1]=gg;D.data[i+2]=bb;D.data[i+3]=255}
+ x.putImageData(D,0,0);return {pct:100*n/(W*H),noise:100*nN/(W*H),cv}}
 $('go').onclick=async()=>{$('go').disabled=true;$('out').innerHTML='';$('sum').innerHTML='';
- try{const live=await shoot('/tinks-forest/?mute','the live game');const stg=await shoot('/tinks-forest-next/?mute','staging');
-  let worst=0,n=0,big=0;for(const k of Object.keys(live)){const a=live[k],b=stg[k];if(!a||!b)continue;const d=diff(a,b);n++;worst=Math.max(worst,d.pct);if(d.pct>2)big++;
-   const cls=d.pct<.5?'ok':d.pct<2?'warn':'bad';const [ln,pn]=k.split('|');
-   const el=document.createElement('div');el.innerHTML=`<div class="lab"><b>${ln} · ${pn}</b> <span class="${cls}">${d.pct.toFixed(2)}% of pixels differ</span> <span class="mut">(live · staging · differences in red)</span></div>`;
+ try{const live=await shoot('/tinks-forest/?mute','the live game (run 1 of 3)');const live2=await shoot('/tinks-forest/?mute','the live game again (run 2 of 3)');const stg=await shoot('/tinks-forest-next/?mute','staging (run 3 of 3)');
+  let worst=0,n=0,big=0,nz=0;for(const k of Object.keys(live)){const a=live[k],a2=live2[k],b=stg[k];if(!a||!a2||!b)continue;const d=diff3(a,a2,b);n++;worst=Math.max(worst,d.pct);nz=Math.max(nz,d.noise);if(d.pct>.5)big++;
+   const cls=d.pct<.1?'ok':d.pct<.5?'warn':'bad';const [ln,pn]=k.split('|');
+   const el=document.createElement('div');el.innerHTML=`<div class="lab"><b>${ln} · ${pn}</b> <span class="${cls}">${d.pct.toFixed(2)}% differ beyond natural movement</span> <span class="mut">(natural movement between two live runs: ${d.noise.toFixed(1)}%) · live · staging · real differences in red, natural movement in amber</span></div>`;
    const r=document.createElement('div');r.className='row';for(const c of [a,b,d.cv]){const im=new Image();im.src=c.toDataURL('image/jpeg',.85);r.appendChild(im)}el.appendChild(r);$('out').appendChild(el)}
-  $('sum').innerHTML=`<p><b>${n} shots compared.</b> Worst: ${worst.toFixed(2)}% of pixels. ${big?'<span class="bad">'+big+' shots differ by more than 2%: look at those below.</span>':'<span class="ok">Nothing differs by more than 2%.</span>'}</p><p class="mut">Birds, squirrels, drifting petals and the cats move between the two runs, so small red specks are expected. What matters is anything that is in one picture and not the other: a tree, a light, a colour.</p>`;
+  $('sum').innerHTML=`<p><b>${n} shots compared.</b> Worst real difference: ${worst.toFixed(2)}% of pixels (most natural movement in one shot: ${nz.toFixed(1)}%). ${big?'<span class="bad">'+big+' shots differ by more than 0.5% beyond natural movement: look at those below.</span>':'<span class="ok">Nothing differs beyond natural movement.</span>'}</p><p class="mut">The live game is shot twice. Anything that moved between those two runs (grass, leaves, water, clouds, creatures) is shown in amber and ignored. Red marks pixels where staging looks different from both live runs.</p>`;
   say('Done.')}catch(e){say('Stopped: '+e.message)}$('go').disabled=false};
 </script></main></body></html>
