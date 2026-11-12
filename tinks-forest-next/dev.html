@@ -1,0 +1,532 @@
+<meta charset="utf-8"><base href="/tinks-forest/"><meta name="robots" content="noindex">
+<script>/* Build 375: pausing stops the story too - timers set during play wait out the pause, and the game's own clock (__gnow) stands still. Jack's lines also hold the story (not the world) until you press Enter. */(()=>{let p=false,q=false,acc=0,t0=0;const held=()=>p===true||q;const flip=(was)=>{const now=held();if(was===now)return;const n=performance.now();if(now)t0=n;else acc+=n-t0};
+ Object.defineProperty(window,'__pause',{configurable:true,get(){return p},set(v){/* (keep the raw value: the warm-up sets it to 'warm' and checks for that; only a real pause stops the story clock) */const was=held(),wasP=p===true;p=v;flip(was);const nowP=p===true;if(wasP!==nowP)document.documentElement.classList.toggle('gpaused',nowP)}});
+ Object.defineProperty(window,'__qHold',{configurable:true,get(){return q},set(v){const was=held();q=!!v;flip(was)}});
+ const PA=()=>acc+(held()?performance.now()-t0:0);window.__pauseAcc=PA;window.__gnow=()=>performance.now()-PA();
+ const ST=window.setTimeout.bind(window),CT=window.clearTimeout.bind(window),map=new Map();let nid=9e8;
+ window.setTimeout=function(fn,ms,...a){if(typeof fn!=='function'||held())return ST(fn,ms,...a);const id=nid++;const st0=performance.now(),base=PA(),want=+ms||0;const run=()=>{if(held()){map.set(id,ST(run,150));return}const el=performance.now()-st0-(PA()-base);if(el<want-4){map.set(id,ST(run,want-el));return}map.delete(id);fn(...a)};map.set(id,ST(run,ms||0));return id};
+ window.clearTimeout=function(id){if(map.has(id)){CT(map.get(id));map.delete(id)}else CT(id)};
+ /* Enter (or a click) moves Jack on to his next line; this listens before anything else so it never skips a scene by mistake */addEventListener('keydown',e=>{if(q&&p!==true&&(e.code==='Enter'||e.code==='NumpadEnter')){e.preventDefault();e.stopImmediatePropagation();if(!e.repeat&&window.__qGo)window.__qGo()}},true)})()</script>
+<style>html.gpaused body *:not(#pause):not(#pause *):not(#qmenu):not(#qmenu *){animation-play-state:paused!important}#pause,#qmenu{z-index:1000!important}html.gpaused #jackq,html.gpaused #storyLine,html.gpaused #cutSkip{visibility:hidden!important}</style><style id="actPcss">/* Build 388: every action prompt and tip looks the same and sits in the same spot: plain white text, low and centred */html body .actP,html body #coach,html body #climbP,html body #cutSkip{position:fixed!important;left:50%!important;right:auto!important;top:auto!important;bottom:calc(4.5vh + env(safe-area-inset-bottom,0px))!important;transform:translateX(-50%)!important;margin:0!important;padding:0!important;min-width:0!important;max-width:min(860px,92vw)!important;width:auto!important;border:none!important;border-radius:0!important;background:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:none!important;color:#fff!important;font-family:Montserrat,system-ui,sans-serif!important;font-style:normal!important;font-weight:500!important;font-size:15px!important;line-height:1.5!important;letter-spacing:.02em!important;text-transform:none!important;text-align:center!important;text-shadow:0 1px 3px rgba(0,0,0,.7),0 0 14px rgba(0,0,0,.45)!important}html body .actP *,html body #coach *,html body #climbP *,html body #cutSkip *{font-family:inherit!important;font-style:normal!important;font-size:inherit!important;font-weight:inherit!important;letter-spacing:inherit!important;text-transform:none!important;color:inherit!important;text-shadow:inherit!important}html body .actP kbd,html body .actP .kc,html body #coach kbd,html body #climbP kbd,html body #cutSkip kbd{display:inline-block!important;border:1px solid rgba(255,255,255,.8)!important;border-radius:4px!important;padding:0 6px!important;margin:0 8px 0 0!important;background:none!important;font-weight:600!important;font-size:13px!important;line-height:1.5!important;min-width:0!important}html body .actP button{all:unset;cursor:pointer;padding:2px 10px!important;background:none!important;border:none!important;opacity:.95}html body .actP button:hover{opacity:1;text-decoration:underline}html body #coach .c-t{display:block!important;font-weight:600!important;margin-bottom:2px!important}html body #coach .c-t i{display:none!important}html body #coach .c-r{display:block!important}html body #coach .c-r span{display:inline-block!important;margin:0 9px!important;background:none!important;border:none!important;padding:0!important}html body #jackgo{z-index:48!important}html body.qhold .actP:not(#jackgo),html body.qhold #coach,html body.qhold #climbP{opacity:0!important}html body.cut .actP,html body.cut #coach,html body.cut #climbP,html body.cut #cutSkip{bottom:calc(12vh + env(safe-area-inset-bottom,0px))!important}html body #ad-br .ad-pr,html body #ad-br .ad-pr *{font-family:Montserrat,system-ui,sans-serif!important;font-style:normal!important;font-weight:500!important;font-size:13px!important;letter-spacing:.02em!important;text-transform:none!important;color:#fff!important}html body #ad-br .kc{display:inline-block!important;border:1px solid rgba(255,255,255,.8)!important;border-radius:4px!important;padding:0 6px!important;margin-right:8px!important;background:none!important;font-weight:600!important;font-size:12px!important;letter-spacing:0!important;line-height:1.5!important}html body #coach .c-t,html body.adv #coach .c-t{display:block!important;font-family:Montserrat,system-ui,sans-serif!important;font-variation-settings:normal!important;font-style:normal!important;font-weight:600!important;font-size:18px!important;letter-spacing:.02em!important;margin-bottom:6px!important;background:none!important}html body #coach .c-r,html body.adv #coach .c-r{display:block!important;font-family:Montserrat,system-ui,sans-serif!important;font-style:normal!important;font-weight:500!important;font-size:15px!important;letter-spacing:.02em!important;padding:0!important;border:none!important;border-radius:0!important;background:none!important;color:#fff!important}html body #coach,html body.adv #coach{background:none!important;border-radius:0!important}html body.storyMode #adv #ad-cats{display:none!important}html body.storyMode #adv #ad-q{top:30px!important}html body #adv #moveLbl{position:fixed;left:120px;bottom:260px;transform:translateX(-50%);white-space:nowrap;text-align:center;font-family:Fraunces,Georgia,serif;font-variation-settings:'SOFT' 40,'WONK' 1,'opsz' 144;font-style:italic;font-weight:600;font-size:22px;line-height:1.1;letter-spacing:.01em;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.7),0 0 14px rgba(0,0,0,.45);pointer-events:none}html body.cut .apx{opacity:0!important}/* Build 410: the charge bar sits low, out of the way of the cats */html body #chgBar{bottom:max(8px,calc(4.5vh - 16px + env(safe-area-inset-bottom,0px)))!important;top:auto!important}/* Build 418: the scene skip hint is the same plain line as every other prompt, above the bars */html body #cutSkip,html body .actP.skipH{z-index:47!important}/* Build 419: the skip hint lives bottom right, just above the bars, so it never sits on top of an action prompt */html body #cutSkip,html body.cut #cutSkip,html body .actP.skipH,html body.cut .actP.skipH{left:auto!important;right:28px!important;bottom:calc(10vh + 12px + env(safe-area-inset-bottom,0px))!important;transform:none!important;text-align:right!important}/* Build 456: no season title cards; the story's own words announce each season */html body #seasonCard{display:none!important}html body.barsUI #adv,html body.barsUI #status,html body.barsUI #wx,html body.barsUI #caught,html body.barsUI #brand,html body.barsUI #hudBtn,html body.barsUI #sndBtn,html body.barsUI #reticle,html body.barsUI #gifts{opacity:0!important;pointer-events:none!important;transition:opacity .8s}</style><script>window.__actPrompt=(k,html)=>{const M=window.__actPM||(window.__actPM={});let el=M[k];if(!el){if(!html)return;el=document.createElement('div');el.className='actP apx';el.style.cssText='pointer-events:none;opacity:0;transition:opacity .3s;z-index:34';document.body.appendChild(el);M[k]=el}if(html){if(el.innerHTML!==html)el.innerHTML=html;el.style.opacity=1}else el.style.opacity=0};</script>
+<link rel="icon" href="data:,"><title>Tink's Magical Forest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..900,0..100,0..1&family=Montserrat:wght@500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,500&family=Cinzel:wght@600;700&family=Kaisei+Decol:wght@500;700&family=Zen+Maru+Gothic:wght@500;700&family=Klee+One:wght@600&family=Questrial&family=Cormorant+Garamond:ital,wght@1,400;1,500;1,600&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap">
+<style>
+/* Painted-storybook UI: warm watercolour paper panels with soft deckled edges, ink-brown lettering,
+   pebble key caps, leaf-green and sunset accents. Panels float over the painted forest. */
+:root{
+  --paper:#f6eedb; --paper-2:#efe3c6; --ink:#33402c; --ink-dim:rgba(51,64,44,.66); --ink-faint:rgba(51,64,44,.4);
+  --leaf:#5f8f45; --leaf-deep:#3e6b33; --sky:#7fb3cf; --sunset:#e39a4f; --sunset-soft:rgba(227,154,79,.2); --line:rgba(80,70,45,.18);
+  --paperTex:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' seed='4'/><feColorMatrix values='0 0 0 0 .45  0 0 0 0 .38  0 0 0 0 .25  0 0 0 .09 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); --washTex:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='400'><filter id='w'><feTurbulence type='fractalNoise' baseFrequency='.008 .02' numOctaves='4' seed='9'/><feColorMatrix values='0 0 0 0 .55  0 0 0 0 .5  0 0 0 0 .32  0 0 0 .16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23w)'/></svg>");
+  --f-display:"Fraunces", Georgia, serif; --f-ui:"Montserrat", system-ui, sans-serif; --f-hand:"Montserrat", system-ui, sans-serif;
+  color-scheme:light;
+}
+[hidden]{display:none!important}
+html,body{height:100%;background:#20342e;color:var(--ink);overflow:hidden}
+body{font-family:var(--f-ui);font-size:14px;-webkit-font-smoothing:antialiased}
+#app{position:fixed;inset:0}
+canvas{display:block;width:100%;height:100%;outline:none}
+.vig{position:fixed;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 45%,transparent 60%,rgba(18,40,38,.3) 100%)}
+.panel{position:relative;background:var(--paperTex),var(--washTex),linear-gradient(170deg,rgba(250,244,228,.94),rgba(240,229,203,.92));
+  border-radius:22px 18px 24px 16px / 18px 24px 16px 22px;
+  box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 0 0 1.5px rgba(120,100,60,.16) inset,0 0 18px rgba(160,130,80,.18) inset,0 10px 30px -12px rgba(10,30,25,.45),0 2px 6px rgba(10,30,25,.16)}
+.panel::after{content:"";position:absolute;inset:5px;border-radius:inherit;border:1px dashed rgba(120,100,60,.16);pointer-events:none}
+#brand{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:calc(16px + env(safe-area-inset-left,0px));display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;flex-wrap:wrap}
+#brand .who{display:flex;gap:4px;position:relative;z-index:1}
+#brand button{all:unset;cursor:pointer;font-family:var(--f-display);font-weight:500;font-size:18px;padding:5px 13px;border-radius:999px;color:var(--ink-dim);display:flex;align-items:center;gap:8px;transition:background .25s,color .25s}
+#brand button:hover{color:var(--ink);background:rgba(95,143,69,.1)}
+#brand button .eye{width:10px;height:10px;border-radius:50%;box-shadow:0 0 0 2px rgba(255,255,255,.8),0 0 6px rgba(0,0,0,.2)}
+#brand button[aria-pressed="true"]{background:radial-gradient(120% 140% at 30% 20%,rgba(255,255,255,.55),rgba(95,143,69,.22));color:var(--leaf-deep);box-shadow:0 0 0 1px rgba(95,143,69,.3) inset}
+#brand button:focus-visible{outline:2px solid var(--sunset);outline-offset:2px}
+#wx{border-left:1px dashed var(--line);padding-left:10px}
+#wx button{font-family:var(--f-hand);font-size:15px;font-weight:600;padding:5px 11px}
+#brand .snd{all:unset;cursor:pointer;font-family:var(--f-hand);font-weight:600;font-size:14px;color:var(--ink-dim);border-left:1px dashed var(--line);padding:4px 2px 4px 12px;position:relative;z-index:1}
+#brand .snd[aria-pressed="false"]{color:var(--ink-faint);text-decoration:line-through}
+#brand .snd:focus-visible{outline:2px solid var(--sunset)}
+#status{position:fixed;left:calc(16px + env(safe-area-inset-left,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:16px;padding:10px 18px 10px 10px}
+#move{position:relative;z-index:1;font-family:var(--f-display);font-weight:700;font-size:25px;min-width:118px;text-align:center;padding:6px 16px;border-radius:16px 20px 14px 22px;background:radial-gradient(120% 120% at 30% 20%,rgba(255,255,255,.6),rgba(227,154,79,.25));color:#9a5a22;transition:color .2s}
+.meters{display:flex;flex-direction:column;gap:7px;min-width:150px;position:relative;z-index:1}
+.meter{display:grid;grid-template-columns:64px 1fr;align-items:center;gap:8px;font-family:var(--f-hand);font-weight:600;font-size:13px;color:var(--ink-dim)}
+.bar{height:8px;border-radius:6px;background:rgba(80,70,45,.12);overflow:hidden;box-shadow:0 1px 1px rgba(80,70,45,.15) inset}
+.bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#7fae55,#a8cf6a);border-radius:6px;transform-origin:left}
+#chargeBar i{background:linear-gradient(90deg,#e0884a,#f2c46a)}
+#caught{position:relative;z-index:1;font-family:var(--f-hand);font-weight:600;font-size:13px;color:var(--ink-dim);text-align:center}
+#caught b{display:block;font-family:var(--f-display);font-size:26px;color:var(--leaf-deep);font-weight:700}
+#help{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));padding:14px 18px 14px 14px;display:grid;grid-template-columns:auto auto;gap:6px 14px;font-size:13px;max-width:340px}
+#help::before{content:"Field notes";grid-column:1/3;font-family:var(--f-display);font-weight:700;font-size:17px;color:var(--leaf-deep);margin:0 0 4px 4px;position:relative;z-index:1}
+#help>*{position:relative;z-index:1}
+#help kbd{font-family:var(--f-ui);font-weight:700;font-size:11px;background:radial-gradient(120% 120% at 35% 25%,#fffdf6,#e8dcbf);border-radius:10px 12px 9px 11px;padding:2px 8px;color:var(--ink);white-space:nowrap;box-shadow:0 1.5px 0 rgba(110,90,50,.35),0 0 0 1px rgba(110,90,50,.18) inset}
+#help span{color:var(--ink-dim);font-family:var(--f-hand);font-weight:600;line-height:1.35}
+#help .k{text-align:right}
+#toast{position:fixed;top:20%;left:50%;transform:translateX(-50%);font-family:var(--f-display);font-weight:700;font-size:36px;color:#fffaf0;text-shadow:0 0 18px rgba(255,220,160,.8),0 2px 14px rgba(20,50,40,.45);opacity:0;transition:opacity .4s;pointer-events:none;white-space:nowrap}
+#tune{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));right:calc(16px + env(safe-area-inset-right,0px));width:300px;max-height:calc(100% - 200px);overflow:auto;padding:16px 18px}
+#tune>*{position:relative;z-index:1}
+#tune h2{font-family:var(--f-display);font-weight:700;font-size:20px;margin:0 0 2px;color:var(--leaf-deep)}
+#tune p.lede{margin:0 0 10px;color:var(--ink-dim);font-size:12px;font-family:var(--f-hand)}
+#tune h3{font-size:12px;letter-spacing:.06em;color:#9a5a22;margin:14px 0 6px;font-weight:700}
+.row{display:grid;grid-template-columns:1fr 56px;gap:2px 8px;align-items:center;margin:4px 0}
+.row label{font-size:12.5px;color:var(--ink)}
+.row output{font-size:11px;text-align:right;color:var(--ink-dim)}
+.row input{grid-column:1/3;width:100%;accent-color:var(--leaf);margin:0}
+.btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.btns button{all:unset;cursor:pointer;font-size:12px;font-weight:700;padding:7px 13px;border-radius:999px;background:rgba(95,143,69,.14);color:var(--leaf-deep)}
+.btns button:hover{background:rgba(95,143,69,.24)}
+.btns button:focus-visible{outline:2px solid var(--sunset)}
+/* welcome: a painted sky with drifting clouds and layered hills, card like a page from a sketchbook */
+#gate{position:fixed;inset:0;display:grid;align-items:start;justify-items:start;padding:clamp(16px,4vw,56px);cursor:default;overflow:hidden;background:#3c5e55 url('title-screen.webp?v=6') center 60%/cover no-repeat !important;
+  background:linear-gradient(180deg,#5f9fd0 0%,#8fc1df 38%,#d9e9e4 64%,#f3e7c8 78%,#cfe0b0 100%)}
+#gate .sky{position:absolute;inset:0;pointer-events:none}
+#gate .cloud{position:absolute;border-radius:50%;filter:blur(1.5px);opacity:.95;
+  background:radial-gradient(closest-side at 50% 60%,#fffdf6 55%,rgba(255,253,246,0) 100%);animation:drift linear infinite}
+#gate .cloud::before,#gate .cloud::after{content:"";position:absolute;border-radius:50%;background:radial-gradient(closest-side,#fffdf6 55%,rgba(255,253,246,0) 100%)}
+#gate .cloud::before{width:70%;height:120%;left:12%;top:-55%}
+#gate .cloud::after{width:55%;height:95%;left:42%;top:-35%;background:radial-gradient(closest-side at 45% 55%,#fff 50%,rgba(255,255,255,0) 100%)}
+@keyframes drift{from{transform:translateX(-30vw)}to{transform:translateX(130vw)}}
+#gate svg.hills{position:absolute;left:0;right:0;bottom:0;width:100%;height:46%;pointer-events:none}
+#gate .card{max-width:min(350px,30vw);min-width:300px;margin:0;padding:20px 22px 16px;background:var(--paperTex),linear-gradient(170deg,rgba(250,244,228,.86),rgba(240,229,203,.8));backdrop-filter:blur(3px);text-align:left;z-index:2;transform:rotate(-.6deg)}
+#gate .card>*{position:relative;z-index:1}
+#gate .kicker{font-family:var(--f-hand);font-weight:600;font-size:14px;color:#9a5a22;letter-spacing:.04em}
+#gate h1{font-family:var(--f-display);font-weight:700;font-size:38px;margin:2px 0 0;line-height:1.02;color:var(--ink);text-wrap:balance}
+#gate h1 em{font-style:normal;color:var(--leaf-deep);position:relative}
+#gate h1 em::after{content:"";position:absolute;left:-2%;right:-4%;bottom:.04em;height:.28em;background:rgba(127,179,207,.42);border-radius:40% 60% 50% 50%;z-index:-1}
+#gate p{color:var(--ink-dim);line-height:1.5;margin:10px 0 0;font-family:var(--f-hand);font-weight:600;font-size:13.5px}
+#gate .credit{max-height:4.5em;overflow:auto}
+#gate .go{margin-top:20px;display:inline-flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:700;font-size:18px;color:#fffaf0;
+  background:radial-gradient(120% 140% at 30% 20%,#8cc066,#4f8a3a);padding:11px 22px;border-radius:26px 22px 28px 20px;box-shadow:0 3px 0 #3a6a2c,0 8px 18px -6px rgba(30,60,30,.5);transition:transform .2s}
+#gate .go:not(.loading):hover{transform:translateY(-1px) rotate(-1deg)}
+#gate .go::before{content:"";width:14px;height:14px;background:#d8f0a8;border-radius:0 70% 0 70%;transform:rotate(10deg)}
+#gate .credit{font-size:11px;margin-top:18px;color:var(--ink-faint);line-height:1.5}
+#gate .credit a{color:inherit}
+#load{font-family:var(--f-hand);font-weight:600;font-size:13px;color:var(--ink-dim);margin-top:12px}
+#hudBtn{all:unset;cursor:pointer;position:fixed;right:calc(16px + env(safe-area-inset-right,0px));top:calc(14px + env(safe-area-inset-top,0px));z-index:5;display:flex;align-items:center;gap:7px;font-family:var(--f-display);font-weight:700;font-size:15px;color:var(--leaf-deep);
+  padding:7px 14px 7px 11px;border-radius:20px 16px 22px 14px;background:var(--paperTex),linear-gradient(170deg,rgba(250,244,228,.9),rgba(240,229,203,.88));box-shadow:0 6px 16px -8px rgba(10,30,25,.5),0 0 0 1px rgba(120,100,60,.15) inset;opacity:.82;transition:opacity .2s}
+#hudBtn:hover,#hudBtn[aria-pressed="true"]{opacity:1}
+#hudBtn .leaf{width:12px;height:12px;background:radial-gradient(120% 120% at 30% 20%,#9fd074,#4f8a3a);border-radius:0 70% 0 70%;transform:rotate(10deg)}
+#hudBtn:focus-visible{outline:2px solid var(--sunset)}
+body.hud-off #help{display:none}
+#tune{top:calc(60px + env(safe-area-inset-top,0px))}
+#studio{position:fixed;left:calc(16px + env(safe-area-inset-left,0px));top:calc(14px + env(safe-area-inset-top,0px));width:330px;padding:14px 16px;z-index:6;display:flex;flex-direction:column;gap:9px}
+#studio>*{position:relative;z-index:1}
+#studio .st-head{display:flex;align-items:center;justify-content:space-between;font-family:var(--f-display);font-size:19px;color:var(--leaf-deep)}
+#studio .st-row{display:flex;gap:6px;align-items:center}
+#studio button{all:unset;cursor:pointer;font-weight:700;font-size:13px;padding:6px 12px;border-radius:999px;background:rgba(95,143,69,.14);color:var(--leaf-deep);white-space:nowrap}
+#studio button:hover{background:rgba(95,143,69,.26)}#studio button[aria-pressed="true"]{background:var(--leaf);color:#fffaf0}
+#studio button:focus-visible{outline:2px solid var(--sunset)}
+#studio select{flex:1;min-width:0;font:inherit;font-size:13px;padding:6px 8px;border-radius:10px;border:1px solid var(--line);background:#fffdf6;color:var(--ink)}
+#studio .st-lab{font-family:var(--f-hand);font-weight:600;font-size:13px;color:var(--ink-dim)}
+#studio input[type=range]{flex:1;accent-color:var(--leaf)}#studio output{font-size:12px;color:var(--ink-dim);width:28px;text-align:right}
+body.studio-play #hudBtn,body.studio-play #studioBtn{display:none}
+#studio .st-sep{height:1px;background:var(--line);margin:2px 0}#studio .st-list{max-height:150px;overflow:auto;font-size:12px;color:var(--ink-dim);line-height:1.5}#studio .st-list b{color:var(--leaf-deep);font-weight:700}#studio .st-list .ch{color:#9a5a22}
+#studio{max-height:calc(100% - 28px);overflow:auto}
+#studio .st-tip{margin:0;font-family:var(--f-hand);font-size:12.5px;color:var(--ink-dim)}
+body.studio #brand,body.studio #status,body.studio #help,body.studio #hudBtn,body.studio #studioBtn{display:none}
+#reticle{position:fixed;left:50%;top:50%;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;background:rgba(255,250,235,.75);box-shadow:0 0 8px rgba(255,230,180,.8);pointer-events:none}
+@media (max-width:720px){#gate{align-items:end;justify-items:center;background-position:62% 50% !important}#help{display:none}#tune{width:auto;left:16px}}
+@media (prefers-reduced-motion:reduce){#toast{transition:none}#gate .cloud{animation:none}}
+
+#gate{background:#1d302b url('title-screen.webp?v=6') center 62%/cover no-repeat !important;display:block !important;padding:0 !important}#gate[hidden]{display:none !important}
+#gate .g-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to bottom,rgba(12,26,22,.62) 0%,rgba(12,26,22,.18) 34%,rgba(12,26,22,0) 52%,rgba(12,26,22,.12) 70%,rgba(10,22,18,.66) 100%)}
+#gate .g-build{position:absolute;left:calc(24px + env(safe-area-inset-left,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));font:600 10px "Montserrat",var(--f-ui);letter-spacing:.2em;text-transform:uppercase;color:rgba(255,253,244,.55);z-index:2}
+.g-corner{position:absolute;top:calc(18px + env(safe-area-inset-top,0px));left:calc(24px + env(safe-area-inset-left,0px));text-align:left;font-family:"Montserrat",var(--f-ui);font-weight:600;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,253,244,.88);line-height:1.5}
+#gate .g-corner b{display:block;font-weight:700;font-size:14px;letter-spacing:.2em;color:#fffdf4}
+#gate .g-title{position:absolute;left:0;right:0;top:clamp(26px,7vh,72px);text-align:center;color:#fffdf4;text-shadow:0 2px 22px rgba(8,22,18,.45);pointer-events:none}
+#gate .g-small{font-family:"Fraunces",Georgia,serif;font-variation-settings:"SOFT" 40,"WONK" 1,"opsz" 72;font-weight:600;font-size:clamp(28px,4.4vw,54px);line-height:1;letter-spacing:.005em}
+#gate .g-big{margin:0;font-family:"Fraunces",Georgia,serif;font-variation-settings:"SOFT" 25,"WONK" 0,"opsz" 144;font-weight:800;font-size:clamp(68px,12.5vw,168px);line-height:.86;letter-spacing:-.012em;text-transform:uppercase;color:#fffdf4}
+#gate .g-sub{margin-top:clamp(12px,2vh,22px);font-family:"Montserrat",var(--f-ui);font-weight:600;font-size:clamp(13px,1.7vw,22px);letter-spacing:.14em;text-transform:uppercase}
+#gate .g-menu{position:absolute;left:0;right:0;bottom:calc(clamp(24px,6vh,60px) + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:center;gap:12px;color:#fffdf4}
+#gate .go{all:unset;cursor:pointer;display:flex;align-items:center;gap:18px;font-family:"Montserrat",var(--f-ui);font-weight:700;font-size:clamp(15px,1.6vw,19px);letter-spacing:.26em;text-transform:uppercase;padding:10px 6px;text-shadow:0 2px 14px rgba(8,22,18,.6);transition:letter-spacing .4s ease,text-shadow .4s}
+#gate .go::before,#gate .go::after{content:"";width:46px;height:1px;background:linear-gradient(90deg,rgba(255,253,244,0),rgba(255,253,244,.85));transition:width .4s}
+#gate .go::before{transform:none;border-radius:0}#gate .go::after{transform:scaleX(-1)}
+#gate .go:not(.loading):hover{letter-spacing:.3em;text-shadow:0 0 18px rgba(190,255,200,.55),0 2px 14px rgba(8,22,18,.6)}
+#gate .go:not(.loading):hover::before,#gate .go:not(.loading):hover::after{width:64px}
+#gate .go .go-w{display:flex;flex-direction:column;align-items:center;gap:9px}
+#gate .go .go-bar{display:block;width:100%;min-width:220px;height:3px;border-radius:2px;background:rgba(255,253,244,.16);overflow:hidden;transition:opacity .6s}
+#gate .go #goFill{display:block;height:100%;width:0;border-radius:2px;background:linear-gradient(90deg,rgba(184,255,207,.6),#e8fff0);box-shadow:0 0 8px rgba(184,255,207,.6);transition:width .4s ease}
+#gate .go.loading{cursor:default;color:rgba(255,253,244,.42);letter-spacing:.26em !important;text-shadow:none !important}
+#gate .go:not(.loading) .go-bar{opacity:0}
+#gate .g-opts{display:flex;align-items:center;gap:14px;font-family:"Montserrat",var(--f-ui);font-weight:600;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,253,244,.72)}
+#gate .g-opts span{cursor:pointer;padding:4px 2px}#gate .g-opts span:hover{color:#fffdf4}
+#gate .g-opts i{width:4px;height:4px;border-radius:50%;background:rgba(255,253,244,.5)}
+#gate #load{font-family:"Fraunces",Georgia,serif;font-style:italic;font-weight:400;font-size:14px;color:rgba(255,253,244,.7);margin:0}
+#gate .g-pop{position:absolute;left:50%;bottom:calc(clamp(24px,6vh,60px) + 120px);transform:translateX(-50%);width:min(560px,calc(100vw - 32px));padding:16px 20px;border-radius:14px;background:rgba(14,30,26,.72);backdrop-filter:blur(6px);color:#f4f1e6;font-family:"Montserrat",var(--f-ui);font-size:13px;line-height:1.7;text-align:center;cursor:default}
+#gate .g-pop b{display:block;font-family:"Fraunces",Georgia,serif;font-size:20px;font-weight:700;margin-bottom:6px;letter-spacing:.01em}
+#gate .g-pop kbd{font-family:"Montserrat",var(--f-ui);font-weight:600;font-size:11px;letter-spacing:.06em;border:1px solid rgba(255,253,244,.55);border-radius:6px;padding:1px 7px}
+#gate .g-pop .credit{font-size:11.5px;line-height:1.6;max-height:40vh;overflow:auto;color:#e8e4d6}#gate .g-pop .credit b{font-size:18px}#gate .g-pop a{color:inherit}
+@media (max-width:720px){#gate .g-corner{font-size:10px}#gate .g-corner b{font-size:12px}}
+
+#coach{color:#fffdf4;text-shadow:0 1px 10px rgba(6,18,14,.75);background:radial-gradient(closest-side,rgba(8,22,18,.5),rgba(8,22,18,.28) 60%,rgba(8,22,18,0));border-radius:50%}
+#coach .c-t{display:flex;align-items:center;justify-content:center;gap:14px;font-family:"Fraunces",Georgia,serif;font-variation-settings:"SOFT" 100,"WONK" 1;font-style:italic;font-weight:600;font-size:clamp(20px,2.2vw,26px);letter-spacing:.005em;margin-bottom:8px}
+#coach .c-t i{width:7px;height:7px;border-radius:50%;background:#b8ffcf;box-shadow:0 0 10px 3px rgba(140,255,180,.65);animation:cglow 2.4s ease-in-out infinite}
+#coach .c-t i:last-child{animation-delay:1.2s}
+@keyframes cglow{50%{opacity:.35;transform:scale(.7)}}
+#coach .c-r{display:flex;flex-wrap:wrap;gap:8px 22px;justify-content:center;align-items:center;font-family:"Montserrat",var(--f-ui);font-weight:500;font-size:13px;letter-spacing:.05em}
+#coach kbd{font-family:"Montserrat",var(--f-ui);font-weight:700;font-size:11px;letter-spacing:.08em;color:#fffdf4;background:rgba(255,253,244,.08);border:1px solid rgba(255,253,244,.7);border-radius:6px;padding:2px 8px;box-shadow:none;text-shadow:none}
+#coach svg rect{fill:rgba(255,253,244,.12);stroke:#fffdf4}#coach svg line,#coach svg path{stroke:#fffdf4}
+#coach b{font-family:"Fraunces",Georgia,serif;font-weight:700;font-size:16px;color:#c9ffd8}
+
+/* in-game HUD: words floating over the scene, like the title screen */
+#brand,#status,#help{background:none !important;box-shadow:none !important;backdrop-filter:none !important;border:0 !important}
+#brand::before,#brand::after,#status::before,#status::after{display:none !important}
+#brand{flex-direction:column;align-items:flex-start;gap:4px;padding:0 !important;color:#fffdf4;text-shadow:0 1px 10px rgba(6,18,14,.7)}
+#brand .now{display:flex;flex-direction:column;line-height:1}
+#brand .now small{font-family:"Montserrat",var(--f-ui);font-weight:600;font-size:10px;letter-spacing:.22em;text-transform:uppercase;opacity:.8;margin-bottom:2px}
+#brand .now .nm{font-family:"Fraunces",Georgia,serif;font-variation-settings:"SOFT" 25,"opsz" 144;font-weight:800;font-size:34px;letter-spacing:.01em;text-transform:uppercase}
+#brand:has(#pickLuca[aria-pressed="true"]) .nm::after{content:"Luca"}
+#brand:has(#pickTink[aria-pressed="true"]) .nm::after{content:"Tink"}
+#brand .who{gap:2px}
+#brand button,#brand .snd{font-family:"Montserrat",var(--f-ui) !important;font-weight:600 !important;font-size:11px !important;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,253,244,.72) !important;padding:4px 8px !important;border-radius:6px !important;background:none !important;box-shadow:none !important;border:0 !important;text-decoration:none}
+#brand button:hover,#brand .snd:hover{color:#fffdf4 !important;background:rgba(255,253,244,.08) !important}
+#brand button[aria-pressed="true"]{color:#fffdf4 !important;box-shadow:inset 0 -1px 0 rgba(255,253,244,.85) !important;border-radius:0 !important}
+#brand .who:first-of-type button .eye{width:7px;height:7px;box-shadow:0 0 6px currentColor}
+#brand #wx,#brand #seasRow{opacity:.75;display:flex;align-items:center}#brand #wx button,#brand #seasRow button{font-size:10px !important;padding:3px 6px !important}#brand #seasRow{border-left:1px dashed var(--line);padding-left:10px}#brand #evRow{opacity:.75;display:flex;align-items:center;border-left:1px dashed var(--line);padding-left:10px}#brand #evRow button{font-size:10px !important;padding:3px 6px !important}#brand #evRow button[disabled]{opacity:.3;cursor:default}#brand kbd.hk{font:600 9px/1 "Montserrat",system-ui,sans-serif;color:rgba(255,253,244,.8);border:1px solid rgba(255,253,244,.45);border-radius:4px;padding:2px 5px;margin-right:4px}
+#brand .snd[aria-pressed="false"]{color:rgba(255,253,244,.4) !important;text-decoration:line-through}
+#status{color:#fffdf4;text-shadow:0 1px 10px rgba(6,18,14,.7);padding:0 !important}
+#move{background:none !important;color:#fffdf4 !important;font-family:"Fraunces",Georgia,serif !important;font-style:italic;font-weight:600 !important;font-size:22px !important;padding:0 !important;min-width:0 !important;text-align:left !important}
+#caught{color:rgba(255,253,244,.8) !important;font-family:"Montserrat",var(--f-ui) !important;font-size:10px !important;letter-spacing:.2em;text-transform:uppercase}
+#caught b{color:#fffdf4 !important;font-family:"Fraunces",Georgia,serif !important}
+#help{background:rgba(12,28,24,.55) !important;backdrop-filter:blur(6px) !important;border-radius:14px !important;color:#f4f1e6}
+#help::before{content:"How to play" !important;font-family:"Fraunces",Georgia,serif !important;color:#fffdf4 !important;font-style:italic}
+#help::after{display:none !important}
+#help span{color:rgba(244,241,230,.9) !important;font-family:"Montserrat",var(--f-ui) !important;font-weight:500 !important;font-size:12px}
+#help kbd{background:rgba(255,253,244,.08) !important;border:1px solid rgba(255,253,244,.6);color:#fffdf4 !important;box-shadow:none !important;font-family:"Montserrat",var(--f-ui) !important;border-radius:6px !important}
+#hudBtn,#studioBtn{all:unset;cursor:pointer;position:fixed;top:calc(16px + env(safe-area-inset-top,0px));z-index:5;display:flex;align-items:center;gap:7px;font-family:"Montserrat",var(--f-ui);font-weight:600;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,253,244,.8);text-shadow:0 1px 10px rgba(6,18,14,.7);padding:6px 4px;background:none;box-shadow:none;opacity:1;transition:color .2s}
+#hudBtn{right:calc(20px + env(safe-area-inset-right,0px))}#studioBtn{right:calc(158px + env(safe-area-inset-right,0px))}
+#hudBtn:hover,#studioBtn:hover,#hudBtn[aria-pressed="true"]{color:#fffdf4}
+#hudBtn[aria-pressed="true"]{box-shadow:inset 0 -1px 0 rgba(255,253,244,.85)}
+#hudBtn .leaf{width:7px;height:7px;border-radius:50%;background:#b8ffcf;box-shadow:0 0 8px 2px rgba(140,255,180,.55);transform:none}
+#gate .g-music{position:absolute;top:calc(18px + env(safe-area-inset-top,0px));right:calc(24px + env(safe-area-inset-right,0px));display:flex;align-items:center;gap:8px;font-family:"Montserrat",var(--f-ui);font-weight:600;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,253,244,.75);cursor:pointer;padding:6px 2px;text-shadow:0 1px 10px rgba(6,18,14,.7)}
+#gate .g-music i{width:7px;height:7px;border-radius:50%;background:rgba(255,253,244,.45)}
+#gate .g-music[aria-pressed="true"]{color:#fffdf4}#gate .g-music[aria-pressed="true"] i{background:#b8ffcf;box-shadow:0 0 8px 2px rgba(140,255,180,.55);animation:cglow 2.4s ease-in-out infinite}
+body:has(#gate:not([hidden])) :is(#hudBtn,#studioBtn,#brand,#status,#help,#coach){display:none !important}
+#climbP{position:fixed;left:50%;bottom:calc(30% + env(safe-area-inset-bottom,0px));transform:translateX(-50%);color:#fffdf4;font-family:"Montserrat",var(--f-ui);font-weight:600;font-size:12px;letter-spacing:.2em;text-transform:uppercase;text-shadow:0 1px 10px rgba(6,18,14,.8);pointer-events:none;opacity:0;transition:opacity .25s;z-index:5}
+#climbP kbd{font-family:inherit;font-weight:700;font-size:10px;letter-spacing:.08em;border:1px solid rgba(255,253,244,.75);border-radius:6px;padding:2px 7px;margin-right:6px;background:rgba(255,253,244,.08)}
+body:has(#gate:not([hidden])) #climbP{display:none}
+#pause{position:fixed;inset:0;z-index:30;display:grid;place-items:center;background:radial-gradient(circle at 50% 45%,rgba(14,30,26,.45),rgba(8,18,15,.82));color:#fffdf4;text-align:center;text-shadow:0 2px 22px rgba(8,22,18,.45)}
+#pause[hidden]{display:none}
+/* bigger gift icons */#gifts{zoom:1.38}@media (min-width:2300px){#gifts{zoom:1.6}}
+#seasonCard{position:fixed;left:0;right:0;bottom:17vh;display:block;pointer-events:none;z-index:30;text-align:center;color:#fffdf4;text-shadow:0 2px 22px rgba(6,18,14,.55),0 1px 3px rgba(6,18,14,.5)}#seasonCard .sc-in{opacity:0;transform:translateY(14px);transition:opacity 1.6s ease,transform 2.4s cubic-bezier(.2,.7,.2,1)}#seasonCard.on .sc-in{opacity:1;transform:none}#seasonCard .sc-small{font:500 11px/1 'Montserrat',system-ui,sans-serif;letter-spacing:.5em;text-transform:uppercase;opacity:.7;margin-bottom:10px}#seasonCard .sc-big{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:500;font-size:clamp(30px,3.6vw,54px);line-height:1.05;letter-spacing:.01em}#seasonCard .sc-sub{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:500;font-size:clamp(15px,1.5vw,20px);opacity:.85;margin-top:8px}
+#pause .p-small{font-family:"Fraunces",Georgia,serif;font-variation-settings:"SOFT" 40,"WONK" 1,"opsz" 72;font-weight:600;font-size:clamp(22px,3vw,36px)}
+#pause .p-big{font-family:"Fraunces",Georgia,serif;font-variation-settings:"SOFT" 25,"opsz" 144;font-weight:800;font-size:clamp(56px,9vw,120px);line-height:.9;text-transform:uppercase;margin-bottom:34px}
+#pause nav{display:flex;flex-direction:column;align-items:center;gap:14px}
+#pause .go{cursor:pointer;display:flex;align-items:center;gap:18px;font-family:"Montserrat",var(--f-ui);font-weight:700;font-size:clamp(15px,1.6vw,19px);letter-spacing:.26em;text-transform:uppercase;padding:10px 6px;transition:letter-spacing .4s}
+#pause .go:hover{letter-spacing:.3em}#pause .go::before,#pause .go::after{content:"";width:46px;height:1px;background:linear-gradient(90deg,rgba(255,253,244,0),rgba(255,253,244,.85))}#pause .go::after{transform:scaleX(-1)}
+#pause .g-opts{display:flex;align-items:center;gap:14px;font-family:"Montserrat",var(--f-ui);font-weight:600;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,253,244,.72)}
+#pause .g-opts span{cursor:pointer;padding:4px 2px}#pause .g-opts span:hover{color:#fffdf4}#pause .p-opts{display:flex;flex-direction:column;align-items:stretch;gap:16px;width:min(460px,86vw);margin-top:-6px}
+#pause .p-opts[hidden],#pause nav[hidden]{display:none}
+#pause .o-row{display:flex;align-items:center;justify-content:space-between;gap:24px;font-family:"Montserrat",var(--f-ui);font-weight:600;font-size:12px;letter-spacing:.2em;text-transform:uppercase}
+#pause .o-l{color:rgba(255,253,244,.72);text-align:left}
+#pause .o-c{display:flex;align-items:center;gap:12px}
+#pause .o-seg b{font-weight:600;cursor:pointer;padding:4px 2px;color:rgba(255,253,244,.5);border-bottom:1px solid transparent;transition:color .2s}
+#pause .o-seg b:hover{color:#fffdf4}#pause .o-seg b.on{color:#fffdf4;border-bottom-color:rgba(255,253,244,.85)}
+#pause .o-seg i{width:4px;height:4px;border-radius:50%;background:rgba(255,253,244,.5)}
+#pause .o-c input[type=range]{-webkit-appearance:none;appearance:none;width:150px;height:2px;background:rgba(255,253,244,.35);border-radius:2px;outline:none;cursor:pointer}
+#pause .o-c input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:#fffdf4;box-shadow:0 1px 6px rgba(0,0,0,.4)}
+#pause .o-c input[type=range]::-moz-range-thumb{width:13px;height:13px;border:0;border-radius:50%;background:#fffdf4}
+#pause .o-c em{font-style:normal;min-width:48px;text-align:right;color:#fffdf4}
+#pause .o-note{font-family:"Montserrat",var(--f-ui);font-size:12px;letter-spacing:.06em;color:rgba(255,253,244,.82);display:flex;flex-direction:column;align-items:center;gap:4px}
+#pause .p-opts .go{align-self:center;margin-top:8px}
+#fpsNum{position:fixed;left:12px;bottom:10px;z-index:20;font:700 12px "Montserrat",var(--f-ui,sans-serif);letter-spacing:.14em;text-shadow:0 1px 6px rgba(0,0,0,.65);pointer-events:none}
+#fpsNum[hidden],body:has(#gate:not([hidden])) #fpsNum{display:none}
+#pause .g-opts i{width:4px;height:4px;border-radius:50%;background:rgba(255,253,244,.5)}
+#gifts{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:4;text-align:center;color:#fffdf4;text-shadow:0 1px 10px rgba(6,18,14,.75);pointer-events:none}
+#gifts .gi-row{display:flex;gap:6px;justify-content:center}
+#gifts img{width:34px;height:34px;filter:brightness(0) invert(1) opacity(.28) drop-shadow(0 0 1px rgba(255,253,244,.9));transition:filter .8s}
+#gifts img.got{filter:drop-shadow(0 0 6px rgba(255,236,170,.75))}
+#gifts .gi-t{font-family:"Montserrat",var(--f-ui);font-weight:600;font-size:10px;letter-spacing:.2em;text-transform:uppercase;opacity:.85;margin-top:2px}
+#gifts.done .gi-t{color:#ffe9a8}
+body:has(#gate:not([hidden])) #gifts,body.studio #gifts{display:none}
+/* Build 275: nothing in the top-right corner; Edit (`), Studio (B), Notes (H), Sky (J) and sound (U) are on keys */
+#editBtn,#studioBtn,#hudBtn,#skyBtn,#gMusic{display:none!important}
+
+/* Build 316: the adventure HUD (L switches back to the classic one) */
+body.adv #brand,body.adv #status,body.adv #gifts{visibility:hidden !important;pointer-events:none !important}
+body.adv #studioBtn,body.adv #hudBtn{display:none !important}
+body.adv #help{z-index:6}
+#adv{position:fixed;inset:0;pointer-events:none;z-index:4;font-family:Montserrat,sans-serif;color:#fff;opacity:0;transition:opacity .6s;display:none}
+body.adv #adv{display:block}#adv.on{opacity:1}
+#adv .kc,#qmenu .kc{display:inline-block;padding:2px 8px;border-radius:5px;background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.35));border:1px solid rgba(255,255,255,.7);font-family:Montserrat,sans-serif;text-transform:uppercase;font-size:10px;font-weight:700;color:#ffffff;line-height:1.35;letter-spacing:.04em}
+#ad-day{position:absolute;left:50%;top:6px;transform:translateX(-50%);width:520px}
+#ad-day svg{display:block}
+.ad-dim{fill:#0c1230;opacity:.42;transition:opacity 1.2s ease}.ad-dim.on{opacity:0}
+#ad-segs{display:flex;margin:3px 20px 4px}#ad-segs span{text-align:center;font-family:Montserrat,sans-serif;font-size:9px;font-weight:500;letter-spacing:.2em;color:rgba(255,255,255,.5);text-shadow:0 1px 3px rgba(0,0,0,.55);transition:color 1.2s ease,font-weight 1.2s ease;white-space:nowrap}#ad-segs span.on{color:#fff;font-weight:800;text-shadow:0 0 8px rgba(0,0,0,.6),0 1px 4px rgba(0,0,0,.85)}
+#ad-dayl{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:0;font-size:9.5px!important;opacity:.8;font-family:Montserrat,sans-serif;text-transform:uppercase;font-size:11px;font-weight:700;letter-spacing:2.5px;color:#ffffff;text-shadow:0 0 8px rgba(0,0,0,.6),0 1px 4px rgba(0,0,0,.85);white-space:nowrap}
+#ad-dayl span{display:flex;align-items:center;gap:6px;color:#ffffff}
+#ad-mk{transition:transform 1s linear}
+#ad-cats{position:absolute;left:24px;top:18px;display:flex;align-items:flex-start;gap:16px}
+.ad-cat{display:flex;flex-direction:column;align-items:center;gap:7px}
+.ad-ring{position:relative;border-radius:50%;padding:3px;box-sizing:border-box;box-shadow:0 4px 14px rgba(0,0,0,.55);transition:width .4s,height .4s}
+.ad-ring img{display:block;border-radius:50%;width:100%;height:100%;object-fit:cover;box-sizing:border-box;border:2px solid #1d1a2a}
+.ad-cat.act .ad-ring{width:80px;height:80px;background:linear-gradient(160deg,#ffffff,#e9edf2 45%,#9aa3ad);box-shadow:0 0 22px rgba(0,0,0,.6),0 4px 14px rgba(0,0,0,.55)}
+.ad-cat.rest .ad-ring{width:62px;height:62px;margin-top:9px;background:linear-gradient(160deg,#f2f2f6,#a9adbd 50%,#6a6e80)}
+.ad-cat.rest img{filter:saturate(.8) brightness(.82)}
+.ad-key{position:absolute;right:-6px;bottom:-4px;width:22px;height:22px;box-sizing:border-box;border-radius:7px;background:linear-gradient(180deg,rgba(0,0,0,.4),rgba(0,0,0,.4));border:1.5px solid rgba(255,255,255,.7);font-family:Montserrat,sans-serif;text-transform:uppercase;font-size:11px;font-weight:700;color:#ffffff;display:flex;align-items:center;justify-content:center}
+.ad-cat.rest .ad-key{border-color:#c9ccd8;color:#fff}
+.ad-zr{position:absolute;left:-8px;top:-8px;width:calc(100% + 16px);height:calc(100% + 16px);pointer-events:none;transform:rotate(-90deg)}
+.ad-zr circle{fill:none;stroke:#7fe8ff;stroke-width:3.5;stroke-linecap:round;filter:drop-shadow(0 0 4px #5fe0ff);transition:stroke-dashoffset .2s}
+.ad-zr.full circle{stroke:#d8fbff;filter:drop-shadow(0 0 8px #7fe8ff)}
+.ad-moon{position:absolute;left:-5px;top:-3px;display:none}
+.ad-cat.rest .ad-moon{display:block}
+.ad-bar{height:9px;box-sizing:border-box;border-radius:6px;border:1px solid rgba(255,255,255,.7);background:rgba(10,10,24,.7);padding:1px}
+.ad-cat.act .ad-bar{width:80px}.ad-cat.rest .ad-bar{width:62px;border-color:#c9ccd8}
+.ad-bar i{display:block;height:100%;border-radius:4px;background:linear-gradient(180deg,#e6ff9a,#8fd14a 55%,#5a9a2a);transition:width .5s}
+.ad-bar.low i{background:linear-gradient(180deg,#ffd08a,#f08a3a 55%,#b04a1a)}
+.ad-nm{font-family:Montserrat,sans-serif;text-transform:uppercase;font-size:10px;font-weight:700;letter-spacing:2.2px;text-shadow:0 1px 4px rgba(0,0,0,.85);white-space:nowrap}
+.ad-cat.act .ad-nm{color:#ffffff}.ad-cat.rest .ad-nm{color:rgba(255,255,255,.8)}
+#ad-q{position:absolute;left:26px;top:172px;display:flex;gap:12px;width:310px}
+#ad-q.none{display:none}
+#ad-ql{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0}
+#ad-ql .ln{width:1.5px;height:40px;background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,0))}
+#ad-qt{font-family:Fraunces,Georgia,serif;font-variation-settings:'SOFT' 40,'WONK' 1,'opsz' 144;font-size:24px;font-weight:600;line-height:1.08;color:#ffffff;text-shadow:0 0 12px rgba(0,0,0,.45),0 2px 6px rgba(0,0,0,.75);max-width:270px}
+.ad-step{display:flex;align-items:flex-start;gap:9px;font-size:14px;font-weight:500;line-height:1.35;color:rgba(255,255,255,.95);text-shadow:0 1px 6px rgba(0,0,0,.85);margin-top:7px;max-width:255px}
+.ad-step svg{flex-shrink:0;margin-top:3px}.ad-step .ck{opacity:0;transition:opacity .25s}.ad-step.done .ck{opacity:1}.ad-step.done rect{fill:rgba(255,255,255,.55)}.ad-step.done #ad-qs{text-decoration:line-through;text-decoration-color:rgba(255,255,255,.8);opacity:.75;transition:opacity .3s}.ad-step.fresh{animation:adStepIn .7s ease}#ad-steps .ad-step.fresh{animation:adStepIn .8s ease .9s both}#ad-steps .ad-step .t{transition:opacity .4s}#ad-steps .ad-step.done .t{text-decoration:line-through;text-decoration-color:rgba(255,255,255,.7);opacity:.62}#ad-steps .ad-step.done{margin-top:5px}#ad-steps .ad-step.tick .ck{animation:adTick .5s ease both}#ad-steps .ad-step.tick rect{animation:adTickBox .5s ease both}#ad-steps .ad-step.hint{font-size:13px;color:rgba(255,255,255,.85)}@keyframes adTick{from{opacity:0}to{opacity:1}}@keyframes adTickBox{from{fill:rgba(255,255,255,.16)}to{fill:rgba(255,255,255,.55)}}.ad-fin{margin-top:10px;font-family:Fraunces,Georgia,serif;font-style:italic;font-size:16px;color:#fff;text-shadow:0 0 10px rgba(0,0,0,.5),0 1px 5px rgba(0,0,0,.8);animation:adStepIn .9s ease .6s both;letter-spacing:.01em}@keyframes adStepIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+#ad-side{margin-top:12px;padding-top:9px;border-top:1px solid rgba(255,255,255,.3);max-width:255px}
+#ad-side b{display:block;font-family:Montserrat,sans-serif;text-transform:uppercase;font-size:11px;letter-spacing:1.6px;color:#ffffff;text-shadow:0 1px 4px rgba(0,0,0,.85)}
+#ad-side span{display:block;font-size:13px;margin-top:3px;color:rgba(255,255,255,.88);text-shadow:0 1px 4px rgba(0,0,0,.85)}
+#ad-cnt{position:absolute;right:24px;top:20px;display:flex;gap:10px}
+.ad-pill{height:48px;box-sizing:border-box;padding:0 16px 0 11px;border-radius:999px;background:linear-gradient(180deg,rgba(14,18,24,.55),rgba(14,18,24,.55));border:1.5px solid rgba(255,255,255,.7);box-shadow:0 0 12px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.25);display:flex;align-items:center;gap:8px;font-family:Fraunces,Georgia,serif;font-variation-settings:'SOFT' 40,'WONK' 1,'opsz' 144;font-size:22px;font-weight:600;color:#ffffff;transition:transform .3s}
+.ad-pill small{font-size:14px;color:rgba(255,255,255,.6)}
+.ad-pill.pop{transform:scale(1.15)}
+#ad-card{position:absolute;right:24px;top:300px;width:300px;box-sizing:border-box;padding:16px 20px 16px 18px;background:linear-gradient(135deg,rgba(14,18,24,.62),rgba(14,18,24,.62));border:1.5px solid rgba(255,255,255,.7);border-radius:8px;display:flex;gap:14px;align-items:center;box-shadow:0 0 22px rgba(0,0,0,.28),0 10px 30px rgba(0,0,0,.45),inset 0 0 0 4px rgba(255,255,255,.12);transform:translateX(40px);opacity:0;transition:transform 1.4s cubic-bezier(.2,.8,.2,1),opacity 1.3s ease}
+#ad-card.in{transform:none;opacity:1}
+#ad-card .h{font-family:Fraunces,Georgia,serif;font-variation-settings:'SOFT' 40,'WONK' 1,'opsz' 144;font-size:22px;font-weight:600;color:#ffffff;line-height:1.05;text-shadow:0 0 10px rgba(0,0,0,.5)}
+#ad-card .t{font-size:15px;font-weight:600;color:#ffffff;margin-top:4px}
+#ad-card .s{font-size:12px;color:rgba(255,255,255,.7);margin-top:4px}
+#ad-card .gem{position:absolute;left:50%;width:12px;height:12px;margin-left:-6px;transform:rotate(45deg);background:#ffffff;border:1px solid #9aa3ad;box-shadow:0 0 6px rgba(255,255,255,.9)}
+#ad-map{position:absolute;left:18px;bottom:18px;width:288px;height:288px;filter:drop-shadow(0 6px 16px rgba(0,0,0,.55))}
+#ad-map canvas{position:absolute;left:24px;top:24px;width:240px;height:240px;border-radius:50%}
+#ad-map svg{position:absolute;inset:0;width:100%;height:100%}
+#ad-br{position:absolute;right:28px;bottom:26px;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.ad-pr[hidden]{display:none}.ad-pr{display:flex;align-items:center;gap:10px;font-family:Fraunces,Georgia,serif;font-variation-settings:'SOFT' 40,'WONK' 1,'opsz' 144;font-size:15px;font-weight:600;color:#ffffff;text-shadow:0 1px 6px rgba(0,0,0,.85)}
+body.adv #cutSkip{right:28px !important;bottom:94px !important;font:600 15px 'Playfair Display',serif !important;letter-spacing:0 !important;text-transform:none !important;color:#ffffff !important;text-shadow:0 1px 6px rgba(0,0,0,.85) !important}
+body.adv #cutSkip kbd{font:600 11px Montserrat,sans-serif !important;padding:3px 10px !important;border-radius:6px !important;background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.35));border:1.5px solid rgba(255,255,255,.7) !important;color:#ffffff;margin-right:10px !important}
+body.adv #viewP{left:auto !important;right:28px !important;bottom:126px !important;transform:none !important;font:600 15px 'Playfair Display',serif !important;letter-spacing:0 !important;text-transform:none !important;color:#ffffff !important}
+body.adv #viewP kbd{font:600 11px Montserrat,sans-serif;padding:3px 10px;border-radius:6px;background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.35));border:1.5px solid rgba(255,255,255,.7);color:#ffffff;margin-right:10px}
+body.adv #coach{background:none;border-radius:0}
+body.adv #coach .c-t{font-family:Fraunces,Georgia,serif;font-variation-settings:'SOFT' 40,'WONK' 1,'opsz' 144;font-style:italic;font-weight:500;font-size:30px;color:#ffffff;text-shadow:0 0 14px rgba(0,0,0,.45),0 2px 8px rgba(0,0,0,.85);gap:16px;margin-bottom:10px}
+body.adv #coach .c-t i{width:58px;height:10px;border-radius:0;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.7) 80%);box-shadow:none;animation:none;clip-path:polygon(0 42%,84% 42%,84% 0,100% 50%,84% 100%,84% 58%,0 58%)}
+body.adv #coach .c-t i:last-child{transform:scaleX(-1)}
+body.adv #coach .c-r{display:inline-flex;gap:8px 18px;padding:9px 22px;border-radius:999px;background:linear-gradient(180deg,rgba(14,18,24,.5),rgba(14,18,24,.5));border:1px solid rgba(255,255,255,.55);font-size:13px;font-weight:600;color:#ffffff}
+body.adv #coach kbd{font-family:Montserrat,sans-serif;text-transform:uppercase;font-weight:700;font-size:10px;color:#ffffff;background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.35));border:1px solid rgba(255,255,255,.7);border-radius:5px;padding:2px 8px}
+#qmenu{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(8,8,22,.55);backdrop-filter:blur(3px);font-family:Montserrat,sans-serif;color:#ffffff}
+#qmenu[hidden]{display:none}
+#qmenu .qq{display:block;margin-top:7px;font-family:Fraunces,Georgia,serif;font-style:italic;font-size:13.5px;line-height:1.45;color:#cfe0ff;opacity:.92}
+#qmenu .qm-in{width:min(860px,calc(100vw - 32px));max-height:calc(100vh - 60px);overflow:auto;box-sizing:border-box;padding:26px 30px 22px;background:linear-gradient(135deg,rgba(14,18,24,.88),rgba(14,18,24,.88));border:1.5px solid rgba(255,255,255,.7);border-radius:12px;box-shadow:0 0 30px rgba(0,0,0,.25),0 20px 60px rgba(0,0,0,.6),inset 0 0 0 5px rgba(255,255,255,.1)}
+#qmenu .qm-h{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
+#qmenu .qm-h h2{margin:0;font-family:Fraunces,Georgia,serif;font-variation-settings:'SOFT' 40,'WONK' 1,'opsz' 144;font-size:32px;font-weight:600;color:#ffffff;text-shadow:0 0 12px rgba(0,0,0,.4)}
+#qmenu .qm-x{all:unset;cursor:pointer;font-family:Montserrat,sans-serif;text-transform:uppercase;font-size:12px;font-weight:700;color:#ffffff;padding:6px 12px;border:1px solid rgba(255,255,255,.7);border-radius:6px}
+#qmenu .qm-cols{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+@media (max-width:720px){#qmenu .qm-cols{grid-template-columns:1fr}}
+#qmenu h3{margin:0 0 10px;font-family:Montserrat,sans-serif;text-transform:uppercase;font-size:13px;letter-spacing:2.5px;color:#ffffff}
+#qmenu ol,#qmenu ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+#qmenu li{padding:10px 12px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.2)}
+#qmenu li.cur{border-color:rgba(255,255,255,.7);background:rgba(255,255,255,.1)}
+#qmenu li.done{opacity:.6}
+#qmenu li.lock{opacity:.45;font-style:italic}
+#qmenu li b{display:block;font-family:Fraunces,Georgia,serif;font-variation-settings:'SOFT' 40,'WONK' 1,'opsz' 144;font-size:17px;font-weight:600}
+#qmenu li span{display:block;font-size:13px;color:rgba(255,255,255,.8);margin-top:3px}
+/* Build 363: the gift viewer buttons wear the new HUD style - clean white outline, Montserrat caps */#gok,#gprev,#gnext{all:unset;cursor:pointer;font-family:Montserrat,sans-serif;font-weight:600;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.75);background:rgba(255,255,255,.08);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 4px 14px rgba(0,0,0,.18);transition:background .25s,border-color .25s,transform .25s}#gok{text-transform:uppercase;font-size:12px;letter-spacing:.22em;padding:10px 26px 10px 28px;border-radius:999px}#gprev,#gnext{font-size:22px;line-height:1;width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%}#gok:hover,#gprev:hover,#gnext:hover{background:rgba(255,255,255,.2);border-color:#fff;transform:translateY(-1px)}#gok:focus-visible,#gprev:focus-visible,#gnext:focus-visible{outline:2px solid #fff;outline-offset:3px}
+#qmenu li button{all:unset;cursor:pointer;margin-top:8px;font-family:Montserrat,sans-serif;text-transform:uppercase;font-size:11px;font-weight:700;letter-spacing:1px;color:#ffffff;padding:4px 12px;border:1px solid rgba(255,255,255,.7);border-radius:6px}
+#qmenu li button[aria-pressed="true"]{background:rgba(255,255,255,.7);color:#2a1d0a}
+#qmenu li button:focus-visible,#qmenu .qm-x:focus-visible{outline:2px solid #ffffff;outline-offset:2px}
+#qmenu .qm-f{margin-top:16px;font-size:12px;color:rgba(255,255,255,.7);text-align:right}
+@media (max-width:900px){#ad-day{width:420px}#ad-day svg{width:420px;height:auto}#ad-cnt{top:110px}#ad-q{top:160px;width:250px}#ad-map{transform:scale(.8);transform-origin:left bottom}}
+/* Build 356: the game's lettering follows the title screen. TITLES: big, bold, soft serif (Fraunces). SUBTEXT: clean, light Montserrat (small labels in spaced capitals, body text in normal case). WHISPERS and HINTS: the title serif in soft italics, never capitals. All in clean white. */
+:root{--f-ui:"Montserrat",system-ui,sans-serif;--f-title:"Fraunces",Georgia,serif}
+body{font-family:Montserrat,system-ui,sans-serif}
+#adv,#qmenu{font-family:Montserrat,sans-serif}
+#ad-qt{font-family:Fraunces,Georgia,serif!important;font-variation-settings:'SOFT' 40,'WONK' 1,'opsz' 72!important;font-style:normal!important;font-weight:700!important;font-size:27px!important;line-height:1.05!important;letter-spacing:-.005em!important}
+#ad-card .h{font-family:Fraunces,Georgia,serif!important;font-variation-settings:'SOFT' 40,'WONK' 1,'opsz' 72!important;font-style:normal!important;font-weight:700!important;font-size:22px!important;letter-spacing:0!important}
+#ad-card .t{font-family:Montserrat,sans-serif!important;font-style:normal!important;font-weight:600!important}
+#ad-card .s{font-family:Fraunces,Georgia,serif!important;font-variation-settings:'SOFT' 100,'WONK' 1,'opsz' 36!important;font-style:italic!important;text-transform:none!important;letter-spacing:.005em!important;font-size:14px!important;font-weight:400!important}
+#qmenu .qm-h h2{font-family:Fraunces,Georgia,serif!important;font-variation-settings:'SOFT' 40,'WONK' 1,'opsz' 72!important;font-style:normal!important;font-weight:800!important;font-size:36px!important}
+#qmenu li b{font-family:Fraunces,Georgia,serif!important;font-variation-settings:'SOFT' 40,'WONK' 1,'opsz' 72!important;font-style:normal!important;font-weight:700!important;font-size:19px!important}
+#qmenu h3,#ad-side b,.ad-nm,#ad-dayl,#adv .kc,#qmenu .kc,.ad-key,#qmenu li button,#qmenu .qm-x{font-family:Montserrat,sans-serif!important;font-style:normal!important;font-weight:600!important;text-transform:uppercase;letter-spacing:.16em!important}
+.ad-step,#ad-side span,#qmenu li span,#qmenu .qm-f{font-family:Montserrat,sans-serif!important;font-style:normal!important;font-weight:500!important}
+#qmenu .qq{font-family:Fraunces,Georgia,serif!important;font-variation-settings:'SOFT' 100,'WONK' 1,'opsz' 36!important;font-style:italic!important;text-transform:none!important;letter-spacing:.005em!important}
+body.adv #coach .c-t{font-family:Fraunces,Georgia,serif!important;font-variation-settings:'SOFT' 100,'WONK' 1,'opsz' 36!important;font-style:italic!important;text-transform:none!important;letter-spacing:.005em!important;font-weight:500!important}
+body.adv #coach .c-r{font-family:Montserrat,sans-serif!important;font-style:normal!important;font-weight:500!important}
+.ad-pr,body.adv #cutSkip,body.adv #viewP{font-family:Fraunces,Georgia,serif!important;font-variation-settings:'SOFT' 100,'WONK' 1,'opsz' 36!important;font-style:italic!important;text-transform:none!important;letter-spacing:.005em!important;font-weight:500!important}
+/* Build 357: every in-game word carries a soft dark shadow, so white lettering still reads when it lands on bright sky, snow or sunlit grass */
+body :not(#gate):not(#gate *):not(#jackq):not(#jackq *){text-shadow:0 1px 2px rgba(8,16,24,.62),0 2px 14px rgba(8,16,24,.48)!important}
+#jackq *{text-shadow:0 1px 2px rgba(4,18,22,.72),0 2px 14px rgba(4,18,22,.55)!important}
+#jackq>div:nth-of-type(1),#jackq>div:nth-of-type(1) *{text-shadow:0 1px 2px rgba(4,18,22,.75),0 2px 12px rgba(4,18,22,.6),0 0 18px rgba(93,255,200,.5),0 0 38px rgba(93,255,200,.28)!important}
+body.adv #cutSkip kbd,body.adv #viewP kbd{font-family:Montserrat,sans-serif!important;font-style:normal!important;font-weight:600!important;font-style:normal!important}
+/* Build 375: every action you're asked to take sits in the same centred pill */html body.adv #viewP,html body.adv #ad-pe{position:fixed!important;left:50%!important;right:auto!important;bottom:15vh!important;top:auto!important;transform:translateX(-50%)!important;padding:11px 22px!important;border-radius:999px!important;border:1px solid rgba(255,255,255,.75)!important;background:rgba(10,20,30,.28)!important;backdrop-filter:blur(6px);color:#fff!important;font-family:Montserrat,sans-serif!important;font-style:normal!important;font-variation-settings:normal!important;font-weight:600!important;font-size:13px!important;letter-spacing:.18em!important;text-transform:uppercase!important;text-shadow:0 1px 4px rgba(0,0,0,.6)!important;z-index:32;white-space:nowrap;display:flex;align-items:center;gap:10px}html body.adv #ad-pe[hidden]{display:none!important}
+
+/* Phase 2: one modern look for every menu and panel, matching the pause menu and title (replaces the old paper / storybook style) */
+:root{--m-bg:linear-gradient(180deg,rgba(18,30,27,.80),rgba(10,18,16,.88));--m-line:rgba(255,253,244,.16);--m-ink:#fffdf4;--m-dim:rgba(255,253,244,.72);--m-faint:rgba(255,253,244,.45);--m-r:16px;--m-shadow:0 24px 60px -24px rgba(0,0,0,.65)}
+#help.panel,.panel.mcard,#qmenu .qm-in,#gate .g-pop{background:var(--m-bg)!important;border:1px solid var(--m-line)!important;border-radius:var(--m-r)!important;box-shadow:var(--m-shadow)!important;backdrop-filter:blur(12px) saturate(1.1);-webkit-backdrop-filter:blur(12px) saturate(1.1);color:var(--m-ink)!important}
+#help.panel::after,.panel.mcard::after{display:none!important}
+/* Controls */
+#help.panel{padding:18px 22px 16px!important;gap:8px 14px!important;grid-template-columns:auto 1fr auto 1fr!important;max-width:min(760px,calc(100vw - 32px))!important;max-height:calc(100vh - 32px);overflow:auto}
+#help::before{grid-column:1/-1!important}
+#help::before{content:"Controls"!important;font-family:"Fraunces",Georgia,serif!important;font-variation-settings:"SOFT" 40,"WONK" 1,"opsz" 72;font-weight:600!important;font-size:20px!important;color:var(--m-ink)!important;margin:0 0 6px!important}
+#help span{color:var(--m-dim)!important;font-family:"Montserrat",var(--f-ui)!important;font-weight:500!important;font-size:12.5px;line-height:1.45}
+#help span small{color:var(--m-faint);font-size:10.5px;letter-spacing:.04em}
+#help kbd,#gate .g-pop kbd,.panel.mcard kbd{font-family:"Montserrat",var(--f-ui)!important;font-weight:600!important;font-size:10.5px!important;letter-spacing:.06em;color:var(--m-ink)!important;background:rgba(255,253,244,.06)!important;border:1px solid rgba(255,253,244,.4)!important;border-radius:6px!important;box-shadow:none!important;padding:1px 7px!important}
+/* Quests */
+#qmenu{background:radial-gradient(circle at 50% 45%,rgba(14,30,26,.45),rgba(8,18,15,.82))!important;backdrop-filter:blur(3px)}
+#qmenu .qm-in{padding:28px 32px 24px!important}
+#qmenu .qm-h h2{color:var(--m-ink)!important;text-shadow:none!important}
+#qmenu h3{font-weight:600!important;font-size:12px!important;letter-spacing:.2em!important;color:var(--m-dim)!important}
+#qmenu li{background:rgba(255,253,244,.04)!important;border:1px solid var(--m-line)!important;border-radius:12px!important}
+#qmenu li.cur{border-color:rgba(255,253,244,.55)!important;background:rgba(255,253,244,.09)!important}
+#qmenu li span,#qmenu .qq{color:var(--m-dim)!important}
+#qmenu .qm-x,#qmenu li button,.panel.mcard button{all:unset;cursor:pointer;font-family:"Montserrat",var(--f-ui)!important;text-transform:uppercase;font-size:11px!important;font-weight:600!important;letter-spacing:.18em!important;color:var(--m-ink)!important;padding:6px 14px!important;border:1px solid rgba(255,253,244,.5)!important;border-radius:999px!important;background:none!important;transition:background .2s}
+#qmenu .qm-x:hover,#qmenu li button:hover,.panel.mcard button:hover{background:rgba(255,253,244,.12)!important}
+#qmenu li button[aria-pressed="true"]{background:rgba(255,253,244,.85)!important;color:#14201d!important}
+/* Jack's question card */
+.panel.mcard{padding:24px 28px 20px!important}
+.panel.mcard p{color:var(--m-dim)!important;font-family:"Montserrat",var(--f-ui);font-size:14px;line-height:1.6}
+/* title pop-ups (How to play, Credits) */
+#gate .g-pop b{font-weight:600!important}
+#gate .g-pop .credit{color:var(--m-dim)!important}
+</style>
+
+<div id="app"></div>
+<div class="vig"></div>
+<div id="reticle" hidden></div>
+<!--DEV{--><button id="studioBtn" title="B opens the cat studio" data-s="all:unset;cursor:pointer;position:fixed;right:calc(120px + env(safe-area-inset-right,0px));top:calc(14px + env(safe-area-inset-top,0px));z-index:5;font-family:var(--f-display);font-weight:700;font-size:15px;color:var(--leaf-deep);padding:7px 14px;border-radius:20px 16px 22px 14px;background:linear-gradient(170deg,rgba(250,244,228,.9),rgba(240,229,203,.88));box-shadow:0 6px 16px -8px rgba(10,30,25,.5);opacity:.82">Studio</button><!--}DEV-->
+<button id="hudBtn" aria-pressed="false" title="H shows or hides the HUD"><span class="leaf"></span>Notes</button>
+
+<div id="brand" class="panel">
+  <div class="now"><small>Playing as</small><span class="nm"></span></div>
+  <div class="who" role="group" aria-label="Choose cat">
+    <button id="pickTink" aria-pressed="false" title="Press 1"><span class="eye" style="background:#8fd0f2"></span>Tink</button>
+    <button id="pickLuca" aria-pressed="true" title="Press 2"><span class="eye" style="background:#d9a03a"></span>Luca</button>
+  </div>
+  <div class="who" id="wx" role="group" aria-label="Time of day"><kbd class="hk" title="N steps through the times of day">N</kbd><button data-w="dawn" title="N steps through the times of day">Dawn</button><button data-w="day">Midday</button><button data-w="golden">Golden</button><button data-w="sunset">Sunset</button><button data-w="dusk">Dusk</button><button data-w="night">Night</button></div><div class="who" id="seasRow" role="group" aria-label="Season"><kbd class="hk" title="K steps through the seasons">K</kbd><button data-s="spring">Spring</button><button data-s="summer">Summer</button><button data-s="autumn">Autumn</button><button data-s="winter">Winter</button></div><div class="who" id="evRow" role="group" aria-label="Weather"><kbd class="hk" title="O steps through the weather this season allows">O</kbd><button data-e="">Clear</button><button data-e="rain">Rain</button><button data-e="snow">Snow</button><button data-e="wind">Wind</button></div><button id="sndBtn" class="snd" title="U toggles sound">Sound on</button>
+</div>
+
+<div id="status" class="panel">
+  <div id="move">Stand</div>
+  <div id="caught">Caught<b id="caughtN">0</b></div>
+</div>
+
+<div id="help" class="panel">
+  <span class="k"><kbd>W A S D</kbd></span><span>Wander about</span>
+  <span class="k"><kbd>Mouse</kbd></span><span>Look around</span>
+  <span class="k"><kbd>Shift</kbd> tap</span><span>Walk or trot</span>
+  <span class="k"><kbd>Shift</kbd> hold</span><span>Run · keep running to fill the zoomies</span>
+  <span class="k"><kbd>Space</kbd></span><span>Jump · hold and look to aim the landing ring</span>
+  <span class="k"><kbd>Left click</kbd></span><span>Hold to stalk and wiggle · let go to pounce</span>
+  <span class="k"><kbd>Right click</kbd></span><span>Swat with a paw</span>
+  <span class="k"><kbd>Run at a tree</kbd></span><span>Scramble up · W/S, A/D, Space leaps off</span>
+  <span class="k"><kbd>E</kbd></span><span>Interact · look at your treasures, nap on the porch cushion</span>
+  <span class="k"><kbd>X</kbd></span><span>Sit and watch the forest</span>
+  <span class="k"><kbd>G</kbd></span><span>Sit and wash</span>
+  <span class="k"><kbd>Q</kbd></span><span>Meow</span>
+  <span class="k"><kbd>R</kbd></span><span>Hiss</span>
+  <span class="k"><kbd>Y</kbd></span><span>Yowl</span>
+  <span class="k"><kbd>1</kbd> <kbd>2</kbd></span><span>Be Tink or Luca (the other one rests)</span>
+  <span class="k"><kbd>J</kbd></span><span>Quests</span>
+  <span class="k"><kbd>Esc</kbd></span><span>Pause</span>
+  <span class="k"><kbd>Enter</kbd></span><span>Skip a scene</span>
+  <span class="k"><kbd>I</kbd></span><span>See through Tink's eyes</span>
+  <span class="k"><kbd>H</kbd></span><span>Show or hide these notes</span>
+  <span class="k"><kbd>N</kbd></span><span>Time of day <small>(after the story)</small></span>
+  <span class="k"><kbd>K</kbd></span><span>Season <small>(after the story)</small></span>
+  <span class="k"><kbd>O</kbd></span><span>Weather <small>(after the story)</small></span>
+  <span class="k"><kbd>U</kbd></span><span>Sound on/off</span>
+<!--DEV{-->  <span class="k"><kbd>M</kbd></span><span>Sound mixer</span><!--}DEV-->
+  <span class="k"><kbd>Z</kbd></span><span>Slow, dreamy time</span>
+<!--DEV{-->  <span class="k"><kbd>L</kbd></span><span>Switch HUD style</span><!--}DEV-->
+<!--DEV{-->  <span class="k"><kbd>B</kbd></span><span>Cat studio</span><!--}DEV-->
+<!--DEV{-->  <span class="k"><kbd>`</kbd></span><span>World editor</span><!--}DEV-->
+<!--DEV{-->  <span class="k"><kbd>F7</kbd></span><span>Sky editor</span><!--}DEV-->
+<!--DEV{-->  <span class="k"><kbd>T</kbd></span><span>Movement tuning</span><!--}DEV-->
+<!--DEV{-->  <span class="k"><kbd>P</kbd></span><span>Drop a trouble pin (for Claude)</span><!--}DEV-->
+<!--DEV{-->  <span class="k"><kbd>F9</kbd></span><span>Frame counter</span><!--}DEV-->
+</div>
+
+
+<!--DEV{--><div id="tune" class="panel" hidden>
+  <h2>Movement tuning</h2>
+  <p class="lede">Changes apply live. Copy the values to send them back to me.</p>
+  <div id="tuneRows"></div>
+  <div class="btns"><button id="copyT">Copy values</button><button id="resetT">Reset</button><button id="qualT"></button></div>
+</div><!--}DEV-->
+
+<!--DEV{--><div id="studio" class="panel" hidden>
+  <div class="st-head"><b>Cat studio</b><button id="stClose" title="B">Close</button></div>
+  <div class="st-row"><button id="stMode" title="Play the cat with the studio open, to test your animation choices">Try it out: play</button></div>
+  <div class="st-row" role="group" aria-label="Cat"><button id="stTink" aria-pressed="true">Tink</button><button id="stLuca" aria-pressed="false">Luca</button></div>
+  <label class="st-lab" for="stAnim">Animation <span id="stCount"></span></label>
+  <div class="st-row"><button id="stPrev" title="Previous (left arrow)">&#8592;</button><select id="stAnim"></select><button id="stNext" title="Next (right arrow)">&#8594;</button></div>
+  <div class="st-row"><button id="stPlay">Pause</button><label class="st-lab" for="stSpeed">Speed</label><input id="stSpeed" type="range" min="0" max="2" step="0.05" value="1"><output id="stSpeedO">1.0</output></div>
+  <div class="st-row"><button id="stPaint" aria-pressed="false" title="The painted brush filter makes fine edges look blocky up close">Painted filter</button></div>
+  <div class="st-row"><button id="stTune">Coat &amp; size sliders</button><button id="stCam">Reset view</button></div>
+  <div class="st-sep"></div>
+  <label class="st-lab" for="stAct">Use the animation above for…</label>
+  <div class="st-row"><select id="stAct"></select><button id="stAssign">Assign</button></div>
+  <div class="st-row"><button id="stPreview" title="Show what this action uses now">Show current</button><button id="stUnassign">Back to default</button></div>
+  <div id="stList" class="st-list"></div>
+  <div class="st-row"><button id="stCopy">Copy assignments</button><button id="stResetAll">Reset all</button></div>
+  <div class="st-sep"></div>
+  <div class="st-head" style="margin-top:2px"><b>Jack the spirit</b></div>
+  <div class="st-row"><button id="jlShow" aria-pressed="false" title="Bring Jack here, sitting in front of you, to see your changes">Show Jack here</button><button id="jlReset">Reset look</button></div>
+  <div id="jlRows" class="st-jl"></div>
+  <div class="st-row"><button id="jlCopy">Copy Jack look for Claude</button></div>
+  <p class="st-tip">Drag to turn around the cat · right-drag (or Shift-drag) to slide the view · scroll to zoom in close · Reset view to start over.</p>
+</div><!--}DEV-->
+<div id="toast"></div>
+<div id="cutFade" style="position:fixed;inset:0;pointer-events:none;background:#04080a;opacity:0;transition:opacity .35s ease;z-index:40"></div><div id="cutSkip" class="actP" style="position:fixed;right:22px;bottom:18px;pointer-events:none;font:600 11px/1 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:rgba(235,245,240,.75);text-shadow:0 1px 3px rgba(0,0,0,.6);opacity:0;transition:opacity .6s ease;z-index:41"><kbd style="font:inherit;border:1px solid rgba(235,245,240,.5);border-radius:4px;padding:3px 6px;margin-right:6px">Tab</kbd>to skip</div><div id="flash" style="position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 55%,#fffbe8,#e8f6ee 60%,rgba(220,240,230,.6));opacity:0"></div>
+
+<div id="pre"><div class="pre-in"><div class="pre-t" id="preTxt">Building the forest…</div><div class="pre-bar"><span id="preFill"></span></div><div class="pre-s" id="preSub">In loving memory of Jack</div></div></div>
+<style>#pre{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:radial-gradient(circle at 50% 45%,#16241f,#070c0b 75%);color:#f4f1e6;cursor:default;transition:opacity 1.2s ease;font-family:Montserrat,system-ui,sans-serif;text-align:center}
+#pre.gone{opacity:0;pointer-events:none}#pre .pre-in{display:flex;flex-direction:column;align-items:center;gap:18px}
+#pre .pre-t{font-weight:700;font-size:clamp(15px,1.6vw,19px);letter-spacing:.26em;text-transform:uppercase;color:rgba(255,253,244,.55);transition:color .6s,letter-spacing .4s,text-shadow .4s;padding:10px 6px}
+#pre.ready .pre-t{color:#fffdf4;cursor:pointer;animation:preB 2.4s ease-in-out infinite}#pre.ready .pre-t:hover{letter-spacing:.3em;text-shadow:0 0 18px rgba(190,255,200,.55)}
+@keyframes preB{0%,100%{opacity:.75}50%{opacity:1}}
+#pre .pre-bar{width:min(240px,60vw);height:2px;border-radius:2px;background:rgba(255,255,255,.12);overflow:hidden;transition:opacity .6s}#pre.ready .pre-bar{opacity:0}
+#pre #preFill{display:block;height:100%;width:0;background:linear-gradient(90deg,rgba(184,255,207,.6),#e8fff0);box-shadow:0 0 8px rgba(184,255,207,.6);transition:width .4s ease}
+#pre .pre-s{font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:rgba(255,253,244,.35)}</style>
+<script>/* Build 375: a plain first screen - Building the forest, then Click to begin; that click starts the title song and reveals the title screen */(()=>{const P=document.getElementById('pre'),T=document.getElementById('preTxt'),F=document.getElementById('preFill');let rd=false;
+ const iv=setInterval(()=>{const gf=document.getElementById('goFill');if(gf&&F)F.style.width=gf.style.width||F.style.width;if(!rd&&window.__ready&&window.__canEnter){rd=true;F.style.width='100%';P.classList.add('ready');T.textContent='Click to begin'}if(window.__devSkip||window.__STUDIO_ONLY){P.classList.add('gone');clearInterval(iv)}},150);
+ T.addEventListener('click',e=>{if(!rd)return;e.stopPropagation();window.__begun=true;try{window.__THEME&&window.__THEME.play()}catch(er){}const gt=document.getElementById('goTxt');if(gt)gt.textContent='Enter the forest';P.classList.add('gone');clearInterval(iv);setTimeout(()=>P.remove(),1400)})})()</script>
+<div id="gate">
+  <div class="g-shade"></div>
+  <div class="g-corner">In loving memory of<b>Jack</b></div>
+  <div class="g-build" id="gBuild">Build 474</div>
+  <div class="g-music" id="gMusic" aria-pressed="false"><i></i>Music</div>
+  <header class="g-title">
+    <div class="g-small">Tink's Magical</div>
+    <h1 class="g-big">Forest</h1>
+    <div class="g-sub">An adventure with a forest spirit</div>
+  </header>
+  <nav class="g-menu">
+    <div class="go loading" id="goBtn"><span class="go-w"><span id="goTxt">Building the forest…</span><span class="go-bar"><span id="goFill"></span></span></span></div>
+    <div class="g-opts"><span id="gHow">How to play</span><i></i><span id="gCred">Credits</span><i></i><span id="gQuit">Quit</span></div>
+    <div id="load"></div>
+<script>(()=>{const say=t=>{const g=document.getElementById("goTxt");if(g)g.textContent=t};const errs=[];
+addEventListener("error",e=>{if(window.__ready)return;const el=e.target;if(el&&el!==window&&(el.src||el.href))errs.push("could not load "+(el.src||el.href).split("/").slice(-2).join("/"));else if(el&&el.tagName==="SCRIPT")errs.push("one of the game's code files failed to load");else if(e.message)errs.push(e.message+(e.filename?" ("+e.filename.split("/").pop()+":"+e.lineno+")":""))},true);
+addEventListener("unhandledrejection",e=>{if(window.__ready)return;errs.push(String(e.reason&&e.reason.message||e.reason))});
+setTimeout(async()=>{if(window.__modStarted||window.__ready)return;const info=[];const im=document.querySelector('script[type="importmap"]');let base="./three.module.js";try{base=JSON.parse(im.textContent).imports.three}catch(e){}
+ const jb=base.replace(/build\/three\.module\.js$|three\.module\.js$/,"")+(base.includes("cdn.")?"examples/jsm/":"jsm/");const files=[base,...["controls/TransformControls.js","loaders/GLTFLoader.js","postprocessing/EffectComposer.js","postprocessing/MaskPass.js","postprocessing/OutputPass.js","postprocessing/Pass.js","postprocessing/RenderPass.js","postprocessing/ShaderPass.js","postprocessing/UnrealBloomPass.js","shaders/CopyShader.js","shaders/LuminosityHighPassShader.js","shaders/OutputShader.js","utils/BufferGeometryUtils.js","utils/SkeletonUtils.js"].map(f=>jb+f)];let ok=0;
+ for(const u of files){try{const r=await fetch(u,{cache:"no-store"});const ct=r.headers.get("content-type")||"?";if(r.ok&&/javascript/.test(ct))ok++;else info.push(u.split("/").slice(-2).join("/")+": "+r.status+" "+ct)}catch(e){info.push(u.split("/").slice(-2).join("/")+": blocked ("+e.message+")")}}
+ info.unshift(ok+" of "+files.length+" engine files load fine");info.push("browser: "+navigator.userAgent.replace(/^Mozilla\/5\.0 /,"").slice(0,90));
+ const box=document.getElementById("load");if(box){box.style.cssText="font:12px/1.5 Montserrat,system-ui,sans-serif;color:rgba(255,253,244,.8);max-width:520px;text-align:center;margin-top:10px;white-space:pre-wrap";box.textContent="The game code didn't start. Send Claude this:\n"+[...info,...errs.slice(0,4)].join("\n")}say("The forest could not start");},12000)})()</script>
+  </nav>
+  <div class="g-pop" id="gHowP" hidden><b>How to play</b>
+    <div><kbd>W A S D</kbd> walk &nbsp;·&nbsp; <kbd>Mouse</kbd> look &nbsp;·&nbsp; tap <kbd>Shift</kbd> walk/trot &nbsp;·&nbsp; hold <kbd>Shift</kbd> run</div>
+    <div><kbd>Space</kbd> jump and climb &nbsp;·&nbsp; hold <kbd>Click</kbd> to stalk, let go to pounce</div>
+    <div><kbd>Right click</kbd> swat &nbsp;·&nbsp; <kbd>1</kbd> <kbd>2</kbd> switch between Tink and Luca</div>     <div><kbd>N</kbd> time of day &nbsp;·&nbsp; <kbd>K</kbd> season &nbsp;·&nbsp; <kbd>O</kbd> weather &nbsp;·&nbsp; <kbd>Esc</kbd> pause &nbsp;·&nbsp; <kbd>J</kbd> quests &nbsp;·&nbsp; <kbd>H</kbd> every key</div>
+    <div><kbd>U</kbd> sound on/off &nbsp;·&nbsp; <!--DEV{--><kbd>M</kbd> sound mixer &nbsp;·&nbsp; <kbd>B</kbd> cat studio &nbsp;·&nbsp; <kbd>`</kbd> world editor &nbsp;·&nbsp; <kbd>F7</kbd> sky editor &nbsp;·&nbsp; <!--}DEV--><kbd>Tab</kbd> skip a scene · <kbd>Enter</kbd> read on</div>
+    <div>Follow the glowing puffs, find the little gifts left for you, and see where the green-eyed spirit leads you.</div></div>
+  <div class="g-pop" id="gCredP" hidden><div class="credit"><b>Credits</b><br>3D models from Sketchfab, with thanks to their artists:<br>“Asian Charpai - Wooden Bed (Low Poly)” by <a href="https://sketchfab.com/00amza" target="_blank" rel="noopener">00amza</a> (CC BY 4.0) · “Колокольчик / Jingle Bell” by <a href="https://sketchfab.com/alex.petuhov-1" target="_blank" rel="noopener">Alex Petuhov</a> (CC BY 4.0) · “Leaf” by <a href="https://sketchfab.com/ameliakoering" target="_blank" rel="noopener">ameliakoering</a> (CC BY 4.0) · “Littlestone Shelter” by <a href="https://sketchfab.com/artfletch" target="_blank" rel="noopener">artfletch</a> (CC BY 4.0) · “Ghibli tadpole” by <a href="https://sketchfab.com/audeshattuck" target="_blank" rel="noopener">audeshattuck</a> (CC BY 4.0) · “Bird” by <a href="https://sketchfab.com/moizmuhammad373" target="_blank" rel="noopener">Blender Artist</a> (CC BY 4.0) · “Ghibli Style Low Poly Rock (No Moss)- 5/14” by <a href="https://sketchfab.com/bmwylam" target="_blank" rel="noopener">Braeden Wylam</a> (CC BY 4.0) · “Set Ghibli style rocks” by <a href="https://sketchfab.com/CoFate" target="_blank" rel="noopener">CoFate</a> (CC BY 4.0) · “flowers_pack_1” by <a href="https://sketchfab.com/Daniel.Marquez2" target="_blank" rel="noopener">Daniel.Marquez2</a> (CC BY 4.0) · “flowers_pack_4” by <a href="https://sketchfab.com/Daniel.Marquez2" target="_blank" rel="noopener">Daniel.Marquez2</a> (CC BY 4.0) · “CUSHION 3” by <a href="https://sketchfab.com/Daniel.Orlando.Tapia" target="_blank" rel="noopener">Daniel.Orlando.Tapia</a> (CC BY 4.0) · “Rice Plant” by <a href="https://sketchfab.com/dariotolkien" target="_blank" rel="noopener">dario scaramuzza</a> (CC BY-NC 4.0) · “Model 111A - Imperial Woodpecker on Tree” by <a href="https://sketchfab.com/DigitalLife3D" target="_blank" rel="noopener">DigitalLife3D</a> (CC BY-NC 4.0) · “Soot Sprite (すすワタリ)” by <a href="https://sketchfab.com/duz_vr" target="_blank" rel="noopener">Duznot</a> (CC BY-NC 4.0) · “Pote Ghibli” by <a href="https://sketchfab.com/elisbortolin" target="_blank" rel="noopener">Elis Bortolin</a> (CC BY 4.0) · “Dragonflyv2 1” by <a href="https://sketchfab.com/Erlangga1" target="_blank" rel="noopener">erlanggart</a> (CC BY 4.0) · “An Animated Cat” (movement, fur and Tink’s coat added in-game) by <a href="https://sketchfab.com/Evil_Katz" target="_blank" rel="noopener">Evil_Katz</a> (CC BY 4.0) · “Dove Bird Rigged” by <a href="https://sketchfab.com/FourthGreen" target="_blank" rel="noopener">FourthGreen</a> (CC BY 4.0) · “DAE Crib Retake - Royal Retreat” (the starting room) by <a href="https://sketchfab.com/Gio_Tinca" target="_blank" rel="noopener">Gio Tinca</a> (CC BY 4.0) · “釜爺 Studio Ghibli” (the boiler room) by <a href="https://sketchfab.com/godislove431" target="_blank" rel="noopener">godislove431</a> (CC BY 4.0) · “squirrel animation” (rig used to animate the squirrel) by <a href="https://sketchfab.com/Slava251114" target="_blank" rel="noopener">hino</a> (CC BY 4.0) · “Wooden Fence” by <a href="https://sketchfab.com/Inuciian" target="_blank" rel="noopener">Inuciian</a> (CC BY 4.0) · “Curious Squirrel” by <a href="https://sketchfab.com/rt699448" target="_blank" rel="noopener">iRahulRajput</a> (CC BY 4.0) · “Jabami Anime Bush v1” by <a href="https://sketchfab.com/JabamiProduction" target="_blank" rel="noopener">JABAMI Production</a> (Sketchfab Standard) · “Jabami Anime Sakura blossom” by <a href="https://sketchfab.com/JabamiProduction" target="_blank" rel="noopener">JABAMI Production</a> (Sketchfab Standard) · “Anime Deadtree” by <a href="https://sketchfab.com/JabamiProduction" target="_blank" rel="noopener">JABAMI Production</a> (Sketchfab Standard) · “Bucket from Ponyo - Studio Ghibli” by <a href="https://sketchfab.com/junkofjulz" target="_blank" rel="noopener">junkofjulz</a> (CC BY 4.0) · “Ponyo&#x27;s boat” by <a href="https://sketchfab.com/kkangtyy" target="_blank" rel="noopener">kkangtyy</a> (CC BY 4.0) · “Ghibli Style Low Poly Rock” by <a href="https://sketchfab.com/bmwylam" target="_blank" rel="noopener">Braeden Wylam</a> (CC BY 4.0) · “Bridge-wooden-lighter” by <a href="https://sketchfab.com/stefan.lengyel1" target="_blank" rel="noopener">Pixel</a> (CC BY 4.0) · “Cat JIJI” by <a href="https://sketchfab.com/SLCY" target="_blank" rel="noopener">SLCY</a> (CC BY 4.0) · “Farm Life - Beetroot Patch” by <a href="https://sketchfab.com/LadyIReyna" target="_blank" rel="noopener">LadyIReyna</a> (CC BY-NC 4.0) · “Crow Fly” by <a href="https://sketchfab.com/LostModels2025" target="_blank" rel="noopener">LostBoyz2078</a> (CC BY-NC 4.0) · “Crow” by <a href="https://sketchfab.com/LostModels2025" target="_blank" rel="noopener">LostBoyz2078</a> (CC BY 4.0) · “Wooden Barrel” by <a href="https://sketchfab.com/M_Michalak" target="_blank" rel="noopener">Mikołaj Michalak</a> (CC BY 4.0) · “Realistic Fern Plant Bush” by <a href="https://sketchfab.com/misty-wind" target="_blank" rel="noopener">misty-wind</a> (CC BY 4.0) · “Enchanted_ Hollow_ Tree_1112234729_texture” by <a href="https://sketchfab.com/mp4967qwp" target="_blank" rel="noopener">mp4967qwp</a> (CC BY 4.0) · “Beanstalk” by <a href="https://sketchfab.com/MrYoyoyigitiyo" target="_blank" rel="noopener">MrYoyoyigitiyo</a> (CC BY 4.0) · “190513 Japanese House” by <a href="https://sketchfab.com/ntdhdesigner" target="_blank" rel="noopener">neih.D</a> (CC BY 4.0) · “Stone Well Stylized” by <a href="https://sketchfab.com/nilslindback" target="_blank" rel="noopener">Nils Lindbäck</a> (CC BY 4.0) · “Farm set (part 2)” by <a href="https://sketchfab.com/NoodePoodle" target="_blank" rel="noopener">NoodlePoodle</a> (CC BY 4.0) · “Slate Stepping Stones” by <a href="https://sketchfab.com/oyugi" target="_blank" rel="noopener">Oyugi Mark</a> (CC BY 4.0) · “Japanese paper lanterns collection” by <a href="https://sketchfab.com/patrakeevasveta" target="_blank" rel="noopener">patrakeevasveta</a> (CC BY 4.0) · “Japanese stone lanterns” by <a href="https://sketchfab.com/patrakeevasveta" target="_blank" rel="noopener">patrakeevasveta</a> (CC BY 4.0) · “Ghibli Rock” by <a href="https://sketchfab.com/PolytricityLtd" target="_blank" rel="noopener">POLYTRICITY</a> (CC BY 4.0) · “Ghibli like Fireplace” by <a href="https://sketchfab.com/rgrbzrr" target="_blank" rel="noopener">rgrbzrr</a> (CC BY 4.0) · “Mushrooms Set” by <a href="https://sketchfab.com/romanbushuev.2021" target="_blank" rel="noopener">Roman62</a> (Sketchfab Standard) · “Frog Jump” by <a href="https://sketchfab.com/rukh3d" target="_blank" rel="noopener">Rukh3D</a> (CC BY 4.0) · “Wind Chimes” by <a href="https://sketchfab.com/RyanSpeirs" target="_blank" rel="noopener">RyanSpeirs</a> (CC BY 4.0) · “Washing line” by <a href="https://sketchfab.com/Selax" target="_blank" rel="noopener">Selax</a> (CC BY-ND 4.0) · “Jiji” by <a href="https://sketchfab.com/SiddharthVaghela" target="_blank" rel="noopener">SiddharthVaghela</a> (CC BY 4.0) · “Ghibli/Anime Style Texturing (Free Tutorial)” by <a href="https://sketchfab.com/stylizedstation" target="_blank" rel="noopener">Stylized Station</a> (CC BY 4.0) · “Ghibli/Anime Style Rocks Smart Material” by <a href="https://sketchfab.com/stylizedstation" target="_blank" rel="noopener">Stylized Station</a> (CC BY 4.0) · “big banana leaf” by <a href="https://sketchfab.com/sv1nks" target="_blank" rel="noopener">sv1nks</a> (CC BY 4.0) · “Medieval House Anime Based” by <a href="https://sketchfab.com/zul_gv" target="_blank" rel="noopener">Toni García Vilche</a> (CC BY 4.0) · “Day 1. Feather” by <a href="https://sketchfab.com/tuturu" target="_blank" rel="noopener">tuturu</a> (CC BY 4.0) · “Wheat Anime Ghibli Style” by <a href="https://sketchfab.com/verakozhukhar" target="_blank" rel="noopener">verakozhukhar</a> (Sketchfab Standard) · “Stylized cherry blossom flower (桜の花)” by <a href="https://sketchfab.com/vrsns_voyage" target="_blank" rel="noopener">Voyage</a> (CC BY 4.0) · “Cherry blossom petal” by <a href="https://sketchfab.com/vrsns_voyage" target="_blank" rel="noopener">Voyage</a> (CC BY 4.0) · “Bird Orange” by <a href="https://sketchfab.com/wenyeh1110" target="_blank" rel="noopener">Wen Yeh</a> (CC BY-NC-SA 4.0) · “Stone (Castle in the sky)” by <a href="https://sketchfab.com/YuuDrawn" target="_blank" rel="noopener">YuuDrawn</a> (CC BY 4.0) · “PS2 LP Soviet kitchen table” by <a href="https://sketchfab.com/zubenko78" target="_blank" rel="noopener">zubenko78</a> (CC BY 4.0) · “Ghibli Handpainted River” by <a href="https://sketchfab.com/Nulla_" target="_blank" rel="noopener">𝔑𝔲𝔩𝔩𝔞</a> (CC BY 4.0) · tree foliage by Alex Ace (CC BY 4.0).<br>Some models have been repainted, resized or re-rigged to fit the forest.</div></div>
+</div>
+
+<script>// the title song loads first, before the forest, so it's ready as soon as the page can play sound
+/* ?mute (test copies): the title song never starts either */if(/[?&]mute\b/.test(location.search)){try{HTMLMediaElement.prototype.play=function(){this.muted=true;this.volume=0;try{this.pause()}catch(e){}return Promise.resolve()}}catch(e){}}
+window.__THEME=(()=>{let done=false;const a=new Audio('audio/music/spring-title-theme.mp3');a.loop=true;a.preload='auto';a.volume=0;const b=document.getElementById('gMusic');let on=false,want=true,fadeT=0;
+ const fade=(to,ms)=>{clearInterval(fadeT);const st=a.volume,t0=performance.now();fadeT=setInterval(()=>{const k=Math.min(1,(performance.now()-t0)/ms);a.volume=st+(to-st)*k;if(k>=1){clearInterval(fadeT);if(to===0)a.pause()}},40)};
+ /* Build 375: the theme waits until the forest is ready to play, so it doubles as the cue that loading is done */const ready=()=>!!(window.__ready&&window.__canEnter);/* it starts playing silently the moment the page opens (when browsers allow sound), then rewinds and fades in once the forest is ready */let pre=false;const preroll=()=>{if(pre||done||!a.paused)return;a.volume=0;a.play().then(()=>{pre=true;if(done)a.pause()}).catch(()=>{})};preroll();const start=()=>{if(on||!want||done)return;if(!ready()){preroll();return}const go=()=>{if(done){a.pause();return}on=true;b.setAttribute('aria-pressed','true');fade(.55,1800)};if(!a.paused){try{a.currentTime=0}catch(e){}go()}else a.play().then(()=>{try{a.currentTime=0}catch(e){}go()}).catch(()=>{})};
+ const stop=ms=>{done=true;if(!on){try{a.pause()}catch(e){}return}on=false;b.setAttribute('aria-pressed','false');fade(0,ms)};
+ b.addEventListener('click',e=>{e.stopPropagation();if(on){want=false;stop(600)}else{want=true;start()}});
+ const tk=setInterval(()=>{if(done||on){if(done)clearInterval(tk);return}start()},300);for(const ev of ['pointerdown','keydown'])addEventListener(ev,start,{capture:true});return {el:a,stop,play:()=>{done=false;want=true;start()},state:()=>({on,want,done,ready:ready()})}})();</script>
+<script type="importmap">{"imports":{"three":"./three.module.js","three/addons/":"./jsm/"}}</script>
+<script>(async()=>{const u="/tinks-forest-next/game.dev.js?v=1794516658";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
+ if(!txt){const g=document.getElementById("goTxt");if(g)g.textContent="Could not download the game. Please reload";return}
+ const sc=document.createElement("script");sc.type="module";sc.src=URL.createObjectURL(new Blob([txt],{type:"text/javascript"}));document.body.appendChild(sc)})()</script>
+<div style="position:fixed;left:6px;top:4px;z-index:99999;font:600 10px system-ui;color:#fff;background:#c0392bcc;padding:1px 5px;border-radius:3px;pointer-events:none">STAGING</div>
+<script>if(/[?&]bench\b/.test(location.search)){const s=document.createElement("script");s.src="/tinks-forest-next/bench.js?v=1794516658";document.body.appendChild(s)}</script>

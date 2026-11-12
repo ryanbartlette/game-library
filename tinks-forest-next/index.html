@@ -211,7 +211,23 @@ body:has(#gate:not([hidden])) #climbP{display:none}
 #pause .go{cursor:pointer;display:flex;align-items:center;gap:18px;font-family:"Montserrat",var(--f-ui);font-weight:700;font-size:clamp(15px,1.6vw,19px);letter-spacing:.26em;text-transform:uppercase;padding:10px 6px;transition:letter-spacing .4s}
 #pause .go:hover{letter-spacing:.3em}#pause .go::before,#pause .go::after{content:"";width:46px;height:1px;background:linear-gradient(90deg,rgba(255,253,244,0),rgba(255,253,244,.85))}#pause .go::after{transform:scaleX(-1)}
 #pause .g-opts{display:flex;align-items:center;gap:14px;font-family:"Montserrat",var(--f-ui);font-weight:600;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,253,244,.72)}
-#pause .g-opts span{cursor:pointer;padding:4px 2px}#pause .g-opts span:hover{color:#fffdf4}#pause .g-opts i{width:4px;height:4px;border-radius:50%;background:rgba(255,253,244,.5)}
+#pause .g-opts span{cursor:pointer;padding:4px 2px}#pause .g-opts span:hover{color:#fffdf4}#pause .p-opts{display:flex;flex-direction:column;align-items:stretch;gap:16px;width:min(460px,86vw);margin-top:-6px}
+#pause .p-opts[hidden],#pause nav[hidden]{display:none}
+#pause .o-row{display:flex;align-items:center;justify-content:space-between;gap:24px;font-family:"Montserrat",var(--f-ui);font-weight:600;font-size:12px;letter-spacing:.2em;text-transform:uppercase}
+#pause .o-l{color:rgba(255,253,244,.72);text-align:left}
+#pause .o-c{display:flex;align-items:center;gap:12px}
+#pause .o-seg b{font-weight:600;cursor:pointer;padding:4px 2px;color:rgba(255,253,244,.5);border-bottom:1px solid transparent;transition:color .2s}
+#pause .o-seg b:hover{color:#fffdf4}#pause .o-seg b.on{color:#fffdf4;border-bottom-color:rgba(255,253,244,.85)}
+#pause .o-seg i{width:4px;height:4px;border-radius:50%;background:rgba(255,253,244,.5)}
+#pause .o-c input[type=range]{-webkit-appearance:none;appearance:none;width:150px;height:2px;background:rgba(255,253,244,.35);border-radius:2px;outline:none;cursor:pointer}
+#pause .o-c input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:#fffdf4;box-shadow:0 1px 6px rgba(0,0,0,.4)}
+#pause .o-c input[type=range]::-moz-range-thumb{width:13px;height:13px;border:0;border-radius:50%;background:#fffdf4}
+#pause .o-c em{font-style:normal;min-width:48px;text-align:right;color:#fffdf4}
+#pause .o-note{font-family:"Montserrat",var(--f-ui);font-size:12px;letter-spacing:.06em;color:rgba(255,253,244,.82);display:flex;flex-direction:column;align-items:center;gap:4px}
+#pause .p-opts .go{align-self:center;margin-top:8px}
+#fpsNum{position:fixed;left:12px;bottom:10px;z-index:20;font:700 12px "Montserrat",var(--f-ui,sans-serif);letter-spacing:.14em;text-shadow:0 1px 6px rgba(0,0,0,.65);pointer-events:none}
+#fpsNum[hidden],body:has(#gate:not([hidden])) #fpsNum{display:none}
+#pause .g-opts i{width:4px;height:4px;border-radius:50%;background:rgba(255,253,244,.5)}
 #gifts{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:4;text-align:center;color:#fffdf4;text-shadow:0 1px 10px rgba(6,18,14,.75);pointer-events:none}
 #gifts .gi-row{display:flex;gap:6px;justify-content:center}
 #gifts img{width:34px;height:34px;filter:brightness(0) invert(1) opacity(.28) drop-shadow(0 0 1px rgba(255,253,244,.9));transition:filter .8s}
@@ -336,12 +352,41 @@ body :not(#gate):not(#gate *):not(#jackq):not(#jackq *){text-shadow:0 1px 2px rg
 #jackq>div:nth-of-type(1),#jackq>div:nth-of-type(1) *{text-shadow:0 1px 2px rgba(4,18,22,.75),0 2px 12px rgba(4,18,22,.6),0 0 18px rgba(93,255,200,.5),0 0 38px rgba(93,255,200,.28)!important}
 body.adv #cutSkip kbd,body.adv #viewP kbd{font-family:Montserrat,sans-serif!important;font-style:normal!important;font-weight:600!important;font-style:normal!important}
 /* Build 375: every action you're asked to take sits in the same centred pill */html body.adv #viewP,html body.adv #ad-pe{position:fixed!important;left:50%!important;right:auto!important;bottom:15vh!important;top:auto!important;transform:translateX(-50%)!important;padding:11px 22px!important;border-radius:999px!important;border:1px solid rgba(255,255,255,.75)!important;background:rgba(10,20,30,.28)!important;backdrop-filter:blur(6px);color:#fff!important;font-family:Montserrat,sans-serif!important;font-style:normal!important;font-variation-settings:normal!important;font-weight:600!important;font-size:13px!important;letter-spacing:.18em!important;text-transform:uppercase!important;text-shadow:0 1px 4px rgba(0,0,0,.6)!important;z-index:32;white-space:nowrap;display:flex;align-items:center;gap:10px}html body.adv #ad-pe[hidden]{display:none!important}
+
+/* Phase 2: one modern look for every menu and panel, matching the pause menu and title (replaces the old paper / storybook style) */
+:root{--m-bg:linear-gradient(180deg,rgba(18,30,27,.80),rgba(10,18,16,.88));--m-line:rgba(255,253,244,.16);--m-ink:#fffdf4;--m-dim:rgba(255,253,244,.72);--m-faint:rgba(255,253,244,.45);--m-r:16px;--m-shadow:0 24px 60px -24px rgba(0,0,0,.65)}
+#help.panel,.panel.mcard,#qmenu .qm-in,#gate .g-pop{background:var(--m-bg)!important;border:1px solid var(--m-line)!important;border-radius:var(--m-r)!important;box-shadow:var(--m-shadow)!important;backdrop-filter:blur(12px) saturate(1.1);-webkit-backdrop-filter:blur(12px) saturate(1.1);color:var(--m-ink)!important}
+#help.panel::after,.panel.mcard::after{display:none!important}
+/* Controls */
+#help.panel{padding:18px 22px 16px!important;gap:8px 14px!important;grid-template-columns:auto 1fr auto 1fr!important;max-width:min(760px,calc(100vw - 32px))!important;max-height:calc(100vh - 32px);overflow:auto}
+#help::before{grid-column:1/-1!important}
+#help::before{content:"Controls"!important;font-family:"Fraunces",Georgia,serif!important;font-variation-settings:"SOFT" 40,"WONK" 1,"opsz" 72;font-weight:600!important;font-size:20px!important;color:var(--m-ink)!important;margin:0 0 6px!important}
+#help span{color:var(--m-dim)!important;font-family:"Montserrat",var(--f-ui)!important;font-weight:500!important;font-size:12.5px;line-height:1.45}
+#help span small{color:var(--m-faint);font-size:10.5px;letter-spacing:.04em}
+#help kbd,#gate .g-pop kbd,.panel.mcard kbd{font-family:"Montserrat",var(--f-ui)!important;font-weight:600!important;font-size:10.5px!important;letter-spacing:.06em;color:var(--m-ink)!important;background:rgba(255,253,244,.06)!important;border:1px solid rgba(255,253,244,.4)!important;border-radius:6px!important;box-shadow:none!important;padding:1px 7px!important}
+/* Quests */
+#qmenu{background:radial-gradient(circle at 50% 45%,rgba(14,30,26,.45),rgba(8,18,15,.82))!important;backdrop-filter:blur(3px)}
+#qmenu .qm-in{padding:28px 32px 24px!important}
+#qmenu .qm-h h2{color:var(--m-ink)!important;text-shadow:none!important}
+#qmenu h3{font-weight:600!important;font-size:12px!important;letter-spacing:.2em!important;color:var(--m-dim)!important}
+#qmenu li{background:rgba(255,253,244,.04)!important;border:1px solid var(--m-line)!important;border-radius:12px!important}
+#qmenu li.cur{border-color:rgba(255,253,244,.55)!important;background:rgba(255,253,244,.09)!important}
+#qmenu li span,#qmenu .qq{color:var(--m-dim)!important}
+#qmenu .qm-x,#qmenu li button,.panel.mcard button{all:unset;cursor:pointer;font-family:"Montserrat",var(--f-ui)!important;text-transform:uppercase;font-size:11px!important;font-weight:600!important;letter-spacing:.18em!important;color:var(--m-ink)!important;padding:6px 14px!important;border:1px solid rgba(255,253,244,.5)!important;border-radius:999px!important;background:none!important;transition:background .2s}
+#qmenu .qm-x:hover,#qmenu li button:hover,.panel.mcard button:hover{background:rgba(255,253,244,.12)!important}
+#qmenu li button[aria-pressed="true"]{background:rgba(255,253,244,.85)!important;color:#14201d!important}
+/* Jack's question card */
+.panel.mcard{padding:24px 28px 20px!important}
+.panel.mcard p{color:var(--m-dim)!important;font-family:"Montserrat",var(--f-ui);font-size:14px;line-height:1.6}
+/* title pop-ups (How to play, Credits) */
+#gate .g-pop b{font-weight:600!important}
+#gate .g-pop .credit{color:var(--m-dim)!important}
 </style>
 
 <div id="app"></div>
 <div class="vig"></div>
 <div id="reticle" hidden></div>
-<button id="studioBtn" title="B opens the cat studio" data-s="all:unset;cursor:pointer;position:fixed;right:calc(120px + env(safe-area-inset-right,0px));top:calc(14px + env(safe-area-inset-top,0px));z-index:5;font-family:var(--f-display);font-weight:700;font-size:15px;color:var(--leaf-deep);padding:7px 14px;border-radius:20px 16px 22px 14px;background:linear-gradient(170deg,rgba(250,244,228,.9),rgba(240,229,203,.88));box-shadow:0 6px 16px -8px rgba(10,30,25,.5);opacity:.82">Studio</button>
+
 <button id="hudBtn" aria-pressed="false" title="H shows or hides the HUD"><span class="leaf"></span>Notes</button>
 
 <div id="brand" class="panel">
@@ -379,51 +424,25 @@ body.adv #cutSkip kbd,body.adv #viewP kbd{font-family:Montserrat,sans-serif!impo
   <span class="k"><kbd>Enter</kbd></span><span>Skip a scene</span>
   <span class="k"><kbd>I</kbd></span><span>See through Tink's eyes</span>
   <span class="k"><kbd>H</kbd></span><span>Show or hide these notes</span>
-  <span class="k"><kbd>N</kbd></span><span>Time of day</span>
-  <span class="k"><kbd>K</kbd></span><span>Season</span>
-  <span class="k"><kbd>O</kbd></span><span>Weather</span>
+  <span class="k"><kbd>N</kbd></span><span>Time of day <small>(after the story)</small></span>
+  <span class="k"><kbd>K</kbd></span><span>Season <small>(after the story)</small></span>
+  <span class="k"><kbd>O</kbd></span><span>Weather <small>(after the story)</small></span>
   <span class="k"><kbd>U</kbd></span><span>Sound on/off</span>
-  <span class="k"><kbd>M</kbd></span><span>Sound mixer</span>
+
   <span class="k"><kbd>Z</kbd></span><span>Slow, dreamy time</span>
-  <span class="k"><kbd>L</kbd></span><span>Switch HUD style</span>
-  <span class="k"><kbd>B</kbd></span><span>Cat studio</span>
-  <span class="k"><kbd>`</kbd></span><span>World editor</span>
-  <span class="k"><kbd>F7</kbd></span><span>Sky editor</span>
-  <span class="k"><kbd>T</kbd></span><span>Movement tuning</span>
-  <span class="k"><kbd>P</kbd></span><span>Drop a trouble pin (for Claude)</span>
-  <span class="k"><kbd>F9</kbd></span><span>Frame counter</span>
+
+
+
+
+
+
+
 </div>
 
 
-<div id="tune" class="panel" hidden>
-  <h2>Movement tuning</h2>
-  <p class="lede">Changes apply live. Copy the values to send them back to me.</p>
-  <div id="tuneRows"></div>
-  <div class="btns"><button id="copyT">Copy values</button><button id="resetT">Reset</button><button id="qualT"></button></div>
-</div>
 
-<div id="studio" class="panel" hidden>
-  <div class="st-head"><b>Cat studio</b><button id="stClose" title="B">Close</button></div>
-  <div class="st-row"><button id="stMode" title="Play the cat with the studio open, to test your animation choices">Try it out: play</button></div>
-  <div class="st-row" role="group" aria-label="Cat"><button id="stTink" aria-pressed="true">Tink</button><button id="stLuca" aria-pressed="false">Luca</button></div>
-  <label class="st-lab" for="stAnim">Animation <span id="stCount"></span></label>
-  <div class="st-row"><button id="stPrev" title="Previous (left arrow)">&#8592;</button><select id="stAnim"></select><button id="stNext" title="Next (right arrow)">&#8594;</button></div>
-  <div class="st-row"><button id="stPlay">Pause</button><label class="st-lab" for="stSpeed">Speed</label><input id="stSpeed" type="range" min="0" max="2" step="0.05" value="1"><output id="stSpeedO">1.0</output></div>
-  <div class="st-row"><button id="stPaint" aria-pressed="false" title="The painted brush filter makes fine edges look blocky up close">Painted filter</button></div>
-  <div class="st-row"><button id="stTune">Coat &amp; size sliders</button><button id="stCam">Reset view</button></div>
-  <div class="st-sep"></div>
-  <label class="st-lab" for="stAct">Use the animation above for…</label>
-  <div class="st-row"><select id="stAct"></select><button id="stAssign">Assign</button></div>
-  <div class="st-row"><button id="stPreview" title="Show what this action uses now">Show current</button><button id="stUnassign">Back to default</button></div>
-  <div id="stList" class="st-list"></div>
-  <div class="st-row"><button id="stCopy">Copy assignments</button><button id="stResetAll">Reset all</button></div>
-  <div class="st-sep"></div>
-  <div class="st-head" style="margin-top:2px"><b>Jack the spirit</b></div>
-  <div class="st-row"><button id="jlShow" aria-pressed="false" title="Bring Jack here, sitting in front of you, to see your changes">Show Jack here</button><button id="jlReset">Reset look</button></div>
-  <div id="jlRows" class="st-jl"></div>
-  <div class="st-row"><button id="jlCopy">Copy Jack look for Claude</button></div>
-  <p class="st-tip">Drag to turn around the cat · right-drag (or Shift-drag) to slide the view · scroll to zoom in close · Reset view to start over.</p>
-</div>
+
+
 <div id="toast"></div>
 <div id="cutFade" style="position:fixed;inset:0;pointer-events:none;background:#04080a;opacity:0;transition:opacity .35s ease;z-index:40"></div><div id="cutSkip" class="actP" style="position:fixed;right:22px;bottom:18px;pointer-events:none;font:600 11px/1 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:rgba(235,245,240,.75);text-shadow:0 1px 3px rgba(0,0,0,.6);opacity:0;transition:opacity .6s ease;z-index:41"><kbd style="font:inherit;border:1px solid rgba(235,245,240,.5);border-radius:4px;padding:3px 6px;margin-right:6px">Tab</kbd>to skip</div><div id="flash" style="position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 55%,#fffbe8,#e8f6ee 60%,rgba(220,240,230,.6));opacity:0"></div>
 
@@ -466,7 +485,7 @@ setTimeout(async()=>{if(window.__modStarted||window.__ready)return;const info=[]
     <div><kbd>W A S D</kbd> walk &nbsp;·&nbsp; <kbd>Mouse</kbd> look &nbsp;·&nbsp; tap <kbd>Shift</kbd> walk/trot &nbsp;·&nbsp; hold <kbd>Shift</kbd> run</div>
     <div><kbd>Space</kbd> jump and climb &nbsp;·&nbsp; hold <kbd>Click</kbd> to stalk, let go to pounce</div>
     <div><kbd>Right click</kbd> swat &nbsp;·&nbsp; <kbd>1</kbd> <kbd>2</kbd> switch between Tink and Luca</div>     <div><kbd>N</kbd> time of day &nbsp;·&nbsp; <kbd>K</kbd> season &nbsp;·&nbsp; <kbd>O</kbd> weather &nbsp;·&nbsp; <kbd>Esc</kbd> pause &nbsp;·&nbsp; <kbd>J</kbd> quests &nbsp;·&nbsp; <kbd>H</kbd> every key</div>
-    <div><kbd>U</kbd> sound on/off &nbsp;·&nbsp; <kbd>M</kbd> sound mixer &nbsp;·&nbsp; <kbd>B</kbd> cat studio &nbsp;·&nbsp; <kbd>`</kbd> world editor &nbsp;·&nbsp; <kbd>F7</kbd> sky editor &nbsp;·&nbsp; <kbd>Tab</kbd> skip a scene · <kbd>Enter</kbd> read on</div>
+    <div><kbd>U</kbd> sound on/off &nbsp;·&nbsp; <kbd>Tab</kbd> skip a scene · <kbd>Enter</kbd> read on</div>
     <div>Follow the glowing puffs, find the little gifts left for you, and see where the green-eyed spirit leads you.</div></div>
   <div class="g-pop" id="gCredP" hidden><div class="credit"><b>Credits</b><br>3D models from Sketchfab, with thanks to their artists:<br>“Asian Charpai - Wooden Bed (Low Poly)” by <a href="https://sketchfab.com/00amza" target="_blank" rel="noopener">00amza</a> (CC BY 4.0) · “Колокольчик / Jingle Bell” by <a href="https://sketchfab.com/alex.petuhov-1" target="_blank" rel="noopener">Alex Petuhov</a> (CC BY 4.0) · “Leaf” by <a href="https://sketchfab.com/ameliakoering" target="_blank" rel="noopener">ameliakoering</a> (CC BY 4.0) · “Littlestone Shelter” by <a href="https://sketchfab.com/artfletch" target="_blank" rel="noopener">artfletch</a> (CC BY 4.0) · “Ghibli tadpole” by <a href="https://sketchfab.com/audeshattuck" target="_blank" rel="noopener">audeshattuck</a> (CC BY 4.0) · “Bird” by <a href="https://sketchfab.com/moizmuhammad373" target="_blank" rel="noopener">Blender Artist</a> (CC BY 4.0) · “Ghibli Style Low Poly Rock (No Moss)- 5/14” by <a href="https://sketchfab.com/bmwylam" target="_blank" rel="noopener">Braeden Wylam</a> (CC BY 4.0) · “Set Ghibli style rocks” by <a href="https://sketchfab.com/CoFate" target="_blank" rel="noopener">CoFate</a> (CC BY 4.0) · “flowers_pack_1” by <a href="https://sketchfab.com/Daniel.Marquez2" target="_blank" rel="noopener">Daniel.Marquez2</a> (CC BY 4.0) · “flowers_pack_4” by <a href="https://sketchfab.com/Daniel.Marquez2" target="_blank" rel="noopener">Daniel.Marquez2</a> (CC BY 4.0) · “CUSHION 3” by <a href="https://sketchfab.com/Daniel.Orlando.Tapia" target="_blank" rel="noopener">Daniel.Orlando.Tapia</a> (CC BY 4.0) · “Rice Plant” by <a href="https://sketchfab.com/dariotolkien" target="_blank" rel="noopener">dario scaramuzza</a> (CC BY-NC 4.0) · “Model 111A - Imperial Woodpecker on Tree” by <a href="https://sketchfab.com/DigitalLife3D" target="_blank" rel="noopener">DigitalLife3D</a> (CC BY-NC 4.0) · “Soot Sprite (すすワタリ)” by <a href="https://sketchfab.com/duz_vr" target="_blank" rel="noopener">Duznot</a> (CC BY-NC 4.0) · “Pote Ghibli” by <a href="https://sketchfab.com/elisbortolin" target="_blank" rel="noopener">Elis Bortolin</a> (CC BY 4.0) · “Dragonflyv2 1” by <a href="https://sketchfab.com/Erlangga1" target="_blank" rel="noopener">erlanggart</a> (CC BY 4.0) · “An Animated Cat” (movement, fur and Tink’s coat added in-game) by <a href="https://sketchfab.com/Evil_Katz" target="_blank" rel="noopener">Evil_Katz</a> (CC BY 4.0) · “Dove Bird Rigged” by <a href="https://sketchfab.com/FourthGreen" target="_blank" rel="noopener">FourthGreen</a> (CC BY 4.0) · “DAE Crib Retake - Royal Retreat” (the starting room) by <a href="https://sketchfab.com/Gio_Tinca" target="_blank" rel="noopener">Gio Tinca</a> (CC BY 4.0) · “釜爺 Studio Ghibli” (the boiler room) by <a href="https://sketchfab.com/godislove431" target="_blank" rel="noopener">godislove431</a> (CC BY 4.0) · “squirrel animation” (rig used to animate the squirrel) by <a href="https://sketchfab.com/Slava251114" target="_blank" rel="noopener">hino</a> (CC BY 4.0) · “Wooden Fence” by <a href="https://sketchfab.com/Inuciian" target="_blank" rel="noopener">Inuciian</a> (CC BY 4.0) · “Curious Squirrel” by <a href="https://sketchfab.com/rt699448" target="_blank" rel="noopener">iRahulRajput</a> (CC BY 4.0) · “Jabami Anime Bush v1” by <a href="https://sketchfab.com/JabamiProduction" target="_blank" rel="noopener">JABAMI Production</a> (Sketchfab Standard) · “Jabami Anime Sakura blossom” by <a href="https://sketchfab.com/JabamiProduction" target="_blank" rel="noopener">JABAMI Production</a> (Sketchfab Standard) · “Anime Deadtree” by <a href="https://sketchfab.com/JabamiProduction" target="_blank" rel="noopener">JABAMI Production</a> (Sketchfab Standard) · “Bucket from Ponyo - Studio Ghibli” by <a href="https://sketchfab.com/junkofjulz" target="_blank" rel="noopener">junkofjulz</a> (CC BY 4.0) · “Ponyo&#x27;s boat” by <a href="https://sketchfab.com/kkangtyy" target="_blank" rel="noopener">kkangtyy</a> (CC BY 4.0) · “Ghibli Style Low Poly Rock” by <a href="https://sketchfab.com/bmwylam" target="_blank" rel="noopener">Braeden Wylam</a> (CC BY 4.0) · “Bridge-wooden-lighter” by <a href="https://sketchfab.com/stefan.lengyel1" target="_blank" rel="noopener">Pixel</a> (CC BY 4.0) · “Cat JIJI” by <a href="https://sketchfab.com/SLCY" target="_blank" rel="noopener">SLCY</a> (CC BY 4.0) · “Farm Life - Beetroot Patch” by <a href="https://sketchfab.com/LadyIReyna" target="_blank" rel="noopener">LadyIReyna</a> (CC BY-NC 4.0) · “Crow Fly” by <a href="https://sketchfab.com/LostModels2025" target="_blank" rel="noopener">LostBoyz2078</a> (CC BY-NC 4.0) · “Crow” by <a href="https://sketchfab.com/LostModels2025" target="_blank" rel="noopener">LostBoyz2078</a> (CC BY 4.0) · “Wooden Barrel” by <a href="https://sketchfab.com/M_Michalak" target="_blank" rel="noopener">Mikołaj Michalak</a> (CC BY 4.0) · “Realistic Fern Plant Bush” by <a href="https://sketchfab.com/misty-wind" target="_blank" rel="noopener">misty-wind</a> (CC BY 4.0) · “Enchanted_ Hollow_ Tree_1112234729_texture” by <a href="https://sketchfab.com/mp4967qwp" target="_blank" rel="noopener">mp4967qwp</a> (CC BY 4.0) · “Beanstalk” by <a href="https://sketchfab.com/MrYoyoyigitiyo" target="_blank" rel="noopener">MrYoyoyigitiyo</a> (CC BY 4.0) · “190513 Japanese House” by <a href="https://sketchfab.com/ntdhdesigner" target="_blank" rel="noopener">neih.D</a> (CC BY 4.0) · “Stone Well Stylized” by <a href="https://sketchfab.com/nilslindback" target="_blank" rel="noopener">Nils Lindbäck</a> (CC BY 4.0) · “Farm set (part 2)” by <a href="https://sketchfab.com/NoodePoodle" target="_blank" rel="noopener">NoodlePoodle</a> (CC BY 4.0) · “Slate Stepping Stones” by <a href="https://sketchfab.com/oyugi" target="_blank" rel="noopener">Oyugi Mark</a> (CC BY 4.0) · “Japanese paper lanterns collection” by <a href="https://sketchfab.com/patrakeevasveta" target="_blank" rel="noopener">patrakeevasveta</a> (CC BY 4.0) · “Japanese stone lanterns” by <a href="https://sketchfab.com/patrakeevasveta" target="_blank" rel="noopener">patrakeevasveta</a> (CC BY 4.0) · “Ghibli Rock” by <a href="https://sketchfab.com/PolytricityLtd" target="_blank" rel="noopener">POLYTRICITY</a> (CC BY 4.0) · “Ghibli like Fireplace” by <a href="https://sketchfab.com/rgrbzrr" target="_blank" rel="noopener">rgrbzrr</a> (CC BY 4.0) · “Mushrooms Set” by <a href="https://sketchfab.com/romanbushuev.2021" target="_blank" rel="noopener">Roman62</a> (Sketchfab Standard) · “Frog Jump” by <a href="https://sketchfab.com/rukh3d" target="_blank" rel="noopener">Rukh3D</a> (CC BY 4.0) · “Wind Chimes” by <a href="https://sketchfab.com/RyanSpeirs" target="_blank" rel="noopener">RyanSpeirs</a> (CC BY 4.0) · “Washing line” by <a href="https://sketchfab.com/Selax" target="_blank" rel="noopener">Selax</a> (CC BY-ND 4.0) · “Jiji” by <a href="https://sketchfab.com/SiddharthVaghela" target="_blank" rel="noopener">SiddharthVaghela</a> (CC BY 4.0) · “Ghibli/Anime Style Texturing (Free Tutorial)” by <a href="https://sketchfab.com/stylizedstation" target="_blank" rel="noopener">Stylized Station</a> (CC BY 4.0) · “Ghibli/Anime Style Rocks Smart Material” by <a href="https://sketchfab.com/stylizedstation" target="_blank" rel="noopener">Stylized Station</a> (CC BY 4.0) · “big banana leaf” by <a href="https://sketchfab.com/sv1nks" target="_blank" rel="noopener">sv1nks</a> (CC BY 4.0) · “Medieval House Anime Based” by <a href="https://sketchfab.com/zul_gv" target="_blank" rel="noopener">Toni García Vilche</a> (CC BY 4.0) · “Day 1. Feather” by <a href="https://sketchfab.com/tuturu" target="_blank" rel="noopener">tuturu</a> (CC BY 4.0) · “Wheat Anime Ghibli Style” by <a href="https://sketchfab.com/verakozhukhar" target="_blank" rel="noopener">verakozhukhar</a> (Sketchfab Standard) · “Stylized cherry blossom flower (桜の花)” by <a href="https://sketchfab.com/vrsns_voyage" target="_blank" rel="noopener">Voyage</a> (CC BY 4.0) · “Cherry blossom petal” by <a href="https://sketchfab.com/vrsns_voyage" target="_blank" rel="noopener">Voyage</a> (CC BY 4.0) · “Bird Orange” by <a href="https://sketchfab.com/wenyeh1110" target="_blank" rel="noopener">Wen Yeh</a> (CC BY-NC-SA 4.0) · “Stone (Castle in the sky)” by <a href="https://sketchfab.com/YuuDrawn" target="_blank" rel="noopener">YuuDrawn</a> (CC BY 4.0) · “PS2 LP Soviet kitchen table” by <a href="https://sketchfab.com/zubenko78" target="_blank" rel="noopener">zubenko78</a> (CC BY 4.0) · “Ghibli Handpainted River” by <a href="https://sketchfab.com/Nulla_" target="_blank" rel="noopener">𝔑𝔲𝔩𝔩𝔞</a> (CC BY 4.0) · tree foliage by Alex Ace (CC BY 4.0).<br>Some models have been repainted, resized or re-rigged to fit the forest.</div></div>
 </div>
@@ -480,8 +499,8 @@ window.__THEME=(()=>{let done=false;const a=new Audio('audio/music/spring-title-
  b.addEventListener('click',e=>{e.stopPropagation();if(on){want=false;stop(600)}else{want=true;start()}});
  const tk=setInterval(()=>{if(done||on){if(done)clearInterval(tk);return}start()},300);for(const ev of ['pointerdown','keydown'])addEventListener(ev,start,{capture:true});return {el:a,stop,play:()=>{done=false;want=true;start()},state:()=>({on,want,done,ready:ready()})}})();</script>
 <script type="importmap">{"imports":{"three":"./three.module.js","three/addons/":"./jsm/"}}</script>
-<script>(async()=>{const u="/tinks-forest-next/game.js?v=1794476907";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
+<script>(async()=>{if(/[?&]dev\b/.test(location.search)){location.replace(location.pathname.replace(/[^/]*$/,"")+"dev.html"+location.search+location.hash);return}const u="/tinks-forest-next/game.js?v=1794516658";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
  if(!txt){const g=document.getElementById("goTxt");if(g)g.textContent="Could not download the game. Please reload";return}
  const sc=document.createElement("script");sc.type="module";sc.src=URL.createObjectURL(new Blob([txt],{type:"text/javascript"}));document.body.appendChild(sc)})()</script>
 <div style="position:fixed;left:6px;top:4px;z-index:99999;font:600 10px system-ui;color:#fff;background:#c0392bcc;padding:1px 5px;border-radius:3px;pointer-events:none">STAGING</div>
-<script>if(/[?&]bench\b/.test(location.search)){const s=document.createElement("script");s.src="/tinks-forest-next/bench.js?v=500435";document.body.appendChild(s)}</script>
+<script>if(/[?&]bench\b/.test(location.search)){const s=document.createElement("script");s.src="/tinks-forest-next/bench.js?v=1794516658";document.body.appendChild(s)}</script>
