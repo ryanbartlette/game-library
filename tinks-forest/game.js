@@ -2060,7 +2060,7 @@ function compAI(dt,pl){const A=comp.ai;A.t+=dt;A.cool=Math.max(0,A.cool-dt);
    if(A.tx===null||A.t>A.dur){let x,z;for(let k=0;k<8;k++){if(dPl>24){const a=Math.atan2(dxp,dzp)+(Math.random()-.5)*1.2,r=6+Math.random()*6;x=P.pos.x+Math.sin(a)*r;z=P.pos.z+Math.cos(a)*r}else{const a=Math.random()*6.283,r=3+Math.random()*8;x=P.pos.x+Math.sin(a)*r;z=P.pos.z+Math.cos(a)*r}if(compSafe(x,z))break}
     compPick(A,x,z,8+Math.random()*8);A.trot=Math.random()<.25;A.pause=0;tx=A.tx;tz=A.tz}
    const dd=Math.hypot(tx-P.pos.x,tz-P.pos.z);
-   if(dd<.6){A.pause+=dt;v=0;label=P.sit>.5?'Groom':'Sniff';if(A.pause>(A.sitFor||(A.sitFor=2+Math.random()*7))){A.tx=null;A.sitFor=0}}
+   if(dd<(A.chaseDot?.15:.6)){A.pause+=dt;v=0;label=P.sit>.5?'Groom':'Sniff';if(A.pause>(A.sitFor||(A.sitFor=2+Math.random()*7))){A.tx=null;A.sitFor=0}}
    else v=A.chaseDot?T.sprint*.75:A.trot?T.run*.85:T.walk;/* Build 375: dashing after the red dot */if(A.chaseDot){A.chaseDot=0;A.pause=0;label='Run'}
    if(!A.chaseDot&&dPl<14&&Math.random()<dt/16){A.state='follow';A.t=0;A.dur=12+Math.random()*16;A.side=Math.random()<.5?-1:1}
    if(Math.random()<dt/8){let best=null,bd=7;for(const q of squirrels){if(q.kind==='robin'||!['forage','nibble'].includes(q.state))continue;const d=Math.hypot(q.x-P.pos.x,q.z-P.pos.z);if(d<bd){bd=d;best=q}}if(best){A.state='stalk';A.sq=best;A.t=0;A.dur=14}}
