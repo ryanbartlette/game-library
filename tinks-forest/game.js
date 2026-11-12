@@ -1500,7 +1500,7 @@ document.getElementById('hudBtn').onclick=e=>{e.stopPropagation();setHud(documen
 {let on=false;try{on=localStorage.getItem('tink.hud')==='on'}catch(e){}setHud(on)}
 document.addEventListener('pointerlockchange',()=>{const was=locked;locked=document.pointerLockElement===cv;if(was&&!locked&&started)setTimeout(()=>{if(!locked&&PAUSE.allowed()&&performance.now()-(PAUSE.closeT||0)>900)PAUSE.open()},60)});
 // pause screen (Esc): resume, controls, or go back to the title; the title song plays softly while paused
-/* leave the game for the games library one folder up */const BUILD=444;try{const gb=document.getElementById('gBuild');if(gb)gb.textContent='Build '+BUILD}catch(e){}window.__BUILD=BUILD;const quitGame=()=>{try{document.exitPointerLock()}catch(e){}location.href='../'};
+/* leave the game for the games library one folder up */const BUILD=445;try{const gb=document.getElementById('gBuild');if(gb)gb.textContent='Build '+BUILD}catch(e){}window.__BUILD=BUILD;const quitGame=()=>{try{document.exitPointerLock()}catch(e){}location.href='../'};
 {const q=document.getElementById('gQuit');if(q)q.addEventListener('click',e=>{e.stopPropagation();quitGame()})}
 const PAUSE=(()=>{const el=document.createElement('div');el.id='pause';el.hidden=true;el.innerHTML='<div class="p-in"><div class="p-small">Tink\'s Magical Forest</div><div class="p-big">Paused</div><nav><div class="go" id="pResume">Resume</div><div class="g-opts"><span id="pQuests">Quests</span><i></i><span id="pHelp">Controls</span><i></i><span id="pMix">Sound mixer</span><i></i><span id="pStudio">Cat studio</span><i></i><span id="pQuit">Back to title</span><i></i><span id="pExit">Quit game</span></div></nav></div>';document.body.appendChild(el);
  const X={el,on:false};X.allowed=(asked)=>{if(window.__MIXER&&window.__MIXER.on)return false;/* Build 366: never pause on its own during a story moment (a cutscene, Jack speaking, the ending); Build 375: but Esc, pressed on purpose, always pauses (the story waits) */if(!asked){const D0=window.__DIR,S0=window.__STORY;if(D0&&D0.busy&&D0.busy())return false;if(S0&&(S0.fin||(S0.busy&&S0.busy())))return false;if(window.__FCS&&window.__FCS.lock)return false}if(window.__EDITING||window.__edToggleT&&performance.now()-window.__edToggleT<800)return false;const J=window.__JACK;if(J&&(J.showing||J.card&&J.card.style.display&&J.card.style.display!=='none'))return false;if(typeof STUDIO!=='undefined'&&STUDIO.on)return false;if(!document.getElementById('gate').hidden)return false;return !X.on};
@@ -1676,10 +1676,10 @@ function c3Done(c){return c.cur&&c.cur.loop===THREE.LoopOnce&&c.cur.time>=c.cur.
 const C3_IDLES=['idle1','idle2','idle3','idle4','idle5','idle6','idle7'];
 /* Build 444: in and around key story moments (any scene, Jack speaking, the ending, a held moment, and a few seconds either side) the cats never drift into idle life: no lying down, washing or napping, just a calm stand */window.__storyHold=()=>{const now=performance.now();const hold=document.body.classList.contains('cut')||!!(window.__FCS&&window.__FCS.lock)||!!window.__camOverride||!!(window.__INTRO&&window.__INTRO.lock)||!!(window.__STORY&&(window.__STORY.fin||(window.__STORY.busy&&window.__STORY.busy())))||!!(window.__DIR&&window.__DIR.busy&&window.__DIR.busy())||!!(window.__JACK&&(window.__JACK.showing||window.__JACK.st&&window.__JACK.st.ph==='story'))||!!window.__qOn;if(hold)window.__storyHoldT=now;return hold||now-(window.__storyHoldT||0)<5000};
 function c3Life(cat,c,dt,idle){// returns the clip to play while standing still
- if(window.__storyHold&&window.__storyHold()&&!/^(lie|sleep|sit|wash)/.test(c.life||'')){c.life='';c.lifeT=2;return ['Idle_1']}if(window.__storyHold&&window.__storyHold()&&c.life&&!/^(lie|sleep)/.test(c.life)&&!(P.watchHold||P.script)){c.life='';c.lifeT=2;return ['Idle_1']}
+ if(window.__storyHold&&window.__storyHold()){c.life='';c.lifeT=2;return ['Idle_1']}
  c.lifeT-=dt;const L=c.life;const atBowl=window.__BOWL&&cat===window.__playerCat&&idle>.35&&Math.hypot(P.pos.x-window.__BOWL.x,P.pos.z-window.__BOWL.z)<.8;
  if(!L||c.lifeT<=0&&!/^(lie|sleep)/.test(L)||atBowl&&L!=='eat'){
-  if(idle<8&&!atBowl){c.life='idle';c.idlePick=pick(C3_IDLES);c.lifeT=4+Math.random()*4}
+  /* Build 445: a cat stands a good while before deciding to sit, wash or lie down */if(idle<22&&!atBowl){c.life='idle';c.idlePick=pick(C3_IDLES);c.lifeT=4+Math.random()*4}
   else{const nearW=waterLevelAt(P.pos.x+Math.sin(P.yaw)*.5,P.pos.z+Math.cos(P.yaw)*.5)>-1e8;const r=Math.random();const BW=window.__BOWL;if(BW&&cat===window.__playerCat&&Math.hypot(P.pos.x-BW.x,P.pos.z-BW.z)<.8){c.life='eat';c.lifeT=10+Math.random()*6;c.stage=0;const yw=Math.atan2(BW.x-P.pos.x,BW.z-P.pos.z);P.yaw=yw}else if(nearW&&r<.5){c.life='drink';c.lifeT=6+Math.random()*4;c.idlePick=pick(C3_IDLES);c.stage=0}else c.life=r<.55?'sit':r<.68?'stretch':r<.78?'scratch':r<.92?'lie':'idle';c.idlePick=pick(C3_IDLES);c.lifeT=8+Math.random()*10;c.stage=0}}
  if(c.life==='idle')return [act(c.idlePick)];
  if(c.life==='sit')return c.stage===0?[act('sitDown'),()=>c.stage=1]:[pick2(c,[act('sit1'),act('sit2'),act('sit3')])];
@@ -1687,7 +1687,7 @@ function c3Life(cat,c,dt,idle){// returns the clip to play while standing still
  if(c.life==='stretch')return [act('stretch')];
  if(c.life==='drink')return [act('drink')];if(c.life==='eat'){window.__eatingT=performance.now();return [act('eat')]}
  if(c.life==='scratch')return [act('scratch')];
- if(c.life==='lie'){if(c.stage===0)return[act('lieDown'),()=>c.stage=1];if(idle>40){c.life='sleep';c.stage=0}return [pick2(c,[act('lie1'),act('lie2'),act('lie3')])]}
+ if(c.life==='lie'){if(c.stage===0)return[act('lieDown'),()=>c.stage=1];if(idle>75){c.life='sleep';c.stage=0}return [pick2(c,[act('lie1'),act('lie2'),act('lie3')])]}
  if(c.life==='sleep')return c.stage===0?[act('sleepDown'),()=>c.stage=1]:c.stage===1?[act('sleepStart'),()=>c.stage=2]:[act('sleep')];
  return ['Idle_1']}
 function pick2(c,arr){if(!c.loopPick||!arr.includes(c.loopPick)||c.cur&&c.cur.time>c.cur.getClip().duration*.97)c.loopPick=pick(arr);return c.loopPick}
@@ -1937,7 +1937,7 @@ function updatePlayer(dt,time){
   if((P.swatAtT||0)>0)P.swatAtT-=dt}
  if(P.vault){updateVault(dt);return}
  if(P.mode==='ground'){
-  const sitWant=(P.groom||P.idle>9)&&!P.carry&&!P.inWater;P.sit=clamp(P.sit+(sitWant?dt/1.1:-dt/.3),0,1);
+  const sitWant=(P.groom||P.idle>22)&&!P.carry&&!P.inWater;P.sit=clamp(P.sit+(sitWant?dt/1.1:-dt/.3),0,1);
   if(P.onBranch&&dir){const b=P.onBranch;let ax=b.bx-b.ax,az=b.bz-b.az;const L=Math.hypot(ax,az);ax/=L;az/=L;const d=dir.x*ax+dir.z*az;dir=Math.abs(d)>.2?new V3(ax*Math.sign(d),0,az*Math.sign(d)):null}
   const crouching=P.crouchOn&&!sprintKey;if(sprintKey&&dir)P.crouchOn=false;
   const charging=P.jumpCharge>=0||P.pounceCharge>=0;
@@ -2105,7 +2105,7 @@ function compAI(dt,pl){const A=comp.ai;A.t+=dt;A.cool=Math.max(0,A.cool-dt);
   if(bodyBlocked(nx,nz,P.pos.y,P.yaw)||gy>P.pos.y+.3||!compSafe(nx,nz)&&Math.abs(nx)>WORLD/2-9){A.stuck+=dt;P.yaw+=(A.side||1)*2.5*dt;P.speed*=.6;if(A.stuck>1.2){A.stuck=0;if(A.state==='wander')A.tx=null;else if(A.state==='flee')compFleeTarget(A,pl)}}
   else{let y=gy;const wl=waterLevelAt(nx,nz);P.inWater=!window.__ICE&&wl-gy>.07;if(P.inWater)y=Math.max(gy,wl-gy>.3?wl-.2:wl-.13);if(window.__ICE&&wl>gy-.04)y=Math.max(gy,wl+.015);P.pos.set(nx,y,nz);P.onSurf=!!cInfo.s;P.onBranch=null}}
  P.squash=damp(P.squash||0,0,6,dt);P.landT=Math.max(0,(P.landT||0)-dt);
- P.idle=P.speed<.05?(P.idle||0)+dt:0;const sitWant=A.state==='wander'&&P.idle>3&&(A.sitFor||0)>4||A.state==='buddy'&&(A.arrived||0)>.4;P.sit=clamp(P.sit+(sitWant?dt/1.1:-dt/.3),0,1);
+ P.idle=P.speed<.05?(P.idle||0)+dt:0;const sitWant=A.state==='wander'&&P.idle>12&&(A.sitFor||0)>10&&!(window.__storyHold&&window.__storyHold())||A.state==='buddy'&&(A.arrived||0)>.4;P.sit=clamp(P.sit+(sitWant?dt/1.1:-dt/.3),0,1);
  P.lastMove=P.speed<.05?(P.sit>.5?'Groom':label==='Wander'?'Stand':label):label}
 function compFleeTarget(A,pl){let best=null;for(let k=0;k<8;k++){const a=Math.atan2(P.pos.x-pl.x,P.pos.z-pl.z)+(Math.random()-.5)*1.8,r=6+Math.random()*5,x=P.pos.x+Math.sin(a)*r,z=P.pos.z+Math.cos(a)*r;if(compSafe(x,z)){best=[x,z];break}}
  if(!best){const a=Math.random()*6.283;best=[P.pos.x+Math.sin(a)*5,P.pos.z+Math.cos(a)*5]}A.tx=best[0];A.tz=best[1]}
