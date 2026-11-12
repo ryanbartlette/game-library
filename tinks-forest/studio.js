@@ -61,6 +61,13 @@ T.sprint=Math.min(T.sprint,DEF.sprint);
 if(T.coatVer!==8){for(const [g,rows] of TUNE_UI){if(/coat|shape|Tail while/.test(g))for(const [k] of rows)T[k]=DEF[k]}for(const k of ['sizeTink','sizeLuca','tallTink','tallLuca','longTink','longLuca','hindTink','hindLuca','frontTink','frontLuca','eyeOpen'])if(k in DEF)T[k]=DEF[k];T.coatVer=8}
 if(T.tailVer!==3){for(const k of ['twl0','twl1','twl2','twl3','twl4','ttr0','ttr1','ttr2','ttr3','ttr4'])T[k]=DEF[k];T.tailVer=3}
 window.__setT=(k,v)=>{T[k]=v};
+const OPT=(()=>{let o={};try{o=JSON.parse(localStorage.getItem('tink.opt')||'{}')||{}}catch(e){}for(const k of ['music','sens','fov'])if(typeof o[k]==='number')T[k]=o[k];return o})();
+window.__OPT=OPT;
+const saveOpt=()=>{try{localStorage.setItem('tink.opt',JSON.stringify(OPT))}catch(e){}};
+const storyLocked=()=>{/*DEV{*/if(true)return false;/*}DEV*/const Q=window.__Q;return !(Q&&(Q.done&&Q.done.home||Q.p&&Q.p.finDone))};
+window.__storyLocked=storyLocked;
+let lockT=0;
+const lockMsg=()=>{const n=performance.now();if(n-lockT<2500)return;lockT=n;try{toast('The story sets the time, season and weather for now. After the ending you can change them freely',2600)}catch(e){}};
 function saveT(){try{localStorage.setItem('luca.tune',JSON.stringify(T))}catch(e){}}
 (function buildTune(){const root=document.getElementById('tuneRows');let id=0;
  for(const [grp,rows] of TUNE_UI){const h=document.createElement('h3');h.textContent=grp;root.appendChild(h);
@@ -345,7 +352,7 @@ const JACKCOAT={coat:null,glow:null,mats:[]};
  x1.putImageData(d,0,0);x2.putImageData(m,0,0);const t1=new THREE.CanvasTexture(c1),t2=new THREE.CanvasTexture(c2);for(const t of [t1,t2]){t.flipY=false;t.colorSpace=THREE.SRGBColorSpace}JACKCOAT.coat=t1;JACKCOAT.glow=t2;for(const mm of JACKCOAT.mats){mm.map=t1;mm.emissiveMap=t2;mm.color.set(0xffffff);mm.needsUpdate=true}};img.src='textures/luca-coat.webp'}
 const JL_DEF={body:'#1f45c8',bodyGlow:.3,speck:.6,rim:'#6aa8ff',rimStr:1.3,rimPow:2.4,edge:'#5dffc8',edgeStr:.1,eye:'#5dffc8',eyeStr:4,aura:'#6fa4ff',auraStr:.6,mote:'#cfe2ff',alpha:.4};
 const JL_PRESETS={'Blue spirit':JL_DEF,'Green edges':{body:'#2f5aa8',bodyGlow:.35,speck:.7,rim:'#4dffb0',rimStr:1.9,rimPow:2.2,edge:'#45ffa6',edgeStr:1.3,eye:'#6dff9a',eyeStr:1.6,aura:'#86d6ff',auraStr:.85,mote:'#bfe8ff',alpha:.8}};
-const JL=window.__JL=Object.assign({},JL_DEF,(()=>{try{return JSON.parse(localStorage.getItem('tink.jackLook')||'{}')}catch(e){return {}}})());
+const JL=window.__JL=Object.assign({},JL_DEF,/*DEV{*/(()=>{try{return JSON.parse(localStorage.getItem('tink.jackLook')||'{}')}catch(e){return {}}})()/*}DEV*//*PROD{{}}PROD*/);
 const JLU={uJBody:{value:new THREE.Color()},uJBG:{value:0},uJRim:{value:new THREE.Color()},uJRimS:{value:0},uJRimP:{value:2},uJEdge:{value:new THREE.Color()},uJEdgeS:{value:0},uJEye:{value:new THREE.Color()},uJEyeS:{value:0},uJSpk:{value:0},uJT:{value:0},uJA:{value:1}};
 const JLX={auras:[],motes:[],eyes:[],lights:[]};
 window.__JLX=JLX;
