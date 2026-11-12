@@ -11,8 +11,10 @@ box.innerHTML='<b>Benchmark</b><div id="bnS">Waiting for the forest to load…</
 document.body.appendChild(box);const S=box.querySelector('#bnS'),R=box.querySelector('#bnR');
 const say=t=>{S.textContent=t};
 const measure=async(ms)=>{const L=window.__luca,ren=L.renderer;const dts=[];let last=performance.now(),calls=0,tris=0,n=0,run=true;
-  const tick=now=>{if(!run)return;dts.push(now-last);last=now;calls+=ren.info.render.calls;tris+=ren.info.render.triangles;n++;requestAnimationFrame(tick)};
-  requestAnimationFrame(t=>{last=t;requestAnimationFrame(tick)});await wait(ms);run=false;
+  // the game draws in several passes; stop the counter resetting after each one and add up a whole frame ourselves
+  const ar=ren.info.autoReset;ren.info.autoReset=false;ren.info.reset();
+  const tick=now=>{if(!run)return;dts.push(now-last);last=now;calls+=ren.info.render.calls;tris+=ren.info.render.triangles;ren.info.reset();n++;requestAnimationFrame(tick)};
+  requestAnimationFrame(t=>{last=t;ren.info.reset();requestAnimationFrame(tick)});await wait(ms);run=false;ren.info.autoReset=ar;
   dts.sort((a,b)=>a-b);const avg=dts.reduce((a,b)=>a+b,0)/Math.max(1,dts.length);const p=q=>dts[Math.min(dts.length-1,Math.floor(dts.length*q))]||0;
   const mem=performance.memory?Math.round(performance.memory.usedJSHeapSize/1048576):null;
   return {fps:+(1000/avg).toFixed(1),avgMs:+avg.toFixed(1),p95Ms:+p(.95).toFixed(1),worstMs:+p(1).toFixed(1),drawCalls:Math.round(calls/Math.max(1,n)),triangles:Math.round(tris/Math.max(1,n)),
