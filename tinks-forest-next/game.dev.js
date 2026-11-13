@@ -12836,7 +12836,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 483;
+const BUILD = 484;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -46644,7 +46644,7 @@ if(!sk)quote("You don't have to be brave all the time.",0);
 sk =>{
 if(!sk)
 quote(
-"I cried too, the day I had to go. || Not because it hurt. || Because I wasn't ready to leave you…",
+"I cried too, the day I had to go. || Not because it hurt… || because I wasn't ready to leave…",
 0
 );
 }
