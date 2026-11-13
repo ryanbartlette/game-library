@@ -12836,7 +12836,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 485;
+const BUILD = 486;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -20031,7 +20031,61 @@ const m = window.__beanCarry;
 window.__carryAdd &&
 window.__carryAdd(m,window.__beanCO ||(window.__beanCO ={f: 0.09,u: -0.05,yaw: Math.PI / 2}));
 m.visible = !window.__asJack;
+{
+const BS =
+window.__beanSpk ||
+(window.__beanSpk =(()=>{
+const N = 14;
+const g = new THREE.BufferGeometry();
+g.setAttribute('position',new THREE.BufferAttribute(new Float32Array(N * 3),3));
+const c = document.createElement('canvas');
+c.width = c.height = 32;
+const x = c.getContext('2d');
+const gr = x.createRadialGradient(16,16,0,16,16,16);
+gr.addColorStop(0,'rgba(255,255,230,1)');
+gr.addColorStop(0.3,'rgba(200,255,190,.8)');
+gr.addColorStop(1,'rgba(160,255,170,0)');
+x.fillStyle = gr;
+x.fillRect(0,0,32,32);
+const pts = new THREE.Points(
+g,
+new THREE.PointsMaterial({size: 0.07,map: new THREE.CanvasTexture(c),transparent: true,depthWrite: false,blending: THREE.AdditiveBlending,fog: false})
+);
+pts.frustumCulled = false;
+scene.add(pts);
+return{pts,N,p: Array.from({length: N},()=>({t: Math.random()* 1.6,o: new THREE.Vector3()})),snd: 0.6,shim: 2};
+})());
+BS.pts.visible = m.visible;
+const wp = m.getWorldPosition(new THREE.Vector3());
+const arr = BS.pts.geometry.attributes.position.array;
+for(let i = 0;i < BS.N;i++){
+const q = BS.p[i];
+q.t += dt;
+if(q.t > 1.6){
+q.t = 0;
+q.o.set((Math.random()- 0.5)* 0.12,(Math.random()- 0.3)* 0.06,(Math.random()- 0.5)* 0.12);
+}
+arr[i * 3]= wp.x + q.o.x;
+arr[i * 3 + 1]= wp.y + q.o.y + q.t * 0.12;
+arr[i * 3 + 2]= wp.z + q.o.z;
+}
+BS.pts.geometry.attributes.position.needsUpdate = true;
+BS.pts.material.opacity = 0.75 + 0.25 * Math.sin(performance.now()/ 180);
+if(m.visible &&(BS.snd -= dt)<= 0){
+BS.snd = 1.6 + Math.random()* 1.6;
+try{
+sfx('sparkle',{vol: 0.12,rate: 1.1 + Math.random()* 0.4});
+}catch(e){}
+}
+if(m.visible &&(BS.shim -= dt)<= 0){
+BS.shim = 6 + Math.random()* 3;
+try{
+sfx('shimmer',{vol: 0.14,rate: 1.05});
+}catch(e){}
+}
+}
 }else if(window.__beanCarry){
+if(window.__beanSpk)window.__beanSpk.pts.visible = false;
 window.__carryDel && window.__carryDel(window.__beanCarry);
 scene.remove(window.__beanCarry);
 window.__beanCarry = null;
