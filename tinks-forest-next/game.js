@@ -26700,6 +26700,22 @@ L.playMusic = dt =>{
 const M = L.music;
 if(!AUD.ctx || !AUD.on)return;
 const ctx = AUD.ctx;
+const MW = L.mw ||(L.mw ={}),
+MGT = L.mgt ||(L.mgt ={});
+MW.melody = 10;
+let win = null,
+wp = 0;
+for(const k in MW)
+if(MW[k]> wp){
+wp = MW[k];
+win = k;
+}
+for(const k of['farm','house','scene','magic','season','melody']){
+const on = k === win ? 1 : 0;
+MGT[k]=(MGT[k]?? on)+(on -(MGT[k]?? on))* Math.min(1,dt *(on ? 1.2 : 0.9));
+}
+const G = k => MGT[k]?? 0;
+L.musicWinner = win;
 {
 const PN = L.piano ||(L.piano ={stage: 0,lvl: 0,next: 0,gain: null});
 const TR = window.__TRAIL,
@@ -26749,7 +26765,8 @@ AUD.outdoor.g.gain.setTargetAtTime(1 - 0.78 * k,ctx.currentTime,0.25);
 AUD.outdoor.lp.frequency.setTargetAtTime(20000 * Math.pow(700 / 20000,k),ctx.currentTime,0.25);
 }
 FH.vol = FH.slvl * MUSV();
-songLv(ctx,FH,FH.vol);
+MW.farm = songOn ? 90 : 0;
+songLv(ctx,FH,FH.vol * G('farm'));
 {
 const FX =
 L.furn ||(L.furn ={src: null,g: null,next: 5});
@@ -26829,7 +26846,8 @@ PN.lvl +=(want - PN.lvl)* Math.min(1,dt *(want ? 0.8 : 0.25));
 if(!PN.lv)
 PN.lv ={};
 PN.vol = PN.lvl * MUSV();
-songLv(ctx,PN,PN.vol);
+MW.house = want ? 60 : 0;
+songLv(ctx,PN,PN.vol * G('house'));
 const k = PN.stage === 1 ? 'tunnel' : 'piano';
 const keepPN =()=> !!(PN.cur && PN.cur.k === k);
 if(PN.lvl > 0.01 &&(!PN.cur || PN.cur.k !== k)){
@@ -26929,11 +26947,8 @@ SC.cur = null;
 const playing = !!(SC.cur && !SC.cur.ended);
 SC.lvl +=((playing ? 1 : 0)- SC.lvl)* Math.min(1,dt *(playing ? 1.2 : 0.4));
 const lv = 1;
-songLv(ctx,SC,MUSV()* lv);
-if(SC.lvl > 0.01){
-songLv(ctx,PN,PN.vol *(1 - SC.lvl));
-if(L.farm && L.farm.lv)songLv(ctx,L.farm,(L.farm.vol || 0)*(1 - SC.lvl));
-}
+MW.scene = !W2 ? 0 :['farewell','credits','leap'].includes(W2)? 100 : W2 === 'night' ? 40 : 80;
+songLv(ctx,SC,MUSV()* lv * G('scene'));
 if(tick){
 const n = document.querySelectorAll('#gifts img.got').length;
 if(SC.gifts >= 0 && n > SC.gifts){
@@ -26997,11 +27012,8 @@ TH.cur = null;
 }
 if(TH.cur)TH.next = Math.max(TH.next,35);
 TH.lvl +=((TH.cur && ok && list.includes(TH.cur)? 1 : 0)- TH.lvl)* Math.min(1,dt * 0.6);
-TH.gain.gain.setTargetAtTime(
-TH.lvl * MUSV(),
-ctx.currentTime,
-0.4
-);
+MW.season = TH.cur && TH.lvl > 0.02 ? 30 : 0;
+TH.gain.gain.setTargetAtTime(TH.lvl * MUSV()* G('season'),ctx.currentTime,0.4);
 {
 const now = performance.now();
 if(TH.cur && TH.lvl > 0.02)AUD.heard[SONGBUS[TH.cur]]= now;
@@ -27055,10 +27067,11 @@ if(!mwant && MG.lvl < 0.01 && !MG.el.paused){
 MG.el.pause();
 MG.el.currentTime = 0;
 }
-MG.gain.gain.setTargetAtTime(MG.lvl * MUSV()*(1 - SC.lvl),ctx.currentTime,0.3);
+MW.magic = mwant ? 70 : 0;
+MG.gain.gain.setTargetAtTime(MG.lvl * MUSV()* G('magic'),ctx.currentTime,0.3);
 if(TH.gain && MG.lvl > 0.05)
-TH.gain.gain.setTargetAtTime(TH.lvl * MUSV()*(1 - MG.lvl),ctx.currentTime,0.3);
-M.duck = Math.max(PN.lvl,TH.lvl || 0,MG.lvl,L.farm ? L.farm.lvl : 0,SC.lvl);
+TH.gain.gain.setTargetAtTime(TH.lvl * MUSV()* G('season'),ctx.currentTime,0.3);
+M.duck = Math.max(PN.lvl,TH.lvl || 0,MG.lvl,L.farm ? L.farm.lvl : 0,SC.lvl,1 - G('melody'));
 }
 if(!M.gain){
 M.gain = ctx.createGain();
