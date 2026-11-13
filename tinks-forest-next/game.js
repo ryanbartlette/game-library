@@ -26863,14 +26863,9 @@ PN.lv ={};
 PN.vol = PN.lvl * MUSV();
 MW.house = want ? 60 : 0;
 songLv(ctx,PN,PN.vol * G('house'));
-const k =
-PN.stage === 1 ? null : 'piano';
+const k = PN.stage === 1 ? 'tunnel' : 'piano';
 const keepPN =()=> !!(PN.cur && PN.cur.k === k);
-if(!k && PN.cur){
-songFade(ctx,PN.cur,2.5);
-PN.cur = null;
-}
-if(k && PN.lvl > 0.01 &&(!PN.cur || PN.cur.k !== k)){
+if(PN.lvl > 0.01 &&(!PN.cur || PN.cur.k !== k)){
 const b = L.songBuf(k);
 if(b){
 const was = PN.cur;
