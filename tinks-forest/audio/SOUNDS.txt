@@ -20,7 +20,7 @@ music/
   07-the-long-green-afternoon.mp3   summer days, now and then
   08-the-harvest-waltz.mp3          autumn days, now and then
   09-snow-on-the-lanterns.mp3       winter days, now and then
-  10-the-furnace-keeper.mp3         farmhouse boiler room (loop only)
+  10-the-furnace-keeper.mp3         farmhouse boiler room. Starts on the arpeggio at 0:17.9 of the song (its long intro is cut), then loops 2.95-174.25 s of this file
   11-waiting-in-the-rain.mp3        near the bus stop during the rain chapter. Intro, then loops 13.49-105.37 s
   12-a-seed-that-dreams-of-sky.mp3  the magic beanstalk growing and the climb (loop only)
   13-the-black-cat-waits.mp3        Jack's theme: meeting him at the tunnel's end, and whenever his card shows. Intro, then loops 19.78-117.54 s
