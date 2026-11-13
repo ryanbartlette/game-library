@@ -12836,7 +12836,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 490;
+const BUILD = 491;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -43577,32 +43577,65 @@ sp.renderOrder = 9;
 scene.add(sp);
 return sp;
 })();
+const SHL = 9,
+SHW = 0.62,
+SHN = 40;
 const catSh =[0,1].map(()=>{
 const c = document.createElement('canvas');
 c.width = 64;
-c.height = 256;
+c.height = 512;
 const x = c.getContext('2d');
-const g = x.createLinearGradient(0,256,0,0);
-g.addColorStop(0,'rgba(0,0,0,1)');
-g.addColorStop(0.5,'rgba(0,0,0,.6)');
-g.addColorStop(1,'rgba(0,0,0,0)');
-x.fillStyle = g;
+x.fillStyle = '#000';
 x.beginPath();
-x.moveTo(26,256);
-x.quadraticCurveTo(4,120,18,0);
-x.lineTo(46,0);
-x.quadraticCurveTo(60,120,38,256);
+x.moveTo(14,512);
+x.bezierCurveTo(4,420,10,300,20,200);
+x.bezierCurveTo(22,150,24,120,26,100);
+x.bezierCurveTo(14,90,12,60,18,44);
+x.lineTo(14,4);
+x.lineTo(28,30);
+x.lineTo(36,30);
+x.lineTo(50,4);
+x.lineTo(46,44);
+x.bezierCurveTo(52,60,50,90,38,100);
+x.bezierCurveTo(40,120,42,150,44,200);
+x.bezierCurveTo(54,300,60,420,50,512);
+x.closePath();
 x.fill();
+x.globalCompositeOperation = 'destination-in';
+const g = x.createLinearGradient(0,512,0,0);
+g.addColorStop(0,'rgba(0,0,0,1)');
+g.addColorStop(0.55,'rgba(0,0,0,.75)');
+g.addColorStop(1,'rgba(0,0,0,.35)');
+x.fillStyle = g;
+x.fillRect(0,0,64,512);
 const tx = new THREE.CanvasTexture(c);
+const geo = new THREE.PlaneGeometry(1,1,1,SHN);
 const m = new THREE.Mesh(
-new THREE.PlaneGeometry(0.7,9),
-new THREE.MeshBasicMaterial({map: tx,color: 0x1a1020,transparent: true,depthWrite: false,opacity: 0,polygonOffset: true,polygonOffsetFactor: -2,polygonOffsetUnits: -2,fog: false})
+geo,
+new THREE.MeshBasicMaterial({map: tx,color: 0x1a1020,transparent: true,depthWrite: false,opacity: 0,polygonOffset: true,polygonOffsetFactor: -4,polygonOffsetUnits: -4,fog: false,side: THREE.DoubleSide})
 );
+m.frustumCulled = false;
 m.visible = false;
 m.renderOrder = 2;
 scene.add(m);
 return m;
 });
+const layShadow =(m,foot,dir)=>{
+const pa = m.geometry.attributes.position,
+uv = m.geometry.attributes.uv;
+const sx = -dir.z,
+sz = dir.x;
+for(let i = 0;i < pa.count;i++){
+const v = uv.getY(i),
+u = uv.getX(i)- 0.5;
+const along = v * SHL;
+const x = foot.x + dir.x * along + sx * u * SHW,
+z = foot.z + dir.z * along + sz * u * SHW;
+pa.setXYZ(i,x,groundAt(x,z,foot.y + 2)+ 0.025,z);
+}
+pa.needsUpdate = true;
+m.geometry.computeBoundingSphere();
+};
 const white = document.createElement('div');
 white.style.cssText = 'position:fixed;inset:0;z-index:46;background:#fffaf0;opacity:0;pointer-events:none';
 document.body.appendChild(white);
@@ -44053,12 +44086,9 @@ const pp = i === 0 ? P : comp && comp.P;
 m.userData.a =(m.userData.a || 0)+((show && pp ? 1 : 0)-(m.userData.a || 0))* Math.min(1,dt *(show ? 0.5 : 2));
 m.visible = m.userData.a > 0.01 && !!pp;
 if(!m.visible)return;
-const L = 9;
-const c = pp.pos.clone().addScaledVector(face,-L / 2 - 0.05);
-c.y = groundAt(c.x,c.z,pp.pos.y + 1)+ 0.03;
-m.position.copy(c);
-m.rotation.set(-Math.PI / 2,0,Math.atan2(face.x,face.z));
-m.material.opacity = 0.42 * m.userData.a;
+const foot = pp.pos.clone().addScaledVector(face,0.08);
+layShadow(m,foot,face.clone().multiplyScalar(-1));
+m.material.opacity = 0.5 * m.userData.a;
 });
 }
 if(F.go != null){
@@ -45880,10 +45910,24 @@ const d0 = new V3();
 camera.getWorldDirection(d0);
 CS.l0 = camera.position.clone().addScaledVector(d0,5);
 window.__FCS ={lock: true,dir: null,cam: null};
+CS.smP = camera.position.clone();
+CS.smQ = camera.quaternion.clone();
+CS.smT = performance.now();
+const tmpO = new THREE.Object3D();
 window.__camOverride = c =>{
 if(CS && CS.pose){
-c.position.copy(CS.pose[0]);
-c.lookAt(CS.pose[1]);
+const now = performance.now(),
+dt = Math.min(0.1,(now - CS.smT)/ 1000);
+CS.smT = now;
+CS.smP.lerp(CS.pose[0],1 - Math.exp(-dt * 2.4));
+tmpO.position.copy(CS.smP);
+tmpO.lookAt(CS.pose[1]);
+const ang = CS.smQ.angleTo(tmpO.quaternion);
+const k = 1 - Math.exp(-dt * 1.8);
+const cap =(0.6 * dt)/ Math.max(1e-4,ang);
+CS.smQ.slerp(tmpO.quaternion,Math.min(k,ang > 0.3 ? Math.max(cap,k * 0.5): k));
+c.position.copy(CS.smP);
+c.quaternion.copy(CS.smQ);
 }
 };
 document.body.classList.add('cut');
