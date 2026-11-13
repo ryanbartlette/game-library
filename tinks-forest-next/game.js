@@ -251,6 +251,9 @@ const AUDPATH ={
 'chime': 'audio/magic/wind-chime.mp3',
 'beangrow': 'audio/magic/beanstalk-growing.mp3',
 'sparkle': 'audio/magic/sparkle.mp3',
+'ice': 'audio/magic/sparkle.mp3',
+'scent': 'audio/magic/sparkle.mp3',
+'giftchime': 'audio/magic/sparkle.mp3',
 'drizzle': 'audio/ambient/rain-drizzle.mp3',
 'leafrain': 'audio/ambient/rain-on-leaves.mp3',
 'windWinter': 'audio/ambient/wind-winter.mp3',
@@ -261,6 +264,8 @@ const AUDPATH ={
 'rustle': 'audio/actions/grass-rustle.mp3',
 'rustle_bush': 'audio/actions/grass-rustle.mp3',
 'thump': 'audio/actions/landing-thump.mp3',
+'thump_small': 'audio/actions/landing-thump.mp3',
+'thump_big': 'audio/actions/landing-thump.mp3',
 'owl': 'audio/animals/owl-hoot.mp3',
 'cuckoo': 'audio/animals/cuckoo.mp3',
 'giggle': 'audio/magic/puff-giggle.mp3',
@@ -1022,7 +1027,7 @@ for(const k of['music','sens','fov'])if(typeof o[k]=== 'number')T[k]= o[k];
 return o;
 })();
 window.__OPT = OPT;
-const MUSV =()=>(T.music ?? 0.5)* 2;
+const MUSV =()=>(T.music ?? 0.5)* 2 *(window.__musDuck ?? 1);
 window.__MUSV = MUSV;
 const saveOpt =()=>{
 try{
@@ -12756,9 +12761,19 @@ X.openT = performance.now();
 el.hidden = false;
 window.__pause = true;
 try{
-AUD.ctx && AUD.ctx.suspend();
+if(AUD.ctx && AUD.master){
+const t = AUD.ctx.currentTime,
+g = AUD.master.gain;
+g.cancelScheduledValues(t);
+g.setValueAtTime(g.value,t);
+g.linearRampToValueAtTime(0,t + 0.45);
+clearTimeout(X.susT);
+X.susT = setTimeout(()=>{
+if(X.on)AUD.ctx.suspend();
+},480);
+}
 }catch(e){}
-PAUSEMUS && PAUSEMUS.play(1500);
+PAUSEMUS && PAUSEMUS.play(30);
 };
 X.close = byKey =>{
 X.on = false;
@@ -12766,9 +12781,22 @@ X.closeT = performance.now();
 el.hidden = true;
 window.__pause = false;
 try{
-AUD.ctx && AUD.ctx.resume();
+clearTimeout(X.susT);
+if(AUD.ctx){
+const back =()=>{
+if(!AUD.master)return;
+const t = AUD.ctx.currentTime,
+g = AUD.master.gain;
+g.cancelScheduledValues(t);
+g.setValueAtTime(g.value,t);
+g.linearRampToValueAtTime(AUD.on ?(AUD.mix.master ?? 1)* GAME_GAIN : 0,t + 0.7);
+};
+const r = AUD.ctx.resume();
+if(r && r.then)r.then(back,back);
+else back();
+}
 }catch(e){}
-PAUSEMUS && PAUSEMUS.stop(900);
+PAUSEMUS && PAUSEMUS.stop(30);
 if(
 byKey
 )
@@ -14822,7 +14850,7 @@ fade = 0.15;
 c.life = '';
 c.washed = false;
 c.washT = 0;
-const crouch =(AP.stalk || 0)> 0.4 || P.crouchOn;
+const crouch =(AP.stalk || 0)> 0.4 || P.crouchOn || P.scared;
 let base;
 if(crouch){
 base = 'crawl';
@@ -14844,7 +14872,12 @@ act('swimIdle');
 c.life = '';
 fade = 0.3;
 }else{
-if(P.pounceCharge >= 0 ||(AP.ready || 0)> 0.3 || P.crouchOn){
+if(P.scared && P.mode === 'ground'){
+want = act('crawl');
+ts = 0;
+fade = 0.25;
+c.life = '';
+}else if(P.pounceCharge >= 0 ||(AP.ready || 0)> 0.3 || P.crouchOn){
 const ws = act('crouchWaitStart'),
 wl = act('crouchWait');
 const tr = P.turnRate || 0;
@@ -16402,8 +16435,13 @@ document.body.classList.contains('cut')||
 document.body.classList.contains('fin')||
 (window.__DIR && window.__DIR.hold)
 );
-const jumpKey = !CLK && !P.summit && isKey('Space')&& !RW && !(window.__INTRO && window.__INTRO.ph === 'railWait');
-const pounceKey = !CLK && mouseDown && !RW;
+const noLeap =
+!!(window.__TRAIL && window.__TRAIL.cv && !window.__TRAIL.passed && !window.__devSkip)||
+!!window.__inFarm ||
+!!window.__farmCrawl;
+const jumpKey =
+!CLK && !noLeap && !P.summit && isKey('Space')&& !RW && !(window.__INTRO && window.__INTRO.ph === 'railWait');
+const pounceKey = !CLK && !noLeap && mouseDown && !RW;
 const anyInput = dir || jumpKey || pounceKey || sprintKey;
 if(P.script && P.script.nap){
 if(anyInput && !P.script.waking){
@@ -16620,6 +16658,7 @@ az /= L;
 const d = dir.x * ax + dir.z * az;
 dir = Math.abs(d)> 0.2 ? new V3(ax * Math.sign(d),0,az * Math.sign(d)): null;
 }
+if(!window.__farmCrawl)P.scared = false;
 const crouching = P.crouchOn && !sprintKey;
 if(sprintKey && dir)P.crouchOn = false;
 const charging = P.jumpCharge >= 0 || P.pounceCharge >= 0;
@@ -16676,14 +16715,15 @@ window.__farmCrawl &&
 !(window.__FCS && window.__FCS.lock)&&
 !window.__asJack
 ){
-P.crouchOn = true;
+P.scared = true;
+P.crouchOn = false;
 P.dashing = false;
 P.dashT = 0;
 if(dir && P.sit < 0.5){
 target = T.stalk;
-label = 'Stalk';
+label = 'Creep';
 }
-}
+}else P.scared = false;
 }
 if(window.__asJack && target > T.walk * 1.05)
 target *= P.dashing ? 1.45 : 1.25;
@@ -17086,6 +17126,7 @@ P.pos.y = ny;
 }
 let gy = groundAt(P.pos.x,P.pos.z,py);
 const wlA = waterLevelAt(P.pos.x,P.pos.z);
+P.onIce = !!(window.__ICE && wlA > gy - 0.04);
 if(window.__ICE && wlA > gy - 0.04)gy = wlA + 0.015;
 const wet = !window.__ICE && wlA - gy > 0.07;
 if(wet)gy = Math.max(gy,wlA - gy > 0.3 ? wlA - 0.27 : wlA - 0.13);
@@ -17102,13 +17143,23 @@ spawnRipple(P.pos.x,wlA,P.pos.z,imp > 4.5 ? 1.6 : imp > 3 ? 0.8 : 0.28);
 }
 }
 P.pos.y = gy;
-if(!wet && P.vel.y < -2.6)
-sfx('thump',{
+if(!wet){
+const h =(P.peakY ?? P.pos.y)- gy;
+if(h > 1.3 || P.vel.y < -5.5)
+sfx('thump_big',{
 at: P.pos.clone(),
 maxDist: 16,
-vol: clamp(-P.vel.y * 0.06,0.12,0.55),
-rate:(cat.kind === 'tink' ? 1.08 : 1)*(0.95 + Math.random()* 0.1)
+vol: clamp(0.45 + h * 0.06,0.45,0.9),
+rate:(cat.kind === 'tink' ? 1.04 : 0.96)*(0.95 + Math.random()* 0.1)
 });
+else if(h > 0.12 || P.vel.y < -1.2)
+sfx('thump_small',{
+at: P.pos.clone(),
+maxDist: 12,
+vol: clamp(0.25 + h * 0.15,0.25,0.45),
+rate:(cat.kind === 'tink' ? 1.15 : 1.06)*(0.95 + Math.random()* 0.1)
+});
+}
 P.squash = clamp(-P.vel.y / 9,0.25,1);
 P.speed = Math.min(Math.hypot(P.vel.x,P.vel.z),P.pouncing ? 0 : T.sprint);
 P.mode = 'ground';
@@ -19676,7 +19727,7 @@ const trail = new THREE.Points(tg,tm);
 trail.frustumCulled = false;
 trail.userData.noEdit = true;
 scene.add(trail);
-W ={grp,g,au,trail,U,bp};
+W ={grp,g,au,trail,U,bp,tp: tg.attributes.position.array,sn: 1};
 };
 const buildMound =()=>{
 const c = spot();
@@ -19734,6 +19785,22 @@ W.U.uR.value = Math.min(
 W.U.uR.value + dt * Math.max(0.05,7 / Math.max(10,W.bp.distanceTo(spot()|| W.bp)))
 );
 W.grp.position.y = W.bp.y + 0.16 + Math.sin(performance.now()/ 500)* 0.04;
+if((W.sn -= dt)<= 0){
+W.sn = 0.25;
+const A = W.tp;
+let near = 1e9;
+for(let i = 0;i < A.length;i += 3){
+const dx = A[i]- P.pos.x,
+dz = A[i + 2]- P.pos.z,
+q = dx * dx + dz * dz;
+if(q < near)near = q;
+}
+near = Math.sqrt(near);
+if(near < 3.5 && typeof sfx === 'function'){
+sfx('scent',{vol: 0.35 *(1 - near / 3.5)+ 0.1,rate: 0.9 + Math.random()* 0.5});
+W.sn = 1.6 + Math.random()* 1.8;
+}
+}
 W.g.rotation.y += dt * 1.2;
 W.au.material.opacity = 0.45 + 0.15 * Math.sin(performance.now()/ 300);
 {
@@ -22700,15 +22767,46 @@ const MIX_BAKED ={
 crickets: 0.15,
 step_wood: 0.2,
 creak: 0.3,
-rustle_bush: 0.1,
+rustle_bush: 0.05,
 step_leaves: 0.2,
-rustle: 0.3,
+rustle: 0.1,
 step_ground: 0.2,
 'chime: arrival': 0.7,
-shimmer: 0.8,
+shimmer: 0.6,
 step_snow: 0.2,
 step_water: 0.2,
-swat: 0.6
+swat: 0.6,
+night: 0,
+thump: 0.7,
+windAutumn: 0.4,
+step_dry: 0.1,
+stream: 0.4,
+water_splash: 0.3,
+water_jump: 0.15,
+chime: 0.3,
+furnace_roar: 0.4,
+furnace_lever: 0.6,
+furnace_draft: 1.2,
+leafrain: 0.3,
+drizzle: 0.1,
+day: 0.05,
+'music: 02 pause · A Quiet Breath': 0.5,
+'music: 20a gift found': 0.8,
+purr2: 0.5,
+purr3: 0.5,
+dawn: 0.4,
+crow_caw: 0.6,
+squirrel_teasing: 0.3,
+squirrel_chirping: 0.3,
+squirrel_talking: 0.3,
+robin_chirp_2: 0.5,
+robin_chirp_1: 0.5,
+robin_chirp_3: 0.3,
+wing_flap: 0.4,
+woodpecker: 0.5,
+cuckoo: 0.5,
+claws: 0.3,
+cicadas: 0.3
 };
 let MIX ={...MIX_BAKED};
 AUD.mix = MIX;
@@ -22798,12 +22896,17 @@ const SFX_FILES =[
 'chime',
 'beangrow',
 'sparkle',
+'ice',
+'scent',
+'giftchime',
 'step_wood',
 'step_dry',
 'claws',
 'rustle',
 'rustle_bush',
 'thump',
+'thump_small',
+'thump_big',
 'owl',
 'cuckoo',
 'giggle',
@@ -23017,6 +23120,7 @@ if(v < 0.01)return 0;
 g.gain.value = v;
 node.connect(AUD.bus(name));
 src.start();
+AUD.lastSfx ={src,g,end: AUD.ctx.currentTime + b.duration / rate};
 return b.duration / rate;
 }
 window.__notice =(vol = 0.55)=>{
@@ -23054,7 +23158,40 @@ const g = AUD.ctx.createGain();
 g.gain.value = vol;
 src.connect(g).connect(AUD.bus(name));
 src.start(0,k * S.pad,S.len);
+return{src,g};
 }
+AUD.rustles =[];
+AUD.grassAt =(x,z)=>{
+try{
+const mc = grassU.uMask.value && grassU.uMask.value.image;
+if(!mc || !mc.getContext)return 255;
+const W2P = mc.width / WORLD;
+const px = clamp(Math.floor((x + WORLD / 2)* W2P),0,mc.width - 1),
+pz = clamp(Math.floor((z + WORLD / 2)* W2P),0,mc.height - 1);
+return mc.getContext('2d',{willReadFrequently: true}).getImageData(px,pz,1,1).data[0];
+}catch(e){
+return 255;
+}
+};
+AUD.rustleTick = inBush =>{
+if(!AUD.rustles.length || !AUD.ctx)return;
+const inGrass =
+P.mode === 'ground' && !P.onSurf && !P.onBranch &&(P.speed || 0)> 0.05 && AUD.grassAt(P.pos.x,P.pos.z)> 160;
+const t = AUD.ctx.currentTime;
+AUD.rustles = AUD.rustles.filter(r =>{
+if(t > r.end)return false;
+if((r.kind === 'grass' && !inGrass)||(r.kind === 'bush' && !inBush)){
+try{
+r.g.gain.cancelScheduledValues(t);
+r.g.gain.setValueAtTime(r.g.gain.value,t);
+r.g.gain.linearRampToValueAtTime(0,t + 0.06);
+r.src.stop(t + 0.08);
+}catch(e){}
+return false;
+}
+return true;
+});
+};
 function footstep(leg){
 if(P.mode !== 'ground' || P.air > 0.2 || P.speed < 0.05)return;
 const now = performance.now()/ 1000;
@@ -23071,6 +23208,7 @@ stepGap = now;
 const sp = clamp(P.speed / 4,0,1);
 let vol = cK * lerp(0.16,0.5,sp)*(1 - 0.6 *(P.crouchOn ? 1 : 0))*(leg.front ? 0.85 : 1);
 let rate = lerp(1.35,1.15,sp)*(0.94 + Math.random()* 0.12)*(cat.kind === 'tink' ? 1.06 : 1);
+if(P.onIce && !P.inWater && Math.random()< 0.55)sfx('ice',{vol: vol * 1.4,rate: 1.1 + Math.random()* 0.35});
 if(P.inWater){
 stepSfx('step_water',vol * 1.25 *(1 + 0.4 * sp),rate *(0.95 + 0.15 * sp));
 if(sp > 0.4 && Math.random()< 0.5)spawnRipple(P.pos.x,waterLevelAt(P.pos.x,P.pos.z),P.pos.z,0.5);
@@ -23137,7 +23275,10 @@ rate
 );
 if(!bare && !P.onSurf && !P.onBranch && sp > 0.12 && now -(P.rustleT || 0)> 0.55 + Math.random()* 0.5){
 P.rustleT = now;
-stepSfx('rustle',vol * 0.9 *(0.5 + sp),0.9 + Math.random()* 0.2);
+if(AUD.grassAt(P.pos.x,P.pos.z)> 160){
+const r = stepSfx('rustle',vol * 0.9 *(0.5 + sp),0.9 + Math.random()* 0.2);
+if(r)AUD.rustles.push({...r,kind: 'grass',end: AUD.ctx.currentTime + 1});
+}
 }
 }
 function setSound(on){
@@ -23887,8 +24028,21 @@ src.start();
 M.rainAudio ={g,synth: true};
 }
 const cyc = 0.5 + 0.5 * Math.sin(time * 0.045 + Math.sin(time * 0.013)* 2);
+let cover = 0;
+try{
+for(const sh of window.__SHELTERS ||[])
+cover = Math.max(cover,1 - smooth(sh.r * 0.8,sh.r * 1.6,Math.hypot(P.pos.x - sh.x,P.pos.z - sh.z)));
+if(window.__inFarm || inRoom(P.pos))cover = 1;
+cover = Math.max(cover,clamp(((window.__homeTree || 0)- 0.2)/ 0.5,0,1));
+const bs = window.__BUSSTOP;
+if(bs){
+const bp = bs.getWorldPosition(new V3());
+cover = Math.max(cover,1 - smooth(1.3,2.6,Math.hypot(P.pos.x - bp.x,P.pos.z - bp.z)));
+}
+}catch(e){}
+M.rainCover = cover;
 M.rainAudio.g.gain.setTargetAtTime(
-on ?(AUD.buf.rain ? 0.22 *(0.3 + 0.7 * cyc): 0.35): 0,
+(on ?(AUD.buf.rain ? 0.22 *(0.3 + 0.7 * cyc): 0.35): 0)*(1 - 0.6 * cover),
 AUD.ctx.currentTime,
 1
 );
@@ -23902,7 +24056,7 @@ let shel = 0;
 for(const sh of window.__SHELTERS ||[])
 shel = Math.max(shel,1 - smooth(sh.r * 0.8,sh.r * 1.6,Math.hypot(P.pos.x - sh.x,P.pos.z - sh.z)));
 const k = ins ? 0.3 : 1;
-B.drizzle.gain.setTargetAtTime(clamp(r * 3,0,1)*(0.1 + 0.22 *(1 - cyc))* k,t0,1.2);
+B.drizzle.gain.setTargetAtTime(clamp(r * 3,0,1)*(0.1 + 0.22 *(1 - cyc))* k *(1 - 0.6 *(M.rainCover || 0)),t0,1.2);
 B.leafrain.gain.setTargetAtTime(clamp(r * 2,0,1)*(forest * 0.3 + shel * 0.35)* k,t0,1.2);
 }
 }
@@ -23975,6 +24129,7 @@ hum =(1 - smooth(3.5,6,d))*(Math.abs(P.pos.y - LI.tree.gy)< 5 ? 1 : 0);
 window.__homeTree = hum;
 B.hum.gain.setTargetAtTime(0,t1,0.8);
 AUD.dawnT = Math.max(0,(AUD.dawnT || 0)- dt);
+if(NIGHTISH()||['dusk','sunset','night'].includes(weather))AUD.dawnT = 0;
 B.dawn.gain.setTargetAtTime(ins || W.rain > 0.4 ? 0 : 0.38 * clamp(AUD.dawnT / 25,0,1),t1,1.5);
 }
 }
@@ -26731,16 +26886,22 @@ win = k;
 }
 for(const k of['farm','house','scene','magic','season','melody']){
 const on = k === win ? 1 : 0;
-MGT[k]=(MGT[k]?? on)+(on -(MGT[k]?? on))* Math.min(1,dt *(on ? 1.2 : 0.9));
+MGT[k]=(MGT[k]?? on)+(on -(MGT[k]?? on))* Math.min(1,dt *(on ? 2.5 : 0.9));
 }
 const G = k => MGT[k]?? 0;
 L.musicWinner = win;
+{
+const DR = window.__DIR;
+const bench = !!(DR && DR.jack && DR.jack.mode === 'bench');
+window.__musDuck =(window.__musDuck ?? 1)+((bench ? 0.35 : 1)-(window.__musDuck ?? 1))* Math.min(1,dt * 0.8);
+}
 {
 const PN = L.piano ||(L.piano ={stage: 0,lvl: 0,next: 0,gain: null});
 const TR = window.__TRAIL,
 ins =(TR && TR.inside)|| 0,
 I = window.__INTRO;
-if(PN.stage === 0 && ins > 0.5)PN.stage = 1;
+if(PN.stage === 0 && TR &&(TR.hes || TR.hesDone))
+PN.stage = 1;
 if(PN.stage === 1 && ins < 0.05)PN.stage = 2;
 const inHouse = inRoom(P.pos)||(I &&['sleep','arrive','wake','follow'].includes(I.ph));
 const FHI = window.__MORE && window.__MORE.houseIn;
@@ -26867,6 +27028,11 @@ PN.lv ={};
 PN.vol = PN.lvl * MUSV();
 MW.house = want ? 60 : 0;
 songLv(ctx,PN,PN.vol * G('house'));
+if(PN.stage === 0)L.songBuf('tunnel');
+if(PN.stage === 1 && !PN.tunGo){
+PN.tunGo = true;
+PN.lvl = Math.max(PN.lvl,0.8);
+}
 const k = PN.stage === 1 ? 'tunnel' : 'piano';
 const keepPN =()=> !!(PN.cur && PN.cur.k === k);
 if(PN.lvl > 0.01 &&(!PN.cur || PN.cur.k !== k)){
@@ -26874,7 +27040,7 @@ const b = L.songBuf(k);
 if(b){
 const was = PN.cur;
 if(was)songFade(ctx,was,2.5,()=> !!(PN.cur && PN.cur.k === was.k));
-PN.cur = songStart(ctx,k,b,songOut(ctx,PN,k),was ? 2.5 : 0.4);
+PN.cur = songStart(ctx,k,b,songOut(ctx,PN,k),k === 'tunnel' ? 0.5 : was ? 2.5 : 0.4);
 }
 }
 if(PN.lvl <= 0.01 && PN.cur){
@@ -26930,6 +27096,7 @@ SC.stream =
 }
 const night =
 NIGHTISH()&&
+!(window.__CYCLE && window.__CYCLE.season === 'winter')&&
 !!TR.welcomed &&
 PN.lvl < 0.05 &&
 !(L.farm && L.farm.lvl > 0.05)&&
@@ -26972,18 +27139,8 @@ songLv(ctx,SC,MUSV()* lv * G('scene'));
 if(tick){
 const n = document.querySelectorAll('#gifts img.got').length;
 if(SC.gifts >= 0 && n > SC.gifts){
-const b = L.songBuf('gift');
-if(b){
-if(!SC.gain2){
-SC.gain2 = ctx.createGain();
-SC.gain2.gain.value = MUSV();
-SC.gain2.connect(AUD.bus(MUSBUS.gift));
+sfx('giftchime',{vol: 0.9});
 }
-songStart(ctx,'gift',b,SC.gain2,0.02);
-AUD.hush(b.duration);
-}
-}
-if(n !== SC.gifts)L.songBuf('gift');
 SC.gifts = n;
 }
 }
@@ -27010,7 +27167,16 @@ TH.el.onended =()=>{
 TH.cur = null;
 };
 }
-const ok = list.length > 0 && PN.lvl < 0.05 &&(L.farm ? L.farm.lvl : 0)< 0.05 && SC.lvl < 0.05 && !NIGHTISH();
+if(TH.se !== se){
+TH.se = se;
+TH.next = Math.min(TH.next,3);
+}
+const ok =
+list.length > 0 &&
+PN.lvl < 0.05 &&
+(L.farm ? L.farm.lvl : 0)< 0.05 &&
+SC.lvl < 0.05 &&
+(!NIGHTISH()|| se === 'winter');
 TH.next -= dt;
 if(ok && !TH.cur && TH.next <= 0){
 const nm = list[TH.turn++ % list.length];
@@ -33580,6 +33746,16 @@ pos = new V3();
 B.update = dt =>{
 dt = Math.min(dt,0.1);
 B.t += dt;
+{
+const QQ = window.__QAPI,
+Q = QQ && QQ.Q,
+J = window.__JACK;
+const got = id => !!(J && J.got && J.got.includes(id));
+const chap = !!(Q && Q.done && Q.done.bean)&&['flower','leaf','pebble','bell'].every(got)&& !got('boat');
+const free = !!(Q && Q.p && Q.p.finDone);
+g.visible = chap || free;
+if(!g.visible)return;
+}
 const wi = window.__CYCLE && window.__CYCLE.season === 'winter';
 for(const C of[P,comp && comp.P]){
 if(!C || !C.pos)continue;
@@ -34306,7 +34482,7 @@ if(k >= 1){
 PP.pos.copy(J.R);
 J.ph = 'land';
 J.t = 0;
-sfx('thump',{at: J.R.clone(),vol: 0.25,rate: 1.2});
+sfx('thump_small',{at: J.R.clone(),vol: 0.35,rate: 1.15});
 }
 }else if(J.ph === 'land'){
 PP.pos.copy(J.R);
@@ -34361,7 +34537,7 @@ if(k >= 1){
 PP.pos.copy(J.B);
 J.ph = 'land';
 J.t = 0;
-sfx('thump',{at: J.B.clone(),vol: 0.45});
+sfx('thump_big',{at: J.B.clone(),vol: 0.75});
 }
 }else if(J.ph === 'land'){
 PP.pos.copy(J.B);
@@ -39211,7 +39387,7 @@ const now = performance.now(),
 dt = Math.min(0.1,(now - last)/ 1000);
 last = now;
 window.__jackNight = !!window.__jackPlayable && night();
-if(window.__jackNight && !J.wasNight && !window.__asJack && J.seenDay){
+if(window.__jackNight && !J.wasNight && !window.__asJack && J.seenDay && performance.now()-(window.__jackDuskMsg || -1e9)> 90000){
 try{
 window.__storyLine && window.__storyLine('Dusk… Jack is near','press 3 to walk as Jack',5200);
 }catch(e){}
@@ -40819,7 +40995,7 @@ aw('bell','Jack left you something…');
 }
 {
 const BT = window.__BOAT;
-if(BT && BT.g && !J.got.includes('boat')){
+if(BT && BT.g && BT.g.visible && !J.got.includes('boat')){
 const bp = BT.g.position;
 if(Math.hypot(P.pos.x - bp.x,P.pos.z - bp.z)< 1.25 && Math.abs(P.pos.y - bp.y)< 1.6){
 aw('boat','A secret! You found something…');
@@ -42170,6 +42346,45 @@ fog: false
 petal.scale.set(0.05,0.035,1);
 petal.visible = false;
 scene.add(petal);
+const rays =(()=>{
+const c = document.createElement('canvas');
+c.width = c.height = 256;
+const x = c.getContext('2d');
+x.translate(128,128);
+x.globalCompositeOperation = 'lighter';
+for(let i = 0;i < 22;i++){
+const a =(i / 22)* Math.PI * 2 +((i * 37)% 10)* 0.03,
+w = 0.05 +((i * 53)% 10)* 0.012,
+gr = x.createRadialGradient(0,0,0,0,0,128);
+gr.addColorStop(0,'rgba(255,236,190,.5)');
+gr.addColorStop(1,'rgba(255,190,120,0)');
+x.fillStyle = gr;
+x.beginPath();
+x.moveTo(0,0);
+x.arc(0,0,128,a - w,a + w);
+x.closePath();
+x.fill();
+}
+const core = x.createRadialGradient(0,0,0,0,0,70);
+core.addColorStop(0,'rgba(255,250,232,1)');
+core.addColorStop(0.35,'rgba(255,226,170,.6)');
+core.addColorStop(1,'rgba(255,200,130,0)');
+x.fillStyle = core;
+x.fillRect(-128,-128,256,256);
+const tx = new THREE.CanvasTexture(c);
+tx.colorSpace = THREE.SRGBColorSpace;
+const sp = new THREE.Sprite(
+new THREE.SpriteMaterial({map: tx,transparent: true,depthWrite: false,opacity: 0,fog: false,blending: THREE.AdditiveBlending})
+);
+sp.scale.set(18,18,1);
+sp.visible = false;
+sp.renderOrder = 5;
+scene.add(sp);
+return sp;
+})();
+const white = document.createElement('div');
+white.style.cssText = 'position:fixed;inset:0;z-index:46;background:#fffaf0;opacity:0;pointer-events:none';
+document.body.appendChild(white);
 const GIFTLINE =
 {
 flower: 'Love, to bring you here.',
@@ -42614,6 +42829,15 @@ prompt.style.opacity = 1;
 if(F.go != null){
 F.go += dt;
 prompt.style.opacity = 0;
+{
+const h0 = jk.holder.position;
+rays.visible = true;
+rays.position.copy(seat).addScaledVector(face,13).setY(Math.max(seat.y,h0.y)+ 2.6);
+rays.material.rotation += dt * 0.02;
+F.rayA = Math.min(F.looked ? 1 : 0.6,(F.rayA || 0)+ dt * 0.25);
+if(!F.gone)rays.material.opacity = F.rayA;
+if(F.looked && !F.gone)white.style.opacity = ss2(Math.max(0,Math.min(1,((F.fadeT || 0)- 2.5)/ 4)));
+}
 if(!F.up){
 F.up = true;
 F.jack = 'leave';
@@ -42719,9 +42943,8 @@ tp.z + Math.cos(g * 1.7)* 0.18 *(1 - k)
 petal.material.opacity = Math.min(0.95,(g - 5.5)* 0.8);
 petal.material.rotation = g * 1.4;
 }
-if(g > 10.5 && !F.night){
+if(g > 0.9 && !F.night){
 F.night = 1;
-F.want = 'sky';
 const C = window.__CYCLE;
 if(C){
 C.hold = false;
@@ -42729,6 +42952,12 @@ C.jump('night',0.05);
 C.hold = true;
 }
 S.starOn = true;
+}
+white.style.opacity = g < 1.3 ? 1 : Math.max(0,1 - ss2(Math.min(1,(g - 1.3)/ 3)));
+if(g > 0.9)rays.visible = false;
+if(g > 10.5 && !F.sky){
+F.sky = 1;
+F.want = 'sky';
 F.end = t;
 }
 if(g > 17 && !F.ded){
@@ -42757,6 +42986,8 @@ bars[1].style.transform = 'translateY(100%)';
 document.body.classList.remove('fin');
 petal.visible = false;
 motes.visible = false;
+rays.visible = false;
+white.style.opacity = 0;
 motes.material.opacity = 0;
 P.camBack ={t: 0,p: camera.position.clone(),q: camera.quaternion.clone()};
 window.__camOverride = null;
@@ -42784,6 +43015,7 @@ setTimeout(()=> S.quote(L2,0),t2);
 setTimeout(
 ()=>{
 window.__JACK.unlockPlay && window.__JACK.unlockPlay();
+window.__jackDuskMsg = performance.now();
 try{
 window.__storyLine(
 'From dusk until dawn, Jack walks with you',
@@ -46472,7 +46704,7 @@ const SS = window.__STORY;
 const fin = !!(SS && SS.fin);
 const nearT = T0 ? Math.hypot(P.pos.x - T0.x,P.pos.z - T0.z): 99;
 const homeIn =(q && q.id === 'home' && nearT <(T0.R || 6)+ 12)|| fin;
-window.__homeWalk = !!(q && q.id === 'home' && !fin && nearT <(T0.R || 6)+ 12);
+window.__homeWalk = !!(q && q.id === 'home' && !fin && nearT <(T0.R || 6)+ 4.5);
 D.homeBK = homeIn
 ? Math.min(1,(D.homeBK || 0)+(1 / 60)* 0.6)
 : Math.max(0,(D.homeBK || 0)-(1 / 60)* 0.8);
@@ -48789,7 +49021,7 @@ M.premultiply(o.matrixWorld);
 sc.setFromMatrixScale(M);
 if(sc.x < 1e-3)continue;
 v.copy(g.boundingSphere.center).applyMatrix4(M);
-const r = Math.max(hx * sc.x,hz * sc.z)* 0.75;
+const r = Math.max(hx * sc.x,hz * sc.z)* 0.6;
 if(r < 0.35)continue;
 const e ={x: v.x,y: v.y,z: v.z,r,h: hy * sc.y};
 B.list.push(e);
@@ -48810,7 +49042,6 @@ build();
 }
 B.t -= dt;
 const sp = P.speed || 0;
-if(sp < 0.3 || P.mode !== 'ground' || B.t > 0)return;
 const cx = Math.floor(P.pos.x / 4),
 cz = Math.floor(P.pos.z / 4);
 let inB = false;
@@ -48825,10 +49056,13 @@ break;
 }
 }
 }
-if(!inB)return;
+AUD.rustleTick(inB && sp > 0.05);
+if(!inB || sp < 0.3 || P.mode !== 'ground' || B.t > 0)return;
 B.t = Math.max(0.18,0.42 - sp * 0.04)+ Math.random()* 0.12;
 try{
+AUD.lastSfx = null;
 sfx('rustle_bush',{vol: Math.min(1,0.55 + sp * 0.12),rate: 0.82 + Math.random()* 0.18});
+if(AUD.lastSfx)AUD.rustles.push({...AUD.lastSfx,kind: 'bush'});
 }catch(e){}
 };
 {
