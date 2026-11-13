@@ -16845,14 +16845,26 @@ if(TR.cs && TR.csChase && dir){
 P.sit = 0;
 P.idle = 0;
 P.groom = false;
-target = TR.cs.ph === 'chase' ? Math.min(T.sprint,1.9): Math.min(T.sprint,1.3);
+target =
+TR.cs.ph === 'chase'
+? Math.min(T.sprint,1.9)
+: Math.min(T.sprint,1.3);
 label = TR.cs.ph === 'chase' ? 'Run' : 'Trot';
 }
+const inTun =
+(TR.inside || 0)> 0.2 && !TR.cs;
 const cap =
-TR.cs && TR.csChase ? T.sprint : P.walkMode || TR.hes || TR.wonder || TR.cs ? T.walk : T.run;
+TR.cs && TR.csChase
+? T.sprint
+: inTun
+? T.walk * 0.8
+: P.walkMode || TR.hes || TR.wonder || TR.cs
+? T.walk
+: T.run;
 if(target > cap){
 target = cap;
 label = cap === T.run ? 'Trot' : 'Walk';
+if(inTun)P.dashing = false;
 }
 P.dashing = false;
 P.dashT = 0;
@@ -27209,7 +27221,11 @@ const PN = L.piano ||(L.piano ={stage: 0,lvl: 0,next: 0,gain: null});
 const TR = window.__TRAIL,
 ins =(TR && TR.inside)|| 0,
 I = window.__INTRO;
-if(PN.stage === 0 && ins > 0.5)PN.stage = 1;
+if(
+PN.stage === 0 &&
+((TR && TR.hes)||((TR && TR.hesDone)&& ins > 0.5)|| ins > 0.95)
+)
+PN.stage = 1;
 if(PN.stage === 1 && ins < 0.05)PN.stage = 2;
 const inHouse = inRoom(P.pos)||(I &&['sleep','arrive','wake','follow'].includes(I.ph));
 const FHI = window.__MORE && window.__MORE.houseIn;
@@ -27359,7 +27375,7 @@ JJ = window.__JACK,
 ST = window.__STORY;
 const got = id => !!document.querySelector('#gifts img.got[data-g="' + id + '"]');
 if(TR.cs)SC.sawCs = true;
-if(TR.welcomed && SC.sawCs && !SC.done.reveal){
+if((window.__revealGo ||(TR.welcomed && SC.sawCs))&& !SC.done.reveal){
 SC.done.reveal = 1;
 SC.shot = 'reveal';
 }
@@ -38040,7 +38056,8 @@ M2.y0 = holder.rotation.y;
 }
 }else if(M2.st === 'turn'){
 const k = Math.min(1,M2.t / 0.9);
-holder.rotation.y = M2.y0 + Math.PI *(k * k *(3 - 2 * k));
+holder.rotation.y =
+M2.y0 + angDiff(M2.y0,Math.atan2(M2.dir.x,M2.dir.z))*(k * k *(3 - 2 * k));
 holder.position.addScaledVector(M2.dir,dt * 0.15);
 if(k >= 1){
 M2.st = 'walk';
@@ -38270,8 +38287,13 @@ const tryGift = n =>{
 try{
 const JJ = window.__JACK;
 if(!JJ || JJ.showing)return;
-if(T3.cs || T3.wonder ||(window.__CALM && window.__CALM.busy())){
-if(n < 40)setTimeout(()=> tryGift(n + 1),1000);
+if(
+T3.cs ||
+T3.wonder ||
+(window.__CALM && window.__CALM.busy())||
+(T3.afterTalk && T3.mystery && T3.mystery.st !== 'gone')
+){
+if(n < 90)setTimeout(()=> tryGift(n + 1),1000);
 return;
 }
 JJ.giveFirst && JJ.giveFirst();
@@ -38290,15 +38312,19 @@ fl.style.opacity = 0;
 });
 }
 entryChime();
+const hold =
+T3.cardHold || 4200;
+if(T3.cardHold)entryCard.style.transform = 'translateY(-54%) scale(1.3)';
 setTimeout(()=>{
 entryCard.style.opacity = 1;
-setTimeout(()=>(entryCard.style.opacity = 0),4200);
+setTimeout(()=>(entryCard.style.opacity = 0),hold);
 },600);
-window.__spiritGo = performance.now()+ 600 + 4200 + 700;
+const after = T3.speakAfter || 600 + hold + 700;
+window.__spiritGo = performance.now()+ after;
 window.__CALM &&
-window.__CALM.hold(5.4,0.2);
+window.__CALM.hold(after / 1000 - 0.5,0.2);
 LIFE.swell = 25;
-if(T3.mystery && T3.mystery.leave)T3.mystery.leave();
+if(T3.mystery && T3.mystery.leave && !T3.cardHold)T3.mystery.leave();
 };
 T3.update = dt =>{
 const night = NIGHTISH();
@@ -38662,7 +38688,7 @@ const C = T3.cs;
 C.t += dt;
 C.all =(C.all || 0)+ dt;
 if(
-C.all > 32 &&
+C.all >(C.grand ? 70 : 32)&&
 !T3.wonder
 ){
 T3.cs = null;
@@ -38687,20 +38713,105 @@ if(C.ph === 'jack'){
 if(!C.wow && C.t > 0.5){
 C.wow = 1;
 try{
-sfx('cat_trill',{vol: 0.62,rate: 1.05});
-window.__storyLine && window.__storyLine('Oh! A little forest spirit…','',3400);
+sfx('cat_purr_meow',{vol: 0.7});
+window.__storyLine && window.__storyLine('Look… a little forest spirit!','',3400);
 }catch(e){}
 }
 T3.csDir = null;
 T3.csLook = jp;
 window.__csZoom = Math.min(1,C.t / 2.2);
-if(C.t > 2.6 && M && M.st === 'sit')M.leave();
-if(!jp || C.t > 14){
+if(jp && M && M.st === 'sit' && C.t > 2.6){
+C.ph = 'approach';
+C.t = 0;
+C.grand = true;
+}else if(C.t > 2.6 && M && M.st === 'sit' && !jp)M.leave();
+if(C.ph !== 'jack'){
+}else if(!jp || C.t > 14){
 C.ph = 'walk';
 C.t = 0;
 }else if(M.st === 'walk'){
 C.ph = 'chase';
 C.t = 0;
+}
+}
+else if(C.ph === 'approach'){
+const sd = new V3(tE.z,0,-tE.x);
+if(!C.spot)C.spot = M.holder.position.clone().addScaledVector(tE,-2.2).addScaledVector(sd,0.25);
+const d = C.spot.clone().sub(P.pos).setY(0);
+if(!C.sat &&(d.length()< 0.35 || C.t > 8))C.sat = true;
+if(!C.sat){
+T3.csChase = true;
+T3.csDir = d.normalize();
+}else{
+T3.csChase = false;
+T3.csDir = null;
+P.idle = Math.max(P.idle || 0,10);
+const tj = Math.atan2(M.holder.position.x - P.pos.x,M.holder.position.z - P.pos.z);
+P.yaw += angDiff(P.yaw,tj)* Math.min(1,dt * 2);
+}
+T3.csLook = C.t < 1 ? jp : null;
+window.__csZoom = Math.max(0,(window.__csZoom || 0)- dt * 0.8);
+const tc = C.t - 1;
+if(tc >= 0 && !C.F){
+window.__revealGo = true;
+const F =(C.F ={p0: null,l0: null});
+let tgt = null;
+try{
+const Tr = LIFE.tree;
+if(Tr){
+const v = new V3(Tr.x - E1.x,0,Tr.z - E1.z);
+if(v.length()< 160 && v.normalize().dot(tE)> 0.2)tgt = new V3(Tr.x,(Tr.gy || 0)+ 7,Tr.z);
+}
+}catch(e){}
+C.tgt = tgt || E1.clone().addScaledVector(tE,45).setY(E1.y + 5);
+window.__camOverride = c =>{
+const t = C.t - 1;
+if(!F.p0){
+F.p0 = c.position.clone();
+F.l0 = c.position.clone().add(c.getWorldDirection(new V3()).multiplyScalar(3));
+}
+const ez = x => x * x *(3 - 2 * x),
+cl = x => clamp(x,0,1);
+const fol = P.pos.clone().addScaledVector(tE,-2.3).setY(P.pos.y + 0.95),
+folL = P.pos.clone().addScaledVector(tE,3).setY(P.pos.y + 0.6);
+const high = E1.clone().addScaledVector(tE,9).setY(E1.y + 11);
+const jpos = M.holder.position;
+const two = P.pos.clone().lerp(jpos,0.5).addScaledVector(sd,2.3).addScaledVector(tE,-0.4).setY(P.pos.y + 0.9),
+twoL = P.pos.clone().lerp(jpos,0.5).setY(P.pos.y + 0.35);
+let pos,look;
+if(t < 16){
+const a = ez(cl(t / 1.5)),
+b = ez(cl((t - 2)/ 10));
+pos = F.p0.clone().lerp(fol,a).lerp(high,b);
+look = F.l0.clone().lerp(folL,a).lerp(C.tgt,ez(cl((t - 2.5)/ 9)));
+}else{
+const k = ez(cl((t - 16)/ 6));
+pos = high.clone().lerp(two,k);
+look = C.tgt.clone().lerp(twoL,k);
+}
+c.position.copy(pos);
+c.lookAt(look);
+};
+}
+if(tc > 9 && !T3.welcomed){
+T3.cardHold = 6000;
+T3.speakAfter =(22.5 - 9 + 0.6)* 1000;
+T3.welcome();
+}
+if(tc > 22.5){
+window.__camOverride = null;
+window.__revealGo = false;
+cam.yaw = Math.atan2(sd.x,sd.z);
+cam.pitch = 0.22;
+T3.passed = true;
+T3.cs = null;
+T3.csDir = null;
+T3.csLook = null;
+T3.csChase = false;
+window.__csZoom = 0;
+T3.povEnd = time + 0.2;
+P.walkMode = false;
+T3.afterTalk = performance.now();
 }
 }
 else if(C.ph === 'chase'){
@@ -38860,7 +38971,17 @@ T3.mystery &&
 T3.mystery.st !== 'gone'
 ){
 const M = T3.mystery;
-if(M.st === 'sit' && !M.go && T3.passed && !T3.cs)M.leave();
+if(
+M.st === 'sit' &&
+!M.go &&
+T3.passed &&
+!T3.cs &&
+(!T3.afterTalk ||
+(performance.now()>(window.__spiritGo || 0)+ 1500 &&
+!(window.__STORY && window.__STORY.busy && window.__STORY.busy())&&
+!window.__qOn))
+)
+M.leave();
 M.update(dt);
 }
 if(T3.gone)return;
