@@ -12836,7 +12836,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 486;
+const BUILD = 487;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -45900,7 +45900,7 @@ if(CS)return;
 bars[0].style.transform = 'translateY(-100%)';
 bars[1].style.transform = 'translateY(100%)';
 document.body.classList.remove('cut');
-P.camBack ={t: 0,p: camera.position.clone(),q: camera.quaternion.clone()};
+P.camBack ={t: 0,p: camera.position.clone(),q: camera.quaternion.clone(),dur:(c && c.backDur)|| undefined};
 try{
 tryLock();
 }catch(e){}
@@ -47141,9 +47141,37 @@ window.__dig(1.6,c.x,c.z);
 }catch(e){}
 const fw = new V3(P.pos.x - c.x,0,P.pos.z - c.z).normalize();
 const sd = new V3(fw.z,0,-fw.x);
+const gfw = fw.clone(),
+gsd = sd.clone();
+try{
+let best = -1;
+for(let i = 0;i < 24;i++){
+const a =(i / 24)* Math.PI * 2;
+const dx = Math.cos(a),
+dz = Math.sin(a);
+const ex = c.x + dx * 14 + dz * 4,
+ez = c.z + dz * 14 - dx * 4;
+let m = 99;
+for(const t of trees){
+const vx = ex - c.x,
+vz = ez - c.z,
+L2 = vx * vx + vz * vz;
+const u = clamp(((t.x - c.x)* vx +(t.z - c.z)* vz)/ L2,0.12,1);
+const d = Math.hypot(c.x + vx * u - t.x,c.z + vz * u - t.z)-(t.r || 1)- 1.2;
+if(d < m)m = d;
+}
+const sc = Math.min(m,6)+ 0.6 *(dx * fw.x + dz * fw.z);
+if(sc > best){
+best = sc;
+gfw.set(dx,0,dz);
+gsd.set(dz,0,-dx);
+}
+}
+}catch(e){}
 const S =()=> window.__LIFE && window.__LIFE.sprout;
 D.cut({
 dur: 14,
+backDur: 4.5,
 shots:[
 {
 d: 3,
@@ -47160,8 +47188,8 @@ const top = s2 && s2.hb ? s2.hb * 0.95 : 2;
 return[
 c
 .clone()
-.addScaledVector(fw,7 + q * 7)
-.addScaledVector(sd,2 + q * 2)
+.addScaledVector(gfw,7 + q * 7)
+.addScaledVector(gsd,2 + q * 2)
 .add(up(1.4 + q * 6)),
 c.clone().add(up(Math.max(0.5,top *(0.35 + 0.5 * ss(q)))))
 ];
