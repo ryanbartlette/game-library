@@ -15800,6 +15800,13 @@ if(isKey('KeyW')|| isKey('ArrowUp'))z += 1;
 if(isKey('KeyS')|| isKey('ArrowDown'))z -= 1;
 if(isKey('KeyA')|| isKey('ArrowLeft'))x -= 1;
 if(isKey('KeyD')|| isKey('ArrowRight'))x += 1;
+{
+const PD = window.__PAD;
+if(PD && PD.mag > 0 && !(window.__digT > performance.now())){
+x = PD.mx;
+z = PD.mz;
+}
+}
 if(!x && !z)return null;
 const f = new V3(-Math.sin(cam.yaw),0,-Math.cos(cam.yaw)),
 r = new V3(Math.cos(cam.yaw),0,-Math.sin(cam.yaw));
@@ -52617,5 +52624,275 @@ warmUp()
 .finally(done);
 }
 requestAnimationFrame(frame);
+{
+const PAD =(window.__PAD ={on: false,mx: 0,mz: 0,mag: 0,used: 0,sel: null});
+const BT ={A: 0,B: 1,X: 2,Y: 3,LB: 4,RB: 5,LT: 6,RT: 7,VIEW: 8,MENU: 9,L3: 10,R3: 11,UP: 12,DOWN: 13,LEFT: 14,RIGHT: 15};
+const keyOf = c =>(c === 'Space' ? ' ' : c.startsWith('Key')? c.slice(3).toLowerCase(): c);
+const send =(type,code)=>{
+const t = document.activeElement && document.activeElement !== document.body ? document.activeElement : document.body;
+t.dispatchEvent(new KeyboardEvent(type,{code,key: keyOf(code),bubbles: true,cancelable: true}));
+};
+const tap = code =>{
+send('keydown',code);
+send('keyup',code);
+};
+const held ={};
+const hold =(code,on)=>{
+if(on && !held[code]){
+held[code]= 1;
+keys[code]= true;
+}else if(!on && held[code]){
+delete held[code];
+keys[code]= false;
+}
+};
+const releaseAll =()=>{
+for(const c in held)hold(c,false);
+PAD.mx = PAD.mz = PAD.mag = 0;
+if(PAD.rt){
+PAD.rt = false;
+mouseDown = false;
+}
+if(PAD.aDown){
+PAD.aDown = false;
+send('keyup','Space');
+}
+if(PAD.xDown){
+PAD.xDown = false;
+send('keyup','KeyE');
+}
+};
+const actOK =()=>
+started &&
+!window.__EDITING &&
+!inCut()&&
+!(window.__FCS && window.__FCS.lock)&&
+!document.body.classList.contains('cut')&&
+!document.body.classList.contains('fin')&&
+!(window.__DIR && window.__DIR.hold)&&
+!(window.__STORY && window.__STORY.busy && window.__STORY.busy());
+const lookOK =()=>{
+if(!started || window.__EDITING || inCut()|| performance.now()< cutQuietUntil)return false;
+const I = window.__INTRO,
+TR = window.__TRAIL,
+FC = window.__FCS;
+if((I && I.lock)||(TR &&(TR.cs || TR.wonder))||(FC && FC.lock)|| window.__lookBack)return false;
+if(P.mode === 'climb' && P.climb && P.climb.tree && P.climb.tree.bean)return false;
+return true;
+};
+const vis = el =>
+!!el && !el.hidden && el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden';
+const menuRoot =()=>{
+const pre = document.getElementById('pre');
+if(pre && !pre.classList.contains('gone')&& vis(pre))return pre;
+const qm = document.getElementById('qmenu');
+if(vis(qm))return qm;
+const pz = document.getElementById('pause');
+if(vis(pz))return pz;
+const g = document.getElementById('gate');
+if(g && !g.hidden){
+for(const id of['gHowP','gCredP']){
+const p = document.getElementById(id);
+if(vis(p))return p;
+}
+return g;
+}
+return null;
+};
+const choices = r =>
+[...r.querySelectorAll('#preTxt, .go, .g-opts span, .o-seg b, input[type=range], button, .g-music')].filter(
+e => vis(e)&& !e.closest('[hidden]')
+);
+const focus = el =>{
+if(PAD.sel === el)return;
+if(PAD.sel)PAD.sel.classList.remove('pad-on');
+PAD.sel = el;
+if(el)el.classList.add('pad-on');
+};
+const first = cs => cs.find(e => e.matches('.o-seg b'))|| cs.find(e => e.matches('.go, #preTxt'))|| cs[0];
+const move =(r,dx,dy)=>{
+const cs = choices(r);
+if(!cs.length)return;
+if(!PAD.sel || !cs.includes(PAD.sel)){
+focus(first(cs));
+return;
+}
+const a = PAD.sel.getBoundingClientRect(),
+ax = a.left + a.width / 2,
+ay = a.top + a.height / 2;
+let best = null,
+bs = Infinity;
+for(const c of cs){
+if(c === PAD.sel)continue;
+const b = c.getBoundingClientRect(),
+vx = b.left + b.width / 2 - ax,
+vy = b.top + b.height / 2 - ay;
+const along = vx * dx + vy * dy,
+across = Math.abs(vx * dy - vy * dx);
+if(along <= 2)continue;
+const s = along + across * 2.5;
+if(s < bs){
+bs = s;
+best = c;
+}
+}
+if(best)focus(best);
+};
+const slide =(el,d)=>{
+const st = +el.step || 0.05;
+el.value = Math.min(+el.max,Math.max(+el.min,+el.value + d * st));
+el.dispatchEvent(new Event('input',{bubbles: true}));
+};
+const back = r =>{
+if(r.id === 'gHowP' || r.id === 'gCredP')return r.click();
+if(r.id === 'qmenu')return window.__QUESTS && window.__QUESTS.menu(false);
+if(r.id === 'pause'){
+const ob = document.getElementById('pOptBack');
+if(vis(ob))return ob.click();
+return tap('Escape');
+}
+};
+const menu =(r,pr,dir)=>{
+const cs = choices(r);
+if(cs.length &&(!PAD.sel || !cs.includes(PAD.sel)))focus(first(cs));
+if(dir){
+if(PAD.sel && PAD.sel.type === 'range' && dir[0])slide(PAD.sel,dir[0]);
+else move(r,dir[0],dir[1]);
+}
+if(pr(BT.A)){
+if(r.id === 'gHowP' || r.id === 'gCredP')r.click();
+else if(PAD.sel && PAD.sel.type !== 'range')PAD.sel.click();
+}
+if(pr(BT.B))back(r);
+if(pr(BT.MENU)&& r.id === 'pause')tap('Escape');
+if(pr(BT.MENU)&& r.id === 'qmenu')window.__QUESTS && window.__QUESTS.menu(false);
+};
+let prevB =[],
+navT = 0,
+navDir = '',
+last = performance.now();
+const poll =()=>{
+requestAnimationFrame(poll);
+const now = performance.now(),
+dt = Math.min(0.1,(now - last)/ 1000);
+last = now;
+let gp = null;
+try{
+for(const g of navigator.getGamepads ? navigator.getGamepads():[])if(g && g.connected)gp = gp || g;
+}catch(e){}
+if(!gp){
+if(PAD.on){
+PAD.on = false;
+releaseAll();
+focus(null);
+}
+return;
+}
+PAD.on = true;
+const btn = gp.buttons.map((b,i)=>(i === BT.LT || i === BT.RT ? b.value > 0.4 : b.pressed));
+const pr = i => btn[i]&& !prevB[i],
+up = i => !btn[i]&& prevB[i];
+const ax = gp.axes.map(v =>(Math.abs(v)< 0.15 ? 0 : v));
+if(btn.some(Boolean)|| ax.some(Boolean)){
+PAD.used = now;
+window.__lastInput = now;
+}
+const r = menuRoot();
+const J = window.__JACK;
+if(r){
+releaseAll();
+let d = '';
+if(btn[BT.UP]|| ax[1]< -0.6)d = 'u';
+else if(btn[BT.DOWN]|| ax[1]> 0.6)d = 'd';
+else if(btn[BT.LEFT]|| ax[0]< -0.6)d = 'l';
+else if(btn[BT.RIGHT]|| ax[0]> 0.6)d = 'r';
+let dir = null;
+if(d &&(d !== navDir || now > navT)){
+navT = now +(d !== navDir ? 380 : 160);
+dir ={u:[0,-1],d:[0,1],l:[-1,0],r:[1,0]}[d];
+}
+navDir = d;
+menu(r,pr,dir);
+prevB = btn;
+return;
+}
+if(PAD.sel)focus(null);
+if(J && J.showing){
+releaseAll();
+if(pr(BT.A)|| pr(BT.X))tap('Space');
+if(pr(BT.RIGHT))tap('ArrowRight');
+if(pr(BT.LEFT))tap('ArrowLeft');
+if(pr(BT.VIEW))tap('Tab');
+if(pr(BT.MENU))tap('Escape');
+prevB = btn;
+return;
+}
+const lx = ax[0]|| 0,
+ly = ax[1]|| 0,
+m = Math.min(1,Math.hypot(lx,ly));
+PAD.mag = m > 0.2 ? m : 0;
+PAD.mx = PAD.mag ? lx / m : 0;
+PAD.mz = PAD.mag ? -ly / m : 0;
+hold('KeyW',ly < -0.5);
+hold('KeyS',ly > 0.5);
+hold('KeyA',lx < -0.5);
+hold('KeyD',lx > 0.5);
+hold('ShiftLeft',btn[BT.LT]);
+if(pr(BT.A)){
+PAD.aDown = true;
+send('keydown','Space');
+}
+if(up(BT.A)&& PAD.aDown){
+PAD.aDown = false;
+send('keyup','Space');
+}
+if(pr(BT.X)){
+PAD.xDown = true;
+send('keydown','KeyE');
+}
+if(up(BT.X)&& PAD.xDown){
+PAD.xDown = false;
+send('keyup','KeyE');
+}
+if(pr(BT.B))tap('KeyX');
+if(pr(BT.LB))tap('KeyQ');
+if(pr(BT.RB)&& actOK())P.swatReq = true;
+if(pr(BT.RT)&& actOK()){
+PAD.rt = true;
+mouseDown = true;
+}
+if(up(BT.RT)&& PAD.rt){
+PAD.rt = false;
+mouseDown = false;
+}
+if(pr(BT.L3))tap('ShiftRight');
+if(pr(BT.R3))tap('KeyI');
+if(pr(BT.UP))tap('KeyJ');
+if(pr(BT.DOWN))tap('KeyG');
+if(pr(BT.LEFT))tap('KeyR');
+if(pr(BT.RIGHT))tap('KeyY');
+if(pr(BT.VIEW))tap('Tab');
+if(pr(BT.MENU))tap('Escape');
+const rx = ax[2]|| 0,
+ry = ax[3]|| 0;
+if((rx || ry)&& lookOK()){
+const cv = v => Math.sign(v)* Math.pow(Math.abs(v),1.6);
+cam.yaw -= cv(rx)* 2.6 * T.sens * dt;
+if((P.povK || 0)> 0.5){
+const fwd = P.yaw + Math.PI;
+let rel = cam.yaw - fwd;
+while(rel > Math.PI)rel -= 2 * Math.PI;
+while(rel < -Math.PI)rel += 2 * Math.PI;
+if(Math.abs(rel)> 1.05)cam.yaw = P.yaw + Math.PI + Math.sign(rel)* 1.05;
+P.povPitch = clamp((P.povPitch ?? 0.04)+ cv(ry)* 1.7 * T.sens * dt,-1.45,0.72);
+}else cam.pitch = clamp(cam.pitch + cv(ry)* 1.7 * T.sens * dt,-0.35,1.2);
+}
+prevB = btn;
+};
+requestAnimationFrame(poll);
+addEventListener('gamepadconnected',()=>{
+PAD.used = performance.now();
+});
+}
 
 /*GAME-END*/
