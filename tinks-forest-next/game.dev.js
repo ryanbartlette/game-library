@@ -12836,7 +12836,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 481;
+const BUILD = 482;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -16880,7 +16880,7 @@ P.dashT = 0;
 }
 if(
 window.__farmCrawl &&
-!(window.__FCS && window.__FCS.lock)&&
+!(window.__FCS && window.__FCS.lock && window.__FCS.entry)&&
 !window.__asJack
 ){
 P.scared = true;
