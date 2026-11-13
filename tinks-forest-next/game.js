@@ -259,6 +259,7 @@ const AUDPATH ={
 'step_dry': 'audio/actions/footsteps-dry-leaves.mp3',
 'claws': 'audio/actions/claws-on-bark.mp3',
 'rustle': 'audio/actions/grass-rustle.mp3',
+'rustle_bush': 'audio/actions/grass-rustle.mp3',
 'thump': 'audio/actions/landing-thump.mp3',
 'owl': 'audio/animals/owl-hoot.mp3',
 'cuckoo': 'audio/animals/cuckoo.mp3',
@@ -22689,7 +22690,16 @@ const AUD ={ctx: null,master: null,buf:{},beds:{},on: true};
 try{
 AUD.on = localStorage.getItem('luca.sound')!== 'off';
 }catch(e){}
-const MIX_BAKED ={};
+const MIX_BAKED ={
+evening: 0.5,
+night: 0.1,
+step_wood: 0.5,
+creak: 0.5,
+chime: 0.8,
+step_ground: 0.5,
+step_leaves: 0.5,
+rustle: 0.2
+};
 let MIX ={...MIX_BAKED};
 AUD.mix = MIX;
 AUD.buses ={};
@@ -22762,6 +22772,7 @@ const SFX_FILES =[
 'step_dry',
 'claws',
 'rustle',
+'rustle_bush',
 'thump',
 'owl',
 'cuckoo',
@@ -48755,7 +48766,7 @@ break;
 if(!inB)return;
 B.t = Math.max(0.18,0.42 - sp * 0.04)+ Math.random()* 0.12;
 try{
-sfx('rustle',{vol: Math.min(1,0.55 + sp * 0.12),rate: 0.82 + Math.random()* 0.18});
+sfx('rustle_bush',{vol: Math.min(1,0.55 + sp * 0.12),rate: 0.82 + Math.random()* 0.18});
 }catch(e){}
 };
 {
