@@ -12836,7 +12836,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 494;
+const BUILD = 495;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -46015,13 +46015,10 @@ if(CS && CS.pose){
 const now = performance.now(),
 dt = Math.min(0.1,(now - CS.smT)/ 1000);
 CS.smT = now;
-CS.smP.lerp(CS.pose[0],1 - Math.exp(-dt * 2.4));
+CS.smP.lerp(CS.pose[0],1 - Math.exp(-dt * 4));
 tmpO.position.copy(CS.smP);
 tmpO.lookAt(CS.pose[1]);
-const ang = CS.smQ.angleTo(tmpO.quaternion);
-const k = 1 - Math.exp(-dt * 1.8);
-const cap =(0.6 * dt)/ Math.max(1e-4,ang);
-CS.smQ.slerp(tmpO.quaternion,Math.min(k,ang > 0.3 ? Math.max(cap,k * 0.5): k));
+CS.smQ.slerp(tmpO.quaternion,1 - Math.exp(-dt * 3.2));
 c.position.copy(CS.smP);
 c.quaternion.copy(CS.smQ);
 }
@@ -46071,7 +46068,7 @@ if(CS)return;
 bars[0].style.transform = 'translateY(-100%)';
 bars[1].style.transform = 'translateY(100%)';
 document.body.classList.remove('cut');
-P.camBack ={t: 0,p: camera.position.clone(),q: camera.quaternion.clone(),dur:(c && c.backDur)|| undefined};
+P.camBack ={t: 0,p: camera.position.clone(),q: camera.quaternion.clone(),dur:(c && c.backDur)|| 3.6};
 try{
 tryLock();
 }catch(e){}
