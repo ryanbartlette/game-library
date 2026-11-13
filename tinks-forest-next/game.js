@@ -22695,14 +22695,18 @@ try{
 AUD.on = localStorage.getItem('luca.sound')!== 'off';
 }catch(e){}
 const MIX_BAKED ={
-evening: 0.3,
 crickets: 0.15,
-step_wood: 0.4,
-creak: 0.6,
+step_wood: 0.2,
+creak: 0.3,
 rustle_bush: 0.1,
-step_leaves: 0.3,
-rustle: 0.4,
-step_ground: 0.4
+step_leaves: 0.2,
+rustle: 0.3,
+step_ground: 0.2,
+'chime: arrival': 0.7,
+shimmer: 0.8,
+step_snow: 0.2,
+step_water: 0.2,
+swat: 0.6
 };
 let MIX ={...MIX_BAKED};
 AUD.mix = MIX;
@@ -22771,7 +22775,6 @@ night: AUDPATH.night,
 wind: AUDPATH.wind,
 water_walk: AUDPATH.water_walk,
 cicadas: AUDPATH.cicadas,
-evening: AUDPATH.evening,
 crickets: AUDPATH.crickets,
 drizzle: AUDPATH.drizzle,
 leafrain: AUDPATH.leafrain,
@@ -26860,9 +26863,14 @@ PN.lv ={};
 PN.vol = PN.lvl * MUSV();
 MW.house = want ? 60 : 0;
 songLv(ctx,PN,PN.vol * G('house'));
-const k = PN.stage === 1 ? 'tunnel' : 'piano';
+const k =
+PN.stage === 1 ? null : 'piano';
 const keepPN =()=> !!(PN.cur && PN.cur.k === k);
-if(PN.lvl > 0.01 &&(!PN.cur || PN.cur.k !== k)){
+if(!k && PN.cur){
+songFade(ctx,PN.cur,2.5);
+PN.cur = null;
+}
+if(k && PN.lvl > 0.01 &&(!PN.cur || PN.cur.k !== k)){
 const b = L.songBuf(k);
 if(b){
 const was = PN.cur;
