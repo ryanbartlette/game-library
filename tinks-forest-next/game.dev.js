@@ -520,7 +520,7 @@ camHeight: 0.3,
 fov: 55,
 sens: 1,
 timeScale: 1,
-music: 0.6,
+music: 0.5,
 outline: 1,
 wiggle: 1,
 furAll: 2,
@@ -1021,6 +1021,8 @@ for(const k of['music','sens','fov'])if(typeof o[k]=== 'number')T[k]= o[k];
 return o;
 })();
 window.__OPT = OPT;
+const MUSV =()=>(T.music ?? 0.5)* 1.2;
+window.__MUSV = MUSV;
 const saveOpt =()=>{
 try{
 localStorage.setItem('tink.opt',JSON.stringify(OPT));
@@ -6217,7 +6219,7 @@ const ctx = AUD.ctx,
 t0 = ctx.currentTime;
 const notes =[523.25,587.33,659.25,783.99,880,1046.5,1174.66,1318.5];
 const out = ctx.createGain();
-out.gain.value = 0.16 *(T.music ?? 0.6 + 0.4);
+out.gain.value = 0.16 * MUSV();
 out.connect(AUD.master ? AUD.bus('chime: arrival'): ctx.destination);
 notes.forEach((f,i)=>{
 for(const[mul,v]of[
@@ -22914,6 +22916,8 @@ return b;
 };
 AUD.setMix =(name,v)=>{
 MIX[name]= v;
+if(name === 'master' && AUD.master && AUD.ctx)
+AUD.master.gain.setTargetAtTime(AUD.on ? v : 0,AUD.ctx.currentTime,0.05);
 if(AUD.buses[name])AUD.buses[name].gain.value = v;
 try{
 localStorage.setItem('tink.mix',JSON.stringify(MIX));
@@ -23017,7 +23021,8 @@ dawn: 'ambience: dawn',
 hum: 'ambience: hum',
 dfly: 'ambience: dragonflies',
 rustle: 'rustle: grass',
-rustle_bush: 'rustle: bushes'
+rustle_bush: 'rustle: bushes',
+master: '★ WHOLE GAME (master volume)'
 };
 const names =()=>
 [
@@ -23033,7 +23038,10 @@ const names =()=>
 'chime: wind bells',
 ...Object.keys(AUD.buses ||{})
 ])
-].sort((a,b)=>(NICE[a]|| a).localeCompare(NICE[b]|| b));
+]
+.filter(n => n !== 'master')
+.sort((a,b)=>(NICE[a]|| a).localeCompare(NICE[b]|| b));
+const namesAll =()=>['master',...names()];
 const el = document.createElement('div');
 el.id = 'mixer';
 el.hidden = true;
@@ -23052,7 +23060,7 @@ const build =()=>{
 const L = $m('mxList');
 L.innerHTML = '';
 const q =($m('mxFind').value || '').toLowerCase();
-for(const n of names()){
+for(const n of namesAll()){
 const nice = NICE[n]|| n.replace(/_/g,' ');
 if(q && !nice.toLowerCase().includes(q)&& !n.toLowerCase().includes(q))continue;
 const r = document.createElement('div');
@@ -23207,7 +23215,7 @@ const AC = window.AudioContext || window.webkitAudioContext;
 if(!AC)return;
 AUD.ctx = new AC();
 AUD.master = AUD.ctx.createGain();
-AUD.master.gain.value = AUD.on ? 1 : 0;
+AUD.master.gain.value = AUD.on ?(MIX.master ?? 1): 0;
 AUD.master.connect(AUD.ctx.destination);
 await Promise.all(Object.entries(AMB_FILES).map(([k,u])=> loadBuf(k,u)));
 Promise.all(SFX_FILES.map(n => loadBuf(n,AUDPATH[n]|| 'audio/' + n + '.mp3')));
@@ -23441,7 +23449,7 @@ AUD.on = on;
 try{
 localStorage.setItem('luca.sound',on ? 'on' : 'off');
 }catch(e){}
-if(AUD.master)AUD.master.gain.setTargetAtTime(on ? 1 : 0,AUD.ctx.currentTime,0.1);
+if(AUD.master)AUD.master.gain.setTargetAtTime(on ?(MIX.master ?? 1): 0,AUD.ctx.currentTime,0.1);
 document.getElementById('sndBtn').setAttribute('aria-pressed',on);
 document.getElementById('sndBtn').textContent = on ? 'Sound on' : 'Sound off';
 }
@@ -27181,7 +27189,7 @@ const k = FH.lvl;
 AUD.outdoor.g.gain.setTargetAtTime(1 - 0.78 * k,ctx.currentTime,0.25);
 AUD.outdoor.lp.frequency.setTargetAtTime(20000 * Math.pow(700 / 20000,k),ctx.currentTime,0.25);
 }
-FH.vol = FH.slvl *(T.music ?? 0.6)* 0.33;
+FH.vol = FH.slvl * MUSV()* 0.33;
 songLv(ctx,FH,FH.vol);
 {
 const FX =
@@ -27261,7 +27269,7 @@ PN.lvl +=(want - PN.lvl)* Math.min(1,dt *(want ? 0.8 : 0.25));
 {
 if(!PN.lv)
 PN.lv ={};
-PN.vol = PN.lvl *(T.music ?? 0.6)* 0.33;
+PN.vol = PN.lvl * MUSV()* 0.33;
 songLv(ctx,PN,PN.vol);
 const k = PN.stage === 1 ? 'tunnel' : 'piano';
 const keepPN =()=> !!(PN.cur && PN.cur.k === k);
@@ -27362,7 +27370,7 @@ SC.cur = null;
 const playing = !!(SC.cur && !SC.cur.ended);
 SC.lvl +=((playing ? 1 : 0)- SC.lvl)* Math.min(1,dt *(playing ? 1.2 : 0.4));
 const lv = 0.33;
-songLv(ctx,SC,(T.music ?? 0.6)* lv);
+songLv(ctx,SC,MUSV()* lv);
 if(SC.lvl > 0.01){
 songLv(ctx,PN,PN.vol *(1 - SC.lvl));
 if(L.farm && L.farm.lv)songLv(ctx,L.farm,(L.farm.vol || 0)*(1 - SC.lvl));
@@ -27374,7 +27382,7 @@ const b = L.songBuf('gift');
 if(b){
 if(!SC.gain2){
 SC.gain2 = ctx.createGain();
-SC.gain2.gain.value = 0.33 *(T.music ?? 0.6);
+SC.gain2.gain.value = 0.33 * MUSV();
 SC.gain2.connect(AUD.bus(MUSBUS.gift));
 }
 songStart(ctx,'gift',b,SC.gain2,0.02);
@@ -27430,7 +27438,7 @@ TH.cur = null;
 if(TH.cur)TH.next = Math.max(TH.next,35);
 TH.lvl +=((TH.cur && ok && list.includes(TH.cur)? 1 : 0)- TH.lvl)* Math.min(1,dt * 0.6);
 TH.gain.gain.setTargetAtTime(
-TH.lvl *(T.music ?? 0.6)* 0.33,
+TH.lvl * MUSV()* 0.33,
 ctx.currentTime,
 0.4
 );
@@ -27487,9 +27495,9 @@ if(!mwant && MG.lvl < 0.01 && !MG.el.paused){
 MG.el.pause();
 MG.el.currentTime = 0;
 }
-MG.gain.gain.setTargetAtTime(MG.lvl *(T.music ?? 0.6)* 0.33 *(1 - SC.lvl),ctx.currentTime,0.3);
+MG.gain.gain.setTargetAtTime(MG.lvl * MUSV()* 0.33 *(1 - SC.lvl),ctx.currentTime,0.3);
 if(TH.gain && MG.lvl > 0.05)
-TH.gain.gain.setTargetAtTime(TH.lvl *(T.music ?? 0.6)* 0.33 *(1 - MG.lvl),ctx.currentTime,0.3);
+TH.gain.gain.setTargetAtTime(TH.lvl * MUSV()* 0.33 *(1 - MG.lvl),ctx.currentTime,0.3);
 M.duck = Math.max(PN.lvl,TH.lvl || 0,MG.lvl,L.farm ? L.farm.lvl : 0,SC.lvl);
 }
 if(!M.gain){
@@ -27513,7 +27521,7 @@ const tun = window.__tunDim || 0;
 const nearTree = L.tree ? 1 - smooth(10,22,Math.hypot(P.pos.x - L.tree.x,P.pos.z - L.tree.z)): 0;
 M.zone = tun > 0.5 ? 'tunnel' : nearTree > 0.5 ? 'tree' : 'meadow';
 const want =
-(T.music ?? 0.6)*
+MUSV()*
 (L.swell > 0 ? 1 : 0.55)*
 (isRaining()? 0.6 : 1)*
 (1 - 0.35 * tun)*
