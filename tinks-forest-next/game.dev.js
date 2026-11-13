@@ -265,16 +265,18 @@ const AUDPATH ={
 'giggle': 'audio/magic/puff-giggle.mp3',
 'pop': 'audio/magic/puff-pop.mp3',
 'theme': 'audio/music/01-the-forest-calls.mp3',
-'waltz': 'audio/music/autumn-harmonica-waltz.mp3',
-'summer': 'audio/music/summer-song.mp3',
+'waltz': 'audio/music/08-the-harvest-waltz.mp3',
+'spring': 'audio/music/06-petals-on-the-path.mp3',
+'summer': 'audio/music/07-the-long-green-afternoon.mp3',
 'medley': 'audio/music/summer-ghibli-medley.mp3',
-'winter': 'audio/music/winter-song.mp3',
-'piano': 'audio/music/house-and-tunnel-piano.mp3',
-'boiler': 'audio/music/farmhouse-boiler-song.mp3',
+'winter': 'audio/music/09-snow-on-the-lanterns.mp3',
+'piano': 'audio/music/03-asleep-on-the-sofa.mp3',
+'tunnel': 'audio/music/04-the-tunnel-of-old-trees.mp3',
+'boiler': 'audio/music/10-the-furnace-keeper.mp3',
 'furnace_draft': 'audio/ambient/furnace-draft.mp3',
 'eat': 'audio/cats/cat-eating.mp3',
 'furnace_lever': 'audio/actions/furnace-lever.mp3',
-'magic': 'audio/music/beanstalk-carrying-you.mp3',
+'magic': 'audio/music/12-a-seed-that-dreams-of-sky.mp3',
 'day': 'audio/ambient/day-forest.mp3',
 'night': 'audio/ambient/night-forest.mp3',
 'wind': 'audio/ambient/wind.mp3',
@@ -12821,6 +12823,7 @@ if(typeof STUDIO !== 'undefined' && STUDIO.on)return false;
 if(!document.getElementById('gate').hidden)return false;
 return !X.on;
 };
+const PAUSEMUS = window.__MUS ? window.__MUS.mk('audio/music/02-a-quiet-breath.mp3',37.13,112.36,0.55): null;
 X.open =()=>{
 X.on = true;
 X.openT = performance.now();
@@ -12829,7 +12832,7 @@ window.__pause = true;
 try{
 AUD.ctx && AUD.ctx.suspend();
 }catch(e){}
-window.__THEME && window.__THEME.play();
+PAUSEMUS && PAUSEMUS.play(1500);
 };
 X.close = byKey =>{
 X.on = false;
@@ -12839,7 +12842,7 @@ window.__pause = false;
 try{
 AUD.ctx && AUD.ctx.resume();
 }catch(e){}
-window.__THEME && window.__THEME.stop(900);
+PAUSEMUS && PAUSEMUS.stop(900);
 if(
 byKey
 )
@@ -22915,7 +22918,6 @@ const SFX_FILES =[
 'swat',
 'shimmer',
 'woodpecker',
-'piano',
 'notice',
 'thunder',
 'rain',
@@ -26997,6 +26999,22 @@ o.start(t);
 o.stop(t + dur + 0.1);
 }
 }
+const SONGLOOP ={piano:[25.19,145.26],tunnel:[35.43,154.39]};
+const SONGBUF ={};
+L.songBuf = k =>{
+const e = SONGBUF[k]||(SONGBUF[k]={buf: null,p: null});
+if(!e.buf && !e.p && AUD.ctx)
+e.p = fetch(AUDPATH[k])
+.then(r => r.arrayBuffer())
+.then(b => AUD.ctx.decodeAudioData(b))
+.then(b =>{
+e.buf = b;
+})
+.catch(()=>{
+e.p = null;
+});
+return e.buf;
+};
 L.playMusic = dt =>{
 const M = L.music;
 if(!AUD.ctx || !AUD.on)return;
@@ -27123,7 +27141,6 @@ FH.el.play().catch(()=>{});
 }
 const homeT = window.__homeTree || 0;
 const want =
-AUD.buf.piano &&
 !inFarm &&
 (inHouse ||
 homeT > 0.3 ||
@@ -27132,37 +27149,54 @@ PN.stage === 1 ||
 ? 1
 : 0;
 PN.lvl +=(want - PN.lvl)* Math.min(1,dt *(want ? 0.8 : 0.25));
-if(AUD.buf.piano){
+{
 if(!PN.gain){
 PN.gain = ctx.createGain();
 PN.gain.gain.value = 0;
 PN.gain.connect(AUD.bus('music: piano in the house'));
 }
 PN.gain.gain.setTargetAtTime(PN.lvl *(T.music ?? 0.6)* 0.33,ctx.currentTime,0.3);
-if(PN.lvl > 0.01 && ctx.currentTime >= PN.next - 0.05){
-const b = AUD.buf.piano,
-src = ctx.createBufferSource(),
-g = ctx.createGain();
+const k = PN.stage === 1 ? 'tunnel' : 'piano';
+const fadeOut =(c,s)=>{
+const t = ctx.currentTime;
+c.g.gain.cancelScheduledValues(t);
+c.g.gain.setValueAtTime(c.g.gain.value,t);
+c.g.gain.linearRampToValueAtTime(0,t + s);
+try{
+c.src.stop(t + s + 0.05);
+}catch(e){}
+};
+if(PN.lvl > 0.01 &&(!PN.cur || PN.cur.k !== k)){
+const b = L.songBuf(k);
+if(b){
+if(PN.cur)fadeOut(PN.cur,2.5);
+const src = ctx.createBufferSource(),
+g = ctx.createGain(),
+t = ctx.currentTime,
+LP = SONGLOOP[k];
 src.buffer = b;
+src.loop = true;
+src.loopStart = LP[0];
+src.loopEnd = LP[1];
 src.connect(g).connect(PN.gain);
-const t0 = Math.max(ctx.currentTime,PN.next),
-X = 1.6,
-D = b.duration;
-g.gain.setValueAtTime(0,t0);
-g.gain.linearRampToValueAtTime(1,t0 + X);
-g.gain.setValueAtTime(1,t0 + D - X);
-g.gain.linearRampToValueAtTime(0,t0 + D);
-src.start(t0);
-PN.next = t0 + D - X;
+g.gain.setValueAtTime(0,t);
+g.gain.linearRampToValueAtTime(1,t +(PN.cur ? 2.5 : 0.4));
+src.start(t);
+PN.cur ={k,src,g};
 }
-if(PN.lvl <= 0.01)PN.next = 0;
+}
+if(PN.lvl <= 0.01 && PN.cur){
+fadeOut(PN.cur,0.2);
+PN.cur = null;
+}
 }
 const TH = L.theme ||(L.theme ={next: 12,gain: null,lvl: 0,el: null,cur: null,turn: 0});
 const se = window.__CYCLE && window.__CYCLE.season;
-const SONGS ={spring:['theme'],summer:['summer','medley'],autumn:['waltz'],winter:['winter']};
+const SONGS ={spring:['spring'],summer:['summer'],autumn:['waltz'],winter:['winter']};
 const list = SONGS[se]||[];
 const SONGBUS ={
 theme: 'music: spring theme',
+spring: 'music: spring theme',
 summer: 'music: summer song',
 medley: 'music: summer medley',
 waltz: 'music: autumn waltz',
