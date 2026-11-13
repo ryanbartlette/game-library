@@ -11,22 +11,22 @@ music/
   02-a-quiet-breath.mp3             pause menu. Intro, then loops 37.13-112.36 s
   03-asleep-on-the-sofa.mp3         the cozy house at night, and by the home tree. Intro, then loops 25.19-145.26 s
   04-the-tunnel-of-old-trees.mp3    the walk to and through the tunnel. Intro, then loops 35.43-154.39 s
-  05-into-the-magical-forest.mp3    leaving the tunnel (plays once; not hooked up yet)
+  05-into-the-magical-forest.mp3    the forest reveal as you leave the tunnel (plays once)
   06-petals-on-the-path.mp3         spring days, now and then (plays once each time)
   07-the-long-green-afternoon.mp3   summer days, now and then
   08-the-harvest-waltz.mp3          autumn days, now and then
   09-snow-on-the-lanterns.mp3       winter days, now and then
   10-the-furnace-keeper.mp3         farmhouse boiler room (loop only)
-  11-waiting-in-the-rain.mp3        bus stop. Intro, then loops 13.49-105.37 s (not hooked up yet)
-  12-a-seed-that-dreams-of-sky.mp3  the magic beanstalk growing, the climb and the summit (loop only)
-  13-the-black-cat-waits.mp3        Jack's theme. Intro, then loops 19.78-117.54 s (not hooked up yet)
-  14-lantern-light.mp3              forest at night. Intro, then loops 30.63-118.07 s (not hooked up yet)
-  15-the-glint-in-the-stream.mp3    the boat chapter. Intro, then loops 38.8-102.79 s (not hooked up yet)
-  16-where-the-sky-begins.mp3       top of the beanstalk. Intro, then loops 31.93-100.45 s (not hooked up yet)
-  17-leap-of-faith.mp3              the leap and float down (plays once; not hooked up yet)
-  18-home-to-the-great-tree.mp3     the farewell (plays once; not hooked up yet)
-  19-spring-comes-again.mp3         end credits (plays once; not hooked up yet)
-  20a-gift-found.mp3                finding a gift (plays once; not hooked up yet)
+  11-waiting-in-the-rain.mp3        near the bus stop during the rain chapter. Intro, then loops 13.49-105.37 s
+  12-a-seed-that-dreams-of-sky.mp3  the magic beanstalk growing and the climb (loop only)
+  13-the-black-cat-waits.mp3        Jack's theme: meeting him at the tunnel's end, and whenever his card shows. Intro, then loops 19.78-117.54 s
+  14-lantern-light.mp3              the forest at night (after the opening). Intro, then loops 30.63-118.07 s
+  15-the-glint-in-the-stream.mp3    the boat chapter, until the boat is found. Intro, then loops 38.8-102.79 s
+  16-where-the-sky-begins.mp3       resting at the top of the beanstalk. Intro, then loops 31.93-100.45 s
+  17-leap-of-faith.mp3              starts the instant she leaps from the top, plays once
+  18-home-to-the-great-tree.mp3     the farewell at the Great Tree (plays once)
+  19-spring-comes-again.mp3         after the farewell, once, as free roam begins
+  20a-gift-found.mp3                a short chime each time a new gift joins the row
   Older tracks, still used by the live game until the next release:
   spring-title-theme.mp3, summer-song.mp3, summer-ghibli-medley.mp3, autumn-harmonica-waltz.mp3, winter-days-long-gone.mp3,
   winter-song.mp3, house-and-tunnel-piano.mp3, farmhouse-boiler-song.mp3, beanstalk-carrying-you.mp3
