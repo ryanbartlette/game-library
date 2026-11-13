@@ -12836,7 +12836,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 489;
+const BUILD = 490;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -16579,6 +16579,7 @@ P.summit ||
 dir = null;
 else if(TRx && TRx.csDir)dir = TRx.csDir.clone();
 else if(window.__FCS && window.__FCS.lock)dir = window.__FCS.dir ? window.__FCS.dir.clone(): null;
+else if(window.__autoDir)dir = window.__autoDir.clone();
 else dir = inputDir();
 }
 if(P.summit){
@@ -44463,35 +44464,41 @@ let pT = 0;
 S.update = dt =>{
 try{
 const K = J.k;
-const talking = !!(window.__qHold ||(J.showing && say));
-if(K && K.op > 0.4 && K.holder.visible && talking && P.mode === 'ground' && !window.__asJack && !S.fin){
+const SW = S.swimTo ||(S.swimTo ={on: false,t: 0});
+const here = !!(K && K.op > 0.05 && K.holder.visible && P.mode !== 'air' && !window.__asJack && !S.fin);
+const story = !!(window.__qHold || say ||(J.st && J.st.ph === 'story')|| J.card);
+if(here && story && P.inWater && !SW.on){
+SW.on = true;
+SW.t = 0;
+}
+if(SW.on && here){
+SW.t += dt;
 const hp = K.holder.position;
 const dx = hp.x - P.pos.x,
 dz = hp.z - P.pos.z,
 d = Math.hypot(dx,dz);
-const SW = S.swimTo ||(S.swimTo ={on: false});
-if(P.inWater && !SW.on)SW.on = true;
-if(SW.on){
-if(d > 0.85){
-const sp = P.inWater ? 0.55 : 0.4;
-const st = Math.min(d - 0.85,sp * dt);
-P.pos.x +=(dx / d)* st;
-P.pos.z +=(dz / d)* st;
-P.yaw += angDiff(P.yaw,Math.atan2(dx,dz))* Math.min(1,dt * 3);
-P.speed = sp;
+if((d > 0.9 || P.inWater)&& SW.t < 14){
+window.__autoDir = new V3(dx /(d || 1),0,dz /(d || 1));
+P.walkMode = true;
 P.sit = 0;
 P.groom = false;
 }else{
 SW.on = false;
+window.__autoDir = null;
 P.speed = 0;
+P.yaw += angDiff(P.yaw,Math.atan2(dx,dz));
 P.groom = true;
 P.watch = true;
 P.watchHold = true;
 P.sit = 1;
 }
+}else if(SW.on){
+SW.on = false;
+window.__autoDir = null;
 }
-}else if(S.swimTo)S.swimTo.on = false;
-}catch(e){}
+}catch(e){
+window.__autoDir = null;
+}
 try{
 window.__DIR && window.__DIR.update(dt);
 }catch(e){}
