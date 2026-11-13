@@ -48720,8 +48720,15 @@ const src =(g && g.userData && g.userData.src)|| o.userData.src || '';
 if(!/bushes\.glb/.test(src))return;
 const ms0 = Array.isArray(o.material)? o.material[0]: o.material;
 if(!/^bush/.test((ms0 && ms0.userData && ms0.userData.tag)|| ''))return;
+for(let q = o;q;q = q.parent)
+if(q.userData && q.userData.gone)return;
 if(!g.boundingSphere)g.computeBoundingSphere();
-const r0 = g.boundingSphere.radius;
+if(!g.boundingBox)g.computeBoundingBox();
+const bb =
+g.boundingBox;
+const hx =(bb.max.x - bb.min.x)/ 2,
+hz =(bb.max.z - bb.min.z)/ 2,
+hy =(bb.max.y - bb.min.y)/ 2;
 const n = o.isInstancedMesh ? o.count : 1;
 o.updateMatrixWorld();
 for(let i = 0;i < n;i++){
@@ -48732,9 +48739,9 @@ M.premultiply(o.matrixWorld);
 sc.setFromMatrixScale(M);
 if(sc.x < 1e-3)continue;
 v.copy(g.boundingSphere.center).applyMatrix4(M);
-const r = r0 * Math.max(sc.x,sc.z)* 0.55;
+const r = Math.max(hx * sc.x,hz * sc.z)* 0.75;
 if(r < 0.35)continue;
-const e ={x: v.x,y: v.y,z: v.z,r};
+const e ={x: v.x,y: v.y,z: v.z,r,h: hy * sc.y};
 B.list.push(e);
 const k = Math.floor(v.x / 4)+ ',' + Math.floor(v.z / 4);
 let a = B.grid.get(k);
@@ -48762,7 +48769,7 @@ for(let iz = cz - 1;iz <= cz + 1 && !inB;iz++){
 const a = B.grid.get(ix + ',' + iz);
 if(!a)continue;
 for(const e of a){
-if(Math.hypot(P.pos.x - e.x,P.pos.z - e.z)< e.r && P.pos.y < e.y + e.r){
+if(Math.hypot(P.pos.x - e.x,P.pos.z - e.z)< e.r && P.pos.y < e.y + e.h && P.pos.y > e.y - e.h - 0.3){
 inB = true;
 break;
 }
