@@ -12722,7 +12722,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 492;
+const BUILD = 493;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -41992,8 +41992,45 @@ bgOff(0);
 window.__qGo = null;
 qHoldOn(false);
 };
+const QSTYLES =['center','bar','top','mix'];
+let QS = 'center';
+try{
+QS = localStorage.getItem('tink.qstyle')|| 'center';
+}catch(e){}
+if(!QSTYLES.includes(QS))QS = 'center';
+{
+const st = document.createElement('style');
+st.textContent =
+'html.qs-small #jackbg{opacity:0!important}' +
+'html.qs-bar.qs-small #jackq,html.qs-mix.qs-small #jackq{justify-content:flex-end!important;padding-bottom:1.4vh!important}' +
+'html.qs-bar.qs-small #jackq .jl,html.qs-mix.qs-small #jackq .jl{font-size:clamp(17px,1.9vw,34px)!important;line-height:1.14!important;max-width:min(1500px,86vw)!important;animation:none!important}' +
+'html.qs-top.qs-small #jackq{justify-content:flex-start!important;padding-top:12vh!important}' +
+'html.qs-top.qs-small #jackq .jl{font-size:clamp(20px,2.7vw,48px)!important;max-width:min(1300px,80vw)!important}' +
+'html.qs-small #jackq>svg{display:none!important}' +
+'html.qs-bar.qs-small #jackgo,html.qs-mix.qs-small #jackgo{left:auto!important;right:3vw!important;transform:none!important;bottom:3.6vh!important}' +
+'html.qs-small #jackq .jl{text-shadow:0 0 14px rgba(93,255,200,.4),0 2px 10px rgba(0,0,0,.95),0 0 3px rgba(0,0,0,.9)!important}';
+document.head.appendChild(st);
+}
+const qsApply = txt =>{
+const big = QS === 'center' ||(QS === 'mix' && /\*\*|favorite spot/.test(String(txt || '')));
+const R = document.documentElement;
+for(const k of QSTYLES)R.classList.toggle('qs-' + k,QS === k);
+R.classList.toggle('qs-small',!big);
+};
+S.qStyle = k =>{
+if(k){
+QS = QSTYLES.includes(k)? k : 'center';
+try{
+localStorage.setItem('tink.qstyle',QS);
+}catch(e){}
+}
+qsApply(S.qLast);
+return QS;
+};
 S.quote =(txt,sub,hold = 5200)=>{
 window.__qOn = true;
+S.qLast = txt;
+qsApply(txt);
 clearTimeout(qT);
 clearTimeout(qOut);
 window.__qGo = null;
