@@ -12836,7 +12836,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 478;
+const BUILD = 479;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -16603,6 +16603,7 @@ const noLeap =
 !!(window.__TRAIL && window.__TRAIL.cv && !window.__TRAIL.passed && !window.__devSkip)||
 !!window.__inFarm ||
 !!window.__farmCrawl ||
+!!window.__farmNear ||
 !!window.__homeWalk;
 const jumpKey =
 !CLK && !noLeap && !P.summit && isKey('Space')&& !RW && !(window.__INTRO && window.__INTRO.ph === 'railWait');
@@ -33737,13 +33738,22 @@ cam.pitch = 0.28;
 }
 }
 }
-if(!EN.crawl && EN.st === 'idle' && inside && !window.__asJack)EN.crawl = true;
 if(EN.crawl &&((window.__farmWasIn && !inside && FE.st === 'out')||(!inside && !window.__farmWasIn && dF > 6))){
 EN.crawl = false;
 P.crouchOn = false;
 }
 }
+if(inside && !window.__asJack && EN.st !== 'look')EN.crawl = true;
+if(EN.crawl && !inside && FE.st === 'out' && !(RP && RP.g)&& window.__farmWasIn)EN.crawl = false;
 window.__farmCrawl = !!EN.crawl;
+{
+let nr = inside || near > 0;
+if(!nr && M.houseMesh){
+const B = M.__hbJ ||(M.__hbJ = new THREE.Box3().setFromObject(M.houseMesh).expandByScalar(2.5));
+nr = B.containsPoint(P.pos);
+}
+window.__farmNear = nr;
+}
 }
 if(!FE.seen && !FE.msg && FE.st === 'out' && near > 0.4 && cineOK && doorOpen){
 FE.msg = true;
