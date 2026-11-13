@@ -12722,7 +12722,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 493;
+const BUILD = 494;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -40831,7 +40831,11 @@ J.showing = true;
 const VIEW = !!opt.view;
 const ov = document.createElement('div');
 ov.style.cssText =
-'position:fixed;inset:0;z-index:40;display:grid;place-items:center;background:radial-gradient(circle at 50% 42%,rgba(255,246,214,.6),rgba(26,52,40,.82) 70%);opacity:0;transition:opacity .45s ease';
+'position:fixed;inset:0;z-index:40;display:grid;place-items:center;background:' +
+(G && G.id !== 'bean'
+? 'radial-gradient(circle at 50% 42%,rgba(214,232,255,.6),rgba(16,30,64,.84) 70%)'
+: 'radial-gradient(circle at 50% 42%,rgba(255,246,214,.6),rgba(26,52,40,.82) 70%)')+
+';opacity:0;transition:opacity .45s ease';
 ov.innerHTML =
 "<div style=\"text-align:center;color:#fffbe9;text-shadow:0 2px 14px rgba(20,40,30,.6);padding:16px\"><div style=\"font-family:Fraunces,Georgia,serif;font-variation-settings:'SOFT' 40,'WONK' 1,'opsz' 144;font-weight:800;font-size:clamp(32px,6vw,58px);line-height:1.02;letter-spacing:-.005em\">" +
 (VIEW
