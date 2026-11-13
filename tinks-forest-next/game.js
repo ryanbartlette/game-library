@@ -278,16 +278,6 @@ const AUDPATH ={
 'eat': 'audio/cats/cat-eating.mp3',
 'furnace_lever': 'audio/actions/furnace-lever.mp3',
 'magic': 'audio/music/12-a-seed-that-dreams-of-sky.mp3',
-'reveal': 'audio/music/05-into-the-magical-forest.mp3',
-'bus': 'audio/music/11-waiting-in-the-rain.mp3',
-'jack': 'audio/music/13-the-black-cat-waits.mp3',
-'night': 'audio/music/14-lantern-light.mp3',
-'stream': 'audio/music/15-the-glint-in-the-stream.mp3',
-'summit': 'audio/music/16-where-the-sky-begins.mp3',
-'leap': 'audio/music/17-leap-of-faith.mp3',
-'farewell': 'audio/music/18-home-to-the-great-tree.mp3',
-'credits': 'audio/music/19-spring-comes-again.mp3',
-'gift': 'audio/music/20a-gift-found.mp3',
 'day': 'audio/ambient/day-forest.mp3',
 'night': 'audio/ambient/night-forest.mp3',
 'wind': 'audio/ambient/wind.mp3',
@@ -333,6 +323,18 @@ const AUDPATH ={
 'swat': 'audio/actions/paw-swat.mp3',
 'notice': 'audio/magic/item-found-chime.mp3',
 'shimmer': 'audio/magic/jack-shimmer.mp3'
+};
+const SONGPATH ={
+reveal: 'audio/music/05-into-the-magical-forest.mp3',
+bus: 'audio/music/11-waiting-in-the-rain.mp3',
+jack: 'audio/music/13-the-black-cat-waits.mp3',
+night: 'audio/music/14-lantern-light.mp3',
+stream: 'audio/music/15-the-glint-in-the-stream.mp3',
+summit: 'audio/music/16-where-the-sky-begins.mp3',
+leap: 'audio/music/17-leap-of-faith.mp3',
+farewell: 'audio/music/18-home-to-the-great-tree.mp3',
+credits: 'audio/music/19-spring-comes-again.mp3',
+gift: 'audio/music/20a-gift-found.mp3'
 };
 const MUSBUS ={
 theme: 'music: 01 title · The Forest Calls',
@@ -22765,6 +22767,7 @@ const AMB_FILES ={
 purr2: AUDPATH.purr2,
 purr3: AUDPATH.purr3,
 day: AUDPATH.day,
+night: AUDPATH.night,
 wind: AUDPATH.wind,
 water_walk: AUDPATH.water_walk,
 cicadas: AUDPATH.cicadas,
@@ -26641,7 +26644,7 @@ const SONGBUF ={};
 L.songBuf = k =>{
 const e = SONGBUF[k]||(SONGBUF[k]={buf: null,p: null});
 if(!e.buf && !e.p && AUD.ctx)
-e.p = fetch(AUDPATH[k])
+e.p = fetch(SONGPATH[k]|| AUDPATH[k])
 .then(r => r.arrayBuffer())
 .then(b => AUD.ctx.decodeAudioData(b))
 .then(b =>{
