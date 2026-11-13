@@ -12722,7 +12722,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 491;
+const BUILD = 492;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -43340,38 +43340,49 @@ F.night = 1;
 const C = window.__CYCLE;
 if(C){
 C.hold = false;
-C.jump('dusk',0.55);
+C.jump('sunset',0.6);
 C.hold = true;
 }
 S.starOn = true;
 }
-if(F.sky){
+if(F.night && g > 1.3){
 const C = window.__CYCLE;
-const k =(g - 10.5)/ 11;
+const u = Math.min(1,(g - 1.3)/ 20.5)* 1.52;
 if(C && C.setT){
-if(k < 1)C.setT('dusk',0.55 + 0.45 * k);
-else C.setT('night',Math.min(0.12,(k - 1)* 0.1));
+if(u < 0.4)C.setT('sunset',0.6 + u);
+else if(u < 1.4)C.setT('dusk',u - 0.4);
+else C.setT('night',Math.min(0.12,u - 1.4));
 }
 }
-if(g > 23.2 && !F.shoot){
+if(g > 21.8 && !F.shoot){
 F.shoot ={t: 0};
 shoot.visible = true;
+try{
+sfx('sparkle',{vol: 0.5,rate: 0.85});
+sfx('shimmer',{vol: 0.4,rate: 1.1});
+}catch(e){}
 }
 if(F.shoot && shoot.visible){
 const SH = F.shoot;
 SH.t += dt;
-const k = SH.t / 1.5;
+const k = SH.t / 2.8;
 const fw = new V3();
 camera.getWorldDirection(fw);
 const rt = new V3().crossVectors(fw,camera.up).normalize(),
 up = new V3().crossVectors(rt,fw).normalize();
-const a = camera.position.clone().addScaledVector(fw,90).addScaledVector(rt,-34).addScaledVector(up,26),
-b = camera.position.clone().addScaledVector(fw,90).addScaledVector(rt,26).addScaledVector(up,12);
+const a = camera.position.clone().addScaledVector(fw,90).addScaledVector(rt,-58).addScaledVector(up,30),
+b = camera.position.clone().addScaledVector(fw,90).addScaledVector(rt,52).addScaledVector(up,10);
 shoot.position.copy(a).lerp(b,k);
 const pa = a.clone().project(camera),
 pb = b.clone().project(camera);
 shoot.material.rotation = Math.atan2((pb.y - pa.y)* innerHeight,(pb.x - pa.x)* innerWidth);
 shoot.material.opacity = Math.sin(Math.min(1,k)* Math.PI)* 0.95;
+if((SH.sp =(SH.sp ?? 0.7)- dt)<= 0 && k < 0.9){
+SH.sp = 0.6 + Math.random()* 0.3;
+try{
+sfx('sparkle',{vol: 0.25,rate: 1 + k * 0.5});
+}catch(e){}
+}
 if(k >= 1)shoot.visible = false;
 }
 white.style.opacity = g < 1.3 ? 1 : Math.max(0,1 - ss2(Math.min(1,(g - 1.3)/ 3)));
@@ -43381,7 +43392,7 @@ F.sky = 1;
 F.want = 'sky';
 F.end = t;
 }
-if(g > 25 && !F.ded){
+if(g > 25.2 && !F.ded){
 F.ded = 1;
 ded.style.opacity = 1;
 ded.style.pointerEvents = 'auto';
