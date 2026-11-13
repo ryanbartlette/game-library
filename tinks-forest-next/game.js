@@ -284,7 +284,6 @@ const AUDPATH ={
 'furnace_lever': 'audio/actions/furnace-lever.mp3',
 'magic': 'audio/music/12-a-seed-that-dreams-of-sky.mp3',
 'day': 'audio/ambient/day-forest.mp3',
-'night': 'audio/ambient/night-forest.mp3',
 'wind': 'audio/ambient/wind.mp3',
 'rain': 'audio/ambient/rain.mp3',
 'thunder': 'audio/ambient/thunder-distant.mp3',
@@ -22776,7 +22775,6 @@ shimmer: 0.6,
 step_snow: 0.2,
 step_water: 0.2,
 swat: 0.6,
-night: 0,
 thump: 0.7,
 windAutumn: 0.4,
 step_dry: 0.1,
@@ -22871,7 +22869,6 @@ const AMB_FILES ={
 purr2: AUDPATH.purr2,
 purr3: AUDPATH.purr3,
 day: AUDPATH.day,
-night: AUDPATH.night,
 wind: AUDPATH.wind,
 water_walk: AUDPATH.water_walk,
 cicadas: AUDPATH.cicadas,
@@ -26902,7 +26899,8 @@ ins =(TR && TR.inside)|| 0,
 I = window.__INTRO;
 if(PN.stage === 0 && TR &&(TR.hes || TR.hesDone))
 PN.stage = 1;
-if(PN.stage === 1 && ins < 0.05)PN.stage = 2;
+if(PN.stage === 1 && ins > 0.3)PN.wasIn = true;
+if(PN.stage === 1 && PN.wasIn && ins < 0.05)PN.stage = 2;
 const inHouse = inRoom(P.pos)||(I &&['sleep','arrive','wake','follow'].includes(I.ph));
 const FHI = window.__MORE && window.__MORE.houseIn;
 let inFarm = false;
