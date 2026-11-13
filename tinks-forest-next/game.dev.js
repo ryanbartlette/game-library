@@ -3738,6 +3738,7 @@ uTime:{value: 0},
 uCenter:{value: new V3()},
 uCat:{value: new V3(0,-99,0)},
 uCat2:{value: new V3(0,-99,0)},
+uBus:{value: new THREE.Vector4(0,-999,0,0)},
 uHeight:{value: null},
 uMask:{value: null}
 });
@@ -4988,7 +4989,12 @@ amp >= 0.03
 {/* Build 260: the same breeze for single leafy meshes (the great tree's crown, the meadow's trees): sway grows with height above the tree's foot, worked out in world metres */vec4 aw=modelMatrix*vec4(transformed,1.);float hh=max(aw.y-modelMatrix[3].y,0.);float ph=modelMatrix[3].x*.21+modelMatrix[3].z*.17+aw.x*.05+aw.z*.04;vec3 sw=vec3(sin((uTime*1.1+uWPh*.6)+ph),0.,cos((uTime*.9+uWPh*.5)+ph*1.3))*${amp}*uWind*hh*.35;transformed+=inverse(mat3(modelMatrix))*sw;}
 `
 : ''
-}#endif`;
+}#endif
+{/* Ryan: the leaves of the trees the catbus flies through toss in its wind as it passes, and settle after */if(uBus.w>0.001){mat4 BM=modelMatrix;
+#ifdef USE_INSTANCING
+BM=modelMatrix*instanceMatrix;
+#endif
+vec3 bwp=(BM*vec4(transformed,1.)).xyz;vec3 borg=(BM*vec4(0.,0.,0.,1.)).xyz;float bhh=max(bwp.y-borg.y,0.);vec3 bd=bwp-uBus.xyz;float bdist=length(bd);float bf=uBus.w*smoothstep(10.,2.5,bdist)*min(bhh*.3,1.);if(bf>0.001){vec3 boff=(normalize(bd+vec3(0.,.01,0.))*.55+vec3(sin(uTime*9.+bwp.x*2.3),sin(uTime*7.+bwp.y*1.7)*.4,cos(uTime*8.+bwp.z*2.1))*.3)*bf;transformed+=inverse(mat3(BM))*boff;}}}`;
 function windMat(m,amp,key){
 const prev = m.onBeforeCompile;
 m.onBeforeCompile =(sh,r)=>{
@@ -4997,13 +5003,14 @@ sh.uniforms.uWind = grassU.uWind;
 sh.uniforms.uWPh = grassU.uWPh;
 sh.uniforms.uCatP = grassU.uCat;
 sh.uniforms.uCatQ = grassU.uCat2;
+sh.uniforms.uBus = grassU.uBus;
 sh.uniforms.uGust = grassU.uGust;
 sh.uniforms.uGF = grassU.uGF;
 sh.uniforms.uWDir = grassU.uWDir;
 sh.vertexShader = sh.vertexShader
 .replace(
 '#include <common>',
-'#include <common>\nuniform float uTime,uWind,uWPh,uGust,uGF;uniform vec2 uWDir;uniform vec3 uCatP,uCatQ;'
+'#include <common>\nuniform float uTime,uWind,uWPh,uGust,uGF;uniform vec2 uWDir;uniform vec3 uCatP,uCatQ;uniform vec4 uBus;'
 )
 .replace('#include <begin_vertex>',WIND_VS(amp));
 if(prev && prev !== THREE.Material.prototype.onBeforeCompile)prev(sh,r);
@@ -12836,7 +12843,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 496;
+const BUILD = 497;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -24858,7 +24865,6 @@ grassU.uWDir.value.set(Math.cos(wa2),Math.sin(wa2));
 }
 grassU.uGust.value = Math.max(
 window.__tunGust || 0,
-window.__busGust || 0,
 Math.min(1,clamp(gust * 1.4,0,1)*(NIGHTISH()? 0.4 : 1)*(0.6 + 0.4 * Math.min(W.wind,1.2)))
 );
 };
@@ -33403,12 +33409,16 @@ upOff = H0 * 1.2 * kk * k;
 pitch =
 -Math.atan2(3 * H0 * 1.2 * kk,2 * D0 * 1.1 * k + 1e-3)* Math.min(1,k * 3)* 0.9;
 }
-window.__busGust = t > 12.3 && t < 18 ? Math.sin(Math.min(1,(t - 12.3)/ 5.7)* Math.PI): 0;
 R.position
 .copy(CB.p0)
 .addScaledVector(CB.head,fwdOff)
 .add(new V3(0,upOff,0));
 R.quaternion.copy(E.q0).premultiply(new THREE.Quaternion().setFromAxisAngle(sdA,pitch));
+{
+const bw = t > 3.4 && t < 9 ? 1 - smooth(7.4,9,t): t > 12.5 && t < 18 ? smooth(12.5,13.3,t): 0;
+const bc = R.localToWorld(new V3(0,40,-6));
+grassU.uBus.value.set(bc.x,bc.y,bc.z,bw *(R.visible ? 1 : 0));
+}
 }
 E.cam = c =>{
 let pos,look;
@@ -33452,7 +33462,7 @@ c.fov = damp(c.fov,55,2,dt);
 c.updateProjectionMatrix();
 };
 if(t >(window.__NOBUS ? 17.9 : 18)){
-window.__busGust = 0;
+grassU.uBus.value.w = 0;
 if(window.__NOBUS)
 P.camBack ={
 t: 0,
@@ -46013,7 +46023,7 @@ window.__FCS ={lock: true,dir: null,cam: null};
 CS.smP = camera.position.clone();
 CS.smQ = camera.quaternion.clone();
 CS.smT = performance.now();
-const tmpO = new THREE.Object3D();
+const tmpO = new THREE.PerspectiveCamera();
 window.__camOverride = c =>{
 if(CS && CS.pose){
 const now = performance.now(),
@@ -48209,7 +48219,8 @@ D.jack.lt = 5;
 D.hopReady = true;
 }
 if(D.hopReady){
-if(P.speed > 0.1 || !P.watch || P.mode !== 'ground'){
+D.hopMv = P.speed > 0.25 ?(D.hopMv || 0)+ 1 / 60 : 0;
+if(D.hopMv > 0.3 || P.mode === 'air'){
 D.hopReady = false;
 D.prompt(null);
 }else D.prompt(BEANKX('X')+ 'Jump down');
