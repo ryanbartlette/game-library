@@ -22678,9 +22678,7 @@ const MIX_BAKED ={
 'squirrel_chirping': 0.9,
 'squirrel_teasing': 0.8,
 'squirrel_talking': 0.9,
-'music: farmhouse song': 1.8,
-'furnace_draft': 1.5,
-'music: beanstalk magic': 1.8
+'furnace_draft': 1.5
 };
 let MIX ={...MIX_BAKED};
 AUD.mix = MIX;
@@ -23093,6 +23091,7 @@ if(
 !started
 )
 return;
+if(window.__pause)return;
 audioInit();
 if(AUD.ctx && AUD.ctx.state === 'suspended')AUD.ctx.resume();
 });

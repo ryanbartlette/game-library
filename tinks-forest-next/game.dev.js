@@ -22840,14 +22840,21 @@ const MIX_BAKED ={
 'squirrel_chirping': 0.9,
 'squirrel_teasing': 0.8,
 'squirrel_talking': 0.9,
-'music: farmhouse song': 1.8,
-'furnace_draft': 1.5,
-'music: beanstalk magic': 1.8
+'furnace_draft': 1.5
 };
 let MIX ={...MIX_BAKED};
 try{
 const v = JSON.parse(localStorage.getItem('tink.mix')|| 'null');
-if(v)MIX ={...MIX_BAKED,...v};
+if(v){
+if(
+!localStorage.getItem('tink.mix.score1')
+){
+for(const k in v)if(/^music:/.test(k))delete v[k];
+localStorage.setItem('tink.mix',JSON.stringify(v));
+localStorage.setItem('tink.mix.score1','1');
+}
+MIX ={...MIX_BAKED,...v};
+}
 }catch(e){}
 AUD.mix = MIX;
 AUD.buses ={};
@@ -23414,6 +23421,7 @@ if(
 !started
 )
 return;
+if(window.__pause)return;
 audioInit();
 if(AUD.ctx && AUD.ctx.state === 'suspended')AUD.ctx.resume();
 });
