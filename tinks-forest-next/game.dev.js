@@ -615,7 +615,7 @@ Object.assign(DEF,{
 'fov': 80,
 'sens': 0.7,
 'timeScale': 1,
-'music': 0.6,
+'music': 0.5,
 'outline': 1,
 'wiggle': 1,
 'furAll': 2,
