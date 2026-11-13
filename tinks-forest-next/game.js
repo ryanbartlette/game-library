@@ -12722,7 +12722,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 482;
+const BUILD = 483;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -27201,6 +27201,7 @@ SC.bus =
 !!Qd.done &&
 (!!Qd.done.house || got('bell'))&&
 !got('bell')&&
+!!(Qd.p && Qd.p.busSaid)&&
 !!pl &&
 Math.hypot(P.pos.x - pl.x,P.pos.z - pl.z)< 12;
 }catch(e){
@@ -41927,7 +41928,7 @@ const w = words
 .map(t =>{
 if(t === '||'){
 beat += QBEAT;
-return '<br>';
+return '<span style="display:block;height:.24em"></span>';
 }
 const key = /^\*\*.*\*\*[.,…]*$/.test(t);
 const tx = t.replace(/\*\*/g,'');
