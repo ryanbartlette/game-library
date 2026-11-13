@@ -12845,7 +12845,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 498;
+const BUILD = 499;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -42902,7 +42902,7 @@ st.textContent =
 'html.qs-top.qs-small #jackq{justify-content:flex-start!important;padding-top:12vh!important}' +
 'html.qs-top.qs-small #jackq .jl{font-size:clamp(20px,2.7vw,48px)!important;max-width:min(1300px,80vw)!important}' +
 'html.qs-small #jackq>svg{display:none!important}' +
-'html.qs-bar.qs-small #jackgo,html.qs-mix.qs-small #jackgo{left:auto!important;right:3vw!important;transform:none!important;bottom:3.6vh!important}' +
+'html.qs-bar.qs-small #jackgo,html.qs-mix.qs-small #jackgo{left:auto!important;right:3vw!important;transform:translateY(50%)!important;bottom:5vh!important}' +
 'html.qs-small #jackq .jl{text-shadow:0 0 14px rgba(93,255,200,.4),0 2px 10px rgba(0,0,0,.95),0 0 3px rgba(0,0,0,.9)!important}';
 document.head.appendChild(st);
 }
