@@ -1,6 +1,10 @@
 Tink's Forest - sound list
 ==========================
 Every clip here is trimmed, loop-joined where needed, and volume-matched for the game.
+Levelled set (Phase 4, Nov 2026): the game now reads sound effects and ambient loops from v2/, the same files levelled to one
+standard so every mixer slider can start in the middle: ambient loops at -23 LUFS; one-shot sounds and footstep sprites with
+their loudest moment at -18 LUFS (the four shortest by peak); never above -1 dBFS. All of Ryan's music is at -20 LUFS.
+The files outside v2/ are the live game's until the next release.
 Footstep, claw, rustle and creak files are "sprites": many short sounds placed one after another
 at a fixed spacing, so the game can pick a different one each time.
 
