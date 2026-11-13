@@ -12859,7 +12859,7 @@ if(typeof STUDIO !== 'undefined' && STUDIO.on)return false;
 if(!document.getElementById('gate').hidden)return false;
 return !X.on;
 };
-const PAUSEMUS = window.__MUS ? window.__MUS.mk('audio/music/02-a-quiet-breath.mp3',37.13,112.36,0.55,MUSBUS.pause): null;
+const PAUSEMUS = window.__MUS ? window.__MUS.mk('audio/music/02-a-quiet-breath.mp3',37.13,112.36,0.8,MUSBUS.pause): null;
 X.open =()=>{
 X.on = true;
 X.openT = performance.now();
@@ -22914,10 +22914,11 @@ b.connect(an);
 }
 return b;
 };
+const GAME_GAIN = 4;
 AUD.setMix =(name,v)=>{
 MIX[name]= v;
 if(name === 'master' && AUD.master && AUD.ctx)
-AUD.master.gain.setTargetAtTime(AUD.on ? v : 0,AUD.ctx.currentTime,0.05);
+AUD.master.gain.setTargetAtTime(AUD.on ? v * GAME_GAIN : 0,AUD.ctx.currentTime,0.05);
 if(AUD.buses[name])AUD.buses[name].gain.value = v;
 try{
 localStorage.setItem('tink.mix',JSON.stringify(MIX));
@@ -23260,8 +23261,17 @@ const AC = window.AudioContext || window.webkitAudioContext;
 if(!AC)return;
 AUD.ctx = new AC();
 AUD.master = AUD.ctx.createGain();
-AUD.master.gain.value = AUD.on ?(MIX.master ?? 1): 0;
-AUD.master.connect(AUD.ctx.destination);
+AUD.master.gain.value = AUD.on ?(MIX.master ?? 1)* GAME_GAIN : 0;
+{
+const lim = AUD.ctx.createDynamicsCompressor();
+lim.threshold.value = -4;
+lim.knee.value = 4;
+lim.ratio.value = 16;
+lim.attack.value = 0.003;
+lim.release.value = 0.2;
+AUD.master.connect(lim);
+lim.connect(AUD.ctx.destination);
+}
 await Promise.all(Object.entries(AMB_FILES).map(([k,u])=> loadBuf(k,u)));
 Promise.all(SFX_FILES.map(n => loadBuf(n,AUDPATH[n]|| 'audio/' + n + '.mp3')));
 for(const k in AMB_FILES){
@@ -23494,7 +23504,7 @@ AUD.on = on;
 try{
 localStorage.setItem('luca.sound',on ? 'on' : 'off');
 }catch(e){}
-if(AUD.master)AUD.master.gain.setTargetAtTime(on ?(MIX.master ?? 1): 0,AUD.ctx.currentTime,0.1);
+if(AUD.master)AUD.master.gain.setTargetAtTime(on ?(MIX.master ?? 1)* GAME_GAIN : 0,AUD.ctx.currentTime,0.1);
 document.getElementById('sndBtn').setAttribute('aria-pressed',on);
 document.getElementById('sndBtn').textContent = on ? 'Sound on' : 'Sound off';
 }
