@@ -23048,7 +23048,7 @@ el.hidden = true;
 el.style.cssText =
 'position:fixed;right:calc(16px + env(safe-area-inset-right,0px));top:calc(54px + env(safe-area-inset-top,0px));bottom:16px;width:330px;z-index:40;display:flex;flex-direction:column;gap:8px;background:rgba(18,30,26,.9);color:#f3efe2;font:12px "Montserrat",system-ui,sans-serif;border-radius:12px;padding:12px;box-shadow:0 10px 30px rgba(0,0,0,.4)';
 el.innerHTML =
-'<div style="display:flex;align-items:center;gap:8px"><b style="font-size:14px;flex:1">Sound mixer</b><button id="mxClose">Close (M)</button></div><div style="opacity:.75;line-height:1.4">Drag a slider to change that sound. 100% is how it plays now. The dot lights up when a sound plays. Click ▶ to hear one.</div><input id="mxFind" placeholder="Find a sound…" style="background:rgba(0,0,0,.25);color:inherit;border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:5px 7px"><div id="mxList" style="flex:1;overflow:auto;display:flex;flex-direction:column;gap:3px;padding-right:4px"></div><div style="display:flex;gap:6px;flex-wrap:wrap"><button id="mxCopy">Copy levels for Claude</button><button id="mxReset">Reset all to 100%</button></div><textarea id="mxOut" rows="2" readonly style="background:rgba(0,0,0,.25);color:inherit;border:1px solid rgba(255,255,255,.2);border-radius:6px;font:10px monospace"></textarea>';
+'<div style="display:flex;align-items:center;gap:8px"><b style="font-size:14px;flex:1">Sound mixer</b><button id="mxClose">Close (M)</button></div><div style="opacity:.75;line-height:1.4">Drag a slider to change that sound. 100% is how it plays now. The dot lights up when a sound plays. Click ▶ to hear one.</div><div id="mxMeter" style="display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:7px 9px;border-radius:7px;background:rgba(0,0,0,.28);font-variant-numeric:tabular-nums"><span>Game loudness</span><b id="mxLu">–</b><span>Loudest peak (last 3 s)</span><b id="mxPk">–</b><span id="mxHint" style="grid-column:1/3;opacity:.7;font-size:11px">Aim for about −16 to −18 LUFS while music and sounds play, peaks below −1 dB. (The title and pause songs aren\'t measured.)</span></div><input id="mxFind" placeholder="Find a sound…" style="background:rgba(0,0,0,.25);color:inherit;border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:5px 7px"><div id="mxList" style="flex:1;overflow:auto;display:flex;flex-direction:column;gap:3px;padding-right:4px"></div><div style="display:flex;gap:6px;flex-wrap:wrap"><button id="mxCopy">Copy levels for Claude</button><button id="mxReset">Reset all to 100%</button></div><textarea id="mxOut" rows="2" readonly style="background:rgba(0,0,0,.25);color:inherit;border:1px solid rgba(255,255,255,.2);border-radius:6px;font:10px monospace"></textarea>';
 document.body.appendChild(el);
 const st = document.createElement('style');
 st.textContent =
@@ -23136,8 +23136,53 @@ el.hidden = true;
 };
 X.toggle =()=>(X.on ? X.close(): X.open());
 let DOTBUF = null;
+const MET ={k: null,p: null,buf: null,hist:[],pk:[]};
+const meter =()=>{
+if(!AUD.ctx || !AUD.master)return;
+if(!MET.k){
+const c = AUD.ctx,
+hs = c.createBiquadFilter(),
+hp = c.createBiquadFilter();
+hs.type = 'highshelf';
+hs.frequency.value = 1500;
+hs.gain.value = 4;
+hp.type = 'highpass';
+hp.frequency.value = 38;
+MET.k = c.createAnalyser();
+MET.p = c.createAnalyser();
+MET.k.fftSize = MET.p.fftSize = 16384;
+AUD.master.connect(hs);
+hs.connect(hp);
+hp.connect(MET.k);
+AUD.master.connect(MET.p);
+MET.buf = new Float32Array(16384);
+}
+const d = MET.buf;
+MET.k.getFloatTimeDomainData(d);
+let e = 0;
+for(let i = 0;i < d.length;i++)e += d[i]* d[i];
+MET.hist.push(e / d.length);
+MET.p.getFloatTimeDomainData(d);
+let pk = 0;
+for(let i = 0;i < d.length;i++)pk = Math.max(pk,Math.abs(d[i]));
+MET.pk.push(pk);
+if(MET.hist.length > 15)MET.hist.shift();
+if(MET.pk.length > 15)MET.pk.shift();
+const ms = MET.hist.reduce((a,b)=> a + b,0)/ MET.hist.length;
+const lu = ms > 1e-10 ? -0.691 + 10 * Math.log10(ms)+ 3 : -99;
+const pdb = 20 * Math.log10(Math.max(...MET.pk)+ 1e-9);
+const L = $m('mxLu'),
+Pk = $m('mxPk');
+L.textContent = lu < -70 ? 'silent' : lu.toFixed(1)+ ' LUFS' +(lu > -14 ? ' · loud' : lu < -22 ? ' · quiet' : '');
+L.style.color = lu < -70 ? '' : lu > -14 ? '#ff8a80' : lu < -22 ? '#ffd76e' : '#8fe08a';
+Pk.textContent = pdb < -90 ? '–' : pdb.toFixed(1)+ ' dB' +(pdb > -1 ? ' · peaking!' : '');
+Pk.style.color = pdb > -1 ? '#ff8a80' : pdb > -3 ? '#ffd76e' : '#8fe08a';
+};
 setInterval(()=>{
 if(!X.on)return;
+try{
+meter();
+}catch(e){}
 const now = performance.now();
 for(const n in rows){
 const d = rows[n].firstChild;
