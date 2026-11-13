@@ -26897,10 +26897,10 @@ const PN = L.piano ||(L.piano ={stage: 0,lvl: 0,next: 0,gain: null});
 const TR = window.__TRAIL,
 ins =(TR && TR.inside)|| 0,
 I = window.__INTRO;
-if(PN.stage === 0 && TR &&(TR.hes || TR.hesDone))
+if(PN.stage === 0 && TR &&(TR.hes ||(TR.hesDone && !TR.passed)))
 PN.stage = 1;
 if(PN.stage === 1 && ins > 0.3)PN.wasIn = true;
-if(PN.stage === 1 && PN.wasIn && ins < 0.05)PN.stage = 2;
+if(PN.stage === 1 &&(PN.wasIn || TR.passed)&& ins < 0.05)PN.stage = 2;
 const inHouse = inRoom(P.pos)||(I &&['sleep','arrive','wake','follow'].includes(I.ph));
 const FHI = window.__MORE && window.__MORE.houseIn;
 let inFarm = false;
