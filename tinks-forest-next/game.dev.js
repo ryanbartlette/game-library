@@ -1210,6 +1210,8 @@ fragmentShader: `uniform sampler2D tDiffuse;uniform sampler2D tDepth;uniform vec
    for(int k=0;k<4;k++){vec3 mu=m[k]/n;vec3 v=abs(s[k]/n-mu*mu);float sv=v.r+v.g+v.b;if(sv<best){best=sv;outc=mu;}}
    /* a soft depth of field: the far woods melt gently, the cats stay sharp */
    float coc=fr*uDof;if(coc>.02){float rad=coc*5.*(uRes.y/1300.);vec3 b=outc;float w=1.;for(int k=0;k<10;k++){float a=float(k)*2.39996;float r=sqrt((float(k)+.5)/10.)*rad;vec2 o=vec2(cos(a),sin(a))*r*px;vec2 uv2=vUv+o;/* don't let sharp near things bleed into the blur */float zs=uHasD>.5?zAt(uv2):z;float ok=smoothstep(uFocus*1.1,uFocus*1.25+2.5,zs);b+=texture2D(tDiffuse,uv2).rgb*ok;w+=ok;}outc=mix(outc,b/w,min(1.,coc*1.1));}
+   /* (fix, Ryan's black squares: one broken pixel from the scene (not-a-number) was smeared into a growing black box by the glow; it's caught here so the glow never sees it) */
+   if(any(isnan(outc))||any(isinf(outc)))outc=vec3(0.);outc=clamp(outc,0.,64.);
    gl_FragColor=vec4(outc,1.);}`
 });
 PAINT.uniforms.tDepth ={value: null};
@@ -4994,7 +4996,7 @@ amp >= 0.03
 #ifdef USE_INSTANCING
 BM=modelMatrix*instanceMatrix;
 #endif
-vec3 bwp=(BM*vec4(transformed,1.)).xyz;vec3 borg=(BM*vec4(0.,0.,0.,1.)).xyz;float bhh=max(bwp.y-borg.y,0.);vec3 bd=bwp-uBus.xyz;float bdist=length(bd);float bf=uBus.w*smoothstep(10.,2.5,bdist)*min(bhh*.3,1.);if(bf>0.001){vec3 boff=(normalize(bd+vec3(0.,.01,0.))*.55+vec3(sin(uTime*9.+bwp.x*2.3),sin(uTime*7.+bwp.y*1.7)*.4,cos(uTime*8.+bwp.z*2.1))*.3)*bf;transformed+=inverse(mat3(BM))*boff;}}}`;
+vec3 bwp=(BM*vec4(transformed,1.)).xyz;vec3 borg=(BM*vec4(0.,0.,0.,1.)).xyz;float bhh=max(bwp.y-borg.y,0.);vec3 bd=bwp-uBus.xyz;float bdist=length(bd);float bf=uBus.w*smoothstep(10.,2.5,bdist)*min(bhh*.3,1.);if(bf>0.001&&abs(determinant(mat3(BM)))>1e-6){vec3 boff=(normalize(bd+vec3(0.,.01,0.))*.55+vec3(sin(uTime*9.+bwp.x*2.3),sin(uTime*7.+bwp.y*1.7)*.4,cos(uTime*8.+bwp.z*2.1))*.3)*bf;transformed+=inverse(mat3(BM))*boff;}}}`;
 function windMat(m,amp,key){
 const prev = m.onBeforeCompile;
 m.onBeforeCompile =(sh,r)=>{
@@ -12843,7 +12845,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 497;
+const BUILD = 498;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -23083,7 +23085,8 @@ cuckoo: 0.5,
 claws: 0.3,
 cicadas: 0.3,
 petalkick: 0.2,
-leafkick: 0.2
+leafkick: 0.2,
+ice: 0.2
 };
 let MIX ={...MIX_BAKED};
 try{
@@ -24766,7 +24769,8 @@ t1 = AUD.ctx && AUD.ctx.currentTime;
 if(B.stream && t1 !== undefined){
 const ins = inRoom(P.pos);
 const sg = streamGap(P.pos.x,P.pos.z);
-B.stream.gain.setTargetAtTime(ins ? 0 : 0.4 *(1 - smooth(0,16,sg)),t1,0.6);
+const frozen = !!window.__ICE ||(window.__CYCLE && window.__CYCLE.season === 'winter');
+B.stream.gain.setTargetAtTime(ins || frozen ? 0 : 0.4 *(1 - smooth(0,16,sg)),t1,frozen ? 2.5 : 0.6);
 const LI = window.__LIFE;
 let dd = 99;
 if(LI)for(const d of LI.dfs ||[])if(d.g.visible)dd = Math.min(dd,d.p.distanceTo(P.pos));
@@ -25298,7 +25302,7 @@ transparent: true,
 depthWrite: false,
 uniforms:{...U,map:{value: softTex}},
 vertexShader: `attribute float aPh;uniform float uT,uW,uPh,uScale;uniform vec3 uC;varying float vK;void main(){vec3 q=position;float t=uPh+aPh*20.;q.x+=t*1.2+sin(t*.7+aPh*9.)*1.5;q.z+=sin(t*.5+aPh*5.)*2.;q.y+=sin(t*.9+aPh*7.)*.6;
-    vec3 w=vec3(uC.x+mod(q.x-uC.x+18.,36.)-18.,mod(q.y,6.)+uC.y-1.,uC.z+mod(q.z-uC.z+18.,36.)-18.);vK=aPh;vec4 mv=viewMatrix*vec4(w,1.);gl_Position=projectionMatrix*mv;gl_PointSize=(aPh<.75?.05:.07)*uScale/-mv.z;}`,
+    vec3 w=vec3(uC.x+mod(q.x-uC.x+18.,36.)-18.,mod(q.y,6.)+uC.y-1.,uC.z+mod(q.z-uC.z+18.,36.)-18.);vK=aPh;vec4 mv=viewMatrix*vec4(w,1.);gl_Position=projectionMatrix*mv;gl_PointSize=min((aPh<.75?.05:.07)*uScale/max(-mv.z,.05),28.);if(-mv.z<.35)gl_PointSize=0.; /* (fix: a speck drifting right past the lens became a huge black square on screen) */}`,
 fragmentShader: `uniform sampler2D map;uniform float uOp;varying float vK;void main(){vec4 t=texture2D(map,gl_PointCoord);vec3 c=vK<.75?vec3(1.,1.,.97):vec3(1.,.78,.86);gl_FragColor=vec4(c,t.a*uOp*.9);}`
 });
 const pts = new THREE.Points(g,m);
@@ -42884,16 +42888,16 @@ window.__qGo = null;
 qHoldOn(false);
 };
 const QSTYLES =['center','bar','top','mix'];
-let QS = 'center';
+let QS = 'bar';
 try{
-QS = localStorage.getItem('tink.qstyle')|| 'center';
+QS = localStorage.getItem('tink.qstyle')|| 'bar';
 }catch(e){}
-if(!QSTYLES.includes(QS))QS = 'center';
+if(!QSTYLES.includes(QS))QS = 'bar';
 {
 const st = document.createElement('style');
 st.textContent =
 'html.qs-small #jackbg{opacity:0!important}' +
-'html.qs-bar.qs-small #jackq,html.qs-mix.qs-small #jackq{justify-content:flex-end!important;padding-bottom:1.4vh!important}' +
+'html.qs-bar.qs-small #jackq,html.qs-mix.qs-small #jackq{inset:auto 0 0 0!important;top:auto!important;height:10vh!important;justify-content:center!important;padding:0 7vw!important}' +
 'html.qs-bar.qs-small #jackq .jl,html.qs-mix.qs-small #jackq .jl{font-size:clamp(17px,1.9vw,34px)!important;line-height:1.14!important;max-width:min(1500px,86vw)!important;animation:none!important}' +
 'html.qs-top.qs-small #jackq{justify-content:flex-start!important;padding-top:12vh!important}' +
 'html.qs-top.qs-small #jackq .jl{font-size:clamp(20px,2.7vw,48px)!important;max-width:min(1300px,80vw)!important}' +
@@ -42981,7 +42985,7 @@ const w = words
 .map(t =>{
 if(t === '||'){
 beat += QBEAT;
-return '<span style="display:block;height:.24em"></span>';
+return document.documentElement.classList.contains('qs-small')? null : '<span style="display:block;height:.24em"></span>';
 }
 const key = /^\*\*.*\*\*[.,…]*$/.test(t);
 const tx = t.replace(/\*\*/g,'');
@@ -48835,7 +48839,7 @@ transparent: true,
 depthWrite: false,
 uniforms:{uS:{value: innerHeight}},
 vertexShader:
-'attribute float aLife,aSz;varying float vL;uniform float uS;void main(){vL=aLife;vec4 mv=modelViewMatrix*vec4(position,1.);gl_Position=projectionMatrix*mv;gl_PointSize=aLife>0.?aSz*uS*.5/max(.1,-mv.z)*(1.+.6*(1.-aLife)):0.;}',
+'attribute float aLife,aSz;varying float vL;uniform float uS;void main(){vL=aLife;vec4 mv=modelViewMatrix*vec4(position,1.);gl_Position=projectionMatrix*mv;gl_PointSize=aLife>0.&&-mv.z>.3?min(aSz*uS*.5/max(.1,-mv.z)*(1.+.6*(1.-aLife)),72.):0.;}',
 fragmentShader:
 'varying float vL;void main(){vec2 d=gl_PointCoord-.5;float r=length(d);if(r>.5)discard;float a=smoothstep(.5,.15,r)*vL*.85;gl_FragColor=vec4(vec3(.96,.98,1.),a);}'
 });
