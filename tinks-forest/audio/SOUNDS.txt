@@ -5,6 +5,7 @@ Footstep, claw, rustle and creak files are "sprites": many short sounds placed o
 at a fixed spacing, so the game can pick a different one each time.
 
 music/
+  01-the-forest-calls.mp3           original title theme (Ryan, made in Suno, Nov 2026): title screen, pause menu, now and then on spring days
   spring-title-theme.mp3            title screen; drifts in now and then on spring days
   summer-song.mp3                   summer days (alternates with the medley)
   summer-ghibli-medley.mp3          summer days (first ~4 min of the medley, faded out)
