@@ -16852,18 +16852,11 @@ TR.cs.ph === 'chase'
 label = TR.cs.ph === 'chase' ? 'Run' : 'Trot';
 }
 const inTun =
-(TR.inside || 0)> 0.2 && !TR.cs;
-const cap =
-TR.cs && TR.csChase
-? T.sprint
-: inTun
-? T.walk * 0.8
-: P.walkMode || TR.hes || TR.wonder || TR.cs
-? T.walk
-: T.run;
+true;
+const cap = TR.cs && TR.csChase ? T.sprint : T.walk;
 if(target > cap){
 target = cap;
-label = cap === T.run ? 'Trot' : 'Walk';
+label = 'Walk';
 if(inTun)P.dashing = false;
 }
 P.dashing = false;
@@ -27221,11 +27214,7 @@ const PN = L.piano ||(L.piano ={stage: 0,lvl: 0,next: 0,gain: null});
 const TR = window.__TRAIL,
 ins =(TR && TR.inside)|| 0,
 I = window.__INTRO;
-if(
-PN.stage === 0 &&
-((TR && TR.hes)||((TR && TR.hesDone)&& ins > 0.5)|| ins > 0.95)
-)
-PN.stage = 1;
+if(PN.stage === 0 && TR &&(TR.hes || TR.hesDone))PN.stage = 1;
 if(PN.stage === 1 && ins < 0.05)PN.stage = 2;
 const inHouse = inRoom(P.pos)||(I &&['sleep','arrive','wake','follow'].includes(I.ph));
 const FHI = window.__MORE && window.__MORE.houseIn;
