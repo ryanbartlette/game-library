@@ -26575,7 +26575,8 @@ bus:[13.49,105.37],
 jack:[19.78,117.54],
 night:[30.63,118.07],
 stream:[38.8,102.79],
-summit:[31.93,100.45]
+summit:[31.93,100.45],
+boiler:[2.95,174.25]
 };
 const SONGBUF ={};
 L.songBuf = k =>{
@@ -26673,17 +26674,8 @@ lp.y < FHI.Hh;
 window.__inFarm = inFarm;
 {
 const FH = L.farm ||(L.farm ={lvl: 0,gain: null,el: null});
-if(!FH.gain){
-FH.gain = ctx.createGain();
-FH.gain.gain.value = 0;
-FH.gain.connect(AUD.bus(MUSBUS.boiler));
-FH.el = new Audio();
-FH.el.preload = 'none';
-FH.el.loop = true;
-try{
-ctx.createMediaElementSource(FH.el).connect(FH.gain);
-}catch(e){}
-}
+if(!FH.lv)
+FH.lv ={};
 let onSteps = false;
 try{
 const M2 = window.__MORE;
@@ -26706,7 +26698,8 @@ const k = FH.lvl;
 AUD.outdoor.g.gain.setTargetAtTime(1 - 0.78 * k,ctx.currentTime,0.25);
 AUD.outdoor.lp.frequency.setTargetAtTime(20000 * Math.pow(700 / 20000,k),ctx.currentTime,0.25);
 }
-FH.gain.gain.setTargetAtTime(FH.slvl *(T.music ?? 0.6)* 0.33,ctx.currentTime,0.3);
+FH.vol = FH.slvl *(T.music ?? 0.6)* 0.33;
+songLv(ctx,FH,FH.vol);
 {
 const FX =
 L.furn ||(L.furn ={src: null,g: null,next: 5});
@@ -26764,10 +26757,13 @@ maxDist: 22
 }
 }else FX.next = Math.min(FX.next,6);
 }
-if(songOn && FH.el.paused){
-if(!FH.el.src)FH.el.src = AUDPATH.boiler;
-FH.el.play().catch(()=>{});
-}else if(!songOn && FH.slvl < 0.01 && !FH.el.paused)FH.el.pause();
+if(songOn && !FH.cur){
+const b = L.songBuf('boiler');
+if(b)FH.cur = songStart(ctx,'boiler',b,songOut(ctx,FH,'boiler'),0.02);
+}else if(!songOn && FH.slvl < 0.01 && FH.cur){
+songFade(ctx,FH.cur,0.2);
+FH.cur = null;
+}
 }
 const homeT = window.__homeTree || 0;
 const want =
@@ -26886,8 +26882,7 @@ const lv = 0.33;
 songLv(ctx,SC,(T.music ?? 0.6)* lv);
 if(SC.lvl > 0.01){
 songLv(ctx,PN,PN.vol *(1 - SC.lvl));
-if(L.farm && L.farm.gain)
-L.farm.gain.gain.setTargetAtTime((L.farm.slvl || 0)*(T.music ?? 0.6)* 0.33 *(1 - SC.lvl),ctx.currentTime,0.3);
+if(L.farm && L.farm.lv)songLv(ctx,L.farm,(L.farm.vol || 0)*(1 - SC.lvl));
 }
 if(tick){
 const n = document.querySelectorAll('#gifts img.got').length;
