@@ -26842,6 +26842,12 @@ if(!PN.lv)
 PN.lv ={};
 PN.vol = PN.lvl * MUSV();
 songLv(ctx,PN,PN.vol);
+if(PN.stage === 0)
+L.songBuf('tunnel');
+if(PN.stage === 1 && !PN.tunGo){
+PN.tunGo = true;
+PN.lvl = Math.max(PN.lvl,0.7);
+}
 const k = PN.stage === 1 ? 'tunnel' : 'piano';
 const keepPN =()=> !!(PN.cur && PN.cur.k === k);
 if(PN.lvl > 0.01 &&(!PN.cur || PN.cur.k !== k)){
@@ -26849,7 +26855,7 @@ const b = L.songBuf(k);
 if(b){
 const was = PN.cur;
 if(was)songFade(ctx,was,2.5,()=> !!(PN.cur && PN.cur.k === was.k));
-PN.cur = songStart(ctx,k,b,songOut(ctx,PN,k),was ? 2.5 : 0.4);
+PN.cur = songStart(ctx,k,b,songOut(ctx,PN,k),k === 'tunnel' ? 0.6 : was ? 2.5 : 0.4);
 }
 }
 if(PN.lvl <= 0.01 && PN.cur){
@@ -37898,6 +37904,15 @@ if(v.length()< 160 && v.normalize().dot(tE)> 0.2)tgt = new V3(Tr.x,(Tr.gy || 0)+
 }
 }catch(e){}
 C.tgt = tgt || E1.clone().addScaledVector(tE,45).setY(E1.y + 5);
+const CX = 0,
+CZ = 0,
+Ro = 34;
+const gC = heightAt(CX,CZ);
+const a0 = Math.atan2(E1.x - CX,E1.z - CZ);
+const orb =
+a => new V3(CX + Math.sin(a)* Ro,gC + 48,CZ + Math.cos(a)* Ro);
+const orbL = new V3(CX,gC + 1,CZ);
+const SW = 2.3;
 window.__camOverride = c =>{
 const t = C.t - 1;
 if(!F.p0){
@@ -37906,25 +37921,44 @@ F.l0 = c.position.clone().add(c.getWorldDirection(new V3()).multiplyScalar(3));
 }
 const ez = x => x * x *(3 - 2 * x),
 cl = x => clamp(x,0,1);
+const jpos = M.holder.position;
 const fol = P.pos.clone().addScaledVector(tE,-2.3).setY(P.pos.y + 0.95),
 folL = P.pos.clone().addScaledVector(tE,3).setY(P.pos.y + 0.6);
-const high = E1.clone().addScaledVector(tE,9).setY(E1.y + 11);
-const jpos = M.holder.position;
-const two = P.pos.clone().lerp(jpos,0.5).addScaledVector(sd,2.3).addScaledVector(tE,-0.4).setY(P.pos.y + 0.9),
-twoL = P.pos.clone().lerp(jpos,0.5).setY(P.pos.y + 0.35);
+const toJ = jpos.clone().addScaledVector(tE,-1.3).setY(jpos.y + 0.9),
+toJL = jpos.clone().addScaledVector(tE,4).setY(jpos.y + 1.2);
+const dj = jpos.clone().sub(P.pos).setY(0);
+if(dj.lengthSq()< 1e-4)dj.copy(tE);
+dj.normalize();
+const back = P.pos.clone().addScaledVector(dj,-2.4).setY(P.pos.y + 1.0),
+backL = jpos.clone().setY(jpos.y + 0.35);
 let pos,look;
-if(t < 16){
+if(t < 4){
 const a = ez(cl(t / 1.5)),
-b = ez(cl((t - 2)/ 10));
-pos = F.p0.clone().lerp(fol,a).lerp(high,b);
-look = F.l0.clone().lerp(folL,a).lerp(C.tgt,ez(cl((t - 2.5)/ 9)));
+b = ez(cl((t - 1.5)/ 2.5));
+pos = F.p0.clone().lerp(fol,a).lerp(toJ,b);
+look = F.l0.clone().lerp(folL,a).lerp(toJL,b);
+}else if(t < 8){
+const k = ez(cl((t - 4)/ 4));
+const up = toJ.clone().addScaledVector(tE,3).setY(toJ.y + 9);
+pos = k < 0.5 ? toJ.clone().lerp(up,k * 2): up.clone().lerp(orb(a0),(k - 0.5)* 2);
+look = toJL.clone().lerp(orbL,ez(cl((t - 4.5)/ 3)));
+}else if(t < 17){
+const k = ez(cl((t - 8)/ 9));
+pos = orb(a0 + SW * k);
+look = orbL;
 }else{
-const k = ez(cl((t - 16)/ 6));
-pos = high.clone().lerp(two,k);
-look = C.tgt.clone().lerp(twoL,k);
+const k = ez(cl((t - 17)/ 6));
+const end = orb(a0 + SW);
+const over = back.clone().addScaledVector(dj,-2).setY(P.pos.y + 9);
+pos = k < 0.5 ? end.clone().lerp(over,k * 2): over.clone().lerp(back,(k - 0.5)* 2);
+look = orbL.clone().lerp(backL,ez(cl((t - 17.5)/ 5)));
 }
 c.position.copy(pos);
 c.lookAt(look);
+const fz =
+t < 4 ? 0 : t < 8 ? ez(cl((t - 4)/ 4)): t < 17 ? 1 : 1 - ez(cl((t - 17)/ 5));
+c.fov = lerp(T.fov,50,fz);
+c.updateProjectionMatrix();
 };
 }
 if(tc > 9 && !T3.welcomed){
@@ -37935,8 +37969,13 @@ T3.welcome();
 if(tc > 22.5){
 window.__camOverride = null;
 window.__revealGo = false;
-cam.yaw = Math.atan2(sd.x,sd.z);
-cam.pitch = 0.22;
+{
+const dj = M.holder.position.clone().sub(P.pos).setY(0);
+cam.yaw = dj.lengthSq()> 1e-4 ? Math.atan2(-dj.x,-dj.z): Math.atan2(-tE.x,-tE.z);
+}
+cam.pitch = 0.25;
+camera.fov = T.fov;
+camera.updateProjectionMatrix();
 T3.passed = true;
 T3.cs = null;
 T3.csDir = null;
