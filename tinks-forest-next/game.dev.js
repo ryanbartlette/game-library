@@ -27680,8 +27680,10 @@ const got = id => !!document.querySelector('#gifts img.got[data-g="' + id + '"]'
 if(TR.cs)SC.sawCs = true;
 if(TR.welcomed && SC.sawCs && !SC.done.reveal){
 SC.done.reveal = 1;
-SC.shot = 'reveal';
+SC.jackOut = true;
+if(SC.cur && SC.cur.k === 'jack')SC.cur.src.loop = false;
 }
+if(SC.jackOut && SC.cur && SC.cur.k === 'jack' && SC.cur.ended)SC.jackOut = false;
 if(P.floatDown && !SC.wasFloat)SC.shot = 'leap';
 SC.wasFloat = !!P.floatDown;
 if(ST && ST.fin && !SC.done.farewell){
@@ -27729,7 +27731,8 @@ leap: SC.shot === 'leap',
 summit: !!P.summit,
 reveal: SC.shot === 'reveal',
 jack:
-!!TR.cs || !!(JJ && JJ.card && JJ.card.style && JJ.card.style.display && JJ.card.style.display !== 'none'),
+!!TR.cs ||
+!!SC.jackOut || !!(JJ && JJ.card && JJ.card.style && JJ.card.style.display && JJ.card.style.display !== 'none'),
 bus: !!SC.bus,
 stream: !!SC.stream,
 night
@@ -27745,6 +27748,7 @@ if(b){
 const was = SC.cur;
 if(was)songFade(ctx,was,was.ended ? 0.05 : 2.5,()=> !!(SC.cur && SC.cur.k === was.k));
 SC.cur = songStart(ctx,W2,b,songOut(ctx,SC,W2),W2 === 'leap' ? 0.03 : was ? 2.5 : 1.5);
+if(W2 === 'jack' && SC.jackOut)SC.cur.src.loop = false;
 }
 }else if(!W2 && SC.cur){
 const was = SC.cur;
