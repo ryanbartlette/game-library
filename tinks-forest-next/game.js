@@ -12722,7 +12722,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 488;
+const BUILD = 489;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -41255,7 +41255,7 @@ aw('bell','Jack left you something…');
 const BT = window.__BOAT;
 if(BT && BT.g && BT.g.visible && !J.got.includes('boat')&& !window.__dotOn && performance.now()>(window.__dotOffT || 0)+ 1500){
 const bp = BT.g.position;
-if(Math.hypot(P.pos.x - bp.x,P.pos.z - bp.z)< 1.25 && Math.abs(P.pos.y - bp.y)< 1.6){
+if(Math.hypot(P.pos.x - bp.x,P.pos.z - bp.z)< 0.65 && Math.abs(P.pos.y - bp.y)< 1.2){
 aw('boat','A secret! You found something…');
 J.awT = Math.max(J.awT || 0,1);
 }
