@@ -52774,7 +52774,8 @@ if(pr(BT.MENU)&& r.id === 'qmenu')window.__QUESTS && window.__QUESTS.menu(false)
 const padKind = id =>{
 const pick = OPT.padKind || 'auto';
 if(pick !== 'auto')return pick;
-if(/054c|playstation|dualsense|dualshock|wireless controller/i.test(id || ''))return 'ps';
+if(/xbox|045e|xinput/i.test(id || ''))return 'xbox';
+if(/054c|playstation|dualsense|dualshock/i.test(id || ''))return 'ps';
 if(/057e|nintendo|switch|pro controller|joy-con/i.test(id || ''))return 'switch';
 return 'xbox';
 };
@@ -53081,9 +53082,19 @@ dir ={u:[0,-1],d:[0,1],l:[-1,0],r:[1,0]}[d];
 navDir = d;
 menu(r,pr,dir);
 prevB = btn;
+feel();
 return;
 }
 if(PAD.sel)focus(null);
+if(window.__qHold && window.__qGo){
+releaseAll();
+if(pr(BT.A)|| pr(BT.X))window.__qGo();
+if(pr(BT.VIEW))tap('Tab');
+if(pr(BT.MENU))tap('Escape');
+prevB = btn;
+feel();
+return;
+}
 if(J && J.showing){
 releaseAll();
 if(pr(BT.A)|| pr(BT.X))tap('Space');
@@ -53092,6 +53103,7 @@ if(pr(BT.LEFT))tap('ArrowLeft');
 if(pr(BT.VIEW))tap('Tab');
 if(pr(BT.MENU))tap('Escape');
 prevB = btn;
+feel();
 return;
 }
 const lx = ax[0]|| 0,
