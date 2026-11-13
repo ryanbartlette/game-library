@@ -384,6 +384,22 @@ body.adv #cutSkip kbd,body.adv #viewP kbd{font-family:Montserrat,sans-serif!impo
 
 /* a controller's highlight in menus */
 .pad-on{outline:2px solid rgba(255,236,170,.9)!important;outline-offset:5px;border-radius:8px}
+/* Game options > Controller, and the controller layout */
+#pause #padOpts{display:flex;flex-direction:column;gap:16px}#pause #padOpts[hidden]{display:none}
+#pause .o-sub{margin-top:10px;padding-top:16px;border-top:1px solid rgba(255,253,244,.22)}#pause .o-sub .o-l{color:#fffdf4}
+#padMap{position:absolute;inset:0;z-index:2;display:grid;place-items:center;background:radial-gradient(circle at 50% 45%,rgba(14,30,26,.7),rgba(8,18,15,.94))}
+#padMap[hidden]{display:none}
+#padMap .p-big{font-size:clamp(40px,6vw,76px);margin-bottom:26px}
+#padMap .pm-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px 56px;text-align:left;font-family:"Montserrat",var(--f-ui);font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,253,244,.82)}
+#padMap .pm-cols>div{display:flex;flex-direction:column;gap:10px}
+#padMap .pm-r{display:flex;align-items:center;gap:14px}
+#padMap .go{margin-top:28px;justify-content:center}
+#padMap kbd,body.pad-mode kbd[data-btn],body.pad-mode .kc[data-btn]{display:inline-flex;align-items:center;justify-content:center;min-width:1.9em;padding:2px 8px;border-radius:999px;border:1px solid rgba(255,253,244,.55);font:700 12px/1.4 "Montserrat",var(--f-ui);letter-spacing:.06em;text-transform:none;color:#fffdf4;background:rgba(0,0,0,.25)}
+#padMap kbd{min-width:7.5em}
+body[data-pad=xbox] kbd[data-btn=A],body[data-pad=xbox] .kc[data-btn=A],#padMap.xbox kbd[data-btn=A]{color:#8fe08a;border-color:#8fe08a}
+body[data-pad=xbox] kbd[data-btn=B],body[data-pad=xbox] .kc[data-btn=B],#padMap.xbox kbd[data-btn=B]{color:#ff8a80;border-color:#ff8a80}
+body[data-pad=xbox] kbd[data-btn=X],body[data-pad=xbox] .kc[data-btn=X],#padMap.xbox kbd[data-btn=X]{color:#82b8ff;border-color:#82b8ff}
+body[data-pad=xbox] kbd[data-btn=Y],body[data-pad=xbox] .kc[data-btn=Y],#padMap.xbox kbd[data-btn=Y]{color:#ffd76e;border-color:#ffd76e}
 </style>
 
 <div id="app"></div>
@@ -540,8 +556,8 @@ window.__THEME=(()=>{let done=false;const M=window.__MUS.mk('audio/music/01-the-
  b.addEventListener('click',e=>{e.stopPropagation();if(on){want=false;stop(600)}else{want=true;start()}});
  const tk=setInterval(()=>{if(done||on){if(done)clearInterval(tk);return}start()},300);for(const ev of ['pointerdown','keydown'])addEventListener(ev,start,{capture:true});return {el:null,stop,play:()=>{done=false;want=true;start()},state:()=>({on,want,done,ready:ready()})}})();</script>
 <script type="importmap">{"imports":{"three":"./three.module.js","three/addons/":"./jsm/"}}</script>
-<script>(async()=>{const lay=fetch("./data/world-layout.9bf0ca4036.json").then(r=>r.ok?r.text():null).catch(()=>null);const u="/tinks-forest-next/game.dev.js?v=1794538857";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
+<script>(async()=>{const lay=fetch("./data/world-layout.9bf0ca4036.json").then(r=>r.ok?r.text():null).catch(()=>null);const u="/tinks-forest-next/game.dev.js?v=1794539499";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
  if(!txt){const g=document.getElementById("goTxt");if(g)g.textContent="Could not download the game. Please reload";return}
  try{const lt=await lay;if(lt)window.__LAYOUT=JSON.parse(lt)}catch(e){} const sc=document.createElement("script");sc.type="module";sc.src=URL.createObjectURL(new Blob([txt],{type:"text/javascript"}));document.body.appendChild(sc)})()</script>
 <div style="position:fixed;left:6px;top:4px;z-index:99999;font:600 10px system-ui;color:#fff;background:#c0392bcc;padding:1px 5px;border-radius:3px;pointer-events:none">STAGING</div>
-<script>if(/[?&]bench\b/.test(location.search)){const s=document.createElement("script");s.src="/tinks-forest-next/bench.js?v=1794538857";document.body.appendChild(s)}</script>
+<script>if(/[?&]bench\b/.test(location.search)){const s=document.createElement("script");s.src="/tinks-forest-next/bench.js?v=1794539499";document.body.appendChild(s)}</script>

@@ -12883,12 +12883,14 @@ const gfx0 = LOW ? 'low' : 'high';
 let gfx = gfx0;
 const paint =()=>{
 for(const g of box.querySelectorAll('.o-seg')){
+if(!['gfx','fps'].includes(g.dataset.k))continue;
 const k = g.dataset.k,
 cur = k === 'gfx' ? gfx : OPT.fps ? '1' : '0';
 for(const b of g.querySelectorAll('b'))b.classList.toggle('on',b.dataset.v === cur);
 }
 for(const r of box.querySelectorAll('input[type=range]')){
 const k = r.dataset.k;
+if(!fmt[k])continue;
 r.value = T[k];
 box.querySelector('em[data-o="' + k + '"]').textContent = fmt[k](T[k]);
 }
@@ -52687,6 +52689,8 @@ const pre = document.getElementById('pre');
 if(pre && !pre.classList.contains('gone')&& vis(pre))return pre;
 const qm = document.getElementById('qmenu');
 if(vis(qm))return qm;
+const pm = document.getElementById('padMap');
+if(vis(pm))return pm;
 const pz = document.getElementById('pause');
 if(vis(pz))return pz;
 const g = document.getElementById('gate');
@@ -52744,7 +52748,7 @@ el.value = Math.min(+el.max,Math.max(+el.min,+el.value + d * st));
 el.dispatchEvent(new Event('input',{bubbles: true}));
 };
 const back = r =>{
-if(r.id === 'gHowP' || r.id === 'gCredP')return r.click();
+if(r.id === 'gHowP' || r.id === 'gCredP' || r.id === 'padMap')return r.click();
 if(r.id === 'qmenu')return window.__QUESTS && window.__QUESTS.menu(false);
 if(r.id === 'pause'){
 const ob = document.getElementById('pOptBack');
@@ -52760,13 +52764,274 @@ if(PAD.sel && PAD.sel.type === 'range' && dir[0])slide(PAD.sel,dir[0]);
 else move(r,dir[0],dir[1]);
 }
 if(pr(BT.A)){
-if(r.id === 'gHowP' || r.id === 'gCredP')r.click();
+if(r.id === 'gHowP' || r.id === 'gCredP' || r.id === 'padMap')r.click();
 else if(PAD.sel && PAD.sel.type !== 'range')PAD.sel.click();
 }
 if(pr(BT.B))back(r);
 if(pr(BT.MENU)&& r.id === 'pause')tap('Escape');
 if(pr(BT.MENU)&& r.id === 'qmenu')window.__QUESTS && window.__QUESTS.menu(false);
 };
+const padKind = id =>{
+const pick = OPT.padKind || 'auto';
+if(pick !== 'auto')return pick;
+if(/054c|playstation|dualsense|dualshock|wireless controller/i.test(id || ''))return 'ps';
+if(/057e|nintendo|switch|pro controller|joy-con/i.test(id || ''))return 'switch';
+return 'xbox';
+};
+const NAMES ={
+xbox:{A: 'A',B: 'B',X: 'X',Y: 'Y',LB: 'LB',RB: 'RB',LT: 'LT',RT: 'RT',L3: 'L3',R3: 'R3',MENU: 'Menu',VIEW: 'View'},
+ps:{A: '✕',B: '○',X: '□',Y: '△',LB: 'L1',RB: 'R1',LT: 'L2',RT: 'R2',L3: 'L3',R3: 'R3',MENU: 'Options',VIEW: 'Create'},
+switch:{A: 'B',B: 'A',X: 'Y',Y: 'X',LB: 'L',RB: 'R',LT: 'ZL',RT: 'ZR',L3: 'L-stick',R3: 'R-stick',MENU: '+',VIEW: '−'}
+};
+const SHARED ={UP: 'D-pad ↑',DOWN: 'D-pad ↓',LEFT: 'D-pad ←',RIGHT: 'D-pad →',LS: 'Left stick',RS: 'Right stick'};
+const nm = b =>(NAMES[PAD.kind || 'xbox']|| NAMES.xbox)[b]|| SHARED[b]|| b;
+const KEYBTN ={Space: 'A',Enter: 'A',E: 'X',X: 'B',Q: 'LB',J: 'UP',G: 'DOWN',R: 'LEFT',Y: 'RIGHT',Esc: 'MENU',Tab: 'VIEW',Click: 'RT',F: 'RT',I: 'R3',Mouse: 'RS'};
+const btnFor =(k,verb)=>(k === 'Shift' ?(/tap/i.test(verb || '')? 'L3' : 'LT'): KEYBTN[k]);
+PAD.kbT = performance.now();
+PAD.mode = false;
+for(const ev of['keydown','mousedown','wheel'])
+addEventListener(
+ev,
+e =>{
+if(e.isTrusted)PAD.kbT = performance.now();
+},
+{capture: true,passive: true}
+);
+addEventListener(
+'mousemove',
+e =>{
+if(e.isTrusted && Math.abs(e.movementX || 0)+ Math.abs(e.movementY || 0)> 6)PAD.kbT = performance.now();
+},
+{passive: true}
+);
+const orig = new Map();
+const skip = n =>{
+const el = n.nodeType === 3 ? n.parentElement : n;
+return !el || !!el.closest('#gHowP, #padMap, #mixer, script, style, [data-nopad]');
+};
+const TXT = /\b(press|hold|tap)( +)(Space|Shift|Click|click|Enter|Esc|Tab|[EXJGQFRI])\b|\((E|X|J|G|F|Q|Space)\)/gi;
+const swapText = n =>{
+if(skip(n))return;
+const was = orig.has(n)? orig.get(n): null;
+if(was && n.data === was.to)return;
+const from = n.data;
+const to = from.replace(TXT,(m,verb,sp,k,pk)=>{
+if(pk){
+const b = btnFor(pk);
+return b ? '(' + nm(b)+ ')' : m;
+}
+const key = k.length === 1 ? k.toUpperCase(): k[0].toUpperCase()+ k.slice(1);
+const b = btnFor(key,verb);
+return b ? verb + sp + nm(b): m;
+});
+if(to !== from){
+orig.set(n,{from,to});
+n.data = to;
+}
+};
+const swapKey = el =>{
+if(skip(el))return;
+const t =(el.dataset.k0 ?? el.textContent).trim();
+const sib =[...(el.parentElement ? el.parentElement.querySelectorAll('kbd'):[])].map(k =>(k.dataset.k0 ?? k.textContent).trim());
+let b = null,
+hide = false;
+if(/^[WASD]$/.test(t)&&['W','A','S','D'].every(k => sib.includes(k))){
+if(t === 'W')b = 'LS';
+else hide = true;
+}else if(t === 'W A S D')b = 'LS';
+else{
+const prev = el.previousSibling && el.previousSibling.nodeType === 3 ? el.previousSibling.data : '';
+b = btnFor(t,prev.slice(-6));
+}
+if(!b && !hide)return;
+const txt = hide ? '' : nm(b);
+if(el.dataset.k0 !== undefined && el.textContent === txt &&(el.dataset.btn || '')===(hide ? '' : b))return;
+if(el.dataset.k0 === undefined)el.dataset.k0 = el.textContent;
+el.textContent = txt;
+el.style.display = hide ? 'none' : '';
+el.dataset.btn = hide ? '' : b;
+orig.set(el,{key: true});
+};
+const restore =()=>{
+for(const[n,o]of orig){
+if(!n.isConnected)continue;
+if(o.key){
+n.textContent = n.dataset.k0;
+n.style.display = '';
+delete n.dataset.k0;
+delete n.dataset.btn;
+}else if(n.data === o.to)n.data = o.from;
+}
+orig.clear();
+};
+const sweep = root =>{
+if(!root)return;
+if(root.nodeType === 3)return swapText(root);
+if(root.nodeType !== 1)return;
+if(root.matches && root.matches('kbd, .kc'))return swapKey(root);
+for(const k of root.querySelectorAll ? root.querySelectorAll('kbd, .kc'):[])swapKey(k);
+const w = document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+for(let n = w.nextNode();n;n = w.nextNode())if(TXT.test(n.data)){
+TXT.lastIndex = 0;
+swapText(n);
+}else TXT.lastIndex = 0;
+};
+let busy = false;
+new MutationObserver(ms =>{
+if(!PAD.mode || busy)return;
+busy = true;
+try{
+for(const m of ms){
+if(m.type === 'characterData')sweep(m.target);
+else for(const n of m.addedNodes)sweep(n);
+if(m.type === 'childList' && m.target.matches && m.target.matches('kbd, .kc'))swapKey(m.target);
+}
+}catch(e){}
+busy = false;
+}).observe(document.body,{childList: true,subtree: true,characterData: true});
+const setMode = on =>{
+if(on === PAD.mode)return;
+PAD.mode = on;
+document.body.classList.toggle('pad-mode',on);
+document.body.dataset.pad = on ? PAD.kind : '';
+busy = true;
+try{
+if(on)sweep(document.body);
+else restore();
+}catch(e){}
+busy = false;
+};
+const rumble =(strong,weak,ms)=>{
+if(OPT.rumble === false || !PAD.mode)return;
+try{
+const va = PAD.gp && PAD.gp.vibrationActuator;
+if(va && va.playEffect)va.playEffect('dual-rumble',{duration: ms,strongMagnitude: strong,weakMagnitude: weak}).catch(()=>{});
+}catch(e){}
+};
+const FEEL ={pounce: false,mode: '',gifts: -1,tk: 0};
+const feel =()=>{
+setMode(PAD.on && PAD.used > PAD.kbT);
+if(!started)return;
+if(P.pouncing && !FEEL.pounce)rumble(0.25,0.55,140);
+FEEL.pounce = !!P.pouncing;
+if(FEEL.mode === 'air' && P.mode !== 'air' && !P.floatDown){
+const h =(P.peakY ?? P.pos.y)- P.pos.y;
+if(h > 1.2)rumble(Math.min(1,h / 7),Math.min(0.6,h / 10),90 + Math.min(160,h * 25));
+}
+FEEL.mode = P.mode;
+if(--FEEL.tk <= 0){
+FEEL.tk = 15;
+const n = document.querySelectorAll('#gifts img.got').length;
+if(FEEL.gifts >= 0 && n > FEEL.gifts){
+rumble(0.15,0.6,120);
+setTimeout(()=> rumble(0.15,0.6,160),220);
+}
+FEEL.gifts = n;
+}
+};
+{
+const box = document.querySelector('#pause .p-opts');
+if(box){
+const back = box.querySelector('#pOptBack');
+const sec = document.createElement('div');
+sec.id = 'padOpts';
+sec.hidden = true;
+const segN =(k,opts)=>
+'<span class="o-c o-seg" data-k="' + k + '">' + opts.map(o => '<b data-v="' + o[0]+ '">' + o[1]+ '</b>').join('<i></i>')+ '</span>';
+sec.innerHTML =
+'<div class="o-row o-sub"><span class="o-l">Controller</span></div>' +
+'<div class="o-row"><span class="o-l">Look sensitivity</span><span class="o-c"><input type="range" data-k="padSens" min="0.3" max="2.5" step="0.05" aria-label="Look sensitivity"><em data-o="padSens"></em></span></div>' +
+'<div class="o-row"><span class="o-l">Invert look up/down</span>' + segN('padInv',[['0','Off'],['1','On']])+ '</div>' +
+'<div class="o-row"><span class="o-l">Vibration</span>' + segN('rumble',[['1','On'],['0','Off']])+ '</div>' +
+'<div class="o-row"><span class="o-l">Button names</span>' + segN('padKind',[['auto','Auto'],['xbox','Xbox'],['ps','PS'],['switch','Switch']])+ '</div>' +
+'<div class="go" id="padMapGo">Controller layout</div>';
+box.insertBefore(sec,back);
+const cur = k =>
+k === 'padInv' ?(OPT.padInv ? '1' : '0'): k === 'rumble' ?(OPT.rumble === false ? '0' : '1'): OPT.padKind || 'auto';
+const paint =()=>{
+for(const g of sec.querySelectorAll('.o-seg'))for(const b of g.querySelectorAll('b'))b.classList.toggle('on',b.dataset.v === cur(g.dataset.k));
+const r = sec.querySelector('input[type=range]');
+r.value = OPT.padSens ?? 1;
+sec.querySelector('em[data-o="padSens"]').textContent =(+r.value).toFixed(2)+ '×';
+};
+for(const g of sec.querySelectorAll('.o-seg'))
+for(const b of g.querySelectorAll('b'))
+b.onclick = e =>{
+e.stopPropagation();
+const k = g.dataset.k,
+v = b.dataset.v;
+if(k === 'padInv')OPT.padInv = v === '1';
+else if(k === 'rumble'){
+OPT.rumble = v === '1';
+if(OPT.rumble)rumble(0.3,0.5,150);
+}else{
+OPT.padKind = v;
+if(PAD.gp)PAD.kind = padKind(PAD.gp.id);
+if(PAD.mode){
+setMode(false);
+setMode(true);
+}
+}
+saveOpt();
+paint();
+};
+sec.querySelector('input[type=range]').oninput = e =>{
+OPT.padSens = +e.target.value;
+saveOpt();
+paint();
+};
+const map = document.createElement('div');
+map.id = 'padMap';
+map.hidden = true;
+const row =(b,what)=> '<div class="pm-r"><kbd data-btn="' + b + '" data-pb="' + b + '"></kbd><span>' + what + '</span></div>';
+const draw =()=>{
+map.innerHTML =
+'<div class="pm-in"><div class="p-big">Controller</div><div class="pm-cols"><div>' +
+row('LT','Hold to run')+
+row('LB','Meow')+
+row('LS','Move')+
+row('L3','Walk / trot (press the stick)')+
+row('UP','Quests')+
+row('DOWN','Groom')+
+row('LEFT','Hiss')+
+row('RIGHT','Yowl')+
+row('VIEW','Skip a scene')+
+'</div><div>' +
+row('RT','Hold to stalk, let go to pounce')+
+row('RB','Swat')+
+row('A','Jump and climb · read on')+
+row('X','Pick up, plant, give')+
+row('B','Sit and watch · back')+
+row('RS','Look around')+
+row('R3',"Through Tink's eyes (press the stick)")+
+row('MENU','Pause')+
+'</div></div><div class="go" id="padMapBack">Back</div></div>';
+for(const k of map.querySelectorAll('kbd[data-pb]'))k.textContent = nm(k.dataset.pb);
+map.className = PAD.kind || 'xbox';
+};
+document.getElementById('pause').appendChild(map);
+const showMap = on =>{
+if(on)draw();
+map.hidden = !on;
+};
+for(const ev of['click','pointerdown','mousedown'])map.addEventListener(ev,e => e.stopPropagation());
+map.addEventListener('click',()=> showMap(false));
+sec.querySelector('#padMapGo').onclick = e =>{
+e.stopPropagation();
+showMap(true);
+};
+let was = null;
+setInterval(()=>{
+const on = !!PAD.on;
+if(on !== was){
+sec.hidden = !on;
+was = on;
+}
+if(!box.hidden && !sec.hidden)paint();
+if(box.hidden && !map.hidden)showMap(false);
+},300);
+}
+}
 let prevB =[],
 navT = 0,
 navDir = '',
@@ -52789,6 +53054,8 @@ focus(null);
 return;
 }
 PAD.on = true;
+PAD.gp = gp;
+PAD.kind = padKind(gp.id);
 const btn = gp.buttons.map((b,i)=>(i === BT.LT || i === BT.RT ? b.value > 0.4 : b.pressed));
 const pr = i => btn[i]&& !prevB[i],
 up = i => !btn[i]&& prevB[i];
@@ -52877,17 +53144,20 @@ const rx = ax[2]|| 0,
 ry = ax[3]|| 0;
 if((rx || ry)&& lookOK()){
 const cv = v => Math.sign(v)* Math.pow(Math.abs(v),1.6);
-cam.yaw -= cv(rx)* 2.6 * T.sens * dt;
+const sens = OPT.padSens ?? 1,
+inv = OPT.padInv ? -1 : 1;
+cam.yaw -= cv(rx)* 2.6 * sens * dt;
 if((P.povK || 0)> 0.5){
 const fwd = P.yaw + Math.PI;
 let rel = cam.yaw - fwd;
 while(rel > Math.PI)rel -= 2 * Math.PI;
 while(rel < -Math.PI)rel += 2 * Math.PI;
 if(Math.abs(rel)> 1.05)cam.yaw = P.yaw + Math.PI + Math.sign(rel)* 1.05;
-P.povPitch = clamp((P.povPitch ?? 0.04)+ cv(ry)* 1.7 * T.sens * dt,-1.45,0.72);
-}else cam.pitch = clamp(cam.pitch + cv(ry)* 1.7 * T.sens * dt,-0.35,1.2);
+P.povPitch = clamp((P.povPitch ?? 0.04)+ inv * cv(ry)* 1.7 * sens * dt,-1.45,0.72);
+}else cam.pitch = clamp(cam.pitch + inv * cv(ry)* 1.7 * sens * dt,-0.35,1.2);
 }
 prevB = btn;
+feel();
 };
 requestAnimationFrame(poll);
 addEventListener('gamepadconnected',()=>{
