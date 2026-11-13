@@ -333,6 +333,29 @@ const AUDPATH ={
 'notice': 'audio/magic/item-found-chime.mp3',
 'shimmer': 'audio/magic/jack-shimmer.mp3'
 };
+const MUSBUS ={
+theme: 'music: 01 title · The Forest Calls',
+pause: 'music: 02 pause · A Quiet Breath',
+piano: 'music: 03 house · Asleep on the Sofa',
+tunnel: 'music: 04 tunnel · The Tunnel of Old Trees',
+reveal: 'music: 05 reveal · Into the Magical Forest',
+spring: 'music: 06 spring · Petals on the Path',
+summer: 'music: 07 summer · The Long Green Afternoon',
+waltz: 'music: 08 autumn · The Harvest Waltz',
+winter: 'music: 09 winter · Snow on the Lanterns',
+boiler: 'music: 10 boiler room · The Furnace Keeper',
+bus: 'music: 11 bus stop · Waiting in the Rain',
+magic: 'music: 12 beanstalk · A Seed That Dreams of Sky',
+jack: 'music: 13 Jack · The Black Cat Waits',
+night: 'music: 14 night · Lantern Light',
+stream: 'music: 15 stream · The Glint in the Stream',
+summit: 'music: 16 summit · Where the Sky Begins',
+leap: 'music: 17 leap · Leap of Faith',
+farewell: 'music: 18 farewell · Home to the Great Tree',
+credits: 'music: 19 closing · Spring Comes Again',
+gift: 'music: 20a gift found'
+};
+window.__MUSBUS = MUSBUS;
 const V3 = THREE.Vector3,
 Q = THREE.Quaternion;
 const clamp =(v,a,b)=>(v < a ? a : v > b ? b : v),
@@ -12719,7 +12742,7 @@ if(typeof STUDIO !== 'undefined' && STUDIO.on)return false;
 if(!document.getElementById('gate').hidden)return false;
 return !X.on;
 };
-const PAUSEMUS = window.__MUS ? window.__MUS.mk('audio/music/02-a-quiet-breath.mp3',37.13,112.36,0.55): null;
+const PAUSEMUS = window.__MUS ? window.__MUS.mk('audio/music/02-a-quiet-breath.mp3',37.13,112.36,0.55,MUSBUS.pause): null;
 X.open =()=>{
 X.on = true;
 X.openT = performance.now();
@@ -22665,7 +22688,7 @@ if(!b){
 b = AUD.ctx.createGain();
 b.gain.value = MIX[name]?? 1;
 const indoor =
-/^(music: farmhouse song|furnace_|step_|creak|claws|thump|cat_|tink_|luca_|purr|swat|pop|giggle|sparkle|shimmer|notice|chime|water_)/.test(
+/^(music: 10 |furnace_|step_|creak|claws|thump|cat_|tink_|luca_|purr|swat|pop|giggle|sparkle|shimmer|notice|chime|water_)/.test(
 name
 );
 if(!indoor){
@@ -26576,6 +26599,19 @@ e.buf = null;
 e.p = null;
 }
 };
+const songOut =(ctx,o,k)=>{
+if(!o.lv[k]){
+const g = ctx.createGain();
+g.gain.value = o.v || 0;
+g.connect(AUD.bus(MUSBUS[k]));
+o.lv[k]= g;
+}
+return o.lv[k];
+};
+const songLv =(ctx,o,v)=>{
+o.v = v;
+for(const k in o.lv)o.lv[k].gain.setTargetAtTime(v,ctx.currentTime,0.3);
+};
 const songStart =(ctx,k,b,out,fin)=>{
 const src = ctx.createBufferSource(),
 g = ctx.createGain(),
@@ -26640,7 +26676,7 @@ const FH = L.farm ||(L.farm ={lvl: 0,gain: null,el: null});
 if(!FH.gain){
 FH.gain = ctx.createGain();
 FH.gain.gain.value = 0;
-FH.gain.connect(AUD.bus('music: farmhouse song'));
+FH.gain.connect(AUD.bus(MUSBUS.boiler));
 FH.el = new Audio();
 FH.el.preload = 'none';
 FH.el.loop = true;
@@ -26744,12 +26780,10 @@ PN.stage === 1 ||
 : 0;
 PN.lvl +=(want - PN.lvl)* Math.min(1,dt *(want ? 0.8 : 0.25));
 {
-if(!PN.gain){
-PN.gain = ctx.createGain();
-PN.gain.gain.value = 0;
-PN.gain.connect(AUD.bus('music: piano in the house'));
-}
-PN.gain.gain.setTargetAtTime(PN.lvl *(T.music ?? 0.6)* 0.33,ctx.currentTime,0.3);
+if(!PN.lv)
+PN.lv ={};
+PN.vol = PN.lvl *(T.music ?? 0.6)* 0.33;
+songLv(ctx,PN,PN.vol);
 const k = PN.stage === 1 ? 'tunnel' : 'piano';
 const keepPN =()=> !!(PN.cur && PN.cur.k === k);
 if(PN.lvl > 0.01 &&(!PN.cur || PN.cur.k !== k)){
@@ -26757,7 +26791,7 @@ const b = L.songBuf(k);
 if(b){
 const was = PN.cur;
 if(was)songFade(ctx,was,2.5,()=> !!(PN.cur && PN.cur.k === was.k));
-PN.cur = songStart(ctx,k,b,PN.gain,was ? 2.5 : 0.4);
+PN.cur = songStart(ctx,k,b,songOut(ctx,PN,k),was ? 2.5 : 0.4);
 }
 }
 if(PN.lvl <= 0.01 && PN.cur){
@@ -26767,11 +26801,7 @@ PN.cur = null;
 }
 const SC = L.scene ||(L.scene ={lvl: 0,gain: null,cur: null,shot: null,done:{},tk: 0,gifts: -1,gain2: null});
 {
-if(!SC.gain){
-SC.gain = ctx.createGain();
-SC.gain.gain.value = 0;
-SC.gain.connect(AUD.bus('music: story scenes'));
-}
+if(!SC.lv)SC.lv ={};
 const QQ = window.__QAPI,
 Qd = QQ && QQ.Q,
 TR = window.__TRAIL ||{},
@@ -26843,7 +26873,7 @@ const b = L.songBuf(W2);
 if(b){
 const was = SC.cur;
 if(was)songFade(ctx,was,was.ended ? 0.05 : 2.5,()=> !!(SC.cur && SC.cur.k === was.k));
-SC.cur = songStart(ctx,W2,b,SC.gain,W2 === 'leap' ? 0.03 : was ? 2.5 : 1.5);
+SC.cur = songStart(ctx,W2,b,songOut(ctx,SC,W2),W2 === 'leap' ? 0.03 : was ? 2.5 : 1.5);
 }
 }else if(!W2 && SC.cur){
 const was = SC.cur;
@@ -26853,10 +26883,9 @@ SC.cur = null;
 const playing = !!(SC.cur && !SC.cur.ended);
 SC.lvl +=((playing ? 1 : 0)- SC.lvl)* Math.min(1,dt *(playing ? 1.2 : 0.4));
 const lv = 0.33;
-SC.gain.gain.setTargetAtTime((T.music ?? 0.6)* lv,ctx.currentTime,0.3);
-if(SC.lvl > 0.02)AUD.heard['music: story scenes']= performance.now();
+songLv(ctx,SC,(T.music ?? 0.6)* lv);
 if(SC.lvl > 0.01){
-if(PN.gain)PN.gain.gain.setTargetAtTime(PN.lvl *(T.music ?? 0.6)* 0.33 *(1 - SC.lvl),ctx.currentTime,0.3);
+songLv(ctx,PN,PN.vol *(1 - SC.lvl));
 if(L.farm && L.farm.gain)
 L.farm.gain.gain.setTargetAtTime((L.farm.slvl || 0)*(T.music ?? 0.6)* 0.33 *(1 - SC.lvl),ctx.currentTime,0.3);
 }
@@ -26868,7 +26897,7 @@ if(b){
 if(!SC.gain2){
 SC.gain2 = ctx.createGain();
 SC.gain2.gain.value = 0.33 *(T.music ?? 0.6);
-SC.gain2.connect(AUD.bus('music: gift chime'));
+SC.gain2.connect(AUD.bus(MUSBUS.gift));
 }
 songStart(ctx,'gift',b,SC.gain2,0.02);
 }
@@ -26882,17 +26911,15 @@ const se = window.__CYCLE && window.__CYCLE.season;
 const SONGS ={spring:['spring'],summer:['summer'],autumn:['waltz'],winter:['winter']};
 const list = SONGS[se]||[];
 const SONGBUS ={
-theme: 'music: spring theme',
-spring: 'music: spring theme',
-summer: 'music: summer song',
-medley: 'music: summer medley',
-waltz: 'music: autumn waltz',
-winter: 'music: winter song'
+spring: MUSBUS.spring,
+summer: MUSBUS.summer,
+waltz: MUSBUS.waltz,
+winter: MUSBUS.winter
 };
 if(!TH.gain){
 TH.gain = ctx.createGain();
 TH.gain.gain.value = 0;
-TH.gain.connect(AUD.bus('music: spring theme'));
+TH.gain.connect(AUD.bus(MUSBUS.spring));
 TH.el = new Audio();
 TH.el.preload = 'none';
 try{
@@ -26910,7 +26937,7 @@ TH.cur = nm;
 try{
 TH.gain.disconnect();
 }catch(e){}
-TH.gain.connect(AUD.bus(SONGBUS[nm]|| 'music: spring theme'));
+TH.gain.connect(AUD.bus(SONGBUS[nm]|| MUSBUS.spring));
 TH.el.src = AUDPATH[nm];
 TH.el.currentTime = 0;
 TH.el.play().catch(()=>{
@@ -26932,9 +26959,10 @@ ctx.currentTime,
 {
 const now = performance.now();
 if(TH.cur && TH.lvl > 0.02)AUD.heard[SONGBUS[TH.cur]]= now;
-if(PN.lvl > 0.02)AUD.heard['music: piano in the house']= now;
-if(L.farm && L.farm.lvl > 0.02)AUD.heard['music: farmhouse song']= now;
-if(L.magic && L.magic.lvl > 0.02)AUD.heard['music: beanstalk magic']= now;
+if(PN.lvl > 0.02 && PN.cur)AUD.heard[MUSBUS[PN.cur.k]]= now;
+if(SC.lvl > 0.02 && SC.cur)AUD.heard[MUSBUS[SC.cur.k]]= now;
+if(L.farm && L.farm.lvl > 0.02)AUD.heard[MUSBUS.boiler]= now;
+if(L.magic && L.magic.lvl > 0.02)AUD.heard[MUSBUS.magic]= now;
 if(L.music && L.music.on)AUD.heard['music: forest melody']= now;
 }
 const MG = L.magic ||(L.magic ={lvl: 0,gain: null,el: null});
@@ -26957,7 +26985,7 @@ P.floatDown ||
 if(!MG.gain){
 MG.gain = ctx.createGain();
 MG.gain.gain.value = 0;
-MG.gain.connect(AUD.bus('music: beanstalk magic'));
+MG.gain.connect(AUD.bus(MUSBUS.magic));
 MG.el = new Audio(AUDPATH.magic);
 MG.el.preload = 'none';
 MG.el.loop = true;
