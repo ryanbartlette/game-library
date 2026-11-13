@@ -23304,7 +23304,11 @@ audioMode();
 }
 function audioMode(){
 if(!AUD.ctx)return;
-if(AUD._prevW === 'night' && weather !== 'night' && weather !== 'rain')AUD.dawnT = 100;
+if(
+AUD._prevW === 'night' &&
+!['night','rain','dusk','sunset'].includes(weather)
+)
+AUD.dawnT = 100;
 AUD._prevW = weather;
 const AW = weather === 'sunset' ? 'golden' : weather === 'dusk' ? 'night' : weather;
 const mix = Object.assign({},BED_MIX[AW]);
@@ -34583,7 +34587,7 @@ scene.add(g);
 g.traverse(o =>{
 if(o.isMesh && o.material && o.material.vertexColors){
 o.material = o.material.clone();
-o.material.emissive = new THREE.Color(0x2c5a24);
+o.material.emissive = new THREE.Color(0x62ad4c);
 }
 });
 const glow =
@@ -38763,10 +38767,13 @@ const CX = 0,
 CZ = 0,
 Ro = 34;
 const gC = heightAt(CX,CZ);
-const a0 = Math.atan2(E1.x - CX,E1.z - CZ);
+const a0 =
+Math.atan2(E1.x - CX,E1.z - CZ)+ Math.PI;
 const orb =
-a => new V3(CX + Math.sin(a)* Ro,gC + 48,CZ + Math.cos(a)* Ro);
-const orbL = new V3(CX,gC + 1,CZ);
+a => new V3(CX + Math.sin(a)* Ro,gC + 42,CZ + Math.cos(a)* Ro);
+const orbLA = a =>
+new V3(CX - Math.sin(a)* 12,gC + 2,CZ - Math.cos(a)* 12);
+const orbL = orbLA(a0);
 const SW = 2.3;
 window.__camOverride = c =>{
 const t = C.t - 1;
@@ -38800,13 +38807,13 @@ look = toJL.clone().lerp(orbL,ez(cl((t - 4.5)/ 3)));
 }else if(t < 17){
 const k = ez(cl((t - 8)/ 9));
 pos = orb(a0 + SW * k);
-look = orbL;
+look = orbLA(a0 + SW * k);
 }else{
 const k = ez(cl((t - 17)/ 6));
 const end = orb(a0 + SW);
 const over = back.clone().addScaledVector(dj,-2).setY(P.pos.y + 9);
 pos = k < 0.5 ? end.clone().lerp(over,k * 2): over.clone().lerp(back,(k - 0.5)* 2);
-look = orbL.clone().lerp(backL,ez(cl((t - 17.5)/ 5)));
+look = orbLA(a0 + SW).lerp(backL,ez(cl((t - 17.5)/ 5)));
 }
 c.position.copy(pos);
 c.lookAt(look);
