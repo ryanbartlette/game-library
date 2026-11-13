@@ -22653,42 +22653,7 @@ const AUD ={ctx: null,master: null,buf:{},beds:{},on: true};
 try{
 AUD.on = localStorage.getItem('luca.sound')!== 'off';
 }catch(e){}
-const MIX_BAKED ={
-'step_ground': 0.3,
-'day': 0.5,
-'dawn': 0.5,
-'crickets': 0.5,
-'cicadas': 0.5,
-'windAutumn': 0.5,
-'step_dry': 0.3,
-'step_leaves': 0.3,
-'step_snow': 0.3,
-'step_water': 0.3,
-'step_wood': 0.5,
-'rustle': 0.4,
-'claws': 0.8,
-'dfly': 0.5,
-'wind': 0.2,
-'windWinter': 0.5,
-'stream': 0.8,
-'night': 0.5,
-'leafrain': 0.5,
-'hum': 0.5,
-'evening': 0.5,
-'drizzle': 0.5,
-'creak': 0.5,
-'woodpecker': 0.3,
-'wing_flap': 0.5,
-'chime: arrival': 1.5,
-'chime': 0.9,
-'chime: wind bells': 0.9,
-'water_splash': 0.3,
-'water_jump': 0.6,
-'squirrel_chirping': 0.9,
-'squirrel_teasing': 0.8,
-'squirrel_talking': 0.9,
-'furnace_draft': 1.5
-};
+const MIX_BAKED ={};
 let MIX ={...MIX_BAKED};
 AUD.mix = MIX;
 AUD.buses ={};
@@ -22837,6 +22802,8 @@ return b;
 }
 }
 async function loadBuf(name,url){
+url =
+url.replace(/^audio\/(?!music\/|v2\/)/,'audio/v2/');
 try{
 const r = await fetch(url);
 if(!r.ok)return;
@@ -26885,7 +26852,7 @@ SC.cur = null;
 }
 const playing = !!(SC.cur && !SC.cur.ended);
 SC.lvl +=((playing ? 1 : 0)- SC.lvl)* Math.min(1,dt *(playing ? 1.2 : 0.4));
-const lv = SC.cur && SC.cur.k === 'night' ? 0.26 : 0.33;
+const lv = 0.33;
 SC.gain.gain.setTargetAtTime((T.music ?? 0.6)* lv,ctx.currentTime,0.3);
 if(SC.lvl > 0.02)AUD.heard['music: story scenes']= performance.now();
 if(SC.lvl > 0.01){
@@ -26900,7 +26867,7 @@ const b = L.songBuf('gift');
 if(b){
 if(!SC.gain2){
 SC.gain2 = ctx.createGain();
-SC.gain2.gain.value = 0.4 *(T.music ?? 0.6);
+SC.gain2.gain.value = 0.33 *(T.music ?? 0.6);
 SC.gain2.connect(AUD.bus('music: gift chime'));
 }
 songStart(ctx,'gift',b,SC.gain2,0.02);
@@ -26958,7 +26925,7 @@ TH.cur = null;
 if(TH.cur)TH.next = Math.max(TH.next,35);
 TH.lvl +=((TH.cur && ok && list.includes(TH.cur)? 1 : 0)- TH.lvl)* Math.min(1,dt * 0.6);
 TH.gain.gain.setTargetAtTime(
-TH.lvl *(T.music ?? 0.6)* 0.3 *(NIGHTISH()? 0.7 : 1),
+TH.lvl *(T.music ?? 0.6)* 0.33,
 ctx.currentTime,
 0.4
 );
@@ -27014,9 +26981,9 @@ if(!mwant && MG.lvl < 0.01 && !MG.el.paused){
 MG.el.pause();
 MG.el.currentTime = 0;
 }
-MG.gain.gain.setTargetAtTime(MG.lvl *(T.music ?? 0.6)* 0.45 *(1 - SC.lvl),ctx.currentTime,0.3);
+MG.gain.gain.setTargetAtTime(MG.lvl *(T.music ?? 0.6)* 0.33 *(1 - SC.lvl),ctx.currentTime,0.3);
 if(TH.gain && MG.lvl > 0.05)
-TH.gain.gain.setTargetAtTime(TH.lvl *(T.music ?? 0.6)* 0.3 *(1 - MG.lvl),ctx.currentTime,0.3);
+TH.gain.gain.setTargetAtTime(TH.lvl *(T.music ?? 0.6)* 0.33 *(1 - MG.lvl),ctx.currentTime,0.3);
 M.duck = Math.max(PN.lvl,TH.lvl || 0,MG.lvl,L.farm ? L.farm.lvl : 0,SC.lvl);
 }
 if(!M.gain){
