@@ -12836,7 +12836,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 480;
+const BUILD = 481;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -16969,7 +16969,7 @@ const vx =
 f.x * P.speed,
 vz = f.z * P.speed,
 iv = P.iceV ||(P.iceV = new V3());
-if(P.onIce){
+if(P.onIce && !window.__asJack){
 const cur = Math.hypot(iv.x,iv.z),
 want = Math.hypot(vx,vz);
 const k = 1 - Math.exp(-dt *(want > cur + 0.05 ? 1.0 : 0.45));
@@ -17021,7 +17021,7 @@ P.pos.z = s.az + dz * clamp(tt,0,1);
 let gy2 = groundAt(P.pos.x,P.pos.z,P.pos.y,info);
 {
 const wl = waterLevelAt(P.pos.x,P.pos.z);
-P.onIce = !!window.__ICE && !info.s && wl > gy2 - 0.04;
+P.onIce = !!(window.__ICE || window.__asJack)&& !info.s && wl > gy2 - 0.04;
 if(P.onIce){
 P.inWater = false;
 P.deep = false;
@@ -17294,8 +17294,9 @@ P.pos.y = ny;
 }
 let gy = groundAt(P.pos.x,P.pos.z,py);
 const wlA = waterLevelAt(P.pos.x,P.pos.z);
-P.onIce = !!(window.__ICE && wlA > gy - 0.04);
-if(window.__ICE && wlA > gy - 0.04)gy = wlA + 0.015;
+const onTop =(window.__ICE || window.__asJack)&& wlA > gy - 0.04;
+P.onIce = !!onTop;
+if(onTop)gy = wlA + 0.015;
 const wet = !window.__ICE && wlA - gy > 0.07;
 if(wet)gy = Math.max(gy,wlA - gy > 0.3 ? wlA - 0.27 : wlA - 0.13);
 if(P.pos.y <= gy && P.vel.y <= 0){
@@ -19524,7 +19525,7 @@ steps:[
 'Find the quiet glade at the end of the north path',
 ()=> BN().st >= 1
 ],
-['Follow the sweet green scent to the magic bean',()=> BN().st >= 2],
+['Follow the sweet scent to the magic bean',()=> BN().st >= 2],
 ['Take the bean back to the quiet glade and plant it (E)',()=> BN().st >= 3],
 ['Curl up beside the seed and sleep (X)',()=> BN().st >= 4],
 ['The sprout is thirsty: fetch water from the stream in a big leaf',()=> !!BN().leaf || !!BN().wet],
@@ -19944,7 +19945,7 @@ if(b.st < 1 &&(Q.done.rain || Q.done.bean)&& dc <((window.__GLD && window.__GLD.
 b.st = 1;
 saveQ();
 story('This looks like a good place to plant something…','but what?');
-setTimeout(()=> story('A sweet green scent drifts on the air…','follow it with your nose'),5200);
+setTimeout(()=> story('A sweet scent drifts in the air…','follow it with your nose'),5200);
 }
 if(b.st === 1){
 if(!W)buildBean();
@@ -20092,6 +20093,7 @@ try{
 window.__TUT && window.__TUT.hide();
 }catch(e){}
 story('Tink tucks the bean into the soft earth…','and the glade settles down to sleep',5200);
+window.__plantT = performance.now();
 setTimeout(()=>{
 try{
 if(BN().st === 3)
@@ -24771,6 +24773,7 @@ grassU.uWDir.value.set(Math.cos(wa2),Math.sin(wa2));
 }
 grassU.uGust.value = Math.max(
 window.__tunGust || 0,
+window.__busGust || 0,
 Math.min(1,clamp(gust * 1.4,0,1)*(NIGHTISH()? 0.4 : 1)*(0.6 + 0.4 * Math.min(W.wind,1.2)))
 );
 };
@@ -26437,8 +26440,8 @@ CB.beamMat.uniforms.uT.value = performance.now()/ 1000;
 };
 }
 for(const e of[
-[-11.5,64.4,97],
-[11.5,64.4,97]
+[-11,61,95],
+[11,61,95]
 ]){
 const b = new THREE.Mesh(bg,CB.beamMat);
 b.position.set(e[0],e[1],e[2]);
@@ -27493,7 +27496,7 @@ if(!AUD.ctx || !AUD.on)return;
 const ctx = AUD.ctx;
 const MW = L.mw ||(L.mw ={}),
 MGT = L.mgt ||(L.mgt ={});
-MW.melody = 10;
+MW.melody = 0;
 let win = null,
 wp = 0;
 for(const k in MW)
@@ -27510,7 +27513,7 @@ L.musicWinner = win;
 {
 const DR = window.__DIR;
 const bench = !!(DR && DR.jack && DR.jack.mode === 'bench');
-window.__musDuck =(window.__musDuck ?? 1)+((bench ? 0.35 : 1)-(window.__musDuck ?? 1))* Math.min(1,dt * 0.8);
+window.__musDuck =(window.__musDuck ?? 1)+((bench ? 0.78 : 1)-(window.__musDuck ?? 1))* Math.min(1,dt * 0.35);
 }
 {
 const PN = L.piano ||(L.piano ={stage: 0,lvl: 0,next: 0,gain: null});
@@ -27773,7 +27776,7 @@ sfx('giftchime',{vol: 0.9});
 SC.gifts = n;
 }
 }
-const TH = L.theme ||(L.theme ={next: 12,gain: null,lvl: 0,el: null,cur: null,turn: 0});
+const TH = L.theme ||(L.theme ={next: 2,gain: null,lvl: 0,el: null,cur: null,turn: 0});
 const se = window.__CYCLE && window.__CYCLE.season;
 const SONGS ={spring:['spring'],summer:['summer'],autumn:['waltz'],winter:['winter']};
 const list = SONGS[se]||[];
@@ -27787,46 +27790,85 @@ if(!TH.gain){
 TH.gain = ctx.createGain();
 TH.gain.gain.value = 0;
 TH.gain.connect(AUD.bus(MUSBUS.spring));
-TH.el = new Audio();
-TH.el.preload = 'none';
+TH.pl =[0,1].map(()=>{
+const el = new Audio();
+el.preload = 'none';
+const g = ctx.createGain();
+g.gain.value = 0;
 try{
-ctx.createMediaElementSource(TH.el).connect(TH.gain);
+ctx.createMediaElementSource(el).connect(g);
 }catch(e){}
-TH.el.onended =()=>{
-TH.cur = null;
+g.connect(TH.gain);
+const o ={el,g,nm: null,on: false};
+el.onended =()=>{
+o.on = false;
+o.nm = null;
+if(TH.cur === o)TH.cur = null;
 };
+return o;
+});
+TH.el = TH.pl[0].el;
 }
 if(TH.se !== se){
 TH.se = se;
-TH.next = Math.min(TH.next,3);
+TH.next = Math.min(TH.next,2);
 }
-const ok =
-list.length > 0 &&
-PN.lvl < 0.05 &&
-(L.farm ? L.farm.lvl : 0)< 0.05 &&
-SC.lvl < 0.05 &&
-(!NIGHTISH()|| se === 'winter');
+const ok = list.length > 0 &&(!NIGHTISH()|| se === 'winter');
 TH.next -= dt;
-if(ok && !TH.cur && TH.next <= 0){
+const XF = 9;
+const startNext =()=>{
 const nm = list[TH.turn++ % list.length];
-TH.cur = nm;
+const o = TH.pl.find(x => x !== TH.cur)|| TH.pl[0];
+const was = TH.cur;
+if(was){
+const t0 = ctx.currentTime;
+was.g.gain.cancelScheduledValues(t0);
+was.g.gain.setValueAtTime(was.g.gain.value,t0);
+was.g.gain.linearRampToValueAtTime(0,t0 + XF);
+const we = was.el;
+setTimeout(()=>{
+if(TH.cur !== was){
+try{
+we.pause();
+}catch(e){}
+was.on = false;
+}
+},XF * 1000 + 200);
+}
 try{
 TH.gain.disconnect();
 }catch(e){}
 TH.gain.connect(AUD.bus(SONGBUS[nm]|| MUSBUS.spring));
-TH.el.src = AUDPATH[nm];
-TH.el.currentTime = 0;
-TH.el.play().catch(()=>{
-TH.cur = null;
+o.nm = nm;
+o.on = true;
+o.el.src = AUDPATH[nm];
+o.el.currentTime = 0;
+const t0 = ctx.currentTime;
+o.g.gain.cancelScheduledValues(t0);
+o.g.gain.setValueAtTime(0,t0);
+o.g.gain.linearRampToValueAtTime(1,t0 +(was ? XF : 2.5));
+o.el.play().catch(()=>{
+o.on = false;
+if(TH.cur === o)TH.cur = null;
 });
-TH.next = 35 + Math.random()* 40;
+TH.cur = o;
+};
+if(ok && TH.next <= 0){
+const c = TH.cur;
+const left = c && c.el.duration ? c.el.duration - c.el.currentTime : 1e9;
+if(!c || !list.includes(c.nm))startNext();
+else if(left < XF && !c.handed){
+c.handed = 1;
+startNext();
 }
-if(TH.cur && !list.includes(TH.cur)&& TH.lvl < 0.02){
-TH.el.pause();
+}
+if(TH.cur && !list.includes(TH.cur.nm)&& TH.lvl < 0.02){
+TH.cur.el.pause();
+TH.cur.on = false;
 TH.cur = null;
 }
-if(TH.cur)TH.next = Math.max(TH.next,35);
-TH.lvl +=((TH.cur && ok && list.includes(TH.cur)? 1 : 0)- TH.lvl)* Math.min(1,dt * 0.6);
+if(TH.cur && TH.cur.el.currentTime < 1)TH.cur.handed = 0;
+TH.lvl +=((TH.cur && ok && list.includes(TH.cur.nm)? 1 : 0)- TH.lvl)* Math.min(1,dt * 0.35);
 MW.season = TH.cur && TH.lvl > 0.02 ? 30 : 0;
 TH.gain.gain.setTargetAtTime(TH.lvl * MUSV()* G('season'),ctx.currentTime,0.4);
 {
@@ -27909,7 +27951,7 @@ MUSV()* 0.6 *
 (isRaining()? 0.6 : 1)*
 (1 - 0.35 * tun)*
 (1 + 0.4 * nearTree);
-M.gain.gain.setTargetAtTime(want * 0.5 *(1 -(M.duck || 0)),ctx.currentTime,1.5);
+M.gain.gain.setTargetAtTime(0,ctx.currentTime,1.5);
 L.swell = Math.max(0,(L.swell || 0)- dt);
 const beat = 0.42 *(NIGHTISH()? 1.25 : 1)*(M.zone === 'tunnel' ? 1.35 : M.zone === 'tree' ? 1.1 : 1);
 const base =(NIGHTISH()? 196 : 220)*(M.zone === 'tunnel' ? 0.794 : M.zone === 'tree' ? 1.122 : 1);
@@ -33276,6 +33318,7 @@ upOff = H0 * 1.2 * kk * k;
 pitch =
 -Math.atan2(3 * H0 * 1.2 * kk,2 * D0 * 1.1 * k + 1e-3)* Math.min(1,k * 3)* 0.9;
 }
+window.__busGust = t > 12.3 && t < 18 ? Math.sin(Math.min(1,(t - 12.3)/ 5.7)* Math.PI): 0;
 R.position
 .copy(CB.p0)
 .addScaledVector(CB.head,fwdOff)
@@ -33324,6 +33367,7 @@ c.fov = damp(c.fov,55,2,dt);
 c.updateProjectionMatrix();
 };
 if(t >(window.__NOBUS ? 17.9 : 18)){
+window.__busGust = 0;
 if(window.__NOBUS)
 P.camBack ={
 t: 0,
@@ -42630,9 +42674,9 @@ house:[
 ['Even the smallest flame can walk into the dark… and somehow, the dark makes room for it…','']
 ],
 boat:[
-['That little red dot… always one leap ahead of you. And still, you never stopped leaping…',''],
+['That little red dot… always one leap ahead. || And still, you never stopped chasing…',''],
 [
-"I never did catch the red dot. Maybe that's the secret… some lights aren't meant to be caught, only chased. So keep chasing… and never, ever stop…",
+"Maybe that's the secret… || some lights aren't meant to be caught, only chased. || Keep chasing… and never, ever stop…",
 ''
 ]
 ]
@@ -42713,7 +42757,7 @@ if(!document.getElementById('jkwind')){
 const st2 = document.createElement('style');
 st2.id = 'jkwind';
 st2.textContent =
-"#jackq{position:fixed!important;inset:0!important;top:0!important;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 7vw!important;background:none;z-index:47!important}#jackbg{position:fixed;inset:0;pointer-events:none;z-index:46;opacity:0;transition:opacity 1s ease;background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(5,12,22,.62),rgba(5,12,22,.18) 70%,rgba(5,12,22,0) 100%)}html.gpaused #jackbg{visibility:hidden}#jackq .jl{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:600;font-size:clamp(40px,5.8vw,104px);line-height:1.16;letter-spacing:.005em;color:#ecfff8;text-shadow:0 0 18px rgba(93,255,200,.45),0 0 46px rgba(93,255,200,.22),0 3px 18px rgba(4,14,24,.9);max-width:min(1300px,88vw);text-align:center;animation:jkSway 9s ease-in-out infinite}#jackq .jw{display:inline-block;white-space:nowrap;opacity:0;animation:jkIn 1.7s cubic-bezier(.2,.7,.2,1) forwards}#jackq .jc{display:inline-block;will-change:transform,opacity,filter}#jackq .jc.go{animation:jkOut 1.5s cubic-bezier(.35,.05,.65,1) forwards}#jackq>svg{width:clamp(42px,4.6vw,82px)!important;height:auto!important;margin:0 auto 22px!important}@keyframes jkIn{0%{opacity:0;transform:translate(-60px,18px) rotate(-5deg);filter:blur(12px)}55%{opacity:1;filter:blur(1px)}100%{opacity:1;transform:none;filter:none}}@keyframes jkOut{0%{opacity:1;transform:none;filter:blur(0)}15%{opacity:1;transform:translate(calc(var(--dx) * .04),calc(var(--dy) * .02)) rotate(calc(var(--r) * .05))}45%{opacity:.85;transform:translate(calc(var(--dx) * .3),calc(var(--dy) * .25 + 4px)) rotate(calc(var(--r) * .35));filter:blur(.6px)}75%{opacity:.4;transform:translate(calc(var(--dx) * .65),calc(var(--dy) * .7 - 3px)) rotate(calc(var(--r) * .7));filter:blur(2px)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--r));filter:blur(4px)}}@keyframes jkSway{0%,100%{transform:translate(0,0)}50%{transform:translate(7px,-4px)}}";
+"#jackq{position:fixed!important;inset:0!important;top:0!important;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 7vw!important;background:none;z-index:47!important}#jackbg{position:fixed;inset:0;pointer-events:none;z-index:46;opacity:0;transition:opacity 1s ease;background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(5,12,22,.62),rgba(5,12,22,.18) 70%,rgba(5,12,22,0) 100%)}html.gpaused #jackbg{visibility:hidden}#jackq .jl{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:600;font-size:clamp(40px,5.8vw,104px);line-height:1.16;letter-spacing:.005em;color:#ecfff8;text-shadow:0 0 18px rgba(93,255,200,.45),0 0 46px rgba(93,255,200,.22),0 3px 18px rgba(4,14,24,.9);max-width:max(min(1300px,88vw),68vw);text-align:center;animation:jkSway 9s ease-in-out infinite}#jackq .jw{display:inline-block;white-space:nowrap;opacity:0;animation:jkIn 1.7s cubic-bezier(.2,.7,.2,1) forwards}#jackq .jc{display:inline-block;will-change:transform,opacity,filter}#jackq .jc.go{animation:jkOut 1.5s cubic-bezier(.35,.05,.65,1) forwards}#jackq>svg{width:clamp(42px,4.6vw,82px)!important;height:auto!important;margin:0 auto 22px!important}@keyframes jkIn{0%{opacity:0;transform:translate(-60px,18px) rotate(-5deg);filter:blur(12px)}55%{opacity:1;filter:blur(1px)}100%{opacity:1;transform:none;filter:none}}@keyframes jkOut{0%{opacity:1;transform:none;filter:blur(0)}15%{opacity:1;transform:translate(calc(var(--dx) * .04),calc(var(--dy) * .02)) rotate(calc(var(--r) * .05))}45%{opacity:.85;transform:translate(calc(var(--dx) * .3),calc(var(--dy) * .25 + 4px)) rotate(calc(var(--r) * .35));filter:blur(.6px)}75%{opacity:.4;transform:translate(calc(var(--dx) * .65),calc(var(--dy) * .7 - 3px)) rotate(calc(var(--r) * .7));filter:blur(2px)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--r));filter:blur(4px)}}@keyframes jkSway{0%,100%{transform:translate(0,0)}50%{transform:translate(7px,-4px)}}";
 document.head.appendChild(st2);
 }
 const QBEAT = 1.5;
@@ -42756,7 +42800,7 @@ const w = words
 .map(t =>{
 if(t === '||'){
 beat += QBEAT;
-return null;
+return '<br>';
 }
 const key = /^\*\*.*\*\*[.,…]*$/.test(t);
 const tx = t.replace(/\*\*/g,'');
@@ -43335,7 +43379,7 @@ prompt.innerHTML = '<kbd>E</kbd>&nbsp; Say goodbye';
 document.body.appendChild(prompt);
 const ded = document.createElement('div');
 ded.style.cssText =
-'position:fixed;inset:0;z-index:47;display:grid;place-items:center;text-align:center;background:radial-gradient(circle at 50% 45%,rgba(30,40,70,.86),rgba(4,6,14,.97));color:#f4f1ff;opacity:0;pointer-events:none;transition:opacity 2.4s ease;padding:24px';
+'position:fixed;inset:0;z-index:47;display:grid;place-items:center;text-align:center;background:#000;color:#f4f1ff;opacity:0;pointer-events:none;transition:opacity 2.4s ease;padding:24px';
 ded.innerHTML =
 '<div><div style="font-family:Montserrat,sans-serif;text-transform:uppercase;letter-spacing:.32em;font-size:clamp(11px,1.2vw,14px);opacity:.75">IN LOVING MEMORY OF</div><div style="font-family:Fraunces,Georgia,serif;font-variation-settings:\'SOFT\' 40,\'WONK\' 1,\'opsz\' 144;font-weight:600;font-size:clamp(48px,8vw,110px);line-height:1;margin:30px 0 12px;text-shadow:0 0 40px rgba(140,180,255,.45)"><span style="display:block;font-size:.36em;font-style:italic;font-weight:400;opacity:.85;line-height:1;margin-bottom:-.06em">“Maester”</span>Jack</div><div style="font-family:Fraunces,Georgia,serif;font-style:italic;font-size:clamp(17px,2vw,24px);opacity:.9">who watches over Tink and Luca, always</div><div class="cr" style="margin-top:46px;font-family:Montserrat,sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;opacity:0;transition:opacity 2s ease;line-height:2.1">Tink\'s Magical Forest<br><span style="opacity:.7">for Tink, Luca and Jack</span></div><div class="ky" style="margin-top:34px;font-family:Montserrat,sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:0;transition:opacity 1.6s ease">Press any key to keep exploring</div></div>';
 document.body.appendChild(ded);
@@ -43420,6 +43464,63 @@ sp.renderOrder = 5;
 scene.add(sp);
 return sp;
 })();
+const shoot =(()=>{
+const c = document.createElement('canvas');
+c.width = 256;
+c.height = 32;
+const x = c.getContext('2d');
+const gr = x.createLinearGradient(0,0,256,0);
+gr.addColorStop(0,'rgba(180,210,255,0)');
+gr.addColorStop(0.8,'rgba(210,230,255,.55)');
+gr.addColorStop(1,'rgba(255,255,255,1)');
+x.fillStyle = gr;
+x.beginPath();
+x.moveTo(0,16);
+x.lineTo(240,12);
+x.arc(240,16,4,-Math.PI / 2,Math.PI / 2);
+x.lineTo(0,16);
+x.fill();
+const hd = x.createRadialGradient(242,16,0,242,16,14);
+hd.addColorStop(0,'rgba(255,255,255,1)');
+hd.addColorStop(1,'rgba(200,225,255,0)');
+x.fillStyle = hd;
+x.fillRect(220,0,36,32);
+const tx = new THREE.CanvasTexture(c);
+const sp = new THREE.Sprite(
+new THREE.SpriteMaterial({map: tx,transparent: true,depthWrite: false,depthTest: false,fog: false,opacity: 0,blending: THREE.AdditiveBlending})
+);
+sp.scale.set(16,2,1);
+sp.visible = false;
+sp.renderOrder = 9;
+scene.add(sp);
+return sp;
+})();
+const catSh =[0,1].map(()=>{
+const c = document.createElement('canvas');
+c.width = 64;
+c.height = 256;
+const x = c.getContext('2d');
+const g = x.createLinearGradient(0,256,0,0);
+g.addColorStop(0,'rgba(0,0,0,1)');
+g.addColorStop(0.5,'rgba(0,0,0,.6)');
+g.addColorStop(1,'rgba(0,0,0,0)');
+x.fillStyle = g;
+x.beginPath();
+x.moveTo(26,256);
+x.quadraticCurveTo(4,120,18,0);
+x.lineTo(46,0);
+x.quadraticCurveTo(60,120,38,256);
+x.fill();
+const tx = new THREE.CanvasTexture(c);
+const m = new THREE.Mesh(
+new THREE.PlaneGeometry(0.7,9),
+new THREE.MeshBasicMaterial({map: tx,color: 0x1a1020,transparent: true,depthWrite: false,opacity: 0,polygonOffset: true,polygonOffsetFactor: -2,polygonOffsetUnits: -2,fog: false})
+);
+m.visible = false;
+m.renderOrder = 2;
+scene.add(m);
+return m;
+});
 const white = document.createElement('div');
 white.style.cssText = 'position:fixed;inset:0;z-index:46;background:#fffaf0;opacity:0;pointer-events:none';
 document.body.appendChild(white);
@@ -43440,7 +43541,7 @@ const LAST_TAIL =[
 'luca'
 ],
 [
-'Tink… Luca… look after each other for me. And when the others are sad, curl up on their chests and keep them warm. || That was always my favorite spot.',
+'Tink… Luca… look after each other for me. And when the others are sad, curl up on their chests and keep them warm. || That was always my favorite spot…',
 '',
 'tink'
 ],
@@ -43669,7 +43770,7 @@ sitCat(P,A2,yaw);
 if(comp && comp.P)sitCat(comp.P,B2,yaw);
 }
 const[wp,wl]= camShot(F,F.want);
-const k = 1 - Math.exp(-dt *(F.want === 'gifts' ? 3 : F.want === 'toy' ? 1.1 : 0.7));
+const k = 1 - Math.exp(-dt *(F.want === 'gifts' ? 3 : F.want === 'toy' ? 1.1 : F.want === 'sky' ? 0.3 : 0.7));
 F.cam[0].lerp(wp,k);
 F.cam[1].lerp(wl,k);
 }
@@ -43863,6 +43964,21 @@ F.wait = true;
 prompt.style.opacity = 1;
 }
 }
+{
+const show = F.placed && t > 14.5 && !F.night;
+catSh.forEach((m,i)=>{
+const pp = i === 0 ? P : comp && comp.P;
+m.userData.a =(m.userData.a || 0)+((show && pp ? 1 : 0)-(m.userData.a || 0))* Math.min(1,dt *(show ? 0.5 : 2));
+m.visible = m.userData.a > 0.01 && !!pp;
+if(!m.visible)return;
+const L = 9;
+const c = pp.pos.clone().addScaledVector(face,-L / 2 - 0.05);
+c.y = groundAt(c.x,c.z,pp.pos.y + 1)+ 0.03;
+m.position.copy(c);
+m.rotation.set(-Math.PI / 2,0,Math.atan2(face.x,face.z));
+m.material.opacity = 0.42 * m.userData.a;
+});
+}
 if(F.go != null){
 F.go += dt;
 prompt.style.opacity = 0;
@@ -43985,10 +44101,39 @@ F.night = 1;
 const C = window.__CYCLE;
 if(C){
 C.hold = false;
-C.jump('night',0.05);
+C.jump('dusk',0.55);
 C.hold = true;
 }
 S.starOn = true;
+}
+if(F.sky){
+const C = window.__CYCLE;
+const k =(g - 10.5)/ 11;
+if(C && C.setT){
+if(k < 1)C.setT('dusk',0.55 + 0.45 * k);
+else C.setT('night',Math.min(0.12,(k - 1)* 0.1));
+}
+}
+if(g > 23.2 && !F.shoot){
+F.shoot ={t: 0};
+shoot.visible = true;
+}
+if(F.shoot && shoot.visible){
+const SH = F.shoot;
+SH.t += dt;
+const k = SH.t / 1.5;
+const fw = new V3();
+camera.getWorldDirection(fw);
+const rt = new V3().crossVectors(fw,camera.up).normalize(),
+up = new V3().crossVectors(rt,fw).normalize();
+const a = camera.position.clone().addScaledVector(fw,90).addScaledVector(rt,-34).addScaledVector(up,26),
+b = camera.position.clone().addScaledVector(fw,90).addScaledVector(rt,26).addScaledVector(up,12);
+shoot.position.copy(a).lerp(b,k);
+const pa = a.clone().project(camera),
+pb = b.clone().project(camera);
+shoot.material.rotation = Math.atan2((pb.y - pa.y)* innerHeight,(pb.x - pa.x)* innerWidth);
+shoot.material.opacity = Math.sin(Math.min(1,k)* Math.PI)* 0.95;
+if(k >= 1)shoot.visible = false;
 }
 white.style.opacity = g < 1.3 ? 1 : Math.max(0,1 - ss2(Math.min(1,(g - 1.3)/ 3)));
 if(g > 0.9)rays.visible = false;
@@ -43997,7 +44142,7 @@ F.sky = 1;
 F.want = 'sky';
 F.end = t;
 }
-if(g > 17 && !F.ded){
+if(g > 25 && !F.ded){
 F.ded = 1;
 ded.style.opacity = 1;
 ded.style.pointerEvents = 'auto';
@@ -44024,6 +44169,8 @@ document.body.classList.remove('fin');
 petal.visible = false;
 motes.visible = false;
 rays.visible = false;
+shoot.visible = false;
+catSh.forEach(m =>(m.visible = false));
 white.style.opacity = 0;
 motes.material.opacity = 0;
 const words = !window.__jackPlayable;
@@ -44109,8 +44256,8 @@ try{
 tryLock();
 }catch(e){}
 if(!window.__jackPlayable){
-const L1 = "If you ever miss me, call my name into the dark. I'll come running, like I always did.",
-L2 = "I'm always with you… always watching over you.";
+const L1 = "If you ever miss me, call my name into the dark. || I'll come running… like I always did…",
+L2 = "I'm with you always… || smiling over you…";
 setTimeout(()=>{
 try{
 S.quote(L1,0);
@@ -44233,6 +44380,37 @@ if(grab && window.__toyGrab)window.__toyGrab(Y,true);
 };
 let pT = 0;
 S.update = dt =>{
+try{
+const K = J.k;
+const talking = !!(window.__qHold ||(J.showing && say));
+if(K && K.op > 0.4 && K.holder.visible && talking && P.mode === 'ground' && !window.__asJack && !S.fin){
+const hp = K.holder.position;
+const dx = hp.x - P.pos.x,
+dz = hp.z - P.pos.z,
+d = Math.hypot(dx,dz);
+const SW = S.swimTo ||(S.swimTo ={on: false});
+if(P.inWater && !SW.on)SW.on = true;
+if(SW.on){
+if(d > 0.85){
+const sp = P.inWater ? 0.55 : 0.4;
+const st = Math.min(d - 0.85,sp * dt);
+P.pos.x +=(dx / d)* st;
+P.pos.z +=(dz / d)* st;
+P.yaw += angDiff(P.yaw,Math.atan2(dx,dz))* Math.min(1,dt * 3);
+P.speed = sp;
+P.sit = 0;
+P.groom = false;
+}else{
+SW.on = false;
+P.speed = 0;
+P.groom = true;
+P.watch = true;
+P.watchHold = true;
+P.sit = 1;
+}
+}
+}else if(S.swimTo)S.swimTo.on = false;
+}catch(e){}
 try{
 window.__DIR && window.__DIR.update(dt);
 }catch(e){}
@@ -45370,10 +45548,10 @@ home: 'Where all the lights lead'
 };
 const OPEN ={
 house: "There's a place I was afraid of, once… back when every shadow had teeth…",
-rain: "Listen to the rain… it's saying all the things we couldn't. Come, sit with me…",
+rain: "Listen to the rain… it's saying everything we couldn't. || Come, sit with me…",
 bean: 'Even under the snow, the smallest seed still dreams of the light…',
-boat: 'Do you remember our midnight races down the hallway? You were so fast… I could never catch you…',
-home: "I'll be under the big tree. I'll wait as long as it takes. I always did."
+boat: 'Do you remember our midnight races down the hall? || You were so fast… I could never catch you…',
+home: "I'll be under the big tree… waiting as long as it takes… || I always did…"
 };
 const BRIDGES =[
 [3.1,-13.8],
@@ -45755,7 +45933,7 @@ c.bf ={
 p: from[0],
 l: from[1],
 t: 0,
-d: dist < 0.05 ? 0 : clamp(0.9 + dist * 0.06,1.2,3.2)
+d: dist < 0.05 ? 0 : clamp(1.8 + dist * 0.12,2.4,8)
 };
 c.si = si;
 }
@@ -45763,9 +45941,14 @@ const B = c.bf;
 if(B && B.d > 0 && B.t < B.d){
 B.t += dt;
 const u = clamp(B.t / B.d,0,1),
-e = u * u * u *(u *(u * 6 - 15)+ 10);
+e = 0.5 - 0.5 * Math.cos(Math.PI * u);
 const p = B.p.clone().lerp(np[0],e);
 p.y += Math.sin(Math.PI * e)* Math.min(3,B.p.distanceTo(np[0])* 0.12);
+{
+const dv = np[0].clone().sub(B.p);
+const sd = new V3(-dv.z,0,dv.x);
+if(sd.lengthSq()> 1e-4)p.addScaledVector(sd.normalize(),Math.sin(Math.PI * e)* Math.min(2.2,dv.length()* 0.06));
+}
 np =[p,B.l.clone().lerp(np[1],e)];
 }
 }
@@ -46301,14 +46484,14 @@ D.hopReady = false;
 D.prompt(null);
 const B = D.bseat || benchSeats();
 if(B){
-const to = P.pos.clone().addScaledVector(B.fw,1.3);
+const to = P.pos.clone().addScaledVector(B.fw,0.95);
 to.y = gy(to.x,to.z);
 D.hopDown ={t: 0,from: P.pos.clone(),to,yaw: Math.atan2(B.fw.x,B.fw.z)};
 P.watch = false;
 P.watchHold = false;
 P.groom = false;
 P.sit = 0;
-P.script ={clip: 'JumpAir_up_F',ts: 1.1,fade: 0.12,dur: 0.7};
+P.script ={clip: act('jumpFall'),ts: 1,fade: 0.1};
 }
 return;
 }
@@ -46460,7 +46643,7 @@ if(!sk)quote("You don't have to be brave all the time.",0);
 sk =>{
 if(!sk)
 quote(
-"I cried too, the day I had to go. Not because it hurt. Because I wasn't ready to leave you.",
+"I cried too, the day I had to go. || Not because it hurt. || Because I wasn't ready to leave you…",
 0
 );
 }
@@ -47656,6 +47839,13 @@ window.__lastInput = performance.now();
 try{
 window.__storyLine && window.__storyLine('A little red dot!','chase it',4200);
 }catch(e){}
+setTimeout(()=>{
+try{
+if(DOT && !(window.__STORY && window.__STORY.busy && window.__STORY.busy()))
+window.__storyLine &&
+window.__storyLine('Pounce on it!','hold click to crouch and charge… let go to pounce',6500);
+}catch(e){}
+},6000);
 }
 });
 };
@@ -47770,9 +47960,9 @@ D.prompt(null);
 if(D.hopDown){
 const H = D.hopDown;
 H.t += dt;
-const h = clamp(H.t / 0.7,0,1);
+const h = clamp(H.t / 0.45,0,1);
 const p = H.from.clone().lerp(H.to,ss(h));
-p.y = lerp(H.from.y,H.to.y,h)+ Math.sin(h * Math.PI)* 0.3;
+p.y = lerp(H.from.y,H.to.y,h * h)+ Math.sin(h * Math.PI)* 0.12;
 P.pos.copy(p);
 P.visY = p.y;
 P.yaw = H.yaw;
@@ -47788,12 +47978,16 @@ while(d < -Math.PI)d += 2 * Math.PI;
 CS2.cam.yaw += d * Math.min(1,dt * 3.5);
 }
 }catch(e){}
-if(h >= 1){
-D.hopDown = null;
-P.script = null;
+if(h >= 1 && !H.landed){
+H.landed = 1;
+P.script ={clip: act('land'),ts: 1,fade: 0.06};
 try{
 sfx('thump_small',{vol: 0.6});
 }catch(e){}
+}
+if(H.landed && H.t > 0.45 + 0.5){
+D.hopDown = null;
+P.script = null;
 }
 }
 const J = D.jack,
@@ -47928,6 +48122,25 @@ const fin = !!(SS && SS.fin);
 const nearT = T0 ? Math.hypot(P.pos.x - T0.x,P.pos.z - T0.z): 99;
 const homeIn =(q && q.id === 'home' && nearT <(T0.R || 6)+ 12)|| fin;
 window.__homeWalk = !!(q && q.id === 'home' && !fin && nearT <(T0.R || 6)+ 4.5);
+if(q && q.id === 'home' && !fin && nearT <(T0.R || 6)+ 12){
+const kk = clamp(1 -(nearT -(T0.R || 6))/ 12,0,1);
+if(window.__homeWalk && !D.homeShim){
+D.homeShim = 1;
+try{
+sfx('shimmer',{vol: 0.55,rate: 0.85});
+}catch(e){}
+}
+D.homeSp =(D.homeSp ?? 0.5)- 1 / 60;
+if(D.homeSp <= 0){
+D.homeSp = 1.4 - kk * 0.8 + Math.random()* 0.5;
+try{
+sfx('sparkle',{vol: 0.15 + kk * 0.3,rate: 0.95 + Math.random()* 0.4});
+}catch(e){}
+try{
+window.__sparkleAt && window.__sparkleAt(P.pos.clone().add(new V3((Math.random()- 0.5)* 2,0.4 + Math.random()* 0.8,(Math.random()- 0.5)* 2)));
+}catch(e){}
+}
+}else if(!fin)D.homeShim = 0;
 D.homeBK = homeIn
 ? Math.min(1,(D.homeBK || 0)+(1 / 60)* 0.6)
 : Math.max(0,(D.homeBK || 0)-(1 / 60)* 0.8);
@@ -48019,8 +48232,8 @@ P.summit &&
 ){
 if(P.summit.t > 2 && !window.__beanSaid && !D.sumT){
 D.sumT = 1;
-const L1 = "It's so quiet up here. Always warm.",
-L2 = "Up here, I can see every path you'll ever walk… and I'll be with you, every step…";
+const L1 = "It's so quiet up here. || Always warm…",
+L2 = "Up here, I can see every path you'll ever walk… || and I'll be with you, every step…";
 quote(L1,0);
 const t2 =(ST().qdur ? ST().qdur(L1): 9)* 1000;
 setTimeout(()=> quote(L2,0),t2);
@@ -48256,7 +48469,7 @@ const si = Q.step.bean || 0;
 window.__nearBean = dS < 4.5;
 let act = null;
 if(freeNow()&& P.mode === 'ground'){
-if(b.st === 3 && dS < 3.2)act = 'sleep';
+if(b.st === 3 && dS < 3.2 && !(window.__plantT && performance.now()- window.__plantT < 6200))act = 'sleep';
 else if(b.st >= 4 && !b.wet && !b.leaf){
 let g = 9;
 try{
@@ -48266,13 +48479,13 @@ if(g < 1.3 || P.inWater)act = 'fill';
 }else if(b.st >= 4 && !b.wet && b.leaf && dS < 0.9)act = 'pour';
 }
 D.beanAct = act;
-if(D.benchReady === false && !CS){
+if(D.benchReady === false && !CS && !D.hopReady && !D.hopDown){
 if(act === 'sleep')D.prompt(BEANKX('X')+ 'Curl up and sleep');
 else if(act === 'fill')D.prompt(BEANKX('E')+ 'Fill a leaf with water');
 else if(act === 'pour')D.prompt(BEANKX('E')+ 'Pour the water over the sprout');
 else D.prompt(null);
 }
-}else if(D.benchReady === false && !CS)D.prompt(null);
+}else if(D.benchReady === false && !CS && !D.hopReady && !D.hopDown)D.prompt(null);
 if(q.id === 'bean'){
 const b = A.BN();
 const climbing = P.mode === 'climb' && P.climb && P.climb.tree && P.climb.tree.bean;
