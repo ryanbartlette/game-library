@@ -16813,6 +16813,19 @@ if(label !== 'Stalk')label = 'Walk';
 P.dashing = false;
 P.dashT = 0;
 }
+if(
+window.__farmCrawl &&
+!(window.__FCS && window.__FCS.lock)&&
+!window.__asJack
+){
+P.crouchOn = true;
+P.dashing = false;
+P.dashT = 0;
+if(dir && P.sit < 0.5){
+target = T.stalk;
+label = 'Stalk';
+}
+}
 }
 if(window.__asJack && target > T.walk * 1.05)
 target *= P.dashing ? 1.45 : 1.25;
@@ -29168,7 +29181,7 @@ d.z
 0.08,
 false
 );
-M.houseRamp ={fl,z0,z1,hw,hw2};
+M.houseRamp ={fl,z0,z1,hw,hw2,g};
 }
 }
 W0 =(bb.max.x - bb.min.x)* 0.95;
@@ -33254,6 +33267,82 @@ ST7 = D7 && D7.stairs,
 SKr = M.stoker,
 FIGr = M.stokFIG;
 const cineOK = !!(ST7 && FHI && FHI.g);
+{
+const RP = M.houseRamp;
+const EN = M.farmEntry ||(M.farmEntry ={st: 'idle',t: 0,crawl: false});
+if(RP && RP.g){
+if(!EN.foot){
+const cx =(RP.hw - RP.hw2)/ 2;
+EN.foot = RP.g.localToWorld(new V3(cx,0,RP.z1 + 0.15));
+EN.top = RP.g.localToWorld(new V3(cx,0,RP.z0));
+EN.foot.y = groundAt(EN.foot.x,EN.foot.z,RP.g.position.y + 3);
+EN.top.y = RP.fl;
+}
+const dF = Math.hypot(P.pos.x - EN.foot.x,P.pos.z - EN.foot.z);
+const ux = EN.top.x - EN.foot.x,
+uz = EN.top.z - EN.foot.z,
+ul = Math.hypot(ux,uz)|| 1;
+const busy =
+(window.__FCS && window.__FCS.lock)||
+(window.__inCut && window.__inCut())||
+(window.__STORY && window.__STORY.busy && window.__STORY.busy());
+if(
+EN.st === 'idle' &&
+!EN.crawl &&
+!inside &&
+!window.__farmWasIn &&
+FE.st === 'out' &&
+!busy &&
+P.mode === 'ground' &&
+dF < 1.5 &&
+(P.vel.x * ux + P.vel.z * uz)/ ul > 0.15
+){
+EN.st = 'look';
+EN.t = 0;
+EN.cp = null;
+P.vel.set(0,0,0);
+P.walkMode = true;
+window.__digT = performance.now()+ 3600;
+const F =(window.__FCS ={lock: true,dir: null,cam: null,entry: true});
+F.cam = c =>{
+const k = 1 / ul;
+const pos = new V3(P.pos.x - ux * k * 1.6,P.pos.y + 0.45,P.pos.z - uz * k * 1.6);
+const look = new V3(EN.top.x + ux * k * 1.2,EN.top.y + 0.9,EN.top.z + uz * k * 1.2);
+if(!EN.cp){
+EN.cp = c.position.clone();
+EN.cl = c.position.clone().add(c.getWorldDirection(new V3()).multiplyScalar(4));
+}
+EN.cp.lerp(pos,1 - Math.exp(-dt * 1.6));
+EN.cl.lerp(look,1 - Math.exp(-dt * 1.9));
+c.position.copy(EN.cp);
+c.lookAt(EN.cl);
+};
+window.__camOverride = c =>{
+if(F.cam)F.cam(c);
+};
+}
+if(EN.st === 'look'){
+EN.t += dt;
+P.vel.x = P.vel.z = 0;
+P.yaw += angDiff(P.yaw,Math.atan2(ux,uz))* Math.min(1,dt * 3);
+if(EN.t > 3.4){
+EN.st = 'idle';
+EN.crawl = true;
+if(window.__FCS && window.__FCS.entry){
+window.__FCS = null;
+window.__camOverride = null;
+cam.yaw = Math.atan2(-ux,-uz);
+cam.pitch = 0.28;
+}
+}
+}
+if(EN.crawl &&((window.__farmWasIn && !inside && FE.st === 'out')||(!inside && !window.__farmWasIn && dF > 6))){
+EN.crawl = false;
+P.crouchOn = false;
+}
+}
+window.__farmCrawl = !!EN.crawl;
+}
 if(!FE.seen && !FE.msg && FE.st === 'out' && near > 0.4 && cineOK && doorOpen){
 FE.msg = true;
 try{
