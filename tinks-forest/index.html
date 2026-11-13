@@ -480,7 +480,7 @@ body[data-pad=xbox] kbd[data-btn=Y],body[data-pad=xbox] .kc[data-btn=Y],#padMap.
 <div id="gate">
   <div class="g-shade"></div>
   <div class="g-corner">In loving memory of<b>Jack</b></div>
-  <div class="g-build" id="gBuild">Build 478</div>
+  <div class="g-build" id="gBuild">Build 480</div>
   <div class="g-music" id="gMusic" aria-pressed="false"><i></i>Music</div>
   <header class="g-title">
     <div class="g-small">Tink's Magical</div>
@@ -531,6 +531,6 @@ window.__THEME=(()=>{let done=false;const M=window.__MUS.mk('audio/music/01-the-
  b.addEventListener('click',e=>{e.stopPropagation();if(on){want=false;stop(600)}else{want=true;start()}});
  const tk=setInterval(()=>{if(done||on){if(done)clearInterval(tk);return}start()},300);for(const ev of ['pointerdown','keydown'])addEventListener(ev,start,{capture:true});return {el:null,stop,play:()=>{done=false;want=true;start()},state:()=>({on,want,done,ready:ready()})}})();</script>
 <script type="importmap">{"imports":{"three":"./three.module.js","three/addons/":"./jsm/"}}</script>
-<script>(async()=>{if(/[?&]dev\b/.test(location.search)){location.replace(location.pathname.replace(/[^/]*$/,"")+"dev.html"+location.search+location.hash);return}const lay=fetch("./data/world-layout.9bf0ca4036.json").then(r=>r.ok?r.text():null).catch(()=>null);const u="./game.js?v=1794592684";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
+<script>(async()=>{if(/[?&]dev\b/.test(location.search)){location.replace(location.pathname.replace(/[^/]*$/,"")+"dev.html"+location.search+location.hash);return}const lay=fetch("./data/world-layout.9bf0ca4036.json").then(r=>r.ok?r.text():null).catch(()=>null);const u="./game.js?v=1794600020";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
  if(!txt){const g=document.getElementById("goTxt");if(g)g.textContent="Could not download the game. Please reload";return}
  try{const lt=await lay;if(lt)window.__LAYOUT=JSON.parse(lt)}catch(e){} const sc=document.createElement("script");sc.type="module";sc.src=URL.createObjectURL(new Blob([txt],{type:"text/javascript"}));document.body.appendChild(sc)})()</script>

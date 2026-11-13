@@ -12722,7 +12722,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 478;
+const BUILD = 480;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -16454,6 +16454,7 @@ const noLeap =
 !!(window.__TRAIL && window.__TRAIL.cv && !window.__TRAIL.passed && !window.__devSkip)||
 !!window.__inFarm ||
 !!window.__farmCrawl ||
+!!window.__farmNear ||
 !!window.__homeWalk;
 const jumpKey =
 !CLK && !noLeap && !P.summit && isKey('Space')&& !RW && !(window.__INTRO && window.__INTRO.ph === 'railWait');
@@ -25795,6 +25796,8 @@ CB.root = root;
 const S0 = 0.0587;
 root.scale.setScalar(S0);
 CB.S0 = S0;
+const __R0 = Math.random;
+Math.random = mulberry32(31337);
 const bm = CATBG.scene.clone(true);
 bm.scale.setScalar(9.2);
 bm.position.set(0,0,-6.7 * 9.2 + 8);
@@ -25839,6 +25842,8 @@ CB.mats.push(o.material);
 if(glow)CB.glowMat = o.material;
 }
 });
+Math.random = __R0;
+for(let i = 0;i < 36;i++)__R0();
 const seatM = celMat(
 tintMat(
 new THREE.MeshStandardMaterial({color: 0xece2c4,roughness: 0.9}),
@@ -33206,13 +33211,22 @@ cam.pitch = 0.28;
 }
 }
 }
-if(!EN.crawl && EN.st === 'idle' && inside && !window.__asJack)EN.crawl = true;
 if(EN.crawl &&((window.__farmWasIn && !inside && FE.st === 'out')||(!inside && !window.__farmWasIn && dF > 6))){
 EN.crawl = false;
 P.crouchOn = false;
 }
 }
+if(inside && !window.__asJack && EN.st !== 'look')EN.crawl = true;
+if(EN.crawl && !inside && FE.st === 'out' && !(RP && RP.g)&& window.__farmWasIn)EN.crawl = false;
 window.__farmCrawl = !!EN.crawl;
+{
+let nr = inside || near > 0;
+if(!nr && M.houseMesh){
+const B = M.__hbJ ||(M.__hbJ = new THREE.Box3().setFromObject(M.houseMesh).expandByScalar(2.5));
+nr = B.containsPoint(P.pos);
+}
+window.__farmNear = nr;
+}
 }
 if(!FE.seen && !FE.msg && FE.st === 'out' && near > 0.4 && cineOK && doorOpen){
 FE.msg = true;
