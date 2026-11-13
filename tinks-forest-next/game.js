@@ -22697,6 +22697,23 @@ let MIX ={...MIX_BAKED};
 AUD.mix = MIX;
 AUD.buses ={};
 AUD.heard ={};
+AUD.rest =()=>{
+if(!AUD._rest){
+AUD._rest = AUD.ctx.createGain();
+AUD._rest.connect(AUD.master);
+}
+return AUD._rest;
+};
+AUD.hush = sec =>{
+if(!AUD.ctx)return;
+const g = AUD.rest().gain,
+t = AUD.ctx.currentTime;
+g.cancelScheduledValues(t);
+g.setValueAtTime(g.value,t);
+g.linearRampToValueAtTime(0,t + 0.35);
+g.setValueAtTime(0,t + Math.max(0.4,sec - 0.6));
+g.linearRampToValueAtTime(1,t + sec + 1.4);
+};
 AUD.bus = name =>{
 AUD.heard[name]= performance.now();
 let b = AUD.buses[name];
@@ -22715,11 +22732,11 @@ lp.type = 'lowpass';
 lp.frequency.value = 20000;
 lp.Q.value = 0.5;
 og.connect(lp);
-lp.connect(AUD.master);
+lp.connect(AUD.rest());
 AUD.outdoor ={g: og,lp};
 }
 b.connect(AUD.outdoor.g);
-}else b.connect(AUD.master);
+}else b.connect(name === MUSBUS.gift ? AUD.master : AUD.rest());
 AUD.buses[name]= b;
 }
 return b;
@@ -26924,6 +26941,7 @@ SC.gain2.gain.value = MUSV();
 SC.gain2.connect(AUD.bus(MUSBUS.gift));
 }
 songStart(ctx,'gift',b,SC.gain2,0.02);
+AUD.hush(b.duration);
 }
 }
 if(n !== SC.gifts)L.songBuf('gift');
