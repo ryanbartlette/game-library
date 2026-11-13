@@ -22692,7 +22692,16 @@ const AUD ={ctx: null,master: null,buf:{},beds:{},on: true};
 try{
 AUD.on = localStorage.getItem('luca.sound')!== 'off';
 }catch(e){}
-const MIX_BAKED ={};
+const MIX_BAKED ={
+evening: 0.3,
+crickets: 0.15,
+step_wood: 0.4,
+creak: 0.6,
+rustle_bush: 0.1,
+step_leaves: 0.3,
+rustle: 0.4,
+step_ground: 0.4
+};
 let MIX ={...MIX_BAKED};
 AUD.mix = MIX;
 AUD.buses ={};
@@ -22724,7 +22733,8 @@ const indoor =
 /^(music: 10 |furnace_|step_|creak|claws|thump|cat_|tink_|luca_|purr|swat|pop|giggle|sparkle|shimmer|notice|chime|water_)/.test(
 name
 );
-if(!indoor){
+if(name === MUSBUS.gift)b.connect(AUD.master);
+else if(!indoor){
 if(!AUD.outdoor){
 const og = AUD.ctx.createGain(),
 lp = AUD.ctx.createBiquadFilter();
@@ -22736,7 +22746,7 @@ lp.connect(AUD.rest());
 AUD.outdoor ={g: og,lp};
 }
 b.connect(AUD.outdoor.g);
-}else b.connect(name === MUSBUS.gift ? AUD.master : AUD.rest());
+}else b.connect(AUD.rest());
 AUD.buses[name]= b;
 }
 return b;
@@ -22755,7 +22765,6 @@ const AMB_FILES ={
 purr2: AUDPATH.purr2,
 purr3: AUDPATH.purr3,
 day: AUDPATH.day,
-night: AUDPATH.night,
 wind: AUDPATH.wind,
 water_walk: AUDPATH.water_walk,
 cicadas: AUDPATH.cicadas,
@@ -26922,7 +26931,8 @@ credits: SC.shot === 'credits',
 leap: SC.shot === 'leap',
 summit: !!P.summit,
 reveal: SC.shot === 'reveal',
-jack: !!TR.cs || !!(JJ && JJ.showing),
+jack:
+!!TR.cs || !!(JJ && JJ.card && JJ.card.style && JJ.card.style.display && JJ.card.style.display !== 'none'),
 bus: !!SC.bus,
 stream: !!SC.stream,
 night
@@ -27016,12 +27026,7 @@ MW.season = TH.cur && TH.lvl > 0.02 ? 30 : 0;
 TH.gain.gain.setTargetAtTime(TH.lvl * MUSV()* G('season'),ctx.currentTime,0.4);
 {
 const now = performance.now();
-if(TH.cur && TH.lvl > 0.02)AUD.heard[SONGBUS[TH.cur]]= now;
-if(PN.lvl > 0.02 && PN.cur)AUD.heard[MUSBUS[PN.cur.k]]= now;
-if(SC.lvl > 0.02 && SC.cur)AUD.heard[MUSBUS[SC.cur.k]]= now;
-if(L.farm && L.farm.lvl > 0.02)AUD.heard[MUSBUS.boiler]= now;
-if(L.magic && L.magic.lvl > 0.02)AUD.heard[MUSBUS.magic]= now;
-if(L.music && L.music.on)AUD.heard['music: forest melody']= now;
+void now;
 }
 const MG = L.magic ||(L.magic ={lvl: 0,gain: null,el: null});
 const SP = L.sprout;
