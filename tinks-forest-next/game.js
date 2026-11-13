@@ -52729,7 +52729,7 @@ vx = b.left + b.width / 2 - ax,
 vy = b.top + b.height / 2 - ay;
 const along = vx * dx + vy * dy,
 across = Math.abs(vx * dy - vy * dx);
-if(along <= 2)continue;
+if(along <= 2 || across > along * 1.2)continue;
 const s = along + across * 2.5;
 if(s < bs){
 bs = s;
