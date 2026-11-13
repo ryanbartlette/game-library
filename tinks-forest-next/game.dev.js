@@ -277,6 +277,16 @@ const AUDPATH ={
 'eat': 'audio/cats/cat-eating.mp3',
 'furnace_lever': 'audio/actions/furnace-lever.mp3',
 'magic': 'audio/music/12-a-seed-that-dreams-of-sky.mp3',
+'reveal': 'audio/music/05-into-the-magical-forest.mp3',
+'bus': 'audio/music/11-waiting-in-the-rain.mp3',
+'jack': 'audio/music/13-the-black-cat-waits.mp3',
+'night': 'audio/music/14-lantern-light.mp3',
+'stream': 'audio/music/15-the-glint-in-the-stream.mp3',
+'summit': 'audio/music/16-where-the-sky-begins.mp3',
+'leap': 'audio/music/17-leap-of-faith.mp3',
+'farewell': 'audio/music/18-home-to-the-great-tree.mp3',
+'credits': 'audio/music/19-spring-comes-again.mp3',
+'gift': 'audio/music/20a-gift-found.mp3',
 'day': 'audio/ambient/day-forest.mp3',
 'night': 'audio/ambient/night-forest.mp3',
 'wind': 'audio/ambient/wind.mp3',
@@ -26999,7 +27009,15 @@ o.start(t);
 o.stop(t + dur + 0.1);
 }
 }
-const SONGLOOP ={piano:[25.19,145.26],tunnel:[35.43,154.39]};
+const SONGLOOP ={
+piano:[25.19,145.26],
+tunnel:[35.43,154.39],
+bus:[13.49,105.37],
+jack:[19.78,117.54],
+night:[30.63,118.07],
+stream:[38.8,102.79],
+summit:[31.93,100.45]
+};
 const SONGBUF ={};
 L.songBuf = k =>{
 const e = SONGBUF[k]||(SONGBUF[k]={buf: null,p: null});
@@ -27014,6 +27032,46 @@ e.buf = b;
 e.p = null;
 });
 return e.buf;
+};
+L.songFree = k =>{
+const e = SONGBUF[k];
+if(e && e.buf){
+e.buf = null;
+e.p = null;
+}
+};
+const songStart =(ctx,k,b,out,fin)=>{
+const src = ctx.createBufferSource(),
+g = ctx.createGain(),
+t = ctx.currentTime,
+LP = SONGLOOP[k];
+src.buffer = b;
+if(LP){
+src.loop = true;
+src.loopStart = LP[0];
+src.loopEnd = LP[1];
+}
+src.connect(g).connect(out);
+g.gain.setValueAtTime(0,t);
+g.gain.linearRampToValueAtTime(1,t + Math.max(0.02,fin));
+src.start(t);
+const c ={k,src,g,ended: false};
+src.onended =()=>{
+c.ended = true;
+};
+return c;
+};
+const songFade =(ctx,c,sec,keep)=>{
+const t = ctx.currentTime;
+c.g.gain.cancelScheduledValues(t);
+c.g.gain.setValueAtTime(c.g.gain.value,t);
+c.g.gain.linearRampToValueAtTime(0,t + sec);
+try{
+c.src.stop(t + sec + 0.05);
+}catch(e){}
+setTimeout(()=>{
+if(!keep || !keep())L.songFree(c.k);
+},(sec + 0.3)* 1000);
 };
 L.playMusic = dt =>{
 const M = L.music;
@@ -27157,37 +27215,130 @@ PN.gain.connect(AUD.bus('music: piano in the house'));
 }
 PN.gain.gain.setTargetAtTime(PN.lvl *(T.music ?? 0.6)* 0.33,ctx.currentTime,0.3);
 const k = PN.stage === 1 ? 'tunnel' : 'piano';
-const fadeOut =(c,s)=>{
-const t = ctx.currentTime;
-c.g.gain.cancelScheduledValues(t);
-c.g.gain.setValueAtTime(c.g.gain.value,t);
-c.g.gain.linearRampToValueAtTime(0,t + s);
-try{
-c.src.stop(t + s + 0.05);
-}catch(e){}
-};
+const keepPN =()=> !!(PN.cur && PN.cur.k === k);
 if(PN.lvl > 0.01 &&(!PN.cur || PN.cur.k !== k)){
 const b = L.songBuf(k);
 if(b){
-if(PN.cur)fadeOut(PN.cur,2.5);
-const src = ctx.createBufferSource(),
-g = ctx.createGain(),
-t = ctx.currentTime,
-LP = SONGLOOP[k];
-src.buffer = b;
-src.loop = true;
-src.loopStart = LP[0];
-src.loopEnd = LP[1];
-src.connect(g).connect(PN.gain);
-g.gain.setValueAtTime(0,t);
-g.gain.linearRampToValueAtTime(1,t +(PN.cur ? 2.5 : 0.4));
-src.start(t);
-PN.cur ={k,src,g};
+const was = PN.cur;
+if(was)songFade(ctx,was,2.5,()=> !!(PN.cur && PN.cur.k === was.k));
+PN.cur = songStart(ctx,k,b,PN.gain,was ? 2.5 : 0.4);
 }
 }
 if(PN.lvl <= 0.01 && PN.cur){
-fadeOut(PN.cur,0.2);
+songFade(ctx,PN.cur,0.2,keepPN);
 PN.cur = null;
+}
+}
+const SC = L.scene ||(L.scene ={lvl: 0,gain: null,cur: null,shot: null,done:{},tk: 0,gifts: -1,gain2: null});
+{
+if(!SC.gain){
+SC.gain = ctx.createGain();
+SC.gain.gain.value = 0;
+SC.gain.connect(AUD.bus('music: story scenes'));
+}
+const QQ = window.__QAPI,
+Qd = QQ && QQ.Q,
+TR = window.__TRAIL ||{},
+JJ = window.__JACK,
+ST = window.__STORY;
+const got = id => !!document.querySelector('#gifts img.got[data-g="' + id + '"]');
+if(TR.cs)SC.sawCs = true;
+if(TR.welcomed && SC.sawCs && !SC.done.reveal){
+SC.done.reveal = 1;
+SC.shot = 'reveal';
+}
+if(P.floatDown && !SC.wasFloat)SC.shot = 'leap';
+SC.wasFloat = !!P.floatDown;
+if(ST && ST.fin && !SC.done.farewell){
+SC.done.farewell = 1;
+SC.shot = 'farewell';
+}
+if(Qd && Qd.p && Qd.p.finDone && !Qd.p.closing && !(SC.cur && SC.cur.k === 'farewell' && !SC.cur.ended)){
+Qd.p.closing = 1;
+try{
+QQ.saveQ && QQ.saveQ();
+}catch(e){}
+SC.shot = 'credits';
+}
+SC.tk -= dt;
+const tick = SC.tk <= 0;
+if(tick){
+SC.tk = 0.25;
+try{
+const pl = QQ && QQ.place && QQ.place('bus');
+SC.bus =
+!!Qd &&
+!!Qd.done &&
+(!!Qd.done.house || got('bell'))&&
+!got('bell')&&
+!!pl &&
+Math.hypot(P.pos.x - pl.x,P.pos.z - pl.z)< 12;
+}catch(e){
+SC.bus = false;
+}
+SC.stream =
+!!Qd && !!Qd.done && !!Qd.done.bean && !got('boat')&&['flower','leaf','pebble','bell'].every(got);
+}
+const night =
+NIGHTISH()&&
+!!TR.welcomed &&
+PN.lvl < 0.05 &&
+!(L.farm && L.farm.lvl > 0.05)&&
+!(L.sprout && L.sprout.grow > 0.2 && !(Qd && Qd.done && Qd.done.bean));
+if(SC.shot && SC.cur && SC.cur.k === SC.shot && SC.cur.ended)SC.shot = null;
+const on ={
+farewell: SC.shot === 'farewell',
+credits: SC.shot === 'credits',
+leap: SC.shot === 'leap',
+summit: !!P.summit,
+reveal: SC.shot === 'reveal',
+jack: !!TR.cs || !!(JJ && JJ.showing),
+bus: !!SC.bus,
+stream: !!SC.stream,
+night
+};
+const want =['farewell','credits','leap','summit','reveal','jack','bus','stream','night'].find(k => on[k])|| null;
+if(SC.shot && want !== SC.shot)SC.shot = null;
+const W2 = want;
+if(P.summit)L.songBuf('leap');
+if(TR.inside > 0.3 || PN.stage === 1)L.songBuf('jack');
+if(W2 && !(SC.cur && SC.cur.k === W2)){
+const b = L.songBuf(W2);
+if(b){
+const was = SC.cur;
+if(was)songFade(ctx,was,was.ended ? 0.05 : 2.5,()=> !!(SC.cur && SC.cur.k === was.k));
+SC.cur = songStart(ctx,W2,b,SC.gain,W2 === 'leap' ? 0.03 : was ? 2.5 : 1.5);
+}
+}else if(!W2 && SC.cur){
+const was = SC.cur;
+songFade(ctx,was,was.ended ? 0.05 : 3,()=> !!(SC.cur && SC.cur.k === was.k));
+SC.cur = null;
+}
+const playing = !!(SC.cur && !SC.cur.ended);
+SC.lvl +=((playing ? 1 : 0)- SC.lvl)* Math.min(1,dt *(playing ? 1.2 : 0.4));
+const lv = SC.cur && SC.cur.k === 'night' ? 0.26 : 0.33;
+SC.gain.gain.setTargetAtTime((T.music ?? 0.6)* lv,ctx.currentTime,0.3);
+if(SC.lvl > 0.02)AUD.heard['music: story scenes']= performance.now();
+if(SC.lvl > 0.01){
+if(PN.gain)PN.gain.gain.setTargetAtTime(PN.lvl *(T.music ?? 0.6)* 0.33 *(1 - SC.lvl),ctx.currentTime,0.3);
+if(L.farm && L.farm.gain)
+L.farm.gain.gain.setTargetAtTime((L.farm.slvl || 0)*(T.music ?? 0.6)* 0.33 *(1 - SC.lvl),ctx.currentTime,0.3);
+}
+if(tick){
+const n = document.querySelectorAll('#gifts img.got').length;
+if(SC.gifts >= 0 && n > SC.gifts){
+const b = L.songBuf('gift');
+if(b){
+if(!SC.gain2){
+SC.gain2 = ctx.createGain();
+SC.gain2.gain.value = 0.4 *(T.music ?? 0.6);
+SC.gain2.connect(AUD.bus('music: gift chime'));
+}
+songStart(ctx,'gift',b,SC.gain2,0.02);
+}
+}
+if(n !== SC.gifts)L.songBuf('gift');
+SC.gifts = n;
 }
 }
 const TH = L.theme ||(L.theme ={next: 12,gain: null,lvl: 0,el: null,cur: null,turn: 0});
@@ -27215,7 +27366,7 @@ TH.el.onended =()=>{
 TH.cur = null;
 };
 }
-const ok = list.length > 0 && PN.lvl < 0.05 &&(L.farm ? L.farm.lvl : 0)< 0.05;
+const ok = list.length > 0 && PN.lvl < 0.05 &&(L.farm ? L.farm.lvl : 0)< 0.05 && SC.lvl < 0.05 && !NIGHTISH();
 TH.next -= dt;
 if(ok && !TH.cur && TH.next <= 0){
 const nm = list[TH.turn++ % list.length];
@@ -27294,10 +27445,10 @@ if(!mwant && MG.lvl < 0.01 && !MG.el.paused){
 MG.el.pause();
 MG.el.currentTime = 0;
 }
-MG.gain.gain.setTargetAtTime(MG.lvl *(T.music ?? 0.6)* 0.45,ctx.currentTime,0.3);
+MG.gain.gain.setTargetAtTime(MG.lvl *(T.music ?? 0.6)* 0.45 *(1 - SC.lvl),ctx.currentTime,0.3);
 if(TH.gain && MG.lvl > 0.05)
 TH.gain.gain.setTargetAtTime(TH.lvl *(T.music ?? 0.6)* 0.3 *(1 - MG.lvl),ctx.currentTime,0.3);
-M.duck = Math.max(PN.lvl,TH.lvl || 0,MG.lvl,L.farm ? L.farm.lvl : 0);
+M.duck = Math.max(PN.lvl,TH.lvl || 0,MG.lvl,L.farm ? L.farm.lvl : 0,SC.lvl);
 }
 if(!M.gain){
 M.gain = ctx.createGain();
