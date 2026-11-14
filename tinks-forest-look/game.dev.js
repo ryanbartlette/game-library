@@ -3951,7 +3951,7 @@ float msk=texture2D(uMask,tuv).r;float dist=length(rel);float sc=aOff.z*smoothst
 float gust=.6+.4*sin(uTime*.35+wp.x*.04+wp.y*.03);/* a gust: broad soft bands rolling across the meadow along the wind, uneven along their length */float gph=dot(wp,uWDir)*.085-uTime*.95;float gsF=dot(wp,uWDir)-uGF;float gw=(gsF>0.?exp(-gsF*gsF/16.):exp(-gsF*gsF/220.))*(.55+.45*sin(dot(wp,vec2(-uWDir.y,uWDir.x))*.045+uTime*.15))*uGust;vGu=gw;float wv=sin((uTime*1.2+uWPh*.5)+wp.x*.33+wp.y*.21)*.6+sin((uTime*2.4+uWPh*.8)+wp.x*1.1-wp.y*.7)*.25;float bend=aT*aT*sc*(.3*uWind*mix(1.,gust*1.5,clamp(uWind-1.,0.,1.))+.25*wv*min(uWind,1.6));
 bend+=gw*aT*aT*sc*1.25;
 /* (Ryan) the wind rolls through in long waves, like the sea: broad swells that keep travelling across the meadow along the wind, each one a little uneven along its length; the blades they press over show their paler sides */
-{float al=dot(wp,uWDir),ac=dot(wp,vec2(-uWDir.y,uWDir.x));float sw=.5+.5*sin(al*.32-uTime*1.35+sin(ac*.09+uTime*.1)*1.6);float sw2=.5+.5*sin(al*.13-uTime*.7+sin(ac*.05)*2.2);float roll=pow(sw,3.)*.65+pow(sw2,2.)*.5;roll*=clamp(.35+.65*uWind,0.,1.6);bend+=roll*aT*aT*(hsc*1.1+.04);vGu=max(vGu,roll*.55*clamp(uWind,.3,1.4));}/* Build 195: on windy days the whole meadow leans together in short, quick pulses and springs back, like the hillside in The Wind Rises */{float pul=pow(max(0.,sin(uTime*2.4-dot(wp,uWDir)*.03)),4.)*clamp((uWind-.5)*2.,0.,1.);bend+=pul*aT*aT*sc*.95;}lp.xz+=uWDir*bend*.87;lp.y-=bend*bend*.6;
+{float al=dot(wp,uWDir),ac=dot(wp,vec2(-uWDir.y,uWDir.x));float sw=.5+.5*sin(al*.32-uTime*1.35+sin(ac*.09+uTime*.1)*1.6);float sw2=.5+.5*sin(al*.13-uTime*.7+sin(ac*.05)*2.2);float roll=pow(sw,3.)*.65+pow(sw2,2.)*.5;roll*=clamp(.35+.65*uWind,0.,1.6);bend+=roll*aT*aT*(hsc*.55+.02);vGu=max(vGu,roll*.55*clamp(uWind,.3,1.4));}/* Build 195: on windy days the whole meadow leans together in short, quick pulses and springs back, like the hillside in The Wind Rises */{float pul=pow(max(0.,sin(uTime*2.4-dot(wp,uWDir)*.03)),4.)*clamp((uWind-.5)*2.,0.,1.);bend+=pul*aT*aT*sc*.95;}/* (Ryan) blades bow with the wind but never lie flat: the bend is held to part of each blade's own height, and it shortens as it leans so it keeps its length */bend=min(bend,(hsc*.55+.015)*aT*aT);lp.xz+=uWDir*bend*.87;lp.y-=bend*bend/max(hsc*1.3,.04)*.6;
 float gH=texture2D(uHeight,tuv).r;/* LOOK: the blades part round both cats and lie down under them, so the cats are never lost in the grass */for(int ci=0;ci<2;ci++){vec3 cP=ci==0?uCat:uCat2;vec2 dc=wp-cP.xz;float dd=length(dc);float pk=smoothstep(.62,.08,dd)*step(abs(cP.y-gH),.5);float push=pk*aT*(sc*1.6+.08);lp.xz+=normalize(dc+1e-4)*push;lp.y-=pk*aT*hsc*.75;}
 {vec3 pt=texture2D(uGTex,wp*.065).rgb;vColor.rgb*=mix(vec3(1.),pt/vec3(.33,.52,.3),.6);}
 vec3 transformed=vec3(wp.x,texture2D(uHeight,tuv).r,wp.y)+lp;vGW=vec3(wp.x,aT,wp.y);vShade=.8+.4*fract(sin(dot(aOff.xy,vec2(12.9898,78.233)))*43758.5);`
@@ -13006,7 +13006,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 510;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 6;
+const LOOKV = 7;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
