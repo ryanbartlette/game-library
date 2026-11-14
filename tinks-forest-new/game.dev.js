@@ -1387,7 +1387,7 @@ fragmentShader: `varying vec3 vd;uniform vec3 sd,uHor,uZen,uLow,uGlow,uDisk,uCLi
  c+=uGlow*(pow(s,8.)*.4+pow(s,2.5)*.16*(1.-smoothstep(0.,.45,h)))*uSunG;
  if(uSunR>.001){float cd=dot(vd,sd);float dsk=smoothstep(cos(uSunR*1.07),cos(uSunR*.93),cd);c+=uDisk*smoothstep(cos(uSunR*2.6),cos(uSunR),cd)*.14*uSunG;c=mix(c,uDisk,dsk);}else c+=uDisk*pow(s,900.)*6.;
  /* FOREST: the painted Ghibli day sky: blue zenith, pale turquoise mid-sky, warm cream horizon melting into the fog, warmth on the sun side, a soft three-lobed sun glow with no disc; dusk palette as the sun goes down */
- {float t=clamp(h,0.,1.);vec3 T=mix(uGT,uGTd,uDuskK),M=mix(uGM,uGMd,uDuskK),H=mix(uGH,uGHd,uDuskK);vec3 g=mix(H,M,smoothstep(0.,.224,t));g=mix(g,T,smoothstep(.14,.85,pow(t,.8)));float hz=pow(1.-smoothstep(-.04,.077,h),2.2);g=mix(g,uFogC,hz);vec2 sxz=normalize(sd.xz+1e-4),dxz=normalize(vd.xz+1e-4);float tw=pow(max(dot(sxz,dxz),0.),3.)*(1.-smoothstep(0.,.35,h));g=mix(g,H*vec3(1.05,.95,.85),tw*.45);float cA=dot(vd,sd);float halo=exp(-(1.-cA)*90.)*.75+exp(-(1.-cA)*11.)*.28+exp(-(1.-cA)*2.2)*.08;vec3 st2=uGSun/max(max(uGSun.r,uGSun.g),uGSun.b);g+=st2*halo*.9*smoothstep(-.08,.02,h+.06);g*=mix(1.,.82,uDuskK*.6);c=mix(c,g,uDayK);}
+ {float t=clamp(h,0.,1.);vec3 T=mix(uGT,uGTd,uDuskK),M=mix(uGM,uGMd,uDuskK),H=mix(uGH,uGHd,uDuskK);vec3 g=mix(H,M,smoothstep(0.,.224,t));g=mix(g,T,smoothstep(.14,.85,pow(t,.8)));float hz=pow(1.-smoothstep(-.04,.077,h),2.2);g=mix(g,uFogC,hz);vec2 sxz=normalize(sd.xz+1e-4),dxz=normalize(vd.xz+1e-4);float tw=pow(max(dot(sxz,dxz),0.),3.)*(1.-smoothstep(0.,.35,h));g=mix(g,H*vec3(1.05,.95,.85),tw*.45);float cA=dot(vd,sd);float halo=exp(-(1.-cA)*90.)*.75+exp(-(1.-cA)*11.)*.28+exp(-(1.-cA)*2.2)*.08;vec3 st2=uGSun/max(max(uGSun.r,uGSun.g),uGSun.b);g+=st2*halo*.9*smoothstep(-.08,.02,h+.06);if(h>0.){vec2 cq=vd.xz/(h+.18);float cir=fb(vec2(cq.x*.5+cq.y*1.6,cq.y*.22-cq.x*.35)*1.1+vec2(uT*.004,0.));float ci=smoothstep(.56,.86,cir)*smoothstep(.06,.4,h)*(1.-smoothstep(.75,1.,h));g=mix(g,mix(vec3(1.),uGHd,uDuskK*.6),ci*.6);}/* FOREST: high, brushed cirrus streaks (Ryan's reference) */g*=mix(1.,.82,uDuskK*.6);c=mix(c,g,uDayK);}
  if(uStars>0.){vec3 q=floor(vd*420.);float r=hs(q);float st=step(.9962,r)*(.65+.35*sin(uT*2.+r*60.));c+=vec3(.9,.94,1.)*st*1.4*uStars*smoothstep(.04,.3,h);}
  if(h>0.){vec2 cu=vd.xz/(h+.12)*.55+vec2(uCT,uCT*.4);float cn=fb(cu*.95);float cl=(1.-.6*uDayK)*smoothstep(1.-uCAmt,1.-uCAmt+.22,cn)*smoothstep(0.,.18,h);float lit=smoothstep(.35,.85,fb(cu*.95+sd.xz*.08)-cn*.2+.45);vec3 cc=mix(uCShade,uCLit,lit);float edge=cl*(1.-smoothstep(.3,.95,cl));cc=mix(cc,uCRim,clamp(edge*(.35+1.6*pow(s,3.))+lit*pow(s,6.)*.5,0.,.9));c=mix(c,cc,cl);}
  {vec2 q=vd.xz/(abs(vd.y)+.35)*3.;float w1=fb(q*.7+uT*.6),w2=fb(q*2.3-3.);c*=.94+.1*w1;c=mix(c,c*vec3(1.03,1.,.96),smoothstep(.45,.7,w2)*.6);c*=.985+.03*hs(floor(vd*900.));}gl_FragColor=vec4(c,1.);
@@ -1506,7 +1506,13 @@ uNear:{value: new THREE.Color(0.16,0.36,0.36)},
 uFar:{value: new THREE.Color(0.75,0.85,0.9)},
 uMist:{value: new THREE.Color(0.85,0.9,0.92)},
 uRim:{value: new THREE.Color(1,0.95,0.8)},
-uT:{value: 0}
+uT:{value: 0},
+uHill:{value: new THREE.Color(0x3f6b3a)},
+uFogH:{value: new THREE.Color(0xdcefe4)},
+uBlue:{value: new THREE.Color(0x6f93b8)},
+uSunH:{value: sunDir},
+uDayH:{value: 1},
+uDuskH:{value: 0}
 };
 window.__ridgeU = U;
 const grp =
@@ -1516,8 +1522,8 @@ const R = 300 + i * 40,
 k = i /(N - 1);
 const g = new THREE.CylinderGeometry(R,R,1,720,1,true);
 g.translate(0,0.5,0);
-const elev = 0.16 + k * 0.11,
-amp = 0.05 + k * 0.04;
+const elev = 0.09 + k * 0.13,
+amp = 0.05 + k * 0.07;
 const m = new THREE.ShaderMaterial({
 side: THREE.BackSide,
 fog: false,
@@ -1532,20 +1538,29 @@ uAmp:{value: amp},
 uSeed:{value: i * 17.3}
 },
 vertexShader: `varying vec3 vP;uniform float uR,uEl,uAmp;void main(){vec3 p=position;p.y=mix(-.12*uR,(uEl+uAmp*1.6+.02)*uR,p.y);vP=p;gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.);gl_Position.z=gl_Position.w*.99999;}`,
-fragmentShader: `varying vec3 vP;uniform vec3 uNear,uFar,uMist,uRim;uniform float uK,uR,uEl,uAmp,uSeed,uT;
+fragmentShader: `varying vec3 vP;uniform vec3 uNear,uFar,uMist,uRim,uHill,uFogH,uBlue,uSunH;uniform float uK,uR,uEl,uAmp,uSeed,uT,uDayH,uDuskH;
    float h1(float x){return fract(sin(x*127.1+uSeed)*43758.5453);}float n1(float x){float i=floor(x),f=fract(x);f=f*f*(3.-2.*f);return mix(h1(i),h1(i+1.),f);}
    float h2(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7))+uSeed)*43758.5453);}float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h2(i),h2(i+vec2(1,0)),f.x),mix(h2(i+vec2(0,1)),h2(i+vec2(1,1)),f.x),f.y);}
-   void main(){float a=atan(vP.z,vP.x)*uR*.01;// angle scaled to a distance-like coordinate
-    float ridge=n1(a*.35)*.55+n1(a*.9+3.)*.3+n1(a*2.3+9.)*.15;ridge=pow(ridge,1.25);
-    float trees=(pow(abs(sin(a*(10.+uK*6.)+n1(a*4.)*6.)),.6)*.6+n1(a*22.)*.4)*(1.-uK*.75);// rounded treetop bumps on the near hills, smooth rolling crests far away
-    float top=(uEl+uAmp*ridge+trees*.0045*(1.6-uK))*uR;
+   /* FOREST (Ryan's references, Nov 14): broad, smooth rolling hills like a Ghibli background: the near ones wooded in our own
+      (seasonal) tree green with a soft crown texture, each layer further away fading through blue-green to pale blue into the
+      sky's haze, white valley mist pooling at the foot of each layer, warm light on the crests on the sun's side (gold at dusk),
+      deep blue silhouettes at night */
+   float ridgeAt(float a){float r=n1(a*.16)*.6+n1(a*.42+3.)*.28+n1(a*1.1+9.)*.12;return smoothstep(.05,.95,r);}
+   void main(){float a=atan(vP.z,vP.x)*uR*.01;
+    float ridge=ridgeAt(a);
+    float crowns=(n1(a*7.+uSeed)*.55+n1(a*19.)*.45)*(1.-uK)*.0035;
+    float top=(uEl+uAmp*ridge*1.25)*uR+crowns*uR;
     float y=vP.y;if(y>top)discard;
-    float d=clamp((top-y)/(uR*.26),0.,1.);// depth below this ridge's skyline
-    /* Build 194: three clear steps, as in the references: dark near hills, a blue-green middle range, then pale blue-violet peaks; each step only shifts a little within itself */float kq=uK<.3?0.:uK<.7?.5:1.;vec3 c=mix(uNear,uFar,kq*.9+(uK-kq)*.12);c=mix(c,c*vec3(.92,.95,1.1),kq*(1.-kq)*1.6);
-    c*=1.-.1*smoothstep(0.,.08,d)*(1.-d);// pigment pools just under the edge
-    c=mix(c,uFar,smoothstep(.45,1.,d)*.18);// only a whisper of valley haze: the hills stay solid down into the forest
-    float paper=n2(vP.xy*.9)*.6+n2(vec2(a*3.,y*.08))*.4;c*=.95+.1*paper;
-    /* sunlit crests and a horizontal brush wash */c=mix(c,mix(c,uRim,.45),(1.-smoothstep(0.,.05,d))*.6);c*=.96+.08*n2(vec2(a*.6,y*.02+uSeed));
+    float d=clamp((top-y)/(uR*.2),0.,1.);
+    float kq=uK;
+    vec3 c=mix(uHill,mix(uHill,uBlue,.55),smoothstep(0.,.55,kq));c=mix(c,uBlue,smoothstep(.45,1.,kq));
+    c=mix(c,uFogH,.12+.62*kq*kq);
+    float bl=n2(vec2(a*5.,y*.12))*.6+n2(vec2(a*13.,y*.35))*.4;c*=1.+(bl-.5)*.26*(1.-kq*.8);
+    float sl=ridgeAt(a+.05)-ridgeAt(a-.05);c*=1.+clamp(sl*3.,-.15,.15)*(1.-kq*.6);
+    float an=atan(vP.z,vP.x);vec2 dir=vec2(cos(an),sin(an));float sunSide=max(dot(normalize(uSunH.xz+1e-4),dir),0.);
+    vec3 rimC=mix(vec3(1.08,1.05,.92),vec3(1.35,1.,.62),uDuskH);c=mix(c,c*rimC,(1.-smoothstep(0.,.07,d))*(.35+.55*sunSide)*(.4+.6*uDayH));
+    float mist=smoothstep(.3,1.,d);c=mix(c,uFogH*1.04,mist*(.55+.35*kq));
+    c=mix(mix(vec3(.05,.07,.14),vec3(.16,.2,.34),1.-kq*.6),c,clamp(uDayH*1.1,0.,1.));
     float edge=smoothstep(0.,uR*.0025,top-y);gl_FragColor=vec4(c,edge);
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
@@ -1846,6 +1861,13 @@ G.uMist.value.copy(SU.uFogC.value);
 G.uSkyTop.value.copy(SU.uGT.value).lerp(SU.uGTd.value,SU.uDuskK.value);
 G.uSunColor.value.copy(sun.color);
 G.uTime.value = performance.now()/ 1000;
+const RU = window.__ridgeU;
+if(RU){
+RU.uFogH.value.copy(SU.uFogC.value);
+RU.uDayH.value = SU.uDayK.value;
+RU.uDuskH.value = SU.uDuskK.value;
+if(window.__czHillC)RU.uHill.value.copy(window.__czHillC);
+}
 const ev = window.__EV;
 G.uGrey.value +=((ev ? Math.max(ev.rain || 0,(ev.snow || 0)* 0.6): 0)- G.uGrey.value)* k;
 }catch(e){}
@@ -5502,6 +5524,11 @@ const bare = p > 0.5 ? sea === 'winter' : prevSea === 'winter';
 for(const[cl,m]of window.__czSeaMats ||[]){
 if(cur[cl])m.color.copy(cur[cl]);
 if(/^(t1|t2|oak|birch)$/.test(cl))m.visible = !bare;
+}
+if(cur.t2 && cur.bush){
+const hc =(window.__czHillC = window.__czHillC || new THREE.Color());
+const wk = sea === 'winter' ? p : prevSea === 'winter' ? 1 - p : 0;
+hc.copy(cur.t2).lerp(cur.t1 || cur.t2,sea === 'spring' ? 0.25 * p : 0).lerp(cur.bush,wk).multiplyScalar(0.72);
 }
 grassU.uFSea.value = SI[sea];
 grassU.uFPrev.value = SI[prevSea]?? SI[sea];
@@ -14620,7 +14647,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 55;
+const LOOKV = 56;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
