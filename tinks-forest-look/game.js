@@ -3838,7 +3838,7 @@ sh.vertexShader = sh.vertexShader
 .replace(
 '#include <common>',
 `#include <common>
-uniform float uTime,uTile,uWorld;uniform vec3 uCenter,uCat,uCat2;uniform sampler2D uHeight,uMask,uGTex;attribute vec4 aOff;attribute float aT;varying float vShade;uniform float uGust,uGF,uTrailW,uTrailM;uniform vec2 uWDir;varying float vGu;uniform vec4 uWS;uniform sampler2D uTrail;
+uniform float uTime,uTile,uWorld;uniform vec3 uCenter,uCat,uCat2;uniform sampler2D uHeight,uMask,uGTex;attribute vec4 aOff;attribute float aT;varying float vShade;uniform float uGust,uGF,uTrailW,uTrailM,uTrailA;uniform vec2 uWDir;varying float vGu;uniform vec4 uWS;uniform sampler2D uTrail;
 float gvh(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}float gvn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(gvh(i),gvh(i+vec2(1,0)),f.x),mix(gvh(i+vec2(0,1)),gvh(i+vec2(1,1)),f.x),f.y);}`
 )
 .replace(
@@ -3864,8 +3864,8 @@ float dr=wq.x*2.4+wq.y*.6;vec2 wd=vec2(uWDir.x*cos(dr)-uWDir.y*sin(dr),uWDir.x*s
 /* (Ryan) the cats' trail, three ways to try (uTrailM): 0 pressed over the way they went, 1 parted down the middle and laid off to either side,
    2 gone where they ran (bare ground) and growing back as it fades */{vec4 trv=texture2D(uTrail,wp/uTrailW);float tk=smoothstep(.1,.6,trv.r);if(tk>.001){vec2 td=normalize(clamp(trv.gb/max(trv.r,.02),0.,1.)*2.-1.+vec2(1e-4));vec2 tp=vec2(-td.y,td.x);
  if(uTrailM>1.5){lp*=1.-smoothstep(.15,.85,tk);}
- else{vec2 bd=td;float am=1.05;if(uTrailM>.5){/* which side of the path: lean away from where it's pressed hardest */float sL=texture2D(uTrail,(wp+tp*.14)/uTrailW).r,sR=texture2D(uTrail,(wp-tp*.14)/uTrailW).r;bd=tp*(sL>sR?-1.:1.);am=1.15;}
-  vec2 bp=vec2(-bd.y,bd.x);float a=tk*am*pow(aT,.9);float h=dot(lp.xz,bd),pp=dot(lp.xz,bp);float ca=cos(a),sa=sin(a);float h2=h*ca+lp.y*sa;float y2=-h*sa+lp.y*ca;lp=vec3(bd.x*h2+bp.x*pp,y2*(1.-tk*.25),bd.y*h2+bp.y*pp);}}}
+ else{vec2 bd=td;float am=1.05;if(uTrailM>.5){/* which side of the path: lean away from where it's pressed hardest */float sL=texture2D(uTrail,(wp+tp*.14)/uTrailW).r,sR=texture2D(uTrail,(wp-tp*.14)/uTrailW).r;bd=tp*(sL>sR?-1.:1.);am=uTrailA;}
+  vec2 bp=vec2(-bd.y,bd.x);float a=tk*am*pow(aT,.9);float h=dot(lp.xz,bd),pp=dot(lp.xz,bp);float ca=cos(a),sa=sin(a);float h2=h*ca+lp.y*sa;float y2=-h*sa+lp.y*ca;lp=vec3(bd.x*h2+bp.x*pp,y2*(1.-tk*.08*am),bd.y*h2+bp.y*pp);}}}
 /* the blades the current presses over show their paler sides */vGu=max(gw,smoothstep(.45,.95,cur)*.4*clamp(uWind,.4,1.4));
 /* (Ryan: like ocean currents) darker and lighter patches drift slowly across the whole meadow, so the field seems to flow */{vec2 cq2=wp*.06-uWDir*uTime*.18*uWS.x+vec2(sin(uTime*.05)*2.,0.);float cn=gvn(cq2+wq*1.4)*.6+gvn(cq2*2.1-wq)*.4;vColor.rgb*=mix(1.-.2*uWS.z,1.+.16*uWS.z,smoothstep(.2,.8,cn));}
 float gH=texture2D(uHeight,tuv).r;/* LOOK: the blades part round both cats and lie down under them, so the cats are never lost in the grass */for(int ci=0;ci<2;ci++){vec3 cP=ci==0?uCat:uCat2;vec2 dc=wp-cP.xz;float dd=length(dc);float pk=smoothstep(.62,.08,dd)*step(abs(cP.y-gH),.5);float push=pk*aT*(sc*1.6+.08);lp.xz+=normalize(dc+1e-4)*push;lp.y-=pk*aT*hsc*.75;}
@@ -3961,13 +3961,14 @@ tt.magFilter = tt.minFilter = THREE.LinearFilter;
 tt.generateMipmaps = false;
 grassU.uTrail ={value: tt};
 grassU.uTrailW ={value: TW};
-const TMODES ={flat: 0,part: 1,bare: 2};
-let tm = 'flat';
+const TANG ={'30°': 30,'45°': 45,'60°': 60,'80°': 80};
+let ta = '45°';
 try{
-tm = localStorage.getItem('tink.look.trail')|| 'flat';
+ta = localStorage.getItem('tink.look.trailA')|| '45°';
 }catch(e){}
-if(!(tm in TMODES))tm = 'flat';
-grassU.uTrailM ={value: TMODES[tm]};
+if(!(ta in TANG))ta = '45°';
+grassU.uTrailM ={value: 1};
+grassU.uTrailA ={value:(TANG[ta]* Math.PI)/ 180};
 let fadeT = 0,
 lastT = performance.now();
 const stamp =(x,z,fx,fz,a)=>{
@@ -4147,7 +4148,7 @@ sh.vertexShader = sh.vertexShader
 .replace(
 '#include <common>',
 `#include <common>
-uniform float uTime,uTile,uWorld,uWind,uWPh,uGust,uGF,uTrailW,uTrailM;uniform vec2 uWDir;uniform vec3 uCenter,uCat,uCat2;uniform sampler2D uHeight,uMask,uTrail;attribute vec4 aOff;attribute float aT,aHead;varying float vHead,vFS;varying vec3 vFC;`
+uniform float uTime,uTile,uWorld,uWind,uWPh,uGust,uGF,uTrailW,uTrailM,uTrailA;uniform vec2 uWDir;uniform vec3 uCenter,uCat,uCat2;uniform sampler2D uHeight,uMask,uTrail;attribute vec4 aOff;attribute float aT,aHead;varying float vHead,vFS;varying vec3 vFC;`
 )
 .replace(
 '#include <uv_vertex>',
@@ -4174,7 +4175,7 @@ vec3 lp=aHead>.5?vec3(position.x*hs,fh+(position.y-1.)*hs,position.z*hs):vec3(po
 float gust=.6+.4*sin(uTime*.35+wp.x*.04+wp.y*.03);float gsF=dot(wp,uWDir)-uGF;float gw=(gsF>0.?exp(-gsF*gsF/16.):exp(-gsF*gsF/220.))*uGust;
 float wv=sin((uTime*1.2+uWPh*.5)+wp.x*.33+wp.y*.21)*.6+sin((uTime*2.4+uWPh*.8)+wp.x*1.1-wp.y*.7)*.25;float bend=aT*aT*sc*(.3*uWind*gust+.25*wv*min(uWind,1.6)+gw*1.25)*.35;bend=min(bend,sc*.22*aT*aT);lp.xz+=uWDir*bend*.8;lp.y-=bend*bend/max(sc,.05)*.5;
 float gH=texture2D(uHeight,tuv).r;for(int ci=0;ci<2;ci++){vec3 cP=ci==0?uCat:uCat2;vec2 dc=wp-cP.xz;float dd=length(dc);float pk=smoothstep(.62,.08,dd)*step(abs(cP.y-gH),.5);lp.xz+=normalize(dc+1e-4)*pk*aT*(sc*1.4+.06);lp.y-=pk*aT*sc*.7;}
-{vec4 trv=texture2D(uTrail,wp/uTrailW);float tk=smoothstep(.1,.6,trv.r);vec2 td=normalize(clamp(trv.gb/max(trv.r,.02),0.,1.)*2.-1.+vec2(1e-4));if(uTrailM>1.5)lp*=1.-smoothstep(.15,.85,tk);else{vec2 bd=td;if(uTrailM>.5){vec2 tp=vec2(-td.y,td.x);float sL=texture2D(uTrail,(wp+tp*.14)/uTrailW).r,sR=texture2D(uTrail,(wp-tp*.14)/uTrailW).r;bd=tp*(sL>sR?-1.:1.);}lp.xz+=bd*tk*aT*sc*.7;lp.y*=1.-tk*.45;}}
+{vec4 trv=texture2D(uTrail,wp/uTrailW);float tk=smoothstep(.1,.6,trv.r);vec2 td=normalize(clamp(trv.gb/max(trv.r,.02),0.,1.)*2.-1.+vec2(1e-4));if(uTrailM>1.5)lp*=1.-smoothstep(.15,.85,tk);else{vec2 bd=td;if(uTrailM>.5){vec2 tp=vec2(-td.y,td.x);float sL=texture2D(uTrail,(wp+tp*.14)/uTrailW).r,sR=texture2D(uTrail,(wp-tp*.14)/uTrailW).r;bd=tp*(sL>sR?-1.:1.);}float pf=uTrailM>.5?sin(uTrailA):.9;lp.xz+=bd*tk*aT*sc*.75*pf;lp.y*=1.-tk*.4*pf*pf;}}
 vec3 transformed=vec3(wp.x,gH,wp.y)+lp;vFS=.85+.3*rk;`
 );
 sh.fragmentShader = sh.fragmentShader
@@ -13159,7 +13160,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 19;
+const LOOKV = 20;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
