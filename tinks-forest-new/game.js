@@ -4437,13 +4437,41 @@ tc[k].colorSpace = mask ? THREE.NoColorSpace : THREE.SRGBColorSpace;
 }
 return tc[k];
 };
-const matFor =(file,nm)=>{
+const windify =(m,leaf,swU)=>{
+m.onBeforeCompile = sh =>{
+for(const k of['uTime','uWind','uWPh','uGust','uGF','uWDir'])sh.uniforms[k]= grassU[k];
+sh.uniforms.uSwH = swU;
+sh.vertexShader = sh.vertexShader
+.replace('#include <common>','#include <common>\nuniform float uTime,uWind,uWPh,uGust,uGF,uSwH;uniform vec2 uWDir;')
+.replace(
+'#include <begin_vertex>',
+`#include <begin_vertex>
+{vec2 ip=vec2(0.);
+#ifdef USE_INSTANCING
+ip=vec2(instanceMatrix[3].x,instanceMatrix[3].z);
+#endif
+float hk=clamp(transformed.y/max(uSwH,.5),0.,1.3);hk*=hk;float ph=ip.x*.17+ip.y*.13;
+float w=clamp(uWind,0.,1.6);
+float gs=dot(ip,uWDir)-uGF;float gw=(gs>0.?exp(-gs*gs/16.):exp(-gs*gs/240.))*uGust;
+float sw=sin(uTime*.7+uWPh*.4+ph)*.6+sin(uTime*1.13+uWPh*.3+ph*1.7)*.4;
+float amp=uSwH*.022*(.35+.9*w);
+vec2 d=uWDir*(amp*(.6*w+sw)+uSwH*.05*gw)+vec2(-uWDir.y,uWDir.x)*amp*.35*sin(uTime*.55+ph*2.3);
+transformed.xz+=d*hk;transformed.y-=dot(d,d)*hk*.15/max(uSwH,.5);
+${leaf ? 'transformed+=vec3(sin(uTime*1.6+position.x*2.1+ph),sin(uTime*1.9+position.z*2.3+ph)*.6,cos(uTime*1.4+position.y*1.7+ph))*.025*hk*(.5+w);' : ''}}`
+);
+};
+return m;
+};
+const matFor =(file,nm,swU)=>{
 const k = texKey(file,nm);
-if(k && MASKC[k])
-return tintMat(new THREE.MeshStandardMaterial({color: MASKC[k],alphaMap: tex(k,true),alphaTest: 0.4,side: THREE.DoubleSide,roughness: 1}),'czleaf');
+const sway = !/Rock/.test(file);
+if(k && MASKC[k]){
+const m = new THREE.MeshStandardMaterial({color: MASKC[k],alphaMap: tex(k,true),alphaTest: 0.4,side: THREE.DoubleSide,roughness: 1});
+return tintMat(sway ? windify(m,true,swU): m,'czleaf');
+}
 const m = new THREE.MeshStandardMaterial({roughness: 1});
 if(k)m.map = tex(k,false);
-return tintMat(m,'czbark');
+return tintMat(sway ? windify(m,false,swU): m,'czbark');
 };
 const loadModel = file =>
 new Promise(res =>{
@@ -4452,6 +4480,7 @@ BASE + file + '.glb',
 g =>{
 g.scene.updateMatrixWorld(true);
 const parts =[];
+const swU ={value: 8};
 g.scene.traverse(m =>{
 if(!m.isMesh)return;
 const ms = Array.isArray(m.material)? m.material :[m.material];
@@ -4460,7 +4489,7 @@ for(const k of Object.keys(gg.attributes))if(!['position','normal','uv'].include
 if(!gg.attributes.uv)gg.setAttribute('uv',new THREE.Float32BufferAttribute(new Float32Array(gg.attributes.position.count * 2),2));
 const leafy = !!MASKC[texKey(file,ms[0].name)];
 if(!leafy || !gg.attributes.normal)gg.computeVertexNormals();
-parts.push({gg: gg.index ? gg : gg,leafy,mat: matFor(file,ms[0].name)});
+parts.push({gg,leafy,mat: matFor(file,ms[0].name,swU)});
 });
 if(!parts.length)return res(null);
 const anyIdx = parts.some(q => q.gg.index);
@@ -4471,6 +4500,7 @@ const geo = parts.length > 1 ? mergeGeometries(parts.map(q => q.gg),true): parts
 const mats = parts.map(q => q.mat);
 geo.computeBoundingBox();
 const bb = geo.boundingBox;
+swU.value = bb.max.y;
 const cx =(bb.min.x + bb.max.x)/ 2,
 cz =(bb.min.z + bb.max.z)/ 2;
 let tr = 0;
@@ -4598,9 +4628,10 @@ q4.setFromAxisAngle(up,s.r);
 m4.compose(new V3(s.x,gy - M.y0 * s.s - sink,s.z),q4,new V3(s.s,s.s,s.s));
 im.setMatrixAt(i,m4);
 if(kind === 'tree'){
-const tr ={x: s.x,z: s.z,r: M.tr * s.s,h: M.h * s.s,noClimb: true,czTree: true,climbTop: 99};
+const tr ={x: s.x,z: s.z,r: M.tr * s.s,h: M.h * s.s,g: gy,noClimb: true,czTree: true,climbTop: gy + M.h * s.s * 0.55};
 addSurf({t: 'trunk',x: s.x,z: s.z,r: tr.r + 0.1,tree: tr},s.x - 1.5,s.z - 1.5,s.x + 1.5,s.z + 1.5);
 (window.__czForest = window.__czForest ||[]).push(tr);
+trees.push(tr);
 }
 if(kind === 'rock'){
 const rr =(M.w * s.s)/ 2;
@@ -13786,7 +13817,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 36;
+const LOOKV = 37;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
