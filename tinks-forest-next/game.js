@@ -12731,7 +12731,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 500;
+const BUILD = 501;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -42659,7 +42659,11 @@ const ded = document.createElement('div');
 ded.style.cssText =
 'position:fixed;inset:0;z-index:47;display:grid;place-items:center;text-align:center;background:#000;color:#f4f1ff;opacity:0;pointer-events:none;transition:opacity 2.4s ease;padding:24px';
 ded.innerHTML =
-'<div><div style="font-family:Montserrat,sans-serif;text-transform:uppercase;letter-spacing:.32em;font-size:clamp(11px,1.2vw,14px);opacity:.75">IN LOVING MEMORY OF</div><div style="font-family:Fraunces,Georgia,serif;font-variation-settings:\'SOFT\' 40,\'WONK\' 1,\'opsz\' 144;font-weight:600;font-size:clamp(48px,8vw,110px);line-height:1;margin:30px 0 12px;text-shadow:0 0 40px rgba(140,180,255,.45)"><span style="display:block;font-size:.36em;font-style:italic;font-weight:400;opacity:.85;line-height:1;margin-bottom:-.06em">“Maester”</span>Jack</div><div style="font-family:Fraunces,Georgia,serif;font-style:italic;font-size:clamp(17px,2vw,24px);opacity:.9">who watches over Tink and Luca, always</div><div class="cr" style="margin-top:46px;font-family:Montserrat,sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;opacity:0;transition:opacity 2s ease;line-height:2.1">Tink\'s Magical Forest<br><span style="opacity:.7">for Tink, Luca and Jack</span></div><div class="ky" style="margin-top:34px;font-family:Montserrat,sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:0;transition:opacity 1.6s ease">Press any key to keep exploring</div></div>';
+'<div><div style="font-family:Montserrat,sans-serif;text-transform:uppercase;letter-spacing:.32em;font-size:clamp(11px,1.2vw,14px);opacity:.75">IN LOVING MEMORY OF</div><div style="font-family:Fraunces,Georgia,serif;font-variation-settings:\'SOFT\' 40,\'WONK\' 1,\'opsz\' 144;font-weight:600;font-size:clamp(48px,8vw,110px);line-height:1;margin:30px 0 12px;text-shadow:0 0 40px rgba(140,180,255,.45)"><span style="display:block;font-size:.36em;font-style:italic;font-weight:400;opacity:.85;line-height:1;margin-bottom:-.06em">“Maester”</span>Jack</div>' +
+'<img src="' +
+JPAW +
+'" alt="" style="display:block;height:clamp(40px,4.6vw,64px);width:auto;margin:6px auto 18px;opacity:.92;filter:drop-shadow(0 0 14px rgba(140,180,255,.35))">' +
+'<div style="font-family:Fraunces,Georgia,serif;font-style:italic;font-size:clamp(17px,2vw,24px);opacity:.9">who watches over Tink and Luca, always</div><div class="cr" style="margin-top:46px;font-family:Montserrat,sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;opacity:0;transition:opacity 2s ease;line-height:2.1">Tink\'s Magical Forest<br><span style="opacity:.7">for Tink, Luca and Jack</span></div><div class="ky" style="margin-top:34px;font-family:Montserrat,sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:0;transition:opacity 1.6s ease">Press any key to keep exploring</div></div>';
 document.body.appendChild(ded);
 const css = document.createElement('style');
 css.textContent =
