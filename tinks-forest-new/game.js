@@ -14179,7 +14179,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 48;
+const LOOKV = 49;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -52558,7 +52558,7 @@ window.__EDITBAKED = BAKED_EDITS.objs;
 const EDIT =(()=>{
 const E ={on: false,objs:[],ims:[],sel: null,undo:[]};
 window.__EDIT = E;
-const KEY = 'tink.world.edits';
+const KEY = 'tink.world.edits.forest';
 let store ={objs:{},adds:[]};
 if(!store.delAll)store.delAll =[];
 {
