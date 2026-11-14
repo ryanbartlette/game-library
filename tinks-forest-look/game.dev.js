@@ -3744,6 +3744,7 @@ uCenter:{value: new V3()},
 uCat:{value: new V3(0,-99,0)},
 uCat2:{value: new V3(0,-99,0)},
 uBus:{value: new THREE.Vector4(0,-999,0,0)},
+uWS:{value: new THREE.Vector4(1,1,1,1)},
 uHeight:{value: null},
 uMask:{value: null}
 });
@@ -3938,7 +3939,7 @@ sh.vertexShader = sh.vertexShader
 .replace(
 '#include <common>',
 `#include <common>
-uniform float uTime,uTile,uWorld;uniform vec3 uCenter,uCat,uCat2;uniform sampler2D uHeight,uMask,uGTex;attribute vec4 aOff;attribute float aT;varying float vShade;uniform float uGust,uGF;uniform vec2 uWDir;varying float vGu;
+uniform float uTime,uTile,uWorld;uniform vec3 uCenter,uCat,uCat2;uniform sampler2D uHeight,uMask,uGTex;attribute vec4 aOff;attribute float aT;varying float vShade;uniform float uGust,uGF;uniform vec2 uWDir;varying float vGu;uniform vec4 uWS;
 float gvh(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}float gvn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(gvh(i),gvh(i+vec2(1,0)),f.x),mix(gvh(i+vec2(0,1)),gvh(i+vec2(1,1)),f.x),f.y);}`
 )
 .replace(
@@ -3954,15 +3955,15 @@ float msk=texture2D(uMask,tuv).r;float dist=length(rel);float sc=aOff.z*smoothst
    breeze a little here and there). Then each blade is ROTATED about its root (never pushed), so it keeps its length, never dips into
    the ground, and never bows past about 35 degrees; the tip bows most, so it curves. Gentle by design. */
 float gsF=dot(wp,uWDir)-uGF;float gw=(gsF>0.?exp(-gsF*gsF/16.):exp(-gsF*gsF/220.))*(.55+.45*sin(dot(wp,vec2(-uWDir.y,uWDir.x))*.045+uTime*.15))*uGust;
-vec2 cq=wp*.085-uWDir*uTime*.3;vec2 wq=vec2(gvn(cq*.55+vec2(uTime*.025,0.)),gvn(cq*.55+vec2(5.2,uTime*.02)))-.5;float cur=gvn(cq+wq*1.9)*.65+gvn(cq*2.3+wq*1.2+3.7)*.35;
+vec2 cq=wp*.085-uWDir*uTime*.3*uWS.x;vec2 wq=vec2(gvn(cq*.55+vec2(uTime*.025,0.)),gvn(cq*.55+vec2(5.2,uTime*.02)))-.5;float cur=gvn(cq+wq*1.9)*.65+gvn(cq*2.3+wq*1.2+3.7)*.35;
 float wk=clamp(.35+.65*uWind,0.,1.6);
 float flut=sin(uTime*2.2+uWPh*.8+wp.x*1.1-wp.y*.7)*.025*min(uWind,1.5);
 float pul=pow(max(0.,sin(uTime*2.4-dot(wp,uWDir)*.03)),4.)*clamp((uWind-.5)*2.,0.,1.);
-/* (as in fromtheghost's ghibli-grass) the current rocks the blades both ways, back and forth around their lean, not only forward */float ang=.07*min(uWind,1.5)+(cur-.47)*.8*wk+gw*.3+pul*.18+flut;ang=clamp(ang,-.36,.6);
+/* (as in fromtheghost's ghibli-grass) the current rocks the blades both ways, back and forth around their lean, not only forward */float ang=.07*min(uWind,1.5)+(cur-.47)*.8*wk*uWS.y+gw*.3+pul*.18+flut*uWS.y;ang=clamp(ang,-.36*uWS.w,.6*uWS.w);
 float dr=wq.x*2.4+wq.y*.6;vec2 wd=vec2(uWDir.x*cos(dr)-uWDir.y*sin(dr),uWDir.x*sin(dr)+uWDir.y*cos(dr));vec2 wpp=vec2(-wd.y,wd.x);
 {float a=ang*pow(aT,1.15);float h=dot(lp.xz,wd),pp=dot(lp.xz,wpp);float ca=cos(a),sa=sin(a);float h2=h*ca+lp.y*sa;float y2=-h*sa+lp.y*ca;lp=vec3(wd.x*h2+wpp.x*pp,y2,wd.y*h2+wpp.y*pp);}
 /* the blades the current presses over show their paler sides */vGu=max(gw,smoothstep(.45,.95,cur)*.4*clamp(uWind,.4,1.4));
-/* (Ryan: like ocean currents) darker and lighter patches drift slowly across the whole meadow, so the field seems to flow */{vec2 cq2=wp*.06-uWDir*uTime*.18+vec2(sin(uTime*.05)*2.,0.);float cn=gvn(cq2+wq*1.4)*.6+gvn(cq2*2.1-wq)*.4;vColor.rgb*=mix(.8,1.16,smoothstep(.2,.8,cn));}
+/* (Ryan: like ocean currents) darker and lighter patches drift slowly across the whole meadow, so the field seems to flow */{vec2 cq2=wp*.06-uWDir*uTime*.18*uWS.x+vec2(sin(uTime*.05)*2.,0.);float cn=gvn(cq2+wq*1.4)*.6+gvn(cq2*2.1-wq)*.4;vColor.rgb*=mix(1.-.2*uWS.z,1.+.16*uWS.z,smoothstep(.2,.8,cn));}
 float gH=texture2D(uHeight,tuv).r;/* LOOK: the blades part round both cats and lie down under them, so the cats are never lost in the grass */for(int ci=0;ci<2;ci++){vec3 cP=ci==0?uCat:uCat2;vec2 dc=wp-cP.xz;float dd=length(dc);float pk=smoothstep(.62,.08,dd)*step(abs(cP.y-gH),.5);float push=pk*aT*(sc*1.6+.08);lp.xz+=normalize(dc+1e-4)*push;lp.y-=pk*aT*hsc*.75;}
 {vec3 pt=texture2D(uGTex,wp*.065).rgb;vColor.rgb*=mix(vec3(1.),pt/vec3(.33,.52,.3),.6);}
 vec3 transformed=vec3(wp.x,texture2D(uHeight,tuv).r,wp.y)+lp;vGW=vec3(wp.x,aT,wp.y);vShade=.8+.4*fract(sin(dot(aOff.xy,vec2(12.9898,78.233)))*43758.5);`
@@ -4007,6 +4008,55 @@ mesh.frustumCulled = false;
 mesh.receiveShadow = true;
 scene.add(mesh);
 window.__grass = mesh;
+{
+const WSTY ={gentle:[0.6,0.55,0.6,0.75],medium:[1,1,1,1],heavy:[1.9,1.75,1.6,1.4]};
+let ws = 'medium';
+try{
+ws = localStorage.getItem('tink.look.wind')|| 'medium';
+}catch(e){}
+if(!WSTY[ws])ws = 'medium';
+const setWS = k =>{
+ws = k;
+grassU.uWS.value.set(...WSTY[k]);
+try{
+localStorage.setItem('tink.look.wind',k);
+}catch(e){}
+};
+setWS(ws);
+window.__grassWind = setWS;
+try{
+if(new URLSearchParams(location.search).has('dev')){
+const sw = document.createElement('div');
+sw.style.cssText = 'position:fixed;right:10px;top:52px;z-index:60;display:flex;gap:4px;font:600 10px Montserrat,sans-serif;letter-spacing:.08em;background:rgba(10,14,24,.7);padding:5px;border-radius:8px;color:#dfe;';
+const lab = document.createElement('span');
+lab.textContent = 'GRASS WIND';
+lab.style.cssText = 'align-self:center;margin:0 4px;opacity:.7';
+sw.appendChild(lab);
+const btns ={};
+const paint =()=>{
+for(const k in btns){
+btns[k].style.background = k === ws ? '#5affc8' : 'rgba(255,255,255,.12)';
+btns[k].style.color = k === ws ? '#022' : '#dfe';
+}
+};
+for(const k of Object.keys(WSTY)){
+const b = document.createElement('button');
+b.textContent = k.toUpperCase();
+b.style.cssText = 'border:0;border-radius:5px;padding:4px 8px;cursor:pointer;font:inherit;letter-spacing:inherit';
+b.onclick = e =>{
+e.stopPropagation();
+setWS(k);
+paint();
+};
+btns[k]= b;
+sw.appendChild(b);
+}
+paint();
+const add =()=>(document.body ? document.body.appendChild(sw): setTimeout(add,200));
+add();
+}
+}catch(e){}
+}
 {
 const fp =[],
 fu =[],
@@ -13021,7 +13071,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 510;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 13;
+const LOOKV = 14;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
