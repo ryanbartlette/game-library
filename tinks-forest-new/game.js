@@ -4807,7 +4807,7 @@ spots.push({kind: 'bush',m: bu < 0.1 ? 0 : 1,x,z,s: 0.7 *(0.85 + 0.4 * sc),r: ro
 }
 continue;
 }
-if(!free(x,z,1.6)|| !clearOf(x,z,2.0)|| buried(x,z))continue;
+if(!free(x,z,0.8)|| !clearOf(x,z,2.0)|| buried(x,z))continue;
 taken.push([x,z]);
 spots.push({kind: 'tree',m: pickTree(sp),x,z,s: 1.8 *(0.85 + 0.45 * sc),r: rot * 6.283});
 }
@@ -14280,7 +14280,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 50;
+const LOOKV = 51;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
