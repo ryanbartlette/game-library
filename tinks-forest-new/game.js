@@ -3583,6 +3583,7 @@ b = new V3(l.bx,l.by,l.bz);
 const L = a.distanceTo(b);
 const g = new THREE.CylinderGeometry(l.r,l.r * 1.04,L,16,1);
 const m = new THREE.Mesh(g,[bark,endM,endM]);
+m.userData.logStump = true;
 m.position.copy(a).add(b).multiplyScalar(0.5);
 m.quaternion.setFromUnitVectors(new V3(0,1,0),b.clone().sub(a).normalize());
 m.castShadow = m.receiveShadow = true;
@@ -3602,6 +3603,7 @@ p.setZ(i,p.getZ(i)* k);
 }
 g.computeVertexNormals();
 const m = new THREE.Mesh(g,[bark,endM,endM]);
+m.userData.logStump = true;
 m.position.set(s.x,s.g - 0.3 + h / 2,s.z);
 m.castShadow = m.receiveShadow = true;
 scene.add(m);
@@ -4025,28 +4027,53 @@ if(waterLevelAt(x,z)> gy2 - 0.02)continue;
 }catch(e){}
 spots.push([x,gy2,z,pr()]);
 }
-const geo = new THREE.IcosahedronGeometry(1,1);
-geo.scale(1,0.55,0.85);
-const mat = new THREE.MeshLambertMaterial({color: 0xffffff});
-const im = new THREE.InstancedMesh(geo,mat,spots.length);
+const PB = '/tinks-forest-new/cz/';
+const tl = new THREE.TextureLoader();
+const ims =[];
+[1,2,3].forEach(k =>{
+new GLTFLoader().load(PB + 'Props_Rocks_Pebals_pebal' + k + '.glb',g =>{
+let src = null;
+g.scene.updateMatrixWorld(true);
+g.scene.traverse(m =>{
+if(m.isMesh && !src)src = m;
+});
+if(!src)return;
+const geo = src.geometry.clone().applyMatrix4(src.matrixWorld);
+geo.computeVertexNormals();
+geo.computeBoundingBox();
+const bb = geo.boundingBox,
+sz = new V3();
+bb.getSize(sz);
+const ctr = new V3();
+bb.getCenter(ctr);
+geo.translate(-ctr.x,-bb.min.y,-ctr.z);
+const unit = 2 / Math.max(sz.x,sz.z,1e-4);
+const tx = tl.load(PB + 't/peb' + k + '.png');
+tx.flipY = false;
+tx.colorSpace = THREE.SRGBColorSpace;
+const mat = new THREE.MeshLambertMaterial({map: tx,color: 0xa8a49c});
+const mine = spots.filter(sp => sp[3]< 0.5 && Math.floor(sp[3]* 600)% 3 === k - 1);
+const im = new THREE.InstancedMesh(geo,mat,Math.max(1,mine.length));
+im.count = mine.length;
 const m4 = new THREE.Matrix4(),
 q4 = new THREE.Quaternion(),
-e4 = new THREE.Euler(),
-c4 = new THREE.Color();
-spots.forEach(([x,y,z,r],i)=>{
-const s = 0.018 + r * r * 0.05;
-e4.set((r - 0.5)* 0.4,r * 40,(r * 7 - 3.5)* 0.06);
+e4 = new THREE.Euler();
+mine.forEach(([x,y,z,r],n)=>{
+const s =(0.03 + r * r * 0.16)* unit;
+e4.set(0,r * 40,0);
 q4.setFromEuler(e4);
-m4.compose(new V3(x,y + s * 0.2,z),q4,new V3(s,s,s));
-im.setMatrixAt(i,m4);
-c4.setHSL(r < 0.3 ? 0.58 : 0.09,r < 0.3 ? 0.12 : 0.18,0.45 + r * 0.22);
-im.setColorAt(i,c4);
+m4.compose(new V3(x,y - 0.01,z),q4,new V3(s,s,s));
+im.setMatrixAt(n,m4);
 });
 im.receiveShadow = true;
 im.castShadow = false;
 im.userData.noEdit = true;
+im.userData.lookKept = true;
 scene.add(im);
-window.__lookPebbles = im;
+ims.push(im);
+window.__lookPebbles = ims;
+});
+});
 };
 const pv = setInterval(()=>{
 if(!window.__worldBuilt)return;
@@ -4214,13 +4241,39 @@ console.warn('forest clear',e);
 if(++fT > 30)clearInterval(fv);
 },1500);
 }
+{
+const swapBark =()=>{
+if(!window.__czLogM){
+const t = new THREE.TextureLoader().load('/tinks-forest-new/cz/t/bark.png');
+t.flipY = false;
+t.wrapS = t.wrapT = THREE.RepeatWrapping;
+t.repeat.set(1,2);
+t.colorSpace = THREE.SRGBColorSpace;
+window.__czLogM = tintMat(new THREE.MeshStandardMaterial({map: t,roughness: 0.95,side: THREE.DoubleSide}),'czlog');
+}
+const M = window.__czLogM;
+const endM = new THREE.MeshStandardMaterial({map: ringTex,roughness: 0.9,color: 0xc9b08a});
+scene.traverse(o =>{
+if(!o.isMesh || !o.userData.logStump)return;
+if(Array.isArray(o.material))o.material =[M,endM,endM];
+else o.material = M;
+});
+for(const r of window.__RIDGES ||[])r.material = M;
+};
+const tvb = setInterval(()=>{
+if(!window.__worldBuilt || !window.__ready)return;
+clearInterval(tvb);
+swapBark();
+setTimeout(swapBark,4000);
+},500);
+}
 if(window.__ROAM){
 const BASE = '/tinks-forest-new/cz/';
 let SZ = 1;
 try{
 SZ = parseFloat(new URLSearchParams(location.search).get('size'))|| 1;
 }catch(e){}
-const MASK ={leaf: 0x6f9a4a,leafbirch: 0x8fb15a,bush: 0x5f8f45};
+const MASK ={leaf: 0x5a8a48,leafbirch: 0x7d9c50,bush: 0x50803f};
 const texFor =(file,nm)=>{
 nm = nm.toLowerCase();
 if(/Brich/.test(file))return /leaf/.test(nm)? 'leafbirch' : 'birch';
@@ -6443,6 +6496,7 @@ barkPaint(new THREE.MeshStandardMaterial({map: barkTex,roughness: 0.95}),'roomst
 'roomstump'
 );
 const pm = new THREE.Mesh(pg,stumpM);
+pm.userData.logStump = true;
 pm.position.set(rx - 0.1 * RS,fy,rz - 0.15 * RS);
 pm.rotation.y = 0.3;
 pm.castShadow = pm.receiveShadow = true;
@@ -13377,7 +13431,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 27;
+const LOOKV = 28;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -23391,6 +23445,14 @@ U.uCAmt.value = W.cAmt;
 U.uCT.value += dt * W.cSpd * 0.004;
 grassU.uGBase.value.setRGB(...W.gBase);
 grassU.uGTip.value.setRGB(...W.gTip);
+{
+const hsl =(window.__czHsl = window.__czHsl ||{h: 0,s: 0,l: 0});
+for(const[c,sk]of[[grassU.uGBase.value,0.95],[grassU.uGTip.value,0.85]]){
+c.getHSL(hsl);
+const g = Math.max(0,1 - Math.abs(hsl.h - 0.36)/ 0.2);
+if(g > 0)c.setHSL(hsl.h +(0.3 - hsl.h)* g,hsl.s +(Math.min(hsl.s,0.62)* sk - hsl.s)* g,hsl.l);
+}
+}
 grassU.uGLight.value.setRGB(...W.gLight);
 grassU.uGEmis.value = W.gEmis;
 WATER_U.uDeep.value.setRGB(...W.wDeep);
