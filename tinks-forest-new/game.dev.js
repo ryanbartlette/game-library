@@ -3726,7 +3726,8 @@ const g = grassU.uGust.value;
 if(g <= 0)return 0;
 const d = grassU.uWDir.value;
 const s = x * d.x + z * d.y - grassU.uGF.value;
-return g *(s > 0 ? Math.exp((-s * s)/ 16): Math.exp((-s * s)/ 220));
+const wk = clamp((grassU.uWS.value.y - 0.55)/ 0.8,0,1);
+return g *(s > 0 ? Math.exp((-s * s)/ 16): Math.exp((-s * s)/(140 + 260 * wk)));
 };
 window.__gustAt = GA;
 const CLOUD_GLSL = `float clh(vec2 p){return fract(sin(dot(p,vec2(41.3,289.1)))*43758.5453);}float cln(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(clh(i),clh(i+vec2(1,0)),f.x),mix(clh(i+vec2(0,1)),clh(i+vec2(1,1)),f.x),f.y);}float cloudSh(vec2 w,vec2 off){vec2 p=(w-off)*.016;float n=cln(p)*.55+cln(p*2.03+3.1)*.3+cln(p*4.1-7.3)*.15;return smoothstep(.5,.64,n);}`;
@@ -3961,12 +3962,12 @@ float msk=texture2D(uMask,tuv).r;float dist=length(rel);float sc=aOff.z*smoothst
    by a slower noise so it swirls and eddies. Each blade reads it at its root: how hard to bow, and which way (the current turns the
    breeze a little here and there). Then each blade is ROTATED about its root (never pushed), so it keeps its length, never dips into
    the ground, and never bows past about 35 degrees; the tip bows most, so it curves. Gentle by design. */
-float gsF=dot(wp,uWDir)-uGF;float gw=(gsF>0.?exp(-gsF*gsF/16.):exp(-gsF*gsF/220.))*(.55+.45*sin(dot(wp,vec2(-uWDir.y,uWDir.x))*.045+uTime*.15))*uGust;
+float gsF=dot(wp,uWDir)-uGF;float gw=(gsF>0.?exp(-gsF*gsF/16.):exp(-gsF*gsF/(140.+260.*clamp((uWS.y-.55)/.8,0.,1.))))*(.55+.45*sin(dot(wp,vec2(-uWDir.y,uWDir.x))*.045+uTime*.15))*uGust;
 vec2 cq=wp*.085-uWDir*uTime*.3*uWS.x;vec2 wq=vec2(gvn(cq*.55+vec2(uTime*.025,0.)),gvn(cq*.55+vec2(5.2,uTime*.02)))-.5;float cur=gvn(cq+wq*1.9)*.65+gvn(cq*2.3+wq*1.2+3.7)*.35;
 float wk=clamp(.35+.65*uWind,0.,1.6);
 float flut=sin(uTime*2.2+uWPh*.8+wp.x*1.1-wp.y*.7)*.025*min(uWind,1.5);
-float pul=pow(max(0.,sin(uTime*2.4-dot(wp,uWDir)*.03)),4.)*clamp((uWind-.5)*2.,0.,1.);
-/* (as in fromtheghost's ghibli-grass) the current rocks the blades both ways, back and forth around their lean, not only forward */float ang=.07*min(uWind,1.5)+(cur-.47)*.8*wk*uWS.y+gw*.3+pul*.18+flut*uWS.y;ang=clamp(ang,-.36*uWS.w,.6*uWS.w);
+float pul=pow(max(0.,sin(uTime*1.1-dot(wp,uWDir)*.03)),4.)*clamp((uWind-.5)*2.,0.,1.);
+/* (as in fromtheghost's ghibli-grass) the current rocks the blades both ways, back and forth around their lean, not only forward */float wsK=clamp((uWS.y-.55)/.8,0.,1.);/* FOREST (Ryan): a stronger breeze presses wider patches, not faster ones */float ang=.07*min(uWind,1.5)+(cur-(.55-.12*wsK))*.8*wk*uWS.y+gw*.3+pul*.18+flut*uWS.y;ang=clamp(ang,-.36*uWS.w,.6*uWS.w);
 float dr=wq.x*2.4+wq.y*.6;vec2 wd=vec2(uWDir.x*cos(dr)-uWDir.y*sin(dr),uWDir.x*sin(dr)+uWDir.y*cos(dr));vec2 wpp=vec2(-wd.y,wd.x);
 {float a=ang*pow(aT,1.15);float h=dot(lp.xz,wd),pp=dot(lp.xz,wpp);float ca=cos(a),sa=sin(a);float h2=h*ca+lp.y*sa;float y2=-h*sa+lp.y*ca;lp=vec3(wd.x*h2+wpp.x*pp,y2,wd.y*h2+wpp.y*pp);}
 /* (Ryan) the cats' trail, three ways to try (uTrailM): 0 pressed over the way they went, 1 parted down the middle and laid off to either side,
@@ -4021,7 +4022,7 @@ mesh.receiveShadow = true;
 scene.add(mesh);
 window.__grass = mesh;
 {
-const WSTY ={auto: null,gentle:[0.6,0.55,0.6,0.75],medium:[1,1,1,1],heavy:[1.45,1.35,1.3,1.15]};
+const WSTY ={auto: null,gentle:[0.7,0.55,0.6,0.75],medium:[0.7,1,1,1],heavy:[0.7,1.35,1.3,1.15]};
 const ws = 'auto';
 const cur = new THREE.Vector4(0.6,0.55,0.6,0.75),
 tgt = new THREE.Vector4(),
@@ -4473,7 +4474,8 @@ sh.vertexShader = sh.vertexShader
 .replace(
 '#include <common>',
 `#include <common>
-uniform float uTime,uTile,uWorld,uWind,uWPh,uGust,uGF,uTrailW,uTrailM,uTrailA;uniform vec2 uWDir;uniform vec3 uCenter,uCat,uCat2;uniform sampler2D uHeight,uMask,uTrail;attribute vec4 aOff;attribute float aT,aHead;varying float vHead,vFS;varying vec3 vFC;`
+uniform float uTime,uTile,uWorld,uWind,uWPh,uGust,uGF,uTrailW,uTrailM,uTrailA;uniform vec2 uWDir;uniform vec3 uCenter,uCat,uCat2;uniform sampler2D uHeight,uMask,uTrail;attribute vec4 aOff;attribute float aT,aHead;varying float vHead,vFS;varying vec3 vFC;uniform vec4 uWS;
+float gvh(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}float gvn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(gvh(i),gvh(i+vec2(1,0)),f.x),mix(gvh(i+vec2(0,1)),gvh(i+vec2(1,1)),f.x),f.y);}`
 )
 .replace(
 '#include <uv_vertex>',
@@ -4497,8 +4499,12 @@ float sc=aOff.z*keep;float cs=cos(aOff.w),sn=sin(aOff.w);
 float tallP=smoothstep(.35,.8,.5+.5*sin(wp.x*.19+sin(wp.y*.15)*2.1)*sin(wp.y*.17+sin(wp.x*.12)*2.3));float wild=smoothstep(.2,.95,msk);float pn=.5+.25*sin(wp.x*.07+sin(wp.y*.05)*2.3)+.25*sin(wp.y*.083+sin(wp.x*.061)*1.9);
 float gh=.21*(1.+1.6*tallP)*mix(.3,1.,wild)*(.72+.6*pn);float fh=(gh*1.12+.03)*keep;float hs=(.55+.6*fract(rk*7.31))*keep;
 vec3 lp=aHead>.5?vec3(position.x*hs,fh+(position.y-1.)*hs,position.z*hs):vec3(position.x*keep,position.y*fh,position.z*fh);lp=vec3(lp.x*cs-lp.z*sn,lp.y,lp.x*sn+lp.z*cs);sc=fh;
-float gust=.6+.4*sin(uTime*.35+wp.x*.04+wp.y*.03);float gsF=dot(wp,uWDir)-uGF;float gw=(gsF>0.?exp(-gsF*gsF/16.):exp(-gsF*gsF/220.))*uGust;
-float wv=sin((uTime*1.2+uWPh*.5)+wp.x*.33+wp.y*.21)*.6+sin((uTime*2.4+uWPh*.8)+wp.x*1.1-wp.y*.7)*.25;float bend=aT*aT*sc*(.3*uWind*gust+.25*wv*min(uWind,1.6)+gw*1.25)*.35;bend=min(bend,sc*.22*aT*aT);lp.xz+=uWDir*bend*.8;lp.y-=bend*bend/max(sc,.05)*.5;
+/* FOREST (Ryan, Nov 14: "the flowers dont blow at all"): each flower now rides the very same slow current as the grass around it, leaning about its root */
+{float wsK=clamp((uWS.y-.55)/.8,0.,1.);float gsF=dot(wp,uWDir)-uGF;float gw=(gsF>0.?exp(-gsF*gsF/16.):exp(-gsF*gsF/(140.+260.*wsK)))*uGust;
+vec2 cq=wp*.085-uWDir*uTime*.3*uWS.x;vec2 wq=vec2(gvn(cq*.55+vec2(uTime*.025,0.)),gvn(cq*.55+vec2(5.2,uTime*.02)))-.5;float cur=gvn(cq+wq*1.9)*.65+gvn(cq*2.3+wq*1.2+3.7)*.35;
+float wk=clamp(.35+.65*uWind,0.,1.6);float ang=.07*min(uWind,1.5)+(cur-(.55-.12*wsK))*.8*wk*uWS.y+gw*.3;ang=clamp(ang,-.36*uWS.w,.6*uWS.w)*.9;
+float dr=wq.x*2.4+wq.y*.6;vec2 wd=vec2(uWDir.x*cos(dr)-uWDir.y*sin(dr),uWDir.x*sin(dr)+uWDir.y*cos(dr));vec2 wpp=vec2(-wd.y,wd.x);
+float a=ang*(aHead>.5?1.:pow(aT,1.15));float h=dot(lp.xz,wd),pp=dot(lp.xz,wpp);float ca=cos(a),sa=sin(a);float h2=h*ca+lp.y*sa;float y2=-h*sa+lp.y*ca;lp=vec3(wd.x*h2+wpp.x*pp,y2,wd.y*h2+wpp.y*pp);}
 float gH=texture2D(uHeight,tuv).r;for(int ci=0;ci<2;ci++){vec3 cP=ci==0?uCat:uCat2;vec2 dc=wp-cP.xz;float dd=length(dc);float pk=smoothstep(.62,.08,dd)*step(abs(cP.y-gH),.5);lp.xz+=normalize(dc+1e-4)*pk*aT*(sc*1.4+.06);lp.y-=pk*aT*sc*.7;}
 {vec4 trv=texture2D(uTrail,wp/uTrailW);float tk=smoothstep(.1,.6,trv.r);vec2 td=normalize(clamp(trv.gb/max(trv.r,.02),0.,1.)*2.-1.+vec2(1e-4));if(uTrailM>1.5)lp*=1.-smoothstep(.15,.85,tk);else{vec2 bd=td;if(uTrailM>.5){vec2 tp=vec2(-td.y,td.x);float sL=texture2D(uTrail,(wp+tp*.14)/uTrailW).r,sR=texture2D(uTrail,(wp-tp*.14)/uTrailW).r;bd=tp*(sL>sR?-1.:1.);}float pf=uTrailM>.5?sin(uTrailA):.9;lp.xz+=bd*tk*aT*sc*.75*pf;lp.y*=1.-tk*.4*pf*pf;}}
 vec3 transformed=vec3(wp.x,gH,wp.y)+lp;vFS=.85+.3*rk;`
@@ -13485,7 +13491,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 26;
+const LOOKV = 27;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -23490,7 +23496,7 @@ DM.pts.geometry.attributes.position.needsUpdate = true;
 const se = window.__CYCLE && window.__CYCLE.season;
 grassU.uWind.value = Math.max(window.__tunWind || 0,W.wind *(se === 'winter' ? 1 : 0.55));
 grassU.uWPh.value +=
-Math.min(dt,0.1)* grassU.uWind.value;
+Math.min(dt,0.1)* 0.45;
 }
 {
 const wk = clamp((W.sunI - 0.8)/ 2.6,0,1);
@@ -25532,12 +25538,12 @@ gustT -= dt;
 const dd = grassU.uWDir.value,
 cpj = cam.x * dd.x + cam.z * dd.y;
 if(gustT < 0){
-gustT =(isWindy()? 9 : 13)+ Math.random()* 8;
+gustT = 24 + Math.random()* 10;
 gust = isWindy()? 0.95 : 1;
 M.gf = cpj - 75;
 }
 if(M.gf != null){
-M.gf +=(isWindy()? 14 : 11)* dt;
+M.gf += 7 * dt;
 grassU.uGF.value = M.gf;
 if(M.gf > cpj + 90){
 M.gf = null;
