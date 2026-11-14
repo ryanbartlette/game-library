@@ -12846,7 +12846,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 510;
+const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -13000,6 +13000,18 @@ if(!document.pointerLockElement && !X.on && X.allowed(true))X.open();
 },30);
 });
 }
+addEventListener(
+'keydown',
+e =>{
+if(e.code !== 'Backquote' || !new URLSearchParams(location.search).has('dev'))return;
+e.preventDefault();
+if(document.pointerLockElement)
+try{
+document.exitPointerLock();
+}catch(err){}
+},
+true
+);
 addEventListener(
 'keydown',
 e =>{
