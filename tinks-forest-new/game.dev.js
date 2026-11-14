@@ -14394,7 +14394,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 51;
+const LOOKV = 52;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -23755,14 +23755,15 @@ return md[(pz * mc.width + px)* 4]< 120;
 };
 const J =
 [
-[8.2,-34.1,'sprout'],
-[29.5,-3.6,'tree'],
-[-15.8,-40,'house'],
-[26.5,21.8,'bus']
+[7.47,-35.95,'sprout',true,0],
+[32.98,5.06,'tree',true,1],
+[-15.8,-40,'house',false,2],
+[31.17,-53.68,'tree',true,4,'house']
 ];
 const S =(window.__SIGNS =[]);
-J.forEach(([jx,jz,key],i)=>{
-let best = null;
+J.forEach(([jx,jz,key,fixed,id,keyB],i)=>{
+let best = fixed ?[jx,jz]: null;
+if(id != null)i = id;
 for(let r = 1.2;r < 3.2 && !best;r += 0.25)
 for(let a = 0;a < 16;a++){
 const t =(a / 16)* 6.283 + i;
@@ -23784,7 +23785,7 @@ const grp = new THREE.Group();
 grp.name = 'signpost';
 const y = heightAt(best[0],best[1])- 0.04;
 grp.position.set(best[0],y,best[1]);
-grp.rotation.y = Math.atan2(jx - best[0],jz - best[1]);
+grp.rotation.y = fixed ? -Math.PI / 2 : Math.atan2(jx - best[0],jz - best[1]);
 const post = new THREE.Mesh(geos[0],mat),
 top = new THREE.Mesh(geos[1],mat),
 low = new THREE.Mesh(geos[2],mat);
@@ -23796,7 +23797,7 @@ grp.add(m);
 }
 scene.add(grp);
 grp.updateMatrixWorld(true);
-const sg ={grp,top,low,i,key,shownT: -99};
+const sg ={grp,top,low,i,key,keyB,shownT: -99};
 S.push(sg);
 if(E && E.register)E.register(grp,'sign:' + i);
 post.onBeforeRender =()=>{
@@ -23837,7 +23838,7 @@ if(!L.length)return;
 const A = L.find(p => p.k === sg.key)|| L[0];
 L.splice(L.indexOf(A),1);
 const diff =(u,w)=> Math.abs(((u - w + Math.PI * 3)%(Math.PI * 2))- Math.PI);
-let B = L.find(p => diff(p.a,A.a)> 1.05)|| L.find(p => diff(p.a,A.a)> 0.6)|| null;
+let B =(sg.keyB && L.find(p => p.k === sg.keyB))|| L.find(p => diff(p.a,A.a)> 1.05)|| L.find(p => diff(p.a,A.a)> 0.6)|| null;
 sg.A = A;
 sg.B = B;
 const q = new THREE.Quaternion();
