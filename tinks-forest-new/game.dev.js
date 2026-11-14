@@ -4699,6 +4699,11 @@ grassU.uMask.value.needsUpdate = true;
 console.warn('trails',e);
 }
 window.__trailsDrawn = true;
+setTimeout(()=>{
+try{
+for(const sg of window.__SIGNS ||[])aimSign(sg);
+}catch(e){}
+},500);
 window.__forestCleared ={trees: goneT.size,rocks: rocks.length};
 }
 const dead =[];
@@ -14850,7 +14855,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 66;
+const LOOKV = 67;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -24194,7 +24199,50 @@ g.translate(w === 1 ? -bb.min.x - 0.02 : -bb.max.x + 0.02,0,0);
 }
 return g;
 });
-const mat = srcMesh.material;
+{
+const bbs = geos.map(g =>(g.computeBoundingBox(),g.boundingBox.clone()));
+const pb = bbs[0];
+const postH = pb.max.y - pb.min.y,
+postR = Math.max(0.035,Math.min(pb.max.x - pb.min.x,pb.max.z - pb.min.z)* 0.42);
+const post = new THREE.CylinderGeometry(postR * 0.9,postR,postH,10,1);
+post.translate((pb.min.x + pb.max.x)/ 2,pb.min.y + postH / 2,(pb.min.z + pb.max.z)/ 2);
+const cap = new THREE.ConeGeometry(postR * 0.95,postR * 1.4,10);
+cap.translate((pb.min.x + pb.max.x)/ 2,pb.max.y + postR * 0.7,(pb.min.z + pb.max.z)/ 2);
+const postG = mergeGeometries([post.toNonIndexed(),cap.toNonIndexed()]);
+const board =(bb,dir)=>{
+const L = Math.max(0.62,bb.max.x - bb.min.x)* 1.08,
+H = Math.max(0.15,bb.max.y - bb.min.y)* 1.05,
+T = Math.max(0.03,Math.min(0.045,bb.max.z - bb.min.z)),
+tip = H * 0.55;
+const sh = new THREE.Shape();
+sh.moveTo(0,-H / 2);
+sh.lineTo(L - tip,-H / 2);
+sh.lineTo(L,0);
+sh.lineTo(L - tip,H / 2);
+sh.lineTo(0,H / 2);
+sh.lineTo(0,-H / 2);
+const g = new THREE.ExtrudeGeometry(sh,{depth: T,bevelEnabled: true,bevelThickness: 0.004,bevelSize: 0.004,bevelSegments: 1});
+g.translate(0.02,(bb.min.y + bb.max.y)/ 2,(bb.min.z + bb.max.z)/ 2 - T / 2);
+if(dir < 0)g.scale(-1,1,1);
+const u = g.attributes.uv;
+if(u)for(let i = 0;i < u.count;i++)u.setXY(i,u.getX(i)* 2.2,u.getY(i)* 2.2);
+g.computeVertexNormals();
+g.userData.src = 'signpost';
+return g;
+};
+const ng =[postG,board(bbs[1],1),board(bbs[2],-1)];
+ng[0].userData.src = 'signpost';
+ng[0].computeVertexNormals();
+for(let i = 0;i < 3;i++)geos[i]= ng[i];
+}
+let mat = srcMesh.material;
+try{
+const bt = new THREE.TextureLoader().load('/tinks-forest-new/cz/t/bark.png');
+bt.wrapS = bt.wrapT = THREE.RepeatWrapping;
+bt.colorSpace = THREE.SRGBColorSpace;
+bt.flipY = false;
+mat = tintMat(new THREE.MeshStandardMaterial({map: bt,roughness: 1,side: THREE.DoubleSide}),'czsign');
+}catch(e){}
 const GA = window.__luca && window.__luca.groundAt;
 const mc = grassU.uMask.value && grassU.uMask.value.image;
 let md = null;
@@ -24301,8 +24349,30 @@ const q = new THREE.Quaternion();
 g.getWorldQuaternion(q);
 const gy = new THREE.Euler().setFromQuaternion(q,'YXZ').y;
 const s = g.getWorldScale(new V3());
-const turn =
-(p,flip)=>{
+const alongTrail = p =>{
+const T = window.__TRAILS;
+if(!T)return p;
+const want = Math.atan2(p.z - c.z,p.x - c.x);
+let best = null,
+bd = 1e9;
+for(const fl of T)
+for(let i = 0;i < fl.length;i += 2){
+const dx = fl[i]- c.x,
+dz = fl[i + 1]- c.z,
+d = Math.hypot(dx,dz);
+if(d < 3.5 || d > 9)continue;
+const a = Math.atan2(dz,dx),
+df = diff(a,want);
+if(df < bd){
+bd = df;
+best = a;
+}
+}
+if(best == null || bd > 1.3)return p;
+return{...p,x: c.x + Math.cos(best)* 10,z: c.z + Math.sin(best)* 10};
+};
+const turn =(p0,flip)=>{
+const p = alongTrail(p0);
 const dx = p.x - c.x,
 dz = p.z - c.z;
 return(flip ? Math.atan2(dz,-dx): Math.atan2(-dz,dx))- gy;
@@ -24361,14 +24431,16 @@ const minH = Math.min(...body.map(k => hgt[k]));
 const cx =(bx0 + bx1)/ 2,
 cy =(sy - slope * sx)/ n + slope * cx;
 const ang = Math.atan(slope);
-const pw =(bl * 0.86)/ Math.cos(ang),
-ph = minH * 0.62;
+const pw =(bl * 0.94)/ Math.cos(ang),
+ph = minH * 0.8;
 const CW = 512,
 CH = Math.max(64,Math.round((CW * ph)/ pw));
 const[cv,x]= cnv(CW,CH);
 x.clearRect(0,0,CW,CH);
-x.fillStyle = 'rgba(248,240,218,.95)';
-let fs = Math.round(CH * 0.86);
+x.fillStyle = 'rgba(248,240,218,.97)';
+x.shadowColor = 'rgba(40,24,10,.6)';
+x.shadowBlur = CH * 0.04;
+let fs = Math.round(CH * 0.9);
 x.font = '700 ' + fs + 'px Fraunces, Georgia, serif';
 x.textAlign = 'center';
 x.textBaseline = 'middle';
@@ -56390,7 +56462,15 @@ m.metalness = 0;
 m.roughness = 1;
 m.side = THREE.DoubleSide;
 if(!barkM && m.color)m.color.multiply(new THREE.Color(1.04,0.97,0.88));
-FENCEM = tintMat(m,'fence');
+let mF = m;
+try{
+const bt = new THREE.TextureLoader().load('/tinks-forest-new/cz/t/bark.png');
+bt.wrapS = bt.wrapT = THREE.RepeatWrapping;
+bt.colorSpace = THREE.SRGBColorSpace;
+bt.flipY = false;
+mF = new THREE.MeshStandardMaterial({map: bt,roughness: 1,side: THREE.DoubleSide});
+}catch(e){}
+FENCEM = tintMat(mF,'fence');
 FENCEM.userData.tag = 'fence';
 return out;
 }
