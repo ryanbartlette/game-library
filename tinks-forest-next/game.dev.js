@@ -12845,7 +12845,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 504;
+const BUILD = 505;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -43797,7 +43797,7 @@ const LAST_TAIL =[
 'luca'
 ],
 [
-'Tink… Luca… look after each other. When the others are sad, curl up on their chests and keep them warm. |/| That was always my favorite spot…',
+'Tink… Luca… look after each other. And when your friends are sad, curl up on their chests and keep them warm. |/| That was always my favorite spot…',
 '',
 'tink'
 ],
