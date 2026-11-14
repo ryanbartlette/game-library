@@ -4471,9 +4471,15 @@ const TREES =[
 ];
 const BUSHES =['Foliage_Bushes_Large_bush_LargeBush_HighNew','Foliage_Bushes_Bush_Bush1'];
 const ROCKS =['Props_Rocks_Rock_1_Rock1_High','Props_Rocks_Rock_2_Rock2_High','Props_Rocks_Rock_3_Rocks3_High','Props_Rocks_Rock_4_Rock4_High'];
-const MASKC ={leaf: 0x5a8a48,leafbirch: 0x7d9c50,bush: 0x50803f};
+const MASKC ={leaf: 0x5a8a48,leafbirch: 0x7d9c50,bush: 0x50803f,grass0: 0x6e9a4a,grass1: 0x7fa652,weed: 0x5f8f45};
 const texKey =(file,nm)=>{
 nm =(nm || '').toLowerCase();
+if(/Grass0/.test(file))return 'grass0';
+if(/Grass1/.test(file))return 'grass1';
+if(/Weed/.test(file))return 'weed';
+if(/Bridge_Bridge/.test(file))return 'bridge';
+if(/Lantern/.test(file))return 'lantern';
+if(/Sculpt/.test(file))return 'sculpt';
 if(/leaf birch/.test(nm))return 'leafbirch';
 if(/^leaf/.test(nm))return 'leaf';
 if(/birch/.test(nm))return 'birch';
@@ -4521,7 +4527,7 @@ return m;
 };
 const matFor =(file,nm,swU)=>{
 const k = texKey(file,nm);
-const sway = !/Rock/.test(file);
+const sway = !/Rock|Bridge|Lantern|Sculpt/.test(file);
 if(k && MASKC[k]){
 const m = new THREE.MeshStandardMaterial({color: MASKC[k],alphaMap: tex(k,true),alphaTest: 0.4,side: THREE.DoubleSide,roughness: 1});
 return tintMat(sway ? windify(m,true,swU): m,'czleaf');
@@ -4890,10 +4896,188 @@ window.__gtDressed ={leaves: nl,bark: nb};
 console.warn('great tree dress',e);
 }
 };
+const dress = async()=>{
+const dr = mulberry32(70631);
+const L ={};
+for(const[k,f]of[
+['g0','Foliage_Grass_Weeds_Grass0'],
+['g1','Foliage_Grass_Weeds_Grass1'],
+['weed','Foliage_Grass_Weeds_Weed1V2'],
+['rock3','Props_Rocks_Rock_3_Rocks3_High'],
+['rock1','Props_Rocks_Rock_1_Rock1_High'],
+['rock4','Props_Rocks_Rock_4_Rock4_High'],
+['lantern','Props_Lantern_Lantern_High'],
+['sculpt','Props_Sculptures_Sculpture1'],
+['bridge','Props_Bridge_Bridge']
+])
+L[k]= await loadModel(f);
+const put ={};
+const wet =(x,z)=>{
+try{
+return waterLevelAt(x,z)> heightAt(x,z)- 0.03;
+}catch(e){
+return false;
+}
+};
+const built =(x,z)=>{
+for(const s of near(x,z))if(!s.dead && s.t !== 'trunk' && surfAt(s,x,z))return true;
+return false;
+};
+const add =(k,x,z,s,r,sink)=>{
+(put[k]= put[k]||[]).push([x,z,s,r,sink || 0]);
+};
+const TR = window.__TRAILS ||[];
+const onTrail =(x,z)=>{
+for(const fl of TR)
+for(let i = 0;i < fl.length;i += 2)if((fl[i]- x)** 2 +(fl[i + 1]- z)** 2 < 1.05 * 1.05)return true;
+return false;
+};
+TR.forEach((fl,ti)=>{
+let s = 0,
+nextLamp = 8 + dr()* 10,
+side = dr()< 0.5 ? 1 : -1;
+for(let i = 2;i < fl.length;i += 2){
+const x0 = fl[i - 2],
+z0 = fl[i - 1],
+x1 = fl[i],
+z1 = fl[i + 1];
+const seg = Math.hypot(x1 - x0,z1 - z0);
+if(seg < 1e-3)continue;
+const tx =(x1 - x0)/ seg,
+tz =(z1 - z0)/ seg;
+for(let u = 0;u < seg;u += 0.45){
+s += 0.45;
+const hw = 0.9 *(1 + 0.12 * Math.sin(s * 0.19 + ti * 1.7)+ 0.06 * Math.sin(s * 0.47 + ti * 4.1));
+const cx = x0 + tx * u,
+cz = z0 + tz * u;
+for(const sd of[1,-1]){
+const r = dr(),
+o = dr(),
+sc = dr(),
+ro = dr(),
+jj = dr();
+const off = hw + 0.2 + o * 1.4;
+const x = cx - tz * off * sd + tx *(jj - 0.5)* 0.4,
+z = cz + tx * off * sd + tz *(jj - 0.5)* 0.4;
+if(r > 0.8 || wet(x,z)|| built(x,z)|| onTrail(x,z))continue;
+if(r < 0.5)add(r < 0.25 ? 'g0' : 'g1',x,z,3.6 + sc * 2.6,ro * 6.283);
+else if(r < 0.74)add('weed',x,z,3.4 + sc * 2.2,ro * 6.283);
+else if(r < 0.77)add('rock3',x,z,0.22 + sc * 0.25,ro * 6.283,0.25);
+}
+if(s > nextLamp){
+nextLamp = s + 18 + dr()* 10;
+side = -side;
+const off = hw + 0.75;
+const x = cx - tz * off * side,
+z = cz + tx * off * side;
+if(!wet(x,z)&& !built(x,z))add('lantern',x,z,2.0,Math.atan2(tz * side,-tx * side)+ Math.PI / 2);
+}
+}
+}
+});
+[...(window.__TRAIL_CLEARINGS ||[])]
+.sort((a,b)=> b[2]- a[2])
+.slice(0,2)
+.forEach(([x,z,r],i)=>{
+const a = dr()* 6.283;
+const px = x + Math.cos(a)*(r * 0.8 + 1.4),
+pz = z + Math.sin(a)*(r * 0.8 + 1.4);
+if(!wet(px,pz)&& !built(px,pz))add('sculpt',px,pz,0.7,Math.atan2(x - px,z - pz));
+});
+const SS = window.__SS ||[];
+for(let i = 1;i < SS.length;i++){
+const a = SS[i - 1],
+b = SS[i];
+const seg = Math.hypot(b.x - a.x,b.z - a.z);
+if(seg < 1e-3 || seg > 6)continue;
+const tx =(b.x - a.x)/ seg,
+tz =(b.z - a.z)/ seg;
+for(let u = 0;u < seg;u += 0.4){
+const k = u / seg,
+cx = a.x +(b.x - a.x)* k,
+cz = a.z +(b.z - a.z)* k,
+w = a.w +(b.w - a.w)* k;
+for(const sd of[1,-1]){
+const r = dr(),
+o = dr(),
+sc = dr(),
+ro = dr();
+const off = w + 0.15 + o * 1.5;
+const x = cx - tz * off * sd,
+z = cz + tx * off * sd;
+if(r > 0.85 || built(x,z)|| onTrail(x,z))continue;
+if(r < 0.6)add(r < 0.3 ? 'g1' : 'g0',x,z,4 + sc * 3,ro * 6.283);
+else if(r < 0.77)add('weed',x,z,3.6 + sc * 2.4,ro * 6.283);
+else if(r < 0.81)add(r < 0.79 ? 'rock1' : 'rock4',x,z,0.3 + sc * 0.45,ro * 6.283,0.3);
+}
+}
+}
+const m4 = new THREE.Matrix4(),
+q4 = new THREE.Quaternion(),
+up = new V3(0,1,0);
+const counts ={};
+for(const k in put){
+const M = L[k];
+if(!M)continue;
+const list = put[k];
+const im = new THREE.InstancedMesh(M.geo,M.mats,list.length);
+list.forEach(([x,z,s,r,sink],i)=>{
+const gy = groundAt(x,z,heightAt(x,z)+ 3);
+q4.setFromAxisAngle(up,r);
+m4.compose(new V3(x,gy - M.y0 * s - sink * M.h * s - 0.02,z),q4,new V3(s,s,s));
+im.setMatrixAt(i,m4);
+if(k === 'lantern' || k === 'sculpt'){
+const tr ={x,z,r: k === 'sculpt' ? 0.75 : 0.22,h: M.h * s,g: gy,noClimb: true,czTree: true,climbTop: gy + M.h * s};
+addSurf({t: 'trunk',x,z,r: tr.r,tree: tr},x - 1,z - 1,x + 1,z + 1);
+}
+});
+im.instanceMatrix.needsUpdate = true;
+im.computeBoundingSphere();
+const small = /^(g0|g1|weed)$/.test(k);
+im.castShadow = !small;
+im.receiveShadow = true;
+im.userData.noEdit = true;
+scene.add(im);
+counts[k]= list.length;
+}
+let nb = 0;
+const BM = L.bridge;
+if(BM)
+for(const b of window.__BRIDGES ||[]){
+if(!b.m || !b.span)continue;
+const len = BM.geo.boundingBox.max.z - BM.geo.boundingBox.min.z;
+const s =(b.span * 1.08)/ len;
+const mesh = new THREE.Mesh(BM.geo,BM.mats);
+const nx = -Math.sin(b.ang),
+nz = Math.cos(b.ang);
+mesh.rotation.y = -Math.atan2(nz,nx)+ Math.PI / 2;
+mesh.scale.setScalar(s);
+mesh.position.set(b.x,b.lvl - 0.3 - BM.y0 * s,b.z);
+mesh.castShadow = mesh.receiveShadow = true;
+mesh.userData.noEdit = true;
+scene.add(mesh);
+mesh.updateMatrixWorld(true);
+b.m.visible = false;
+if(b.sf)b.sf.dead = true;
+const sf = meshSurface(worldTris(mesh),0.1,false);
+if(sf){
+sf.bridge = true;
+sf.czNew = true;
+}
+nb++;
+}
+window.__czDressed ={...counts,bridges: nb};
+};
 const tvp = setInterval(()=>{
 if(!window.__worldBuilt || !window.__ready || !window.__forestCleared)return;
 clearInterval(tvp);
-setTimeout(()=> plant().catch(e => console.warn('forest plant',e)),1600);
+setTimeout(
+()=>
+plant()
+.then(dress)
+.catch(e => console.warn('forest plant',e)),
+1600
+);
 setTimeout(dressGreatTree,2000);
 },500);
 }
@@ -13981,7 +14165,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 46;
+const LOOKV = 47;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
