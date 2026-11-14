@@ -4185,7 +4185,7 @@ dead.push(o);
 const GT2 = window.__LIFE && window.__LIFE.tree;
 for(const sf of SURF){
 if(sf.dead || sf.t !== 'trunk')continue;
-if(sf.tree && sf.tree.sprout)continue;
+if(sf.tree &&(sf.tree.sprout || sf.tree.czTree))continue;
 if(GT2 && Math.hypot(sf.x - GT2.x,sf.z - GT2.z)<(GT2.R || 6)+ 1.5)continue;
 sf.dead = true;
 }
@@ -4221,7 +4221,7 @@ const isOwned = sf => sf.own &&(owners.has(sf.own)||(sf.own.parent && owners.has
 let killed = 0;
 for(const sf of SURF){
 if(sf.dead || !sf._bb)continue;
-if(sf.bridge)continue;
+if(sf.bridge || sf.czNew ||(sf.tree && sf.tree.czTree))continue;
 const[x0,z0,x1,z1]= sf._bb;
 const cx =(x0 + x1)/ 2,
 cz =(z0 + z1)/ 2;
@@ -4288,7 +4288,7 @@ swapBark();
 setTimeout(swapBark,4000);
 },500);
 }
-if(window.__ROAM){
+if(window.__ROAM && /[?&]lineup\b/.test(location.search)){
 const BASE = '/tinks-forest-new/cz/';
 let SZ = 1;
 try{
@@ -4369,6 +4369,232 @@ const tv = setInterval(()=>{
 if(!window.__worldBuilt || !window.__ready)return;
 clearInterval(tv);
 setTimeout(plant,3000);
+},500);
+}
+{
+const BASE = '/tinks-forest-new/cz/';
+const pr = mulberry32(70321);
+const TREES =[
+['Foliage_Trees_Tree_1_Tree1_High',0.28],
+['Foliage_Trees_Tree_2_Tree2_High',0.3],
+['Foliage_Trees_Tree_3_Oak_OakTree2_High',0.2],
+['Foliage_Trees_Tree_4_Brich_Tree4_High',0.22]
+];
+const BUSHES =['Foliage_Bushes_Large_bush_LargeBush_HighNew','Foliage_Bushes_Bush_Bush1'];
+const ROCKS =['Props_Rocks_Rock_1_Rock1_High','Props_Rocks_Rock_2_Rock2_High','Props_Rocks_Rock_3_Rocks3_High','Props_Rocks_Rock_4_Rock4_High'];
+const MASKC ={leaf: 0x5a8a48,leafbirch: 0x7d9c50,bush: 0x50803f};
+const texKey =(file,nm)=>{
+nm =(nm || '').toLowerCase();
+if(/leaf birch/.test(nm))return 'leafbirch';
+if(/^leaf/.test(nm))return 'leaf';
+if(/birch/.test(nm))return 'birch';
+if(/bark|default obj/.test(nm))return 'bark';
+if(/bush/.test(nm))return 'bush';
+const m = file.match(/Rock_(\d)/);
+if(m)return 'rock' + m[1];
+return null;
+};
+const tl = new THREE.TextureLoader(),
+tc ={};
+const tex =(k,mask)=>{
+if(!tc[k]){
+tc[k]= tl.load(BASE + 't/' + k + '.png');
+tc[k].flipY = false;
+tc[k].wrapS = tc[k].wrapT = THREE.RepeatWrapping;
+tc[k].colorSpace = mask ? THREE.NoColorSpace : THREE.SRGBColorSpace;
+}
+return tc[k];
+};
+const matFor =(file,nm)=>{
+const k = texKey(file,nm);
+if(k && MASKC[k])
+return tintMat(new THREE.MeshStandardMaterial({color: MASKC[k],alphaMap: tex(k,true),alphaTest: 0.4,side: THREE.DoubleSide,roughness: 1}),'czleaf');
+const m = new THREE.MeshStandardMaterial({roughness: 1});
+if(k)m.map = tex(k,false);
+return tintMat(m,'czbark');
+};
+const loadModel = file =>
+new Promise(res =>{
+new GLTFLoader().load(
+BASE + file + '.glb',
+g =>{
+g.scene.updateMatrixWorld(true);
+let src = null;
+g.scene.traverse(m =>{
+if(m.isMesh && !src)src = m;
+});
+if(!src)return res(null);
+const geo = src.geometry.clone().applyMatrix4(src.matrixWorld);
+const mats0 = Array.isArray(src.material)? src.material :[src.material];
+const mats = mats0.map(m => matFor(file,m.name));
+const leafy = mats0.map(m => !!MASKC[texKey(file,m.name)]);
+if(!leafy.some(Boolean)|| geo.groups.length){
+if(!leafy.some(Boolean))geo.computeVertexNormals();
+}
+geo.computeBoundingBox();
+let tr = 0;
+const P = geo.attributes.position,
+bb = geo.boundingBox;
+const barkIdx = new Set();
+if(geo.groups.length && geo.index)
+geo.groups.forEach(gp =>{
+if(!leafy[gp.materialIndex])
+for(let i = gp.start;i < gp.start + gp.count;i++)barkIdx.add(geo.index.getX(i));
+});
+const cx =(bb.min.x + bb.max.x)/ 2,
+cz =(bb.min.z + bb.max.z)/ 2;
+const scan = i =>{
+const y = P.getY(i);
+if(y < bb.min.y + 0.6 && y > bb.min.y + 0.15)tr = Math.max(tr,Math.hypot(P.getX(i)- cx,P.getZ(i)- cz));
+};
+if(barkIdx.size)barkIdx.forEach(scan);
+res({geo,mats: mats.length > 1 ? mats : mats[0],tr: Math.min(tr || 0.25,0.6),h: bb.max.y - bb.min.y,w: Math.max(bb.max.x - bb.min.x,bb.max.z - bb.min.z),y0: bb.min.y});
+},
+undefined,
+()=> res(null)
+);
+});
+const plant = async()=>{
+const GT = window.__LIFE && window.__LIFE.tree;
+const mc = grassU.uMask.value.image,
+MS = mc.width,
+md = mc.getContext('2d').getImageData(0,0,MS,MS).data;
+const mAt =(x,z)=>{
+const px = clamp(Math.floor(((x + WORLD / 2)/ WORLD)* MS),0,MS - 1),
+pz = clamp(Math.floor(((z + WORLD / 2)/ WORLD)* MS),0,MS - 1);
+return md[(pz * MS + px)* 4]/ 255;
+};
+const free =(x,z,rr)=>{
+if(Math.abs(x)> WORLD / 2 - 6 || Math.abs(z)> WORLD / 2 - 6)return false;
+if(GT && Math.hypot(x - GT.x,z - GT.z)<(GT.R || 6)+ 9)return false;
+for(const[ox,oz]of[[0,0],[rr,0],[-rr,0],[0,rr],[0,-rr]]){
+if(mAt(x + ox,z + oz)< 0.3)return false;
+try{
+if(waterLevelAt(x + ox,z + oz)> heightAt(x + ox,z + oz)- 0.05)return false;
+}catch(e){}
+for(const s of near(x + ox,z + oz))if(!s.dead && s.t !== 'trunk' && surfAt(s,x + ox,z + oz))return false;
+}
+return true;
+};
+const spots =[];
+const taken =[];
+const clearOf =(x,z,d)=>{
+for(const q of taken)if((q[0]- x)** 2 +(q[1]- z)** 2 < d * d)return false;
+return true;
+};
+const pickTree = r =>{
+let a = 0;
+for(let i = 0;i < TREES.length;i++)if(r <(a += TREES[i][1]))return i;
+return 0;
+};
+for(const t of trees){
+const h = t._hole ||[t.x,t.z];
+const n = 1 + Math.floor(pr()* 3);
+for(let k = 0;k < 3;k++){
+const a = pr()* 6.283,
+d = k === 0 ? pr()* 1.2 : 2.6 + pr()* 3.6,
+sp = pr(),
+sc = pr(),
+rot = pr(),
+bushR = pr(),
+rockR = pr(),
+extra = pr();
+if(k >= n || t.sprout)continue;
+const x = h[0]+ Math.cos(a)* d,
+z = h[1]+ Math.sin(a)* d;
+if(!free(x,z,2.2)|| !clearOf(x,z,2.7))continue;
+taken.push([x,z]);
+spots.push({kind: 'tree',m: pickTree(sp),x,z,s: 1.8 *(0.85 + 0.35 * sc),r: rot * 6.283});
+if(bushR < 0.45){
+const ba = extra * 6.283,
+bx = x + Math.cos(ba)*(2 + bushR * 3),
+bz = z + Math.sin(ba)*(2 + bushR * 3);
+if(free(bx,bz,1.2)&& clearOf(bx,bz,1.6)){
+taken.push([bx,bz]);
+spots.push({kind: 'bush',m: bushR < 0.18 ? 0 : 1,x: bx,z: bz,s: 0.7 *(0.8 + 0.5 * sc),r: extra * 40});
+}
+}
+if(rockR < 0.16){
+const ra = extra * 6.283 + 2.4,
+rx = x + Math.cos(ra)*(2.4 + rockR * 6),
+rz = z + Math.sin(ra)*(2.4 + rockR * 6);
+if(free(rx,rz,1.0)&& clearOf(rx,rz,1.8)){
+taken.push([rx,rz]);
+spots.push({kind: 'rock',m: Math.floor(rockR * 25)% 4,x: rx,z: rz,s: 0.65 + 0.6 * sc,r: rot * 6.283});
+}
+}
+}
+}
+const models ={
+tree: await Promise.all(TREES.map(t => loadModel(t[0]))),
+bush: await Promise.all(BUSHES.map(loadModel)),
+rock: await Promise.all(ROCKS.map(loadModel))
+};
+const m4 = new THREE.Matrix4(),
+q4 = new THREE.Quaternion(),
+up = new V3(0,1,0);
+const out ={tree: 0,bush: 0,rock: 0};
+for(const kind of['tree','bush','rock'])
+models[kind].forEach((M,mi)=>{
+if(!M)return;
+const list = spots.filter(s => s.kind === kind && s.m === mi);
+if(!list.length)return;
+const im = new THREE.InstancedMesh(M.geo,M.mats,list.length);
+list.forEach((s,i)=>{
+const gy = groundAt(s.x,s.z,heightAt(s.x,s.z)+ 3);
+const sink = kind === 'rock' ? M.h * s.s * 0.12 : 0.05;
+q4.setFromAxisAngle(up,s.r);
+m4.compose(new V3(s.x,gy - M.y0 * s.s - sink,s.z),q4,new V3(s.s,s.s,s.s));
+im.setMatrixAt(i,m4);
+if(kind === 'tree'){
+const tr ={x: s.x,z: s.z,r: M.tr * s.s,h: M.h * s.s,noClimb: true,czTree: true,climbTop: 99};
+addSurf({t: 'trunk',x: s.x,z: s.z,r: tr.r + 0.1,tree: tr},s.x - 1.5,s.z - 1.5,s.x + 1.5,s.z + 1.5);
+(window.__czForest = window.__czForest ||[]).push(tr);
+}
+if(kind === 'rock'){
+const rr =(M.w * s.s)/ 2;
+addSurf({t: 'ell',czNew: true,x: s.x,z: s.z,r: rr * 0.85,y: gy - sink,ry: M.h * s.s * 0.9},s.x - rr,s.z - rr,s.x + rr,s.z + rr);
+}
+});
+im.instanceMatrix.needsUpdate = true;
+im.computeBoundingSphere();
+im.castShadow = true;
+im.receiveShadow = true;
+im.userData.noEdit = true;
+im.userData.czKind = kind;
+scene.add(im);
+out[kind]+= list.length;
+});
+try{
+const ci = grassU.uCanopy.value.image,
+cx2 = ci.getContext('2d'),
+C2P = ci.width / WORLD;
+cx2.globalCompositeOperation = 'lighter';
+for(const s of spots){
+if(s.kind !== 'tree')continue;
+const M = models.tree[s.m];
+if(!M)continue;
+const R = Math.max(1.5,M.w * s.s * 0.45)* C2P,
+px =(s.x + WORLD / 2)* C2P,
+pz =(s.z + WORLD / 2)* C2P;
+const gr = cx2.createRadialGradient(px,pz,R * 0.15,px,pz,R);
+gr.addColorStop(0,'rgba(255,0,0,.7)');
+gr.addColorStop(0.7,'rgba(255,0,0,.45)');
+gr.addColorStop(1,'rgba(255,0,0,0)');
+cx2.fillStyle = gr;
+cx2.beginPath();
+cx2.arc(px,pz,R,0,7);
+cx2.fill();
+}
+cx2.globalCompositeOperation = 'source-over';
+grassU.uCanopy.value.needsUpdate = true;
+}catch(e){}
+window.__czPlanted = out;
+};
+const tvp = setInterval(()=>{
+if(!window.__worldBuilt || !window.__ready || !window.__forestCleared)return;
+clearInterval(tvp);
+setTimeout(()=> plant().catch(e => console.warn('forest plant',e)),1600);
 },500);
 }
 {
@@ -13455,7 +13681,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 34;
+const LOOKV = 35;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -18189,6 +18415,7 @@ return s.tree;
 return null;
 }
 function startClimb(tree,y){
+if(tree && tree.noClimb)return;
 P.mode = 'climb';
 const a = Math.atan2(P.pos.z - tree.z,P.pos.x - tree.x);
 P.climb ={tree,ang: a,y,spaceHeld: true};
