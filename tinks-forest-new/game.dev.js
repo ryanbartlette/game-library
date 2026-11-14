@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import{GLTFLoader}from 'three/addons/loaders/GLTFLoader.js';
 import{MeshoptDecoder}from 'three/addons/libs/meshopt_decoder.module.js';
 import{clone as skClone}from 'three/addons/utils/SkeletonUtils.js';
-import{mergeGeometries}from 'three/addons/utils/BufferGeometryUtils.js';
+import{mergeGeometries,mergeVertices}from 'three/addons/utils/BufferGeometryUtils.js';
 import{EffectComposer}from 'three/addons/postprocessing/EffectComposer.js';
 import{RenderPass}from 'three/addons/postprocessing/RenderPass.js';
 import{ShaderPass}from 'three/addons/postprocessing/ShaderPass.js';
@@ -1367,17 +1367,29 @@ uCT:{value: 0},
 uMid:{value: new THREE.Color(0.5,0.6,0.9)},
 uCRim:{value: new THREE.Color(1,1,1)},
 uSunR:{value: 0.04},
-uSunG:{value: 1}
+uSunG:{value: 1},
+uDayK:{value: 1},
+uDuskK:{value: 0},
+uFogC:{value: new THREE.Color(0xdcefe4)},
+uGT:{value: new THREE.Color(0x3684d8)},
+uGM:{value: new THREE.Color(0x8ccbee)},
+uGH:{value: new THREE.Color(0xf7e6c6)},
+uGTd:{value: new THREE.Color(0x3a5f9a)},
+uGMd:{value: new THREE.Color(0xe9a26f)},
+uGHd:{value: new THREE.Color(0xffb46a)},
+uGSun:{value: new THREE.Color(0xffe2a8)}
 },
 vertexShader: `varying vec3 vd;void main(){vd=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);gl_Position.z=gl_Position.w;}`,
-fragmentShader: `varying vec3 vd;uniform vec3 sd,uHor,uZen,uLow,uGlow,uDisk,uCLit,uCShade,uMid,uCRim;uniform float uStars,uT,uCAmt,uCT,uSunR,uSunG;float hs(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}
+fragmentShader: `varying vec3 vd;uniform vec3 sd,uHor,uZen,uLow,uGlow,uDisk,uCLit,uCShade,uMid,uCRim,uFogC,uGT,uGM,uGH,uGTd,uGMd,uGHd,uGSun;uniform float uStars,uT,uCAmt,uCT,uSunR,uSunG,uDayK,uDuskK;float hs(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}
  float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);float a=hs(vec3(i,1.)),b=hs(vec3(i+vec2(1,0),1.)),c=hs(vec3(i+vec2(0,1),1.)),d=hs(vec3(i+vec2(1,1),1.));return mix(mix(a,b,f.x),mix(c,d,f.x),f.y);}
  float fb(vec2 p){float s=0.,a=.5;for(int i=0;i<5;i++){s+=a*vn(p);p=p*2.03+7.1;a*=.5;}return s;}
  void main(){float h=vd.y;float tg=pow(clamp(h,0.,1.),.55);vec3 c=mix(mix(uHor,uMid,smoothstep(0.,.42,tg)),uZen,smoothstep(.32,1.,tg));c=mix(c,uLow,smoothstep(0.,-.2,h));float s=max(dot(vd,sd),0.);
  c+=uGlow*(pow(s,8.)*.4+pow(s,2.5)*.16*(1.-smoothstep(0.,.45,h)))*uSunG;
  if(uSunR>.001){float cd=dot(vd,sd);float dsk=smoothstep(cos(uSunR*1.07),cos(uSunR*.93),cd);c+=uDisk*smoothstep(cos(uSunR*2.6),cos(uSunR),cd)*.14*uSunG;c=mix(c,uDisk,dsk);}else c+=uDisk*pow(s,900.)*6.;
+ /* FOREST: the painted Ghibli day sky: blue zenith, pale turquoise mid-sky, warm cream horizon melting into the fog, warmth on the sun side, a soft three-lobed sun glow with no disc; dusk palette as the sun goes down */
+ {float t=clamp(h,0.,1.);vec3 T=mix(uGT,uGTd,uDuskK),M=mix(uGM,uGMd,uDuskK),H=mix(uGH,uGHd,uDuskK);vec3 g=mix(H,M,smoothstep(0.,.224,t));g=mix(g,T,smoothstep(.14,.85,pow(t,.8)));float hz=pow(1.-smoothstep(-.04,.077,h),2.2);g=mix(g,uFogC,hz);vec2 sxz=normalize(sd.xz+1e-4),dxz=normalize(vd.xz+1e-4);float tw=pow(max(dot(sxz,dxz),0.),3.)*(1.-smoothstep(0.,.35,h));g=mix(g,H*vec3(1.05,.95,.85),tw*.45);float cA=dot(vd,sd);float halo=exp(-(1.-cA)*90.)*.75+exp(-(1.-cA)*11.)*.28+exp(-(1.-cA)*2.2)*.08;vec3 st2=uGSun/max(max(uGSun.r,uGSun.g),uGSun.b);g+=st2*halo*.9*smoothstep(-.08,.02,h+.06);g*=mix(1.,.82,uDuskK*.6);c=mix(c,g,uDayK);}
  if(uStars>0.){vec3 q=floor(vd*420.);float r=hs(q);float st=step(.9962,r)*(.65+.35*sin(uT*2.+r*60.));c+=vec3(.9,.94,1.)*st*1.4*uStars*smoothstep(.04,.3,h);}
- if(h>0.){vec2 cu=vd.xz/(h+.12)*.55+vec2(uCT,uCT*.4);float cn=fb(cu*.95);float cl=smoothstep(1.-uCAmt,1.-uCAmt+.22,cn)*smoothstep(0.,.18,h);float lit=smoothstep(.35,.85,fb(cu*.95+sd.xz*.08)-cn*.2+.45);vec3 cc=mix(uCShade,uCLit,lit);float edge=cl*(1.-smoothstep(.3,.95,cl));cc=mix(cc,uCRim,clamp(edge*(.35+1.6*pow(s,3.))+lit*pow(s,6.)*.5,0.,.9));c=mix(c,cc,cl);}
+ if(h>0.){vec2 cu=vd.xz/(h+.12)*.55+vec2(uCT,uCT*.4);float cn=fb(cu*.95);float cl=(1.-.6*uDayK)*smoothstep(1.-uCAmt,1.-uCAmt+.22,cn)*smoothstep(0.,.18,h);float lit=smoothstep(.35,.85,fb(cu*.95+sd.xz*.08)-cn*.2+.45);vec3 cc=mix(uCShade,uCLit,lit);float edge=cl*(1.-smoothstep(.3,.95,cl));cc=mix(cc,uCRim,clamp(edge*(.35+1.6*pow(s,3.))+lit*pow(s,6.)*.5,0.,.9));c=mix(c,cc,cl);}
  {vec2 q=vd.xz/(abs(vd.y)+.35)*3.;float w1=fb(q*.7+uT*.6),w2=fb(q*2.3-3.);c*=.94+.1*w1;c=mix(c,c*vec3(1.03,1.,.96),smoothstep(.45,.7,w2)*.6);c*=.985+.03*hs(floor(vd*900.));}gl_FragColor=vec4(c,1.);
  #include <tonemapping_fragment>
  #include <colorspace_fragment>
@@ -1390,6 +1402,103 @@ scene.add(sky);
 window.__sky = sky;
 window.__skyU = m.uniforms;
 }
+const GCLOUDS =(()=>{
+const rand = mulberry32(80117);
+const P =[];
+const cloud =(ang,R,cy,w,speed = 0.6 + rand()* 0.9)=>{
+const cx = Math.sin(ang)* R,
+cz = -Math.cos(ang)* R,
+seed = rand()* 100;
+const n = 5 +((rand()* 5)| 0),
+yaw = rand()* Math.PI,
+ca = Math.cos(yaw),
+sa = Math.sin(yaw);
+const put =(px,py,pz,rad)=> P.push([cx + px * ca - pz * sa,cy + py,cz + px * sa + pz * ca,rad,cx,cy + w * 0.12,cz,speed,seed]);
+for(let k = 0;k < n;k++){
+const u =(k + 0.5)/ n - 0.5,
+rad = w *(0.15 + 0.08 * rand())* Math.sqrt(1 - Math.abs(u)* 1.4);
+put(u * w * 0.9,rad * 0.5 +(rand()- 0.5)* w * 0.04,(rand()- 0.5)* w * 0.14,rad);
+}
+const m = 4 +((rand()* 4)| 0),
+peak =(rand()- 0.5)* 0.4;
+for(let k = 0;k < m;k++){
+const u = peak +(rand()- 0.5)* 0.6,
+rad = w *(0.09 + 0.11 * rand())*(1 - Math.abs(u - peak)* 0.7);
+put(u * w * 0.8,rad * 0.5 + w *(0.09 + 0.14 * rand()),(rand()- 0.5)* w * 0.16,rad);
+}
+};
+const COUNT = 14;
+for(let i = 0;i < COUNT;i++){
+const far = i >= Math.ceil(COUNT * 0.55),
+R = far ? 330 + rand()* 120 : 190 + rand()* 80;
+cloud(rand()* Math.PI * 2,R,far ? 110 + rand()* 80 : 60 + rand()* 50,(30 + rand()* 54)*(far ? 1.8 : 1));
+}
+const ico = new THREE.IcosahedronGeometry(1,3);
+ico.deleteAttribute('normal');
+ico.deleteAttribute('uv');
+const base = mergeVertices(ico);
+const geo = new THREE.InstancedBufferGeometry();
+geo.index = base.index;
+geo.setAttribute('position',base.attributes.position);
+geo.instanceCount = P.length;
+const f =(k,n)=> new THREE.InstancedBufferAttribute(new Float32Array(P.flatMap(k)),n);
+geo.setAttribute('aPos',f(p =>[p[0],p[1],p[2],p[3]],4));
+geo.setAttribute('aCenter',f(p =>[p[4],p[5],p[6]],3));
+geo.setAttribute('aDrift',f(p =>[p[7],p[8]],2));
+const NOISE = `float h31(vec3 p){p=fract(p*.3183099+.1);p*=17.;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}
+float vn3(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.-2.*f);return mix(mix(mix(h31(i),h31(i+vec3(1,0,0)),f.x),mix(h31(i+vec3(0,1,0)),h31(i+vec3(1,1,0)),f.x),f.y),mix(mix(h31(i+vec3(0,0,1)),h31(i+vec3(1,0,1)),f.x),mix(h31(i+vec3(0,1,1)),h31(i+vec3(1,1,1)),f.x),f.y),f.z);}
+float fbm3(vec3 p){float s=0.,a=.5;for(int i=0;i<4;i++){s+=a*vn3(p);p=p*2.02+1.7;a*=.5;}return s;}`;
+const U ={
+uTime:{value: 0},
+uSunDir:{value: sunDir},
+uSunColor:{value: new THREE.Color(0xffe2a8)},
+uMist:{value: new THREE.Color(0xdcefe4)},
+uSkyTop:{value: new THREE.Color(0x3684d8)},
+uLit:{value: new THREE.Color(0xfff8e8)},
+uMidC:{value: new THREE.Color(0xb4dcef)},
+uShade:{value: new THREE.Color(0x9a8fc6)},
+uDayK:{value: 1},
+uDuskK:{value: 0},
+uGrey:{value: 0},
+uNightC:{value: new THREE.Color(0x2c3a66)}
+};
+const mat = new THREE.ShaderMaterial({
+fog: false,
+transparent: true,
+depthWrite: false,
+uniforms: U,
+vertexShader: `attribute vec4 aPos;attribute vec3 aCenter;attribute vec2 aDrift;uniform float uTime;varying vec3 vN,vCN,vWP,vLP;
+${NOISE}
+void main(){vec3 n=normalize(position);float lump=fbm3(n*2.6+aDrift.y)-.5;vec3 p=aPos.xyz+n*aPos.w*(1.+lump*.38*2.)*vec3(1.,.68,1.);vec3 c=aCenter;
+float shift=mod(c.x+uTime*1.3*aDrift.x*.35+420.,840.)-420.-c.x;p.x+=shift;c.x+=shift;
+vN=n;vCN=normalize((p-c)*vec3(1.,1.7,1.));vLP=p;vec4 w=modelMatrix*vec4(p,1.);vWP=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`,
+fragmentShader: `uniform vec3 uSunDir,uSunColor,uMist,uLit,uMidC,uShade,uSkyTop,uNightC;uniform float uTime,uDayK,uDuskK,uGrey;varying vec3 vN,vCN,vWP,vLP;
+${NOISE}
+float hg(float c,float g){float g2=g*g;return (1.-g2)/pow(1.+g2-2.*g*c,1.5)*(1.-g)*(1.-g)/(1.+g);}
+void main(){vec3 V=normalize(cameraPosition-vWP),L=normalize(uSunDir);vec3 N=normalize(mix(vN,vCN,.42));float t=uTime*.012;
+float rim=dot(vN,V);float wisp=fbm3(vLP*.045+vec3(t,0.,-t*.6));float far=smoothstep(300.,480.,length(vLP.xz));
+float alpha=smoothstep(.02,.5,rim+(wisp-.5)*.6)*.8*(1.-.25*far);if(alpha<.02)discard;
+float l=dot(N,L)+(fbm3(vLP*.035)-.5)*.35;float k1=smoothstep(-.62,-.22,l);float k2=smoothstep(-.26,.14,l);
+vec3 sunTint=mix(vec3(1.),uSunColor/max(max(uSunColor.r,uSunColor.g),max(uSunColor.b,1e-3)),.45+.4*uDuskK);vec3 lit=uLit*sunTint;
+vec3 c=mix(uShade,uMidC,k1);c=mix(c,lit,k2);c=mix(c,mix(uMist,uSkyTop,.5+.5*N.y)*.9,.18);c=mix(c,uShade,smoothstep(-.15,-.6,vCN.y)*.45);
+c*=mix(.6,1.,smoothstep(-.35,.75,dot(vN,vCN)));float det=fbm3(vLP*.11+vec3(0.,0.,t*.5)),powder=1.-exp(-2.2*(1.-rim));c*=.84+.3*det;c=mix(c,lit,.18*powder*k2);
+float fwd=hg(dot(-V,L),.62),thin=1.-smoothstep(0.,.45,rim);c+=lit*fwd*thin*(.35+.9*uDuskK)*uDayK;
+float low=1.-smoothstep(30.,150.,vLP.y-length(vLP.xz)*.06);c=mix(c,uMist,.35*low);c=mix(c,uMist,.4*far);
+float gl=dot(c,vec3(.3,.59,.11));c=mix(c,vec3(gl)*vec3(.82,.85,.9),uGrey*.6);
+c=mix(uNightC*(.55+.45*k2)*(.8+.3*det),c,uDayK);
+gl_FragColor=vec4(c,alpha*(.55+.45*uDayK));
+#include <tonemapping_fragment>
+#include <colorspace_fragment>
+}`
+});
+const mesh = new THREE.Mesh(geo,mat);
+mesh.frustumCulled = false;
+mesh.renderOrder = -30;
+mesh.userData.noEdit = true;
+scene.add(mesh);
+window.__gClouds ={mesh,U};
+return{mesh,U};
+})();
 {
 const N = 6,
 U ={
@@ -1719,6 +1828,28 @@ mesh.renderOrder = -28;
 scene.add(mesh);
 return{mesh,U};
 })();
+GCLOUDS.mesh.onBeforeRender =(r,sc2,cam)=>{
+GCLOUDS.mesh.position.set(cam.position.x,0,cam.position.z);
+try{
+const SU = window.__skyU,
+G = GCLOUDS.U,
+W = typeof weather !== 'undefined' ? weather : 'day';
+const DAYK ={night: 0,dusk: 0.35,dawn: 0.6,sunset: 0.9,golden: 1}[W]?? 1,
+DUSK ={dusk: 1,sunset: 1,dawn: 0.75,golden: 0.4}[W]?? 0;
+const k = 0.03;
+SU.uDayK.value +=(DAYK *(1 -(SU.uStars.value || 0)* 0.8)- SU.uDayK.value)* k;
+SU.uDuskK.value +=(DUSK - SU.uDuskK.value)* k;
+if(scene.fog)SU.uFogC.value.copy(scene.fog.color);
+G.uDayK.value = SU.uDayK.value;
+G.uDuskK.value = SU.uDuskK.value;
+G.uMist.value.copy(SU.uFogC.value);
+G.uSkyTop.value.copy(SU.uGT.value).lerp(SU.uGTd.value,SU.uDuskK.value);
+G.uSunColor.value.copy(sun.color);
+G.uTime.value = performance.now()/ 1000;
+const ev = window.__EV;
+G.uGrey.value +=((ev ? Math.max(ev.rain || 0,(ev.snow || 0)* 0.6): 0)- G.uGrey.value)* k;
+}catch(e){}
+};
 window.__skyRecenter =()=>{
 const c = camera.position;
 CLOUDBAND.mesh.position.set(c.x,0,c.z);
@@ -14489,7 +14620,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 54;
+const LOOKV = 55;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
