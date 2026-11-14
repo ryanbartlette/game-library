@@ -71,7 +71,7 @@ const DEF = {
 	cOrange: '#ef7a2e', cYellow: '#f2d22c', cTip: '#eef0ef',
 	/* Drumstick */
 	dSize: 10.5, dMeatLen: 0.5, dMeatW: 0.42, dPlump: 0.6, dNeck: 0.34, dFlat: 0.8,
-	dBoneLen: 0.13, dBoneW: 0.09, dKnob: 0.11, dKnobSpread: 0.1,
+	dBoneLen: 0.14, dBoneW: 0.08, dKnob: 0.1, dKnobSpread: 0.1,
 	dMeat: '#a69a52', dMeatDark: '#7e7337', dBone: '#e8ebee', dFuzz: 0.6,
 	dEyeX: 0.05, dEyeY: 0.0, dEyeR: 0.014, dCheekR: 0.02, dCheekCol: '#f2a2a8', dSmileW: 0.022, dFaceAt: 0.7
 };
@@ -254,13 +254,26 @@ const buildDrum = () => {
 	paintFelt();
 	const meat = new THREE.Mesh(mg, new THREE.MeshStandardMaterial({ map: feltTex.t, roughness: 1 }));
 	/* standing up like your side-by-side photo: bone at the bottom, the face turned to the front */
-	meat.position.y = S.dBoneLen + S.dKnob * 0.3; meat.rotation.y = -Math.PI / 2;
+	meat.position.y = S.dBoneLen + S.dKnob * 0.3; meat.rotation.y = -Math.PI / 2; /* sits over the top of the bone */
 	drum.add(meat);
-	/* the bone: a shaft with a pair of round knobs at its end */
-	const bm = new THREE.MeshStandardMaterial({ color: S.dBone, roughness: 1 });
-	const shaft = new THREE.Mesh(new THREE.CylinderGeometry(S.dBoneW / 2, S.dBoneW / 2 * 1.1, S.dBoneLen, 24), bm);
-	shaft.position.y = S.dKnob * 0.3 + S.dBoneLen / 2 + 0.01; drum.add(shaft);
-	for (const s of [-1, 1]) { const k = new THREE.Mesh(new THREE.SphereGeometry(S.dKnob / 2, 24, 16), bm); k.scale.set(1, 1, 0.8); k.position.set(s * S.dKnobSpread / 2, S.dKnob * 0.3, 0); drum.add(k); }
+	/* the bone (Ryan: flat, white felt): one flat cut-out, a shaft ending in two round knobs, like a cartoon bone */
+	const bs = new THREE.Shape(), hw = S.dBoneW / 2, kr = S.dKnob / 2, ks = S.dKnobSpread / 2, top = S.dBoneLen + kr * 0.6;
+	bs.moveTo(-hw, top);
+	bs.lineTo(-hw, kr * 0.9);
+	bs.absarc(-ks, kr * 0.6, kr, Math.PI * 0.15, Math.PI * 1.35, false);
+	bs.absarc(ks, kr * 0.6, kr, Math.PI * 1.65, Math.PI * 2.85, false);
+	bs.lineTo(hw, top);
+	bs.lineTo(-hw, top);
+	const bth = Math.max(0.012, S.dBoneW * 0.32);
+	const bg = new THREE.ExtrudeGeometry(bs, { depth: bth, bevelEnabled: true, bevelThickness: bth * 0.35, bevelSize: bth * 0.35, bevelSegments: 3, curveSegments: 18 });
+	bg.translate(0, 0, -bth / 2);
+	const wc = document.createElement('canvas'); wc.width = wc.height = 256; const wx = wc.getContext('2d');
+	wx.fillStyle = S.dBone; wx.fillRect(0, 0, 256, 256);
+	{ let sd = 3; const r = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+	  for (let i = 0; i < 900 * S.dFuzz + 100; i++) { wx.strokeStyle = r() < 0.5 ? 'rgba(160,170,180,.25)' : 'rgba(255,255,255,.5)'; wx.lineWidth = 1 + r(); const X = r() * 256, Y = r() * 256, a = r() * 6.28, l = 3 + r() * 8; wx.beginPath(); wx.moveTo(X, Y); wx.lineTo(X + Math.cos(a) * l, Y + Math.sin(a) * l); wx.stroke(); } }
+	const bt = new THREE.CanvasTexture(wc); bt.colorSpace = THREE.SRGBColorSpace; bt.wrapS = bt.wrapT = THREE.RepeatWrapping; bt.repeat.set(8, 8);
+	const bone = new THREE.Mesh(bg, new THREE.MeshStandardMaterial({ map: bt, roughness: 1 }));
+	drum.add(bone);
 	/* lift so it lies on the floor */
 	drum.updateMatrixWorld(true);
 	const bb = new THREE.Box3().setFromObject(drum);
