@@ -3189,6 +3189,30 @@ if(k <= 0)continue;
 const id = i * HN + j;
 HGT[id]= Math.max(HGT[id],lerp(HGT[id],top,k));
 }
+{
+const R2 = 14,
+j0 = Math.max(1,Math.floor((b.x - R2 + WORLD / 2)/ CELL)),
+j1 = Math.min(HN - 2,Math.ceil((b.x + R2 + WORLD / 2)/ CELL)),
+i0 = Math.max(1,Math.floor((b.z - R2 + WORLD / 2)/ CELL)),
+i1 = Math.min(HN - 2,Math.ceil((b.z + R2 + WORLD / 2)/ CELL));
+for(let it = 0;it < 10;it++){
+const src = HGT.slice();
+for(let i = i0;i <= i1;i++)
+for(let j = j0;j <= j1;j++){
+const x = -WORLD / 2 + j * CELL - b.x,
+z = -WORLD / 2 + i * CELL - b.z;
+const dd = Math.hypot(x,z);
+if(dd > R2)continue;
+const dt = Math.abs(x * tx + z * tz),
+dn = Math.abs(x * nx + z * nz);
+if(dn < q.w + 1.2)continue;
+if(dt < 0.9 * S + 0.4 && dn < hl + 0.8)continue;
+const id = i * HN + j;
+const avg =(src[id - 1]+ src[id + 1]+ src[id - HN]+ src[id + HN]+ src[id]* 2)/ 6;
+HGT[id]= lerp(src[id],avg,0.8 *(1 - smooth(R2 * 0.55,R2,dd)));
+}
+}
+}
 window.__CROSS.push({x: b.x,z: b.z,nx,nz,hl: hl - 0.25,kind: 'bridge'});
 }
 if(PROPS.stones.length){
@@ -4434,6 +4458,22 @@ flush(false);
 }
 T = nT;
 }
+T = T.map(fl =>{
+const near = i =>(window.__CROSS ||[]).some(c => Math.hypot(fl[i]- c.x,fl[i + 1]- c.z)< 16);
+let any = false;
+for(let i = 0;i < fl.length;i += 2)if(near(i))any = true;
+if(!any || fl.length < 8)return fl;
+const a = fl.slice();
+for(let it = 0;it < 40;it++)
+for(let i = 2;i < a.length - 2;i += 2){
+if(!near(i))continue;
+const ci =(window.__CROSS ||[]).reduce((m,c)=> Math.min(m,Math.hypot(a[i]- c.x,a[i + 1]- c.z)- c.hl),99);
+if(ci < 2.8)continue;
+a[i]= a[i]* 0.5 +(a[i - 2]+ a[i + 2])* 0.25;
+a[i + 1]= a[i + 1]* 0.5 +(a[i - 1]+ a[i + 3])* 0.25;
+}
+return a;
+});
 window.__TRAILS = T;
 }catch(e){
 console.warn('trail crossings',e);
@@ -4982,6 +5022,14 @@ taken.push([x,z]);
 spots.push({kind: 'tree',m: pickTree(sp),x,z,s: 1.8 *(0.85 + 0.45 * sc),r: rot * 6.283});
 }
 }
+[
+[-27.07,-25.89,0.31],
+[-19.93,-33.91,0.62],
+[-22.07,-28.86,0.88]
+].forEach(([x,z,r])=>{
+taken.push([x,z]);
+spots.push({kind: 'tree',m: pickTree(r),x,z,s: 1.8 *(0.9 + 0.3 * r),r: r * 6.283});
+});
 const models ={
 tree: await Promise.all(TREES.map(t => loadModel(t[0]))),
 bush: await Promise.all(BUSHES.map(loadModel)),
@@ -14533,7 +14581,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 56;
+const LOOKV = 57;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
