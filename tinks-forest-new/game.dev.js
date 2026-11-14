@@ -1390,7 +1390,7 @@ fragmentShader: `varying vec3 vd;uniform vec3 sd,uHor,uZen,uLow,uGlow,uDisk,uCLi
  {float t=clamp(h,0.,1.);vec3 T=mix(uGT,uGTd,uDuskK),M=mix(uGM,uGMd,uDuskK),H=mix(uGH,uGHd,uDuskK);vec3 g=mix(H,M,smoothstep(0.,.224,t));g=mix(g,T,smoothstep(.14,.85,pow(t,.8)));float hz=pow(1.-smoothstep(-.04,.077,h),2.2);g=mix(g,uFogC,hz);vec2 sxz=normalize(sd.xz+1e-4),dxz=normalize(vd.xz+1e-4);float tw=pow(max(dot(sxz,dxz),0.),3.)*(1.-smoothstep(0.,.35,h));g=mix(g,H*vec3(1.05,.95,.85),tw*.45);float cA=dot(vd,sd);float halo=exp(-(1.-cA)*90.)*.75+exp(-(1.-cA)*11.)*.28+exp(-(1.-cA)*2.2)*.08;vec3 st2=uGSun/max(max(uGSun.r,uGSun.g),uGSun.b);g+=st2*halo*.9*smoothstep(-.08,.02,h+.06);if(h>0.){vec2 cq=vd.xz/(h+.18);float cir=fb(vec2(cq.x*.5+cq.y*1.6,cq.y*.22-cq.x*.35)*1.1+vec2(uT*.004,0.));float ci=smoothstep(.56,.86,cir)*smoothstep(.06,.4,h)*(1.-smoothstep(.75,1.,h));g=mix(g,mix(vec3(1.),uGHd,uDuskK*.6),ci*.6);}/* FOREST: high, brushed cirrus streaks (Ryan's reference) */g*=mix(1.,.82,uDuskK*.6);c=mix(c,g,uDayK);}
  /* FOREST (Ryan): now and then a shooting star streaks across the night sky (one every 12 to 30 seconds, gone in a second) */
  if(uStars>0.){float per=18.;float k=floor(uT/per);float f=fract(uT/per)*per;float sh=fract(sin(k*12.9898)*43758.5);if(f<1.1&&sh>.25){float a1=fract(sin(k*78.233)*43758.5)*6.283,e1=.35+.45*fract(sin(k*39.42)*1e4);vec3 A=normalize(vec3(cos(a1)*cos(e1),sin(e1),sin(a1)*cos(e1)));vec3 T=normalize(cross(A,vec3(0.,1.,0.))+vec3(0.,-.45,0.));float pp=f/1.1;vec3 H=normalize(A+T*.32*pp),Tl=normalize(A+T*.32*max(0.,pp-.3));vec3 sg=H-Tl;float u=clamp(dot(vd-Tl,sg)/max(dot(sg,sg),1e-6),0.,1.);float dd=length(vd-(Tl+sg*u));c+=vec3(1.,.97,.88)*smoothstep(.0035,0.,dd)*u*u*(1.-pp*.6)*1.6*uStars;}}
- if(uStars>0.){vec3 q=floor(vd*420.);float r=hs(q);float st=step(.9962,r)*(.65+.35*sin(uT*2.+r*60.));c+=vec3(.9,.94,1.)*st*1.4*uStars*smoothstep(.04,.3,h);}
+ if(uStars>0.){vec3 q=floor(vd*420.);float r=hs(q);float st=step(.9962,r)*(.65+.35*sin(uT*2.+r*60.));c+=vec3(.9,.94,1.)*st*1.4*uStars*smoothstep(.04,.3,h);}/* FOREST (Ryan): smaller, fainter stars further away, in among the big ones */if(uStars>0.){vec3 q2=floor(vd*900.);float r2=hs(q2+7.3);float st2=step(.991,r2)*(.55+.45*sin(uT*1.6+r2*80.));vec3 q3=floor(vd*1700.);float r3=hs(q3+3.1);float st3=step(.993,r3);c+=vec3(.86,.9,1.)*(st2*.7+st3*.4)*uStars*smoothstep(.04,.3,h);}
  if(h>0.){vec2 cu=vd.xz/(h+.12)*.55+vec2(uCT,uCT*.4);float cn=fb(cu*.95);float cl=mix(.12,.4,uDayK)*smoothstep(1.-uCAmt,1.-uCAmt+.22,cn)*smoothstep(0.,.18,h);float lit=smoothstep(.35,.85,fb(cu*.95+sd.xz*.08)-cn*.2+.45);vec3 cc=mix(uCShade,uCLit,lit);float edge=cl*(1.-smoothstep(.3,.95,cl));cc=mix(cc,uCRim,clamp(edge*(.35+1.6*pow(s,3.))+lit*pow(s,6.)*.5,0.,.9));c=mix(c,cc,cl);}
  {vec2 q=vd.xz/(abs(vd.y)+.35)*3.;float w1=fb(q*.7+uT*.6),w2=fb(q*2.3-3.);c*=.94+.1*w1;c=mix(c,c*vec3(1.03,1.,.96),smoothstep(.45,.7,w2)*.6);c*=.985+.03*hs(floor(vd*900.));}gl_FragColor=vec4(c,1.);
  #include <tonemapping_fragment>
@@ -14850,7 +14850,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 65;
+const LOOKV = 66;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
