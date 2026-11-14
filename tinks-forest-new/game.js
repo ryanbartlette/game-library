@@ -4458,6 +4458,39 @@ flush(false);
 }
 T = nT;
 }
+try{
+const F = window.__riceField;
+if(F){
+const sx = F.x + F.fx * 3.6,
+sz = F.z + F.fz * 3.6,
+ex = F.x + F.fx * 7,
+ez = F.z + F.fz * 7;
+let best = null,
+bd = 1e9;
+for(const fl of T)
+for(let i = 0;i < fl.length;i += 2){
+const d = Math.hypot(fl[i]- ex,fl[i + 1]- ez);
+if(d < bd && d > 2){
+bd = d;
+best =[fl[i],fl[i + 1]];
+}
+}
+const pts =[sx,sz];
+for(let u = 0.6;u <= 3.4;u += 0.6)pts.push(F.x + F.fx *(3.6 + u),F.z + F.fz *(3.6 + u));
+if(best && bd < 20){
+const n = Math.ceil(bd / 0.6);
+for(let k = 1;k <= n;k++){
+const t = k / n,
+cx = ex + F.fx * bd * 0.45,
+cz = ez + F.fz * bd * 0.45;
+const x =(1 - t)*(1 - t)* ex + 2 *(1 - t)* t * cx + t * t * best[0],
+z =(1 - t)*(1 - t)* ez + 2 *(1 - t)* t * cz + t * t * best[1];
+pts.push(x,z);
+}
+}
+T.push(pts);
+}
+}catch(e){}
 T = T.map(fl =>{
 const near = i =>(window.__CROSS ||[]).some(c => Math.hypot(fl[i]- c.x,fl[i + 1]- c.z)< 16);
 let any = false;
@@ -14581,7 +14614,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 57;
+const LOOKV = 58;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -24643,8 +24676,12 @@ BU.uLit.value
 .setRGB(...W.gLight)
 .multiplyScalar(NIGHTISH()? 0.9 : 0.72)
 .lerp(new THREE.Color(...W.fog),0.3);
+if(window.__czHillC){
+const hc = window.__czHillC;
+BU.uSil.value.lerp(new THREE.Color().copy(hc).multiplyScalar(0.9),0.6);
+BU.uLit.value.lerp(new THREE.Color().copy(hc).multiplyScalar(1.45),0.55);
+}
 BU.uSunA.value = Math.atan2(sun.position.z - sun.target.position.z,sun.position.x - sun.target.position.x);
-for(const L of BACKDROP.layers)L.position.set(camera.position.x,0,camera.position.z);
 }
 grassU.uDap.value = W.dap;
 MAGIC.weather(dt);
