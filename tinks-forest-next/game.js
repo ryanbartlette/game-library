@@ -393,6 +393,7 @@ return((t ^(t >>> 14))>>> 0)/ 4294967296;
 };
 }
 const rng = mulberry32(20261102);
+window.__TRANS_RATE = 0.5;
 const __MR =
 Math.random;
 const __SR = mulberry32(4711);
@@ -12731,7 +12732,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 509;
+const BUILD = 510;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -22431,12 +22432,12 @@ const d = M.moonDir;
 el = Math.asin(clamp(d.y,-1,1));
 az = Math.atan2(d.x,d.z);
 }
-if(!SKYPATH.init || Math.abs(angDiff(SKYPATH.az,az))> 1.2){
+if(!SKYPATH.init){
 SKYPATH.init = true;
 SKYPATH.el = el;
 SKYPATH.az = az;
 }
-const k = 1 - Math.exp(-dt *(window.__skyFast ? 5 : 0.35));
+const k = 1 - Math.exp(-dt *(window.__skyFast ? 5 : window.__TRANS_RATE));
 SKYPATH.el +=(el - SKYPATH.el)* k;
 SKYPATH.az += angDiff(SKYPATH.az,az)* k;
 const e = Math.max(SKYPATH.el,0.06);
@@ -22532,7 +22533,7 @@ to('cAmt',0.9,sn);
 }
 T0 = WXT;
 }
-const k = 1 - Math.exp(-dt *(window.__wxRate || 0.3));
+const k = 1 - Math.exp(-dt *(window.__wxRate || window.__TRANS_RATE));
 for(const key in T0){
 const t = T0[key];
 if(Array.isArray(t))for(let i = 0;i < t.length;i++)W[key][i]= lerp(W[key][i],t[i],k);
@@ -27404,13 +27405,13 @@ if(W2 && !(SC.cur && SC.cur.k === W2)){
 const b = L.songBuf(W2);
 if(b){
 const was = SC.cur;
-if(was)songFade(ctx,was,was.ended ? 0.05 : 2.5,()=> !!(SC.cur && SC.cur.k === was.k));
-SC.cur = songStart(ctx,W2,b,songOut(ctx,SC,W2),W2 === 'leap' ? 0.03 : was ? 2.5 : 1.5);
+if(was)songFade(ctx,was,was.ended ? 0.05 : W2 === 'leap' ? 1.5 : 7,()=> !!(SC.cur && SC.cur.k === was.k));
+SC.cur = songStart(ctx,W2,b,songOut(ctx,SC,W2),W2 === 'leap' ? 0.03 : was && !was.ended ? 6 : 2.5);
 if(W2 === 'jack' && SC.jackOut)SC.cur.src.loop = false;
 }
 }else if(!W2 && SC.cur){
 const was = SC.cur;
-songFade(ctx,was,was.ended ? 0.05 : 3,()=> !!(SC.cur && SC.cur.k === was.k));
+songFade(ctx,was,was.ended ? 0.05 : 6,()=> !!(SC.cur && SC.cur.k === was.k));
 SC.cur = null;
 }
 const playing = !!(SC.cur && !SC.cur.ended);
@@ -37418,7 +37419,8 @@ const st = new THREE.Mesh(stemG,stemM);
 st.position.set(x,y + 0.055 * sc,z);
 st.scale.setScalar(sc);
 grp.add(st);
-const cp = new THREE.Mesh(capG,capM);
+const cpM = capM.clone();
+const cp = new THREE.Mesh(capG,cpM);
 cp.position.set(x,y + 0.1 * sc,z);
 cp.scale.set(sc,sc * 0.7,sc);
 grp.add(cp);
@@ -37429,7 +37431,7 @@ h.position.set(x,y + 0.26 * sc,z);
 h.scale.setScalar(0.48 * sc);
 h.renderOrder = 4;
 grp.add(h);
-capHalo.list.push({m: hm,ph: k * 23.7});
+capHalo.list.push({m: hm,ph: k * 23.7,cm: cpM,x,z,lit: 0,on: 0});
 }
 }
 capM.color.set(0x9effd9);
@@ -38171,6 +38173,22 @@ window.__TUT.show('Into the tunnel',[
 setTimeout(()=>{
 if(window.__TUT && window.__TUT.hide && !T3.gone)window.__TUT.hide();
 },7000);
+}
+}
+}
+{
+const TC = window.__TUNCAPS;
+if(TC && TC.list){
+for(const c of TC.list){
+if(c.x == null)continue;
+if(!c.on && !T3.gone && Math.hypot(P.pos.x - c.x,P.pos.z - c.z)< 3){
+c.on = 1;
+TC.n =(TC.n || 0)+ 1;
+try{
+sfx('sparkle',{vol: 0.12,rate: 1.3 + Math.min(0.6,TC.n * 0.03)+ Math.random()* 0.08});
+}catch(e){}
+}
+if(c.lit < c.on)c.lit = Math.min(1,c.lit + dt * 1.1);
 }
 }
 }
@@ -43664,7 +43682,7 @@ S.starOn = true;
 }
 if(F.night && g > 1.3){
 const C = window.__CYCLE;
-window.__wxRate = 0.42;
+window.__wxRate = window.__TRANS_RATE;
 const u = Math.min(1,(g - 1.3)/ 20.5)* 1.52;
 if(C && C.setT){
 if(u < 0.4)C.setT('sunset',0.6 + u);
@@ -44641,6 +44659,7 @@ fim.instanceMatrix.needsUpdate = true;
 };
 }
 C.setSeason =(v,quiet)=>{
+if(v !== C.season)C.seasP = 0;
 si = SEAS.indexOf(v);
 C.season = v;
 try{
@@ -44657,9 +44676,8 @@ const i = order.findIndex(o => o[0]=== w);
 if(i < 0)return;
 oi = i;
 ot = f * order[i][1];
-window.__wxRate = 0.32;
-SKYPATH.init = false;
-C.fastT = 14;
+window.__wxRate = window.__TRANS_RATE;
+C.fastT = 8;
 window.__quietWx = true;
 setWeather(w);
 };
@@ -44698,7 +44716,7 @@ return cur === 'golden'
 };
 C.apply =(W2,dt)=>{
 const T = S[C.season],
-k = 1 - Math.exp(-dt *(C.seasonRate || 0.16)* 0.5);
+k = 1 - Math.exp(-dt * window.__TRANS_RATE);
 const SHADE =
 {
 spring:[0.32,0.52,0.34],
@@ -44748,8 +44766,8 @@ SG.uSakThin.value +=(tg[2]- SG.uSakThin.value)* k;
 SG.uSakSh.value.lerp(new THREE.Color(...SHADE[C.season]),k);
 }
 {
-const w =
-C.season === 'winter';
+C.seasP =(C.seasP ?? 1)+(1 -(C.seasP ?? 1))* k;
+const w = C.seasP > 0.5 || window.__leafWinter == null ? C.season === 'winter' : !!window.__leafWinter;
 if(window.__leafWinter !== w){
 window.__leafWinter = w;
 const seen = new Set();
@@ -45023,7 +45041,7 @@ if(C.story){
 EV.want = Object.assign({rain: 0,wind: 0,snow: 0},C.story.ev ||{});
 EV.left = 0;
 EV.t = 60;
-const k = 1 - Math.exp(-dt /((C.story.rate || 4)* 2.4));
+const k = 1 - Math.exp(-dt * window.__TRANS_RATE);
 for(const key of['rain','wind','snow'])EV[key]+=(EV.want[key]- EV[key])* k;
 return;
 }
@@ -47037,6 +47055,11 @@ saveQ();
 };
 const TURNS ={rain: 1,bean: 1,boat: 1};
 const pawTex =(()=>{
+if(window.__JPAW){
+const t = new THREE.TextureLoader().load(window.__JPAW);
+t.colorSpace = THREE.SRGBColorSpace;
+return t;
+}
 const[c,x]= cnv(64,64);
 x.fillStyle = '#fff';
 x.beginPath();
@@ -47683,7 +47706,7 @@ k = jk();
 if(!J || !k)return;
 if(J.mode === 'bench'){
 J.t =(J.t || 0)+ dt;
-if(J.t > 5)J.op = Math.min(J.want,J.op + dt * 0.11);
+if(J.t > 4.5)J.op = Math.min(J.want,J.op + dt * 0.14);
 k.op = J.op;
 k.eyeOp = Math.min(1,J.op * 1.4);
 }else if(J.mode === 'linger'){
@@ -47863,11 +47886,13 @@ D.leafTick();
 const TC = window.__TUNCAPS;
 if(TC){
 const t = performance.now()/ 1000;
-for(const c of TC.list)
-c.m.opacity =
-(window.__capGlow ?? 0.75)*(0.45 + 0.55 *(0.5 + 0.5 * Math.sin(t * 1.25 + c.ph)));
-if(TC.capM){
 const b = 0.8 + 0.2 * Math.sin(t * 1.25);
+for(const c of TC.list){
+const L = c.lit == null ? 1 : c.lit * c.lit *(3 - 2 * c.lit);
+c.m.opacity =(window.__capGlow ?? 0.75)*(0.45 + 0.55 *(0.5 + 0.5 * Math.sin(t * 1.25 + c.ph)))* L;
+if(c.cm)c.cm.color.setRGB(lerp(0.1,0.62 * b,L),lerp(0.16,1 * b,L),lerp(0.14,0.85 * b,L));
+}
+if(TC.capM && !TC.list.some(c => c.cm)){
 TC.capM.color.setRGB(0.62 * b,1 * b,0.85 * b);
 }
 }
@@ -48112,7 +48137,29 @@ if(!Q.p.busSaid){
 Q.p.busSaid = 1;
 A.saveQ();
 const L = "Everyone here is waiting for something. Let's wait with them a while.";
-quote(L,0);
+const RV = window.__RAINVISITOR;
+if(RV && RV.visible !== false && !CS){
+const tp = RV.getWorldPosition(new V3());
+const B2 = D.bseat || benchSeats();
+const fw2 = B2 && B2.fw ? B2.fw.clone(): P.pos.clone().sub(tp).setY(0).normalize();
+const sd2 = new V3(fw2.z,0,-fw2.x);
+const camA = tp.clone().addScaledVector(fw2,5.2).addScaledVector(sd2,1.4).add(up(1.7)),
+camB = tp.clone().addScaledVector(fw2,4.4).addScaledVector(sd2,0.9).add(up(1.5)),
+lk = tp.clone().add(up(1.35));
+const qd = ST().qdur ? ST().qdur(L): 6;
+D.cut({
+dur: Math.max(7,qd + 2.4),
+shots:[{d: Math.max(7,qd + 2.4),f: q =>[lerpV(camA,camB,ss(q)),lk]}],
+ev:[
+[
+0.9,
+sk =>{
+if(!sk)quote(L,0);
+}
+]
+]
+});
+}else quote(L,0);
 D.benchHint = 1;
 D.benchAt = performance.now()+(ST().qdur ? ST().qdur(L)* 1000 * 0.55 : 5000);
 }
