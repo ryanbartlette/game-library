@@ -3847,18 +3847,18 @@ const hr = k =>{
 const v = Math.sin(k * 12.9898 + 4.1)* 43758.5453;
 return v - Math.floor(v);
 };
-const SEG = 4;
+const SEG = 3;
 const pos =[],
 tt =[],
 col =[],
 idx =[];
-const NB = LOW ? 4 : 6;
+const NB = LOW ? 5 : 7;
 for(let b = 0;b < NB;b++){
 const ang =(b / NB)* Math.PI * 2 + hr(b)* 1.1,
-rr = 0.012 + hr(b + 10)* 0.035,
-lean = 0.12 + hr(b + 20)* 0.5,
-hh = 0.75 + hr(b + 30)* 0.55,
-w0 = 0.016 + hr(b + 40)* 0.008;
+rr = 0.01 + hr(b + 10)* 0.05,
+lean = 0.015 + hr(b + 20)* 0.05,
+hh = 0.8 + hr(b + 30)* 0.4,
+w0 = 0.011 + hr(b + 40)* 0.005;
 const dx = Math.cos(ang),
 dz = Math.sin(ang),
 px0 = -dz,
@@ -3911,7 +3911,7 @@ off[i * 4 + 1]=(rng()- 0.5)* TILE;
 off[i * 4 + 2]= 0.08 + rng()* 0.13 + rng()* rng()* 0.1;
 off[i * 4 + 3]= rng()* 6.283;
 }
-const LCOUNT = LOW ? 16000 : 38000,
+const LCOUNT = LOW ? 22000 : 56000,
 lr = mulberry32(51123),
 loff = new Float32Array(LCOUNT * 4);
 for(let i = 0;i < LCOUNT;i++){
