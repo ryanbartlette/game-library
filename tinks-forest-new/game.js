@@ -4126,7 +4126,22 @@ scene.traverse(o =>{
 if(!o.isMesh)return;
 const[src,tag]= srcOf2(o);
 if(/^ancient\.glb$/.test(src)|| tag === 'clumpancient')return;
-if(KILL_SRC.test(src)|| KILL_TAG.test(tag))dead.push(o);
+if(!(KILL_SRC.test(src)|| KILL_TAG.test(tag)))return;
+const GT3 = window.__LIFE && window.__LIFE.tree;
+if(GT3){
+o.updateMatrixWorld(true);
+if(!o.isInstancedMesh){
+const wp = new V3().setFromMatrixPosition(o.matrixWorld);
+if(Math.hypot(wp.x - GT3.x,wp.z - GT3.z)<(GT3.R || 6)+ 6)return;
+}else if(o.count <= 3){
+const m = new THREE.Matrix4();
+o.getMatrixAt(0,m);
+m.premultiply(o.matrixWorld);
+const wp = new V3().setFromMatrixPosition(m);
+if(Math.hypot(wp.x - GT3.x,wp.z - GT3.z)<(GT3.R || 6)+ 6)return;
+}
+}
+dead.push(o);
 });
 const GT2 = window.__LIFE && window.__LIFE.tree;
 for(const sf of SURF){
@@ -4199,13 +4214,30 @@ if(++fT > 30)clearInterval(fv);
 },1500);
 }
 if(window.__ROAM){
-const BASE = '/tinks-forest-look/cz/';
-const TREES =[
-['Foliage_Trees_Tree_1_Tree1_High','leaf'],
-['Foliage_Trees_Tree_2_Tree2_High','leaf'],
-['Foliage_Trees_Tree_3_Oak_OakTree2_High','leaf'],
-['Foliage_Trees_Tree_4_Brich_Tree4_High','leafbirch']
-];
+const BASE = '/tinks-forest-new/cz/';
+let SZ = 1;
+try{
+SZ = parseFloat(new URLSearchParams(location.search).get('size'))|| 1;
+}catch(e){}
+const MASK ={leaf: 0x6f9a4a,leafbirch: 0x8fb15a,bush: 0x5f8f45};
+const texFor =(file,nm)=>{
+nm = nm.toLowerCase();
+if(/Brich/.test(file))return /leaf/.test(nm)? 'leafbirch' : 'birch';
+if(/^leaf/.test(nm))return 'leaf';
+if(/birch/.test(nm))return 'birch';
+if(/bark|default obj/.test(nm))return 'bark';
+if(/bush/.test(nm))return 'bush';
+if(/Ivy/.test(file))return 'ivy';
+const m = file.match(/Rock_(\d)/);
+if(m)return 'rock' + m[1];
+const pb = file.match(/pebal(\d)/);
+if(pb)return 'peb' + pb[1];
+if(/Bridge_Bridge/.test(file))return 'bridge';
+if(/Pillars/.test(file))return 'pillar';
+if(/Lantern/.test(file))return 'lantern';
+if(/Sculpt/.test(file))return 'sculpt';
+return null;
+};
 const tl = new THREE.TextureLoader(),
 tc ={};
 const tex =(k,mask)=>{
@@ -4217,31 +4249,38 @@ tc[k].colorSpace = mask ? THREE.NoColorSpace : THREE.SRGBColorSpace;
 }
 return tc[k];
 };
+const ROWS =[
+[9,6,['Foliage_Trees_Tree_1_Tree1_High','Foliage_Trees_Tree_2_Tree2_High','Foliage_Trees_Tree_3_Oak_OakTree2_High','Foliage_Trees_Tree_4_Brich_Tree4_High']],
+[4.2,2.1,['Foliage_Bushes_Large_bush_LargeBush_HighNew','Foliage_Bushes_Bush_Bush1','Props_Rocks_Rock_1_Rock1_High','Props_Rocks_Rock_2_Rock2_High','Props_Rocks_Rock_3_Rocks3_High','Props_Rocks_Rock_4_Rock4_High','Props_Rocks_Pebals_pebal1','Props_Rocks_Pebals_pebal2','Props_Rocks_Pebals_pebal3','Props_Lantern_Lantern_High','Props_Sculptures_Sculpture1','Props_Bridge_Bridge','Props_Bridge_Pillars','Foliage_Ivy_LargeClump1']]
+];
 const plant =()=>{
 const P0 = P.pos.clone(),
 f = new V3(-Math.sin(P.yaw || 0),0,-Math.cos(P.yaw || 0)),
 sd = new V3(f.z,0,-f.x);
 const gl2 = new GLTFLoader();
-TREES.forEach(([file,leafK],i)=>{
+for(const[dist,gap,files]of ROWS)
+files.forEach((file,i)=>{
 gl2.load(BASE + file + '.glb',g =>{
 const o = g.scene;
 o.traverse(m =>{
 if(!m.isMesh)return;
-const nm =(m.material.name || '').toLowerCase();
+const k = texFor(file,m.material.name || '');
 let mm;
-if(/leaf/.test(nm)){
-mm = new THREE.MeshStandardMaterial({color: leafK === 'leafbirch' ? 0x8fb15a : 0x6f9a4a,alphaMap: tex(leafK,true),alphaTest: 0.4,side: THREE.DoubleSide,roughness: 1});
-}else{
+if(k && MASK[k])mm = new THREE.MeshStandardMaterial({color: MASK[k],alphaMap: tex(k,true),alphaTest: 0.4,side: THREE.DoubleSide,roughness: 1});
+else{
 m.geometry.computeVertexNormals();
-mm = new THREE.MeshStandardMaterial({map: tex(/birch/.test(nm)? 'birch' : 'bark'),roughness: 1});
+mm = new THREE.MeshStandardMaterial({roughness: 1,side: k === 'ivy' ? THREE.DoubleSide : THREE.FrontSide});
+if(k)mm.map = tex(k,false);
+if(k === 'ivy')mm.alphaTest = 0.45;
 }
-m.material = tintMat(mm,/leaf/.test(nm)? 'czleaf' : 'czbark');
+m.material = tintMat(mm,k && MASK[k]? 'czleaf' : 'czbark');
 m.castShadow = m.receiveShadow = true;
 });
-const p = P0.clone().addScaledVector(f,9).addScaledVector(sd,(i - 1.5)* 6);
-p.y = groundAt(p.x,p.z,heightAt(p.x,p.z)+ 3)- 0.05;
+o.scale.multiplyScalar(SZ);
+const p = P0.clone().addScaledVector(f,dist * Math.max(1,SZ)).addScaledVector(sd,(i -(files.length - 1)/ 2)* gap * Math.max(1,SZ));
+p.y = groundAt(p.x,p.z,heightAt(p.x,p.z)+ 3)- 0.03;
 o.position.copy(p);
-o.rotation.y = i * 1.3;
+o.rotation.y = Math.atan2(-f.x,-f.z)+(i % 3)* 0.4;
 o.userData.noEdit = true;
 scene.add(o);
 (window.__czTrees = window.__czTrees ||[]).push(o);
@@ -13332,7 +13371,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 24;
+const LOOKV = 25;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
