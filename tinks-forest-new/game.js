@@ -4606,13 +4606,13 @@ sh.vertexShader = sh.vertexShader
 #ifdef USE_INSTANCING
 ip=vec2(instanceMatrix[3].x,instanceMatrix[3].z);
 #endif
-float hk=clamp(transformed.y/max(uSwH,.5),0.,1.3);hk*=hk;float ph=ip.x*.17+ip.y*.13;
+float hk=clamp(transformed.y/max(uSwH,.05),0.,1.3);hk*=hk;/* (Forest 54: grass tufts are only 16 cm in their own units; the old .5 floor kept them nearly still) */float ph=ip.x*.17+ip.y*.13;
 float w=clamp(uWind,0.,1.6);
 float gs=dot(ip,uWDir)-uGF;float gw=(gs>0.?exp(-gs*gs/16.):exp(-gs*gs/240.))*uGust;
 float sw=sin(uTime*.7+uWPh*.4+ph)*.6+sin(uTime*1.13+uWPh*.3+ph*1.7)*.4;
 float amp=uSwH*.022*(.35+.9*w);
 vec2 d=uWDir*(amp*(.6*w+sw)+uSwH*.05*gw)+vec2(-uWDir.y,uWDir.x)*amp*.35*sin(uTime*.55+ph*2.3);
-transformed.xz+=d*hk;transformed.y-=dot(d,d)*hk*.15/max(uSwH,.5);
+transformed.xz+=d*hk;transformed.y-=dot(d,d)*hk*.15/max(uSwH,.05);
 ${leaf ? 'transformed+=vec3(sin(uTime*1.6+position.x*2.1+ph),sin(uTime*1.9+position.z*2.3+ph)*.6,cos(uTime*1.4+position.y*1.7+ph))*.025*hk*(.5+w);' : ''}
 ${grassy ? `/* (Ryan) the tall grass and ferns part round the cats as they push through, like the meadow grass */
 #ifdef USE_INSTANCING
@@ -4625,7 +4625,16 @@ transformed+=(transpose(mat3(instanceMatrix))*vec3(pw.x,-length(pw)*.45,pw.y))/s
 };
 return m;
 };
+const SEAREG =(window.__czSeaMats = window.__czSeaMats ||[]);
+const seaClass =(file,k)=>
+k === 'leafbirch' ? 'birch' : k === 'leaf' ?(/Tree_1/.test(file)? 't1' : /Oak/.test(file)? 'oak' : 't2'): k === 'bush' ? 'bush' : k === 'grass0' ? 'g0' : k === 'grass1' ? 'g1' : k === 'weed' ? 'weed' : null;
 const matFor =(file,nm,swU)=>{
+const m0 = matFor0(file,nm,swU);
+const cl = seaClass(file,texKey(file,nm));
+if(cl)SEAREG.push([cl,m0]);
+return m0;
+};
+const matFor0 =(file,nm,swU)=>{
 const k = texKey(file,nm);
 const sway = !/Rock|Bridge|Lantern|Sculpt/.test(file);
 if(k && MASKC[k]){
@@ -4956,6 +4965,8 @@ tintMat(new THREE.MeshStandardMaterial({color: 0x55864a,alphaMap: gtLeafT,alphaT
 0.012,
 'ancient'
 );
+(window.__czSeaMats = window.__czSeaMats ||[]).push(['gt',leafM]);
+window.__ancSnow = leafM;
 const barkT = tex('bark',false);
 const GT = window.__LIFE && window.__LIFE.tree;
 let nl = 0,
@@ -5212,6 +5223,47 @@ console.warn('lantern glow',e);
 }
 window.__czDressed ={...counts,bridges: nb,stones: ns};
 };
+{
+const PAL ={
+spring:{t1: 0xf2b4c6,t2: 0x86b85e,oak: 0x7fb257,birch: 0x9fc768,bush: 0x76aa55,g0: 0x86b85c,g1: 0x95c266,weed: 0x78ad52,gt: 0x74ad55},
+summer:{t1: 0x5a8a48,t2: 0x5a8a48,oak: 0x5a8a48,birch: 0x7d9c50,bush: 0x50803f,g0: 0x6e9a4a,g1: 0x7fa652,weed: 0x5f8f45,gt: 0x55864a},
+autumn:{t1: 0xe08a30,t2: 0xd4a23a,oak: 0xb4512a,birch: 0xe6c04a,bush: 0xa5642c,g0: 0xb89a50,g1: 0xc6a85a,weed: 0x9c6a30,gt: 0xcc7a2e},
+winter:{t1: 0xe08a30,t2: 0xd4a23a,oak: 0xb4512a,birch: 0xe6c04a,bush: 0xe9eef2,g0: 0xc8cfc6,g1: 0xd2d8d0,weed: 0xbcc4bc,gt: 0xedf1f4}
+};
+const cur ={},
+from ={},
+tgt = new THREE.Color();
+let lastSea = null,
+prevSea = null;
+const SI ={spring: 0,summer: 1,autumn: 2,winter: 3};
+grassU.uFSea ={value: 1};
+grassU.uFPrev ={value: 1};
+grassU.uFP ={value: 1};
+const tick =()=>{
+const C = window.__CYCLE;
+if(!C || !C.season || !PAL[C.season])return;
+const sea = C.season,
+p = C.seasP == null ? 1 : C.seasP;
+if(sea !== lastSea){
+prevSea = lastSea || sea;
+for(const k in PAL[sea])from[k]=(cur[k]|| new THREE.Color().setHex(PAL[sea][k])).clone();
+lastSea = sea;
+}
+for(const k in PAL[sea]){
+tgt.setHex(PAL[sea][k]);
+cur[k]=(cur[k]|| new THREE.Color()).copy(from[k]).lerp(tgt,p);
+}
+const bare = p > 0.5 ? sea === 'winter' : prevSea === 'winter';
+for(const[cl,m]of window.__czSeaMats ||[]){
+if(cur[cl])m.color.copy(cur[cl]);
+if(/^(t1|t2|oak|birch)$/.test(cl))m.visible = !bare;
+}
+grassU.uFSea.value = SI[sea];
+grassU.uFPrev.value = SI[prevSea]?? SI[sea];
+grassU.uFP.value = p;
+};
+setInterval(tick,100);
+}
 const tvp = setInterval(()=>{
 if(!window.__worldBuilt || !window.__ready || !window.__forestCleared)return;
 clearInterval(tvp);
@@ -5291,7 +5343,7 @@ sh.vertexShader = sh.vertexShader
 .replace(
 '#include <common>',
 `#include <common>
-uniform float uTime,uTile,uWorld,uWind,uWPh,uGust,uGF,uTrailW,uTrailM,uTrailA;uniform vec2 uWDir;uniform vec3 uCenter,uCat,uCat2;uniform sampler2D uHeight,uMask,uTrail;attribute vec4 aOff;attribute float aT,aHead;varying float vHead,vFS;varying vec3 vFC;uniform vec4 uWS;
+uniform float uTime,uTile,uWorld,uWind,uWPh,uGust,uGF,uTrailW,uTrailM,uTrailA,uFSea,uFPrev,uFP;uniform vec2 uWDir;uniform vec3 uCenter,uCat,uCat2;uniform sampler2D uHeight,uMask,uTrail,uCanopy;attribute vec4 aOff;attribute float aT,aHead;varying float vHead,vFS;varying vec3 vFC;uniform vec4 uWS;
 float gvh(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}float gvn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(gvh(i),gvh(i+vec2(1,0)),f.x),mix(gvh(i+vec2(0,1)),gvh(i+vec2(1,1)),f.x),f.y);}`
 )
 .replace(
@@ -5302,7 +5354,20 @@ vec2 rel=mod(aOff.xy-uCenter.xz+uTile*.5,uTile)-uTile*.5;vec2 wp=uCenter.xz+rel;
 float dn=.5+.25*sin(wp.x*.23+sin(wp.y*.19)*2.)+.25*sin(wp.y*.21+sin(wp.x*.17)*1.7);
 float rk=fract(sin(dot(aOff.xy,vec2(41.3,17.9)))*24634.6);float rk2=fract(sin(dot(aOff.xy,vec2(12.9,78.2)))*43758.5);
 /* (Ryan's references) little single flowers of every kind scattered through the grass, a touch more where the meadow is open: white daisies most of all */
-float kind=rk2<.36?0.:rk2<.5?1.:rk2<.62?2.:rk2<.82?3.:4.;
+/* FOREST (Ryan, Nov 14): flowers grow like wild flowers: in fields and patches in the bright open meadow, thinning under the trees,
+   with a few strays between. Patches are of one colour; in spring some meadows are a wild mix of every colour.
+   spring: every colour (white, yellow, blues, pink) / summer: white and yellow only / autumn and winter: none */
+float rk3=fract(sin(dot(aOff.xy,vec2(93.7,29.1)))*15731.7);
+float sea=rk3<uFP?uFSea:uFPrev;
+vec2 cell=floor(wp/7.);float ph1=fract(sin(dot(cell,vec2(12.9898,78.233)))*43758.5);
+float mixA=step(.62,gvn(wp*.03+9.));
+float kind=-1.;
+if(sea<.5){kind=(mixA>.5||rk2<.15)?floor(rk2*4.999):floor(ph1*4.999);}
+else if(sea<1.5){float pk=ph1<.55?0.:3.;kind=rk2<.18?(rk2<.11?0.:3.):pk;}
+float fieldN=gvn(wp*.035+2.7)*.7+gvn(wp*.11)*.3;float field=smoothstep(.5,.72,fieldN);
+float shadeC=texture2D(uCanopy,tuv).r;
+float fDens=(.035+.55*field)*(1.-.85*smoothstep(.15,.6,shadeC))*step(0.,kind);
+kind=max(kind,0.);
 #ifdef USE_MAP
 vMapUv=vec2((kind+uv.x)/5.,uv.y);
 #endif
@@ -5310,7 +5375,7 @@ vHead=aHead;`
 )
 .replace(
 '#include <begin_vertex>',
-`float msk=(texture2D(uMask,tuv).r*2.+texture2D(uMask,tuv+vec2(.3,0.)/uWorld).r+texture2D(uMask,tuv-vec2(.3,0.)/uWorld).r+texture2D(uMask,tuv+vec2(0.,.3)/uWorld).r+texture2D(uMask,tuv-vec2(0.,.3)/uWorld).r)/6.;/* FOREST: read softly, for smooth path edges */float dist=length(rel);float keep=step(rk,.12+.33*smoothstep(.35,.9,dn))*step(.45,msk)*smoothstep(uTile*.5,uTile*.5-4.,dist);
+`float msk=(texture2D(uMask,tuv).r*2.+texture2D(uMask,tuv+vec2(.3,0.)/uWorld).r+texture2D(uMask,tuv-vec2(.3,0.)/uWorld).r+texture2D(uMask,tuv+vec2(0.,.3)/uWorld).r+texture2D(uMask,tuv-vec2(0.,.3)/uWorld).r)/6.;/* FOREST: read softly, for smooth path edges */float dist=length(rel);float keep=step(rk,fDens)*step(.45,msk)*smoothstep(uTile*.5,uTile*.5-4.,dist);
 float sc=aOff.z*keep;float cs=cos(aOff.w),sn=sin(aOff.w);
 /* (Ryan) each stem is as tall as the grass around it (the same rule the grass uses: wild patches tall, trodden edges short), so the flower always peeps out just above it */
 float tallP=smoothstep(.35,.8,.5+.5*sin(wp.x*.19+sin(wp.y*.15)*2.1)*sin(wp.y*.17+sin(wp.x*.12)*2.3));float wild=smoothstep(.11,.32,msk);float pn=.5+.25*sin(wp.x*.07+sin(wp.y*.05)*2.3)+.25*sin(wp.y*.083+sin(wp.x*.061)*1.9);
@@ -14310,7 +14375,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 53;
+const LOOKV = 54;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
