@@ -3914,11 +3914,7 @@ scene.add(mesh);
 window.__grass = mesh;
 {
 const WSTY ={auto: null,gentle:[0.6,0.55,0.6,0.75],medium:[1,1,1,1],heavy:[1.9,1.75,1.6,1.4]};
-let ws = 'auto';
-try{
-ws = localStorage.getItem('tink.look.wind2')|| 'auto';
-}catch(e){}
-if(!(ws in WSTY))ws = 'auto';
+const ws = 'auto';
 const cur = new THREE.Vector4(0.6,0.55,0.6,0.75),
 tgt = new THREE.Vector4(),
 G0 = new THREE.Vector4(...WSTY.gentle),
@@ -3938,13 +3934,6 @@ else tgt.copy(M0).lerp(H0,(k - 0.5)* 2);
 cur.lerp(tgt,1 - Math.exp(-dt *(window.__TRANS_RATE || 0.5)));
 grassU.uWS.value.copy(cur);
 };
-const setWS = k =>{
-ws = k;
-try{
-localStorage.setItem('tink.look.wind2',k);
-}catch(e){}
-};
-window.__grassWind = setWS;
 }
 {
 const TN = 256,
@@ -3961,14 +3950,8 @@ tt.magFilter = tt.minFilter = THREE.LinearFilter;
 tt.generateMipmaps = false;
 grassU.uTrail ={value: tt};
 grassU.uTrailW ={value: TW};
-const TANG ={'30°': 30,'45°': 45,'60°': 60,'80°': 80};
-let ta = '45°';
-try{
-ta = localStorage.getItem('tink.look.trailA')|| '45°';
-}catch(e){}
-if(!(ta in TANG))ta = '45°';
 grassU.uTrailM ={value: 1};
-grassU.uTrailA ={value:(TANG[ta]* Math.PI)/ 180};
+grassU.uTrailA ={value:(30 * Math.PI)/ 180};
 let fadeT = 0,
 lastT = performance.now();
 const stamp =(x,z,fx,fz,a)=>{
@@ -13160,7 +13143,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 20;
+const LOOKV = 21;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
