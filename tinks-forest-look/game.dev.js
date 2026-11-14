@@ -3938,7 +3938,8 @@ sh.vertexShader = sh.vertexShader
 .replace(
 '#include <common>',
 `#include <common>
-uniform float uTime,uTile,uWorld;uniform vec3 uCenter,uCat,uCat2;uniform sampler2D uHeight,uMask,uGTex;attribute vec4 aOff;attribute float aT;varying float vShade;uniform float uGust,uGF;uniform vec2 uWDir;varying float vGu;`
+uniform float uTime,uTile,uWorld;uniform vec3 uCenter,uCat,uCat2;uniform sampler2D uHeight,uMask,uGTex;attribute vec4 aOff;attribute float aT;varying float vShade;uniform float uGust,uGF;uniform vec2 uWDir;varying float vGu;
+float gvh(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}float gvn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(gvh(i),gvh(i+vec2(1,0)),f.x),mix(gvh(i+vec2(0,1)),gvh(i+vec2(1,1)),f.x),f.y);}`
 )
 .replace(
 '#include <begin_vertex>',
@@ -3948,10 +3949,19 @@ float msk=texture2D(uMask,tuv).r;float dist=length(rel);float sc=aOff.z*smoothst
 /* (Ryan) every tuft leans along the breeze, give or take about 15 degrees */float th=atan(-uWDir.x,uWDir.y)+(aOff.w/6.283-.5)*1.2;float cs=cos(th),sn=sin(th);float rk=fract(sin(dot(aOff.xy,vec2(41.3,17.9)))*24634.6);/* (Ryan) never sparse, like a painted meadow: the grass stays full everywhere and only gets shorter toward the paths, thinning just at a path's very edge *//* (Ryan's rule) paths are bare; the grass runs full and short right up to their edge (a crisp, slightly ragged border) */float keep=step(.11+rk*.05,msk);sc=aOff.z*keep*(.75+.25*msk)*smoothstep(uTile*.5,uTile*.5-5.,dist);float wsc=(0.6+sc*1.5)*keep;/* sparse ground keeps fewer whole clumps instead of squashed star shapes *//* short clumps shrink whole instead of lying flat as star shapes *//* drifts of long grass here and there (where the ferns used to grow) */float tallP=smoothstep(.35,.8,.5+.5*sin(wp.x*.19+sin(wp.y*.15)*2.1)*sin(wp.y*.17+sin(wp.x*.12)*2.3));float hsc=sc*(1.+1.6*tallP);
 /* (Ryan) long and wild away from the paths, shorter where it's trodden: the grass shortens as the mask fades toward a path, and slow patches of taller and shorter grass drift across the fields */
 {float wild=smoothstep(.2,.95,msk);float pn=.5+.25*sin(wp.x*.07+sin(wp.y*.05)*2.3)+.25*sin(wp.y*.083+sin(wp.x*.061)*1.9);hsc*=mix(.3,1.,wild)*(.72+.6*pn);}vec3 lp=vec3(position.x*wsc,position.y*hsc,position.z*wsc);lp=vec3(lp.x*cs-lp.z*sn,lp.y,lp.x*sn+lp.z*cs);
-float gust=.6+.4*sin(uTime*.35+wp.x*.04+wp.y*.03);/* a gust: broad soft bands rolling across the meadow along the wind, uneven along their length */float gph=dot(wp,uWDir)*.085-uTime*.95;float gsF=dot(wp,uWDir)-uGF;float gw=(gsF>0.?exp(-gsF*gsF/16.):exp(-gsF*gsF/220.))*(.55+.45*sin(dot(wp,vec2(-uWDir.y,uWDir.x))*.045+uTime*.15))*uGust;vGu=gw;float wv=sin((uTime*1.2+uWPh*.5)+wp.x*.33+wp.y*.21)*.6+sin((uTime*2.4+uWPh*.8)+wp.x*1.1-wp.y*.7)*.25;float bend=aT*aT*sc*(.3*uWind*mix(1.,gust*1.5,clamp(uWind-1.,0.,1.))+.25*wv*min(uWind,1.6));
-bend+=gw*aT*aT*sc*1.25;
-/* (Ryan) the wind rolls through in long waves, like the sea: broad swells that keep travelling across the meadow along the wind, each one a little uneven along its length; the blades they press over show their paler sides */
-{float al=dot(wp,uWDir),ac=dot(wp,vec2(-uWDir.y,uWDir.x));/* (Ryan) our wind is gentle: slow swells, a soft sway, and the roll shown mostly by the colour drifting over the field */float sw=.5+.5*sin(al*.28-uTime*.75+sin(ac*.09+uTime*.06)*1.6);float sw2=.5+.5*sin(al*.11-uTime*.38+sin(ac*.05)*2.2);float roll=pow(sw,3.)*.65+pow(sw2,2.)*.5;roll*=clamp(.35+.65*uWind,0.,1.6);bend+=roll*aT*aT*(hsc*.28+.01);vGu=max(vGu,roll*.75*clamp(uWind,.4,1.4));}/* Build 195: on windy days the whole meadow leans together in short, quick pulses and springs back, like the hillside in The Wind Rises */{float pul=pow(max(0.,sin(uTime*2.4-dot(wp,uWDir)*.03)),4.)*clamp((uWind-.5)*2.,0.,1.);bend+=pul*aT*aT*sc*.95;}/* (Ryan) blades bow with the wind but never lie flat: the bend is held to part of each blade's own height, and it shortens as it leans so it keeps its length */bend=min(bend,(hsc*.38+.012)*aT*aT);lp.xz+=uWDir*bend*.87;lp.y-=bend*bend/max(hsc*1.3,.04)*.6;
+/* (Ryan) the wind as flowing currents, like the middle of the ocean: a soft noise field drifts across the meadow along the breeze, warped
+   by a slower noise so it swirls and eddies. Each blade reads it at its root: how hard to bow, and which way (the current turns the
+   breeze a little here and there). Then each blade is ROTATED about its root (never pushed), so it keeps its length, never dips into
+   the ground, and never bows past about 35 degrees; the tip bows most, so it curves. Gentle by design. */
+float gsF=dot(wp,uWDir)-uGF;float gw=(gsF>0.?exp(-gsF*gsF/16.):exp(-gsF*gsF/220.))*(.55+.45*sin(dot(wp,vec2(-uWDir.y,uWDir.x))*.045+uTime*.15))*uGust;
+vec2 cq=wp*.085-uWDir*uTime*.3;vec2 wq=vec2(gvn(cq*.55+vec2(uTime*.025,0.)),gvn(cq*.55+vec2(5.2,uTime*.02)))-.5;float cur=gvn(cq+wq*1.9)*.65+gvn(cq*2.3+wq*1.2+3.7)*.35;
+float wk=clamp(.35+.65*uWind,0.,1.6);
+float flut=sin(uTime*2.2+uWPh*.8+wp.x*1.1-wp.y*.7)*.025*min(uWind,1.5);
+float pul=pow(max(0.,sin(uTime*2.4-dot(wp,uWDir)*.03)),4.)*clamp((uWind-.5)*2.,0.,1.);
+float ang=.06*min(uWind,1.5)+smoothstep(.28,.85,cur)*.36*wk+gw*.3+pul*.18+flut;ang=clamp(ang,-.1,.6);
+float dr=wq.x*1.3+wq.y*.4;vec2 wd=vec2(uWDir.x*cos(dr)-uWDir.y*sin(dr),uWDir.x*sin(dr)+uWDir.y*cos(dr));vec2 wpp=vec2(-wd.y,wd.x);
+{float a=ang*pow(aT,1.15);float h=dot(lp.xz,wd),pp=dot(lp.xz,wpp);float ca=cos(a),sa=sin(a);float h2=h*ca+lp.y*sa;float y2=-h*sa+lp.y*ca;lp=vec3(wd.x*h2+wpp.x*pp,y2,wd.y*h2+wpp.y*pp);}
+/* the blades the current presses over show their paler sides, so you can watch the swells roll across */vGu=max(gw,smoothstep(.35,.9,cur)*.7*clamp(uWind,.4,1.4));
 float gH=texture2D(uHeight,tuv).r;/* LOOK: the blades part round both cats and lie down under them, so the cats are never lost in the grass */for(int ci=0;ci<2;ci++){vec3 cP=ci==0?uCat:uCat2;vec2 dc=wp-cP.xz;float dd=length(dc);float pk=smoothstep(.62,.08,dd)*step(abs(cP.y-gH),.5);float push=pk*aT*(sc*1.6+.08);lp.xz+=normalize(dc+1e-4)*push;lp.y-=pk*aT*hsc*.75;}
 {vec3 pt=texture2D(uGTex,wp*.065).rgb;vColor.rgb*=mix(vec3(1.),pt/vec3(.33,.52,.3),.6);}
 vec3 transformed=vec3(wp.x,texture2D(uHeight,tuv).r,wp.y)+lp;vGW=vec3(wp.x,aT,wp.y);vShade=.8+.4*fract(sin(dot(aOff.xy,vec2(12.9898,78.233)))*43758.5);`
@@ -13010,7 +13020,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 510;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 11;
+const LOOKV = 12;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
