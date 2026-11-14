@@ -12845,7 +12845,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 501;
+const BUILD = 502;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -31502,7 +31502,8 @@ d.normalize();
 halo.position.copy(hc).addScaledVector(d,R);
 const hd =
 Math.hypot(camera.position.x - hc.x,camera.position.z - hc.z);
-const hk = 1 - smooth(16,24,hd);
+const hk =
+(1 - smooth(16,24,hd))* smooth(R + 3,R + 8,hd);
 halo.material.opacity =
 NL.outer.strength * 0.55 * nk *(0.92 + 0.08 * fl)* xk * hk;
 halo.visible = on && hk > 0.01;
@@ -48734,7 +48735,7 @@ ready = true;
 }
 }
 D.benchReady = ready;
-D.prompt(
+if(!D.hopReady && !D.hopDown)D.prompt(
 ready
 ? '<span style="display:inline-block;border:1px solid #fff;border-radius:5px;padding:1px 7px;margin-right:10px">X</span>Sit on the bench'
 : null
