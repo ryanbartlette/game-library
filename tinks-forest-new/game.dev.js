@@ -4868,8 +4868,16 @@ console.warn('forest wall',e);
 };
 const dressGreatTree =()=>{
 try{
+let GTR = 10;
+try{
+GTR = parseFloat(new URLSearchParams(location.search).get('gtleaf'))|| 10;
+}catch(e){}
+const gtLeafT = tex('leaf',true).clone();
+gtLeafT.wrapS = gtLeafT.wrapT = THREE.RepeatWrapping;
+gtLeafT.repeat.set(GTR,GTR);
+gtLeafT.needsUpdate = true;
 const leafM = windMat(
-tintMat(new THREE.MeshStandardMaterial({color: 0x55864a,alphaMap: tex('leaf',true),alphaTest: 0.4,side: THREE.DoubleSide,roughness: 1}),'clumpcz'),
+tintMat(new THREE.MeshStandardMaterial({color: 0x55864a,alphaMap: gtLeafT,alphaTest: 0.4,side: THREE.DoubleSide,roughness: 1}),'clumpcz'),
 0.012,
 'ancient'
 );
@@ -14004,7 +14012,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 42;
+const LOOKV = 43;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
