@@ -3784,12 +3784,14 @@ const W2P = MS / WORLD,
 tp =(x,z)=>[(x + WORLD / 2)* W2P,(z + WORLD / 2)* W2P];
 for(const t of trees){
 const[px,pz]= tp(t.x,t.z);
+t._hole =[t.x,t.z,t.r * 1.5 + 0.2];
 mx.beginPath();
 mx.arc(px,pz,(t.r * 1.5 + 0.2)* W2P,0,7);
 mx.fill();
 }
 for(const r of rocks){
 const[px,pz]= tp(r.x,r.z);
+r._hole =[r.x,r.z,r.R * 0.85];
 mx.beginPath();
 mx.arc(px,pz,r.R * 0.85 * W2P,0,7);
 mx.fill();
@@ -4239,17 +4241,20 @@ if(!cleared){
 cleared = true;
 const goneT = new Set();
 for(const t of trees){
-if(t.sprout || t.gone)continue;
+if(t.sprout)continue;
 if(GT && Math.hypot(t.x - GT.x,t.z - GT.z)<(GT.R || 6)+ 1)continue;
+if(t._hole && !(GT && Math.hypot(t._hole[0]- GT.x,t._hole[1]- GT.z)<(GT.R || 6)+ 1))refill(t._hole[0],t._hole[1],t._hole[2]+ 0.1);
+refill(t.x,t.z,t.r * 1.5 + 0.25);
+if(t.gone)continue;
 t.gone = true;
 t.climbTop = -1e9;
 goneT.add(t);
-refill(t.x,t.z,t.r * 1.5 + 0.25);
 }
 for(const r of rocks){
 if(r.s)r.s.dead = true;
 r.gone = true;
 refill(r.x,r.z,r.R * 0.85 + 0.1);
+if(r._hole)refill(r._hole[0],r._hole[1],r._hole[2]+ 0.1);
 }
 for(const sf of SURF)if(sf.tree && goneT.has(sf.tree))sf.dead = true;
 grassU.uMask.value.needsUpdate = true;
@@ -4270,7 +4275,7 @@ const[src,tag]= srcOf2(o);
 if(/^ancient\.glb$/.test(src)|| tag === 'clumpancient')return;
 if(!(KILL_SRC.test(src)|| KILL_TAG.test(tag)))return;
 const GT3 = window.__LIFE && window.__LIFE.tree;
-if(GT3){
+if(GT3 && src !== 'bushes.glb' && /^(sakleaf|greenleaf|saktrunk|sakbloss|clump)$/.test(tag)){
 o.updateMatrixWorld(true);
 if(!o.isInstancedMesh){
 const wp = new V3().setFromMatrixPosition(o.matrixWorld);
@@ -4342,6 +4347,16 @@ killed++;
 }
 window.__forestCleared.surf =(window.__forestCleared.surf || 0)+ killed;
 for(const o of dead)if(o.parent)o.parent.remove(o);
+try{
+const E = window.__EDIT;
+const inWorld = o =>{
+let a = o;
+while(a.parent)a = a.parent;
+return a === scene;
+};
+if(E && E.ims)E.ims = E.ims.filter(inWorld);
+if(E && E.objs)E.objs = E.objs.filter(inWorld);
+}catch(e){}
 window.__forestCleared.models =(window.__forestCleared.models || 0)+ dead.length;
 };
 let fT = 0;
@@ -13545,7 +13560,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 28;
+const LOOKV = 29;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -53038,6 +53053,14 @@ const v = JSON.parse(localStorage.getItem(KEY)|| 'null');
 if(v && v.objs)store = v;
 }catch(e){}
 if(!store.delAll)store.delAll =[];
+{
+const n0 = store.delAll.length;
+store.delAll = store.delAll.filter(s => !/^src:(sakura|bushes|deadtree)\.glb$/.test(s));
+if(store.delAll.length !== n0)
+try{
+localStorage.setItem(KEY,JSON.stringify(store));
+}catch(e){}
+}
 window.__EDIT_FURN =()=> store.furnace || null;
 if(!store.adds)store.adds =[];
 if(!store.dead)store.dead =[];
