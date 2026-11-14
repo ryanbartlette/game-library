@@ -3740,22 +3740,26 @@ col =[],
 idx =[];
 const NB = LOW ? 5 : 7;
 for(let b = 0;b < NB;b++){
-const ang =(b / NB)* Math.PI * 2 + hr(b)* 1.1,
+const ba =(b / NB)* Math.PI * 2 + hr(b)* 1.1,
 rr = 0.01 + hr(b + 10)* 0.05,
-lean = 0.015 + hr(b + 20)* 0.05,
-hh = 0.8 + hr(b + 30)* 0.4,
-w0 = 0.02 + hr(b + 40)* 0.012;
-const dx = Math.cos(ang),
-dz = Math.sin(ang),
-px0 = -dz,
-pz0 = dx;
+la =(hr(b + 50)- 0.5)* 0.7,
+lean = 0.16 + hr(b + 20)* 0.3,
+hh = 0.8 + hr(b + 30)* 0.45,
+w0 = 0.02 + hr(b + 40)* 0.012,
+tw =(hr(b + 60)- 0.5)* 1.1;
+const bx = Math.cos(ba)* rr,
+bz = Math.sin(ba)* rr,
+dx = Math.sin(la),
+dz = Math.cos(la),
+px0 = Math.cos(la + tw),
+pz0 = -Math.sin(la + tw);
 const base = pos.length / 3;
 for(let s2 = 0;s2 <= SEG;s2++){
 const t = s2 / SEG;
-const fw = rr + t * t * lean * hh,
-y = t * hh *(1 - 0.22 * t * lean);
-const cx = dx * fw,
-cz = dz * fw;
+const fw = t * t * lean * hh,
+y = t * hh *(1 - 0.18 * t * lean);
+const cx = bx + dx * fw,
+cz = bz + dz * fw;
 if(s2 < SEG){
 const w = w0 * Math.pow(1 - t,0.55);
 for(const sd of[-1,1]){
@@ -3827,7 +3831,7 @@ uniform float uTime,uTile,uWorld;uniform vec3 uCenter,uCat,uCat2;uniform sampler
 `
 vec2 rel=mod(aOff.xy-uCenter.xz+uTile*.5,uTile)-uTile*.5;vec2 wp=uCenter.xz+rel;vec2 tuv=(wp+uWorld*.5)/uWorld;
 float msk=texture2D(uMask,tuv).r;float dist=length(rel);float sc=aOff.z*smoothstep(.36,.6,msk)*(.55+.45*msk)*smoothstep(uTile*.5,uTile*.5-5.,dist);
-float cs=cos(aOff.w),sn=sin(aOff.w);float rk=fract(sin(dot(aOff.xy,vec2(41.3,17.9)))*24634.6);float keep=step(rk,msk*1.35);sc=aOff.z*keep*(.75+.25*msk)*smoothstep(uTile*.5,uTile*.5-5.,dist)*step(.12,msk);float wsc=(0.6+sc*1.5)*keep;/* sparse ground keeps fewer whole clumps instead of squashed star shapes *//* short clumps shrink whole instead of lying flat as star shapes *//* drifts of long grass here and there (where the ferns used to grow) */float tallP=smoothstep(.35,.8,.5+.5*sin(wp.x*.19+sin(wp.y*.15)*2.1)*sin(wp.y*.17+sin(wp.x*.12)*2.3));float hsc=sc*(1.+1.6*tallP);vec3 lp=vec3(position.x*wsc,position.y*hsc,position.z*wsc);lp=vec3(lp.x*cs-lp.z*sn,lp.y,lp.x*sn+lp.z*cs);
+/* (Ryan) every tuft leans along the breeze, give or take about 15 degrees */float th=atan(-uWDir.x,uWDir.y)+(aOff.w/6.283-.5)*.55;float cs=cos(th),sn=sin(th);float rk=fract(sin(dot(aOff.xy,vec2(41.3,17.9)))*24634.6);float keep=step(rk,msk*1.35);sc=aOff.z*keep*(.75+.25*msk)*smoothstep(uTile*.5,uTile*.5-5.,dist)*step(.12,msk);float wsc=(0.6+sc*1.5)*keep;/* sparse ground keeps fewer whole clumps instead of squashed star shapes *//* short clumps shrink whole instead of lying flat as star shapes *//* drifts of long grass here and there (where the ferns used to grow) */float tallP=smoothstep(.35,.8,.5+.5*sin(wp.x*.19+sin(wp.y*.15)*2.1)*sin(wp.y*.17+sin(wp.x*.12)*2.3));float hsc=sc*(1.+1.6*tallP);vec3 lp=vec3(position.x*wsc,position.y*hsc,position.z*wsc);lp=vec3(lp.x*cs-lp.z*sn,lp.y,lp.x*sn+lp.z*cs);
 float gust=.6+.4*sin(uTime*.35+wp.x*.04+wp.y*.03);/* a gust: broad soft bands rolling across the meadow along the wind, uneven along their length */float gph=dot(wp,uWDir)*.085-uTime*.95;float gsF=dot(wp,uWDir)-uGF;float gw=(gsF>0.?exp(-gsF*gsF/16.):exp(-gsF*gsF/220.))*(.55+.45*sin(dot(wp,vec2(-uWDir.y,uWDir.x))*.045+uTime*.15))*uGust;vGu=gw;float wv=sin((uTime*1.2+uWPh*.5)+wp.x*.33+wp.y*.21)*.6+sin((uTime*2.4+uWPh*.8)+wp.x*1.1-wp.y*.7)*.25;float bend=aT*aT*sc*(.3*uWind*mix(1.,gust*1.5,clamp(uWind-1.,0.,1.))+.25*wv*min(uWind,1.6));
 bend+=gw*aT*aT*sc*1.25;/* Build 195: on windy days the whole meadow leans together in short, quick pulses and springs back, like the hillside in The Wind Rises */{float pul=pow(max(0.,sin(uTime*2.4-dot(wp,uWDir)*.03)),4.)*clamp((uWind-.5)*2.,0.,1.);bend+=pul*aT*aT*sc*.95;}lp.xz+=uWDir*bend*.87;lp.y-=bend*bend*.6;
 float gH=texture2D(uHeight,tuv).r;/* LOOK: the blades part round both cats and lie down under them, so the cats are never lost in the grass */for(int ci=0;ci<2;ci++){vec3 cP=ci==0?uCat:uCat2;vec2 dc=wp-cP.xz;float dd=length(dc);float pk=smoothstep(.62,.08,dd)*step(abs(cP.y-gH),.5);float push=pk*aT*(sc*1.6+.08);lp.xz+=normalize(dc+1e-4)*push;lp.y-=pk*aT*hsc*.75;}
