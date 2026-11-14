@@ -5243,6 +5243,13 @@ console.warn('great tree dress',e);
 };
 const dress = async()=>{
 const dr = mulberry32(70631);
+let GS = 0.8,
+WS = 0.8;
+try{
+const q = new URLSearchParams(location.search);
+GS = parseFloat(q.get('gscale'))|| GS;
+WS = parseFloat(q.get('wscale'))|| WS;
+}catch(e){}
 const L ={};
 for(const[k,f]of[
 ['g0','Foliage_Grass_Weeds_Grass0'],
@@ -5305,8 +5312,8 @@ const off = hw + 0.2 + o * 1.4;
 const x = cx - tz * off * sd + tx *(jj - 0.5)* 0.4,
 z = cz + tx * off * sd + tz *(jj - 0.5)* 0.4;
 if(r > 0.8 || wet(x,z)|| built(x,z)|| onTrail(x,z))continue;
-if(r < 0.5)add(r < 0.25 ? 'g0' : 'g1',x,z,3.6 + sc * 2.6,ro * 6.283);
-else if(r < 0.74)add('weed',x,z,3.4 + sc * 2.2,ro * 6.283);
+if(r < 0.5)add(r < 0.25 ? 'g0' : 'g1',x,z,(3.6 + sc * 2.6)* GS,ro * 6.283);
+else if(r < 0.74)add('weed',x,z,(3.4 + sc * 2.2)* WS,ro * 6.283);
 else if(r < 0.77)add('rock3',x,z,0.22 + sc * 0.25,ro * 6.283,0.25);
 }
 if(s > nextLamp){
@@ -5351,8 +5358,8 @@ const off = w + 0.15 + o * 1.5;
 const x = cx - tz * off * sd,
 z = cz + tx * off * sd;
 if(r > 0.85 || built(x,z)|| onTrail(x,z))continue;
-if(r < 0.6)add(r < 0.3 ? 'g1' : 'g0',x,z,4 + sc * 3,ro * 6.283);
-else if(r < 0.77)add('weed',x,z,3.6 + sc * 2.4,ro * 6.283);
+if(r < 0.6)add(r < 0.3 ? 'g1' : 'g0',x,z,(4 + sc * 3)* GS,ro * 6.283);
+else if(r < 0.77)add('weed',x,z,(3.6 + sc * 2.4)* WS,ro * 6.283);
 else if(r < 0.81)add(r < 0.79 ? 'rock1' : 'rock4',x,z,0.3 + sc * 0.45,ro * 6.283,0.3);
 }
 }
@@ -6645,7 +6652,8 @@ sh.fragmentShader = sh.fragmentShader.replace(
 '#include <color_fragment>\n{vec3 c=diffuseColor.rgb;float gD=smoothstep(.0,.07,c.g-max(c.r,c.b)*.95);float l=dot(c,vec3(.3,.59,.11));float n=fract(l*41.7+c.r*13.1);vec3 sc=mix(uSeasC,uSeasB,.45*step(.6,n));diffuseColor.rgb=mix(c,sc*(.35+l*1.9),gD*uSeasA);}'
 );
 };
-m.customProgramCacheKey =()=> 'tint' + key +(m.map ? 'm' : '')+(m.alphaTest > 0 ? 'a' : '');
+const pk0 = m.customProgramCacheKey && m.customProgramCacheKey !== THREE.Material.prototype.customProgramCacheKey ? m.customProgramCacheKey.bind(m): null;
+m.customProgramCacheKey =()=> 'tint' + key +(m.map ? 'm' : '')+(m.alphaTest > 0 ? 'a' : '')+(pk0 ? pk0(): '');
 m.needsUpdate = true;
 return m;
 }
@@ -14614,7 +14622,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 58;
+const LOOKV = 59;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
