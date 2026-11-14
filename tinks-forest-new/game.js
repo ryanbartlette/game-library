@@ -1667,7 +1667,7 @@ WC_GLSL
   vec2 cell=floor(p*2.2);vec2 f=fract(p*2.2)-.5;float h=wcH(cell);float dotm=step(.93,h)*(1.-smoothstep(.06,.1,length(f-vec2(wcH(cell+3.)-.5,wcH(cell+7.)-.5)*.6)));
   c=mix(c,mix(vec3(.95,.93,.82),vec3(.95,.8,.35),step(.965,h)),dotm*pool);
   // bare earth where no grass grows (paths, the floor of the hollow tree): warm painted soil, leaf litter, roots and moss
-  {float gm=texture2D(uMaskG,(p+uWorldG*.5)/uWorldG).r;float bare=1.-smoothstep(.15,.6,gm);
+  {float gm=texture2D(uMaskG,(p+uWorldG*.5)/uWorldG).r;float bare=1.-smoothstep(.07,.12,gm);/* FOREST (Ryan): green wherever grass grows (blades start at .11-.16), dirt only where it does not */
    if(bare>.01){float e1=wcF(p*.6),e2=wcN(p*3.1),e3=wcN(p*11.);vec3 soil=mix(vec3(.2,.16,.11),vec3(.33,.27,.19),e1);/* FOREST: no moss in the soil */
     float litter=step(.78,e3)*step(.4,e2);soil=mix(soil,mix(vec3(.45,.32,.18),vec3(.36,.4,.22),e2),litter*.6);float root=smoothstep(.47,.5,wcN(vec2(p.x*.9+p.y*.4,p.y*2.6)))*(1.-smoothstep(.5,.53,wcN(vec2(p.x*.9+p.y*.4,p.y*2.6))));soil*=1.-root*.35;
     /* LOOK: cizzy7's warm cracked dirt with its little blue-grey stones */{vec3 dtx=texture2D(uDirtG,p*.21).rgb;soil=mix(soil,dtx*vec3(.82,.78,.74),.78);}
@@ -13449,7 +13449,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 31;
+const LOOKV = 32;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
