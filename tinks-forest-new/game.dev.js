@@ -4242,6 +4242,62 @@ const[src,tag]= srcOf2(o);
 if(/^ancient\.glb$/.test(src)|| tag === 'clumpancient')return;
 if(KILL_SRC.test(src)|| KILL_TAG.test(tag))dead.push(o);
 });
+const GT2 = window.__LIFE && window.__LIFE.tree;
+for(const sf of SURF){
+if(sf.dead || sf.t !== 'trunk')continue;
+if(sf.tree && sf.tree.sprout)continue;
+if(GT2 && Math.hypot(sf.x - GT2.x,sf.z - GT2.z)<(GT2.R || 6)+ 1.5)continue;
+sf.dead = true;
+}
+const spots =[],
+owners = new Set(),
+_m4 = new THREE.Matrix4(),
+_p = new V3(),
+_sz2 = new V3(),
+_sc = new V3(),
+_q2 = new THREE.Quaternion();
+for(const o of dead){
+let a = o;
+while(a){
+owners.add(a);
+a = a.parent;
+}
+const g = o.geometry;
+if(!g.boundingBox)g.computeBoundingBox();
+g.boundingBox.getSize(_sz2);
+o.updateMatrixWorld(true);
+const n = o.isInstancedMesh ? o.count : 1;
+for(let i = 0;i < n;i++){
+if(o.isInstancedMesh){
+o.getMatrixAt(i,_m4);
+if(_m4.elements[0]=== 0 && _m4.elements[5]=== 0 && _m4.elements[10]=== 0)continue;
+_m4.premultiply(o.matrixWorld);
+}else _m4.copy(o.matrixWorld);
+_m4.decompose(_p,_q2,_sc);
+spots.push([_p.x,_p.z,Math.min(2.5,Math.max(_sz2.x * Math.abs(_sc.x),_sz2.z * Math.abs(_sc.z))* 0.5 + 0.3)]);
+}
+}
+const isOwned = sf => sf.own &&(owners.has(sf.own)||(sf.own.parent && owners.has(sf.own.parent)));
+let killed = 0;
+for(const sf of SURF){
+if(sf.dead || !sf._bb)continue;
+if(sf.bridge)continue;
+const[x0,z0,x1,z1]= sf._bb;
+const cx =(x0 + x1)/ 2,
+cz =(z0 + z1)/ 2;
+let hit = isOwned(sf);
+if(!hit &&(sf.rockSheet || sf.t === 'cap' || sf.t === 'ell'))
+for(const[sx,sz,sr]of spots)
+if(Math.hypot(cx - sx,cz - sz)< sr && x1 - x0 < sr * 2 + 2 && z1 - z0 < sr * 2 + 2){
+hit = true;
+break;
+}
+if(hit){
+sf.dead = true;
+killed++;
+}
+}
+window.__forestCleared.surf =(window.__forestCleared.surf || 0)+ killed;
 for(const o of dead)if(o.parent)o.parent.remove(o);
 window.__forestCleared.models =(window.__forestCleared.models || 0)+ dead.length;
 };
@@ -13390,7 +13446,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 23;
+const LOOKV = 24;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
