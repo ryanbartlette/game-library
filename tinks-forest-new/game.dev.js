@@ -1782,7 +1782,8 @@ sh.vertexShader = sh.vertexShader
 sh.fragmentShader = sh.fragmentShader
 .replace(
 '#include <common>',
-'#include <common>\nvarying vec3 vWg;uniform vec3 uGLight,uGBase,uGTip;uniform float uTime,uDap,uWorldG,uGustG,uCloudK;uniform vec2 uCloudOff;uniform sampler2D uMaskG,uCanopyG,uGTexG,uDirtG;' +
+'#include <common>\nvarying vec3 vWg;uniform vec3 uGLight,uGBase,uGTip;uniform float uTime,uDap,uWorldG,uGustG,uCloudK;uniform vec2 uCloudOff;uniform sampler2D uMaskG,uCanopyG,uGTexG,uDirtG;'+
+'float gmSoft(vec2 p){/* FOREST (Ryan: path edges were jagged): the mask is read softly (nine taps, a third of a metre apart) along a gently wandering edge, so paths have smooth, painted borders */vec2 j=vec2(sin(p.y*1.7+sin(p.x*.9)),cos(p.x*1.5+sin(p.y*1.1)))*.18;vec2 q=p+j;float s=0.;for(int a=-1;a<=1;a++)for(int b=-1;b<=1;b++)s+=texture2D(uMaskG,(q+vec2(float(a),float(b))*.34+uWorldG*.5)/uWorldG).r;return s/9.;}' +
 CLOUD_GLSL +
 WC_GLSL
 )
@@ -1806,12 +1807,12 @@ WC_GLSL
   {/* dappled light: under the tree crowns the ground is in cool shade, scattered with warm swaying sunflecks */float can=smoothstep(.08,.6,texture2D(uCanopyG,(p+uWorldG*.5)/uWorldG).r);vec2 sw=vec2(sin(uTime*.6+p.y*.05),cos(uTime*.45+p.x*.05))*(.12+.35*uGustG);vec2 q=(p+sw)*vec2(1.,1.35);float dp=wcN(q*.85)*.55+wcN(q*2.1+7.)*.3+wcN(q*4.7-3.)*.15;float spot=smoothstep(.57,.63,dp);c=mix(c,c*vec3(.84,.87,.93),can*uDap*.7);c+=can*uDap*spot*(c*.85+uGLight*.08);}c*=mix(vec3(1.),vec3(.62,.68,.8),cloudSh(p,uCloudOff)*uCloudK);
   /* LOOK: the painted grass texture laid softly under the meadow */{vec3 gtx=texture2D(uGTexG,p*.09).rgb;c*=mix(vec3(1.),gtx/vec3(.33,.52,.3),.35);}
   /* FOREST (Ryan: grass should match the ground below it): under the grass the ground takes the blades' own root green, keeping only a soft trace of its painted pools */
-  {float gm0=texture2D(uMaskG,(p+uWorldG*.5)/uWorldG).r;float under=smoothstep(.1,.25,gm0);vec3 root=mix(uGBase*2.2,uGTip*.55,.35)*(.92+.16*gran)*(.9+.2*pool);c=mix(c,root,under*.7);}
+  {float gm0=gmSoft(p);float under=smoothstep(.1,.25,gm0);vec3 root=mix(uGBase*2.2,uGTip*.55,.35)*(.92+.16*gran)*(.9+.2*pool);c=mix(c,root,under*.7);}
   // tiny painted blossoms dotted through the light pools
   vec2 cell=floor(p*2.2);vec2 f=fract(p*2.2)-.5;float h=wcH(cell);float dotm=step(.93,h)*(1.-smoothstep(.06,.1,length(f-vec2(wcH(cell+3.)-.5,wcH(cell+7.)-.5)*.6)));
   c=mix(c,mix(vec3(.95,.93,.82),vec3(.95,.8,.35),step(.965,h)),dotm*pool);
   // bare earth where no grass grows (paths, the floor of the hollow tree): warm painted soil, leaf litter, roots and moss
-  {float gm=texture2D(uMaskG,(p+uWorldG*.5)/uWorldG).r;float bare=1.-smoothstep(.07,.12,gm);/* FOREST (Ryan): green wherever grass grows (blades start at .11-.16), dirt only where it does not */
+  {float gm=gmSoft(p);float bare=1.-smoothstep(.07,.12,gm);/* FOREST (Ryan): green wherever grass grows (blades start at .11-.16), dirt only where it does not */
    if(bare>.01){float e1=wcF(p*.6),e2=wcN(p*3.1),e3=wcN(p*11.);vec3 soil=mix(vec3(.2,.16,.11),vec3(.33,.27,.19),e1);/* FOREST: no moss in the soil */
     float litter=step(.78,e3)*step(.4,e2);soil=mix(soil,mix(vec3(.45,.32,.18),vec3(.36,.4,.22),e2),litter*.6);float root=smoothstep(.47,.5,wcN(vec2(p.x*.9+p.y*.4,p.y*2.6)))*(1.-smoothstep(.5,.53,wcN(vec2(p.x*.9+p.y*.4,p.y*2.6))));soil*=1.-root*.35;
     /* LOOK: cizzy7's warm cracked dirt with its little blue-grey stones */{vec3 dtx=texture2D(uDirtG,p*.21).rgb;soil=mix(soil,dtx*vec3(.82,.78,.74),.78);}
@@ -3992,7 +3993,7 @@ float gvh(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}float 
 '#include <begin_vertex>',
 `
 vec2 rel=mod(aOff.xy-uCenter.xz+uTile*.5,uTile)-uTile*.5;vec2 wp=uCenter.xz+rel;vec2 tuv=(wp+uWorld*.5)/uWorld;
-float msk=texture2D(uMask,tuv).r;float dist=length(rel);float sc=aOff.z*smoothstep(.36,.6,msk)*(.55+.45*msk)*smoothstep(uTile*.5,uTile*.5-5.,dist);
+float msk=(texture2D(uMask,tuv).r*2.+texture2D(uMask,tuv+vec2(.3,0.)/uWorld).r+texture2D(uMask,tuv-vec2(.3,0.)/uWorld).r+texture2D(uMask,tuv+vec2(0.,.3)/uWorld).r+texture2D(uMask,tuv-vec2(0.,.3)/uWorld).r)/6.;/* FOREST: read softly, for smooth path edges */float dist=length(rel);float sc=aOff.z*smoothstep(.36,.6,msk)*(.55+.45*msk)*smoothstep(uTile*.5,uTile*.5-5.,dist);
 /* (Ryan) every tuft leans along the breeze, give or take about 15 degrees */float th=atan(-uWDir.x,uWDir.y)+(aOff.w/6.283-.5)*1.2;float cs=cos(th),sn=sin(th);float rk=fract(sin(dot(aOff.xy,vec2(41.3,17.9)))*24634.6);/* (Ryan) never sparse, like a painted meadow: the grass stays full everywhere and only gets shorter toward the paths, thinning just at a path's very edge *//* (Ryan's rule) paths are bare; the grass runs full and short right up to their edge (a crisp, slightly ragged border) */float keep=step(.11+rk*.05,msk);sc=aOff.z*keep*(.75+.25*msk)*smoothstep(uTile*.5,uTile*.5-5.,dist);float wsc=(0.6+sc*1.5)*keep;/* sparse ground keeps fewer whole clumps instead of squashed star shapes *//* short clumps shrink whole instead of lying flat as star shapes *//* drifts of long grass here and there (where the ferns used to grow) */float tallP=smoothstep(.35,.8,.5+.5*sin(wp.x*.19+sin(wp.y*.15)*2.1)*sin(wp.y*.17+sin(wp.x*.12)*2.3));float hsc=sc*(1.+1.6*tallP);
 /* (Ryan) long and wild away from the paths, shorter where it's trodden: the grass shortens as the mask fades toward a path, and slow patches of taller and shorter grass drift across the fields */
 {float wild=smoothstep(.11,.32,msk);/* FOREST (Ryan: sparse bare patches): the whole meadow grows full; only a path's edge band is shorter */float pn=.5+.25*sin(wp.x*.07+sin(wp.y*.05)*2.3)+.25*sin(wp.y*.083+sin(wp.x*.061)*1.9);hsc*=mix(.3,1.,wild)*(.72+.6*pn);}vec3 lp=vec3(position.x*wsc,position.y*hsc,position.z*wsc);lp=vec3(lp.x*cs-lp.z*sn,lp.y,lp.x*sn+lp.z*cs);
@@ -4932,7 +4933,7 @@ vHead=aHead;`
 )
 .replace(
 '#include <begin_vertex>',
-`float msk=texture2D(uMask,tuv).r;float dist=length(rel);float keep=step(rk,.12+.33*smoothstep(.35,.9,dn))*step(.45,msk)*smoothstep(uTile*.5,uTile*.5-4.,dist);
+`float msk=(texture2D(uMask,tuv).r*2.+texture2D(uMask,tuv+vec2(.3,0.)/uWorld).r+texture2D(uMask,tuv-vec2(.3,0.)/uWorld).r+texture2D(uMask,tuv+vec2(0.,.3)/uWorld).r+texture2D(uMask,tuv-vec2(0.,.3)/uWorld).r)/6.;/* FOREST: read softly, for smooth path edges */float dist=length(rel);float keep=step(rk,.12+.33*smoothstep(.35,.9,dn))*step(.45,msk)*smoothstep(uTile*.5,uTile*.5-4.,dist);
 float sc=aOff.z*keep;float cs=cos(aOff.w),sn=sin(aOff.w);
 /* (Ryan) each stem is as tall as the grass around it (the same rule the grass uses: wild patches tall, trodden edges short), so the flower always peeps out just above it */
 float tallP=smoothstep(.35,.8,.5+.5*sin(wp.x*.19+sin(wp.y*.15)*2.1)*sin(wp.y*.17+sin(wp.x*.12)*2.3));float wild=smoothstep(.11,.32,msk);float pn=.5+.25*sin(wp.x*.07+sin(wp.y*.05)*2.3)+.25*sin(wp.y*.083+sin(wp.x*.061)*1.9);
@@ -13931,7 +13932,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 37;
+const LOOKV = 38;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
