@@ -12892,7 +12892,9 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 510;
 try{
 const gb = document.getElementById('gBuild');
-if(gb)gb.textContent = 'Build ' + BUILD;
+const LOOKV = 6;
+if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
+window.__LOOKV = LOOKV;
 }catch(e){}
 window.__BUILD = BUILD;
 const quitGame =()=>{
