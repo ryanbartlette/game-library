@@ -4706,12 +4706,13 @@ tc[k].colorSpace = mask ? THREE.NoColorSpace : THREE.SRGBColorSpace;
 }
 return tc[k];
 };
-const windify =(m,leaf,swU)=>{
+const windify =(m,leaf,swU,grassy)=>{
+m.customProgramCacheKey =()=> 'czwind' +(leaf ? 1 : 0)+(grassy ? 1 : 0);
 m.onBeforeCompile = sh =>{
-for(const k of['uTime','uWind','uWPh','uGust','uGF','uWDir'])sh.uniforms[k]= grassU[k];
+for(const k of['uTime','uWind','uWPh','uGust','uGF','uWDir','uCat','uCat2'])sh.uniforms[k]= grassU[k];
 sh.uniforms.uSwH = swU;
 sh.vertexShader = sh.vertexShader
-.replace('#include <common>','#include <common>\nuniform float uTime,uWind,uWPh,uGust,uGF,uSwH;uniform vec2 uWDir;')
+.replace('#include <common>','#include <common>\nuniform float uTime,uWind,uWPh,uGust,uGF,uSwH;uniform vec2 uWDir;uniform vec3 uCat,uCat2;')
 .replace(
 '#include <begin_vertex>',
 `#include <begin_vertex>
@@ -4726,7 +4727,14 @@ float sw=sin(uTime*.7+uWPh*.4+ph)*.6+sin(uTime*1.13+uWPh*.3+ph*1.7)*.4;
 float amp=uSwH*.022*(.35+.9*w);
 vec2 d=uWDir*(amp*(.6*w+sw)+uSwH*.05*gw)+vec2(-uWDir.y,uWDir.x)*amp*.35*sin(uTime*.55+ph*2.3);
 transformed.xz+=d*hk;transformed.y-=dot(d,d)*hk*.15/max(uSwH,.5);
-${leaf ? 'transformed+=vec3(sin(uTime*1.6+position.x*2.1+ph),sin(uTime*1.9+position.z*2.3+ph)*.6,cos(uTime*1.4+position.y*1.7+ph))*.025*hk*(.5+w);' : ''}}`
+${leaf ? 'transformed+=vec3(sin(uTime*1.6+position.x*2.1+ph),sin(uTime*1.9+position.z*2.3+ph)*.6,cos(uTime*1.4+position.y*1.7+ph))*.025*hk*(.5+w);' : ''}
+${grassy ? `/* (Ryan) the tall grass and ferns part round the cats as they push through, like the meadow grass */
+#ifdef USE_INSTANCING
+{vec3 wq=(instanceMatrix*vec4(transformed,1.)).xyz;vec2 pw=vec2(0.);
+for(int ci=0;ci<2;ci++){vec3 cp=ci==0?uCat:uCat2;vec2 d=wq.xz-cp.xz;float dl=length(d);float k=(1.-smoothstep(.2,.8,dl))*step(abs(wq.y-cp.y),1.5);pw+=d/max(dl,.05)*k*.5;}
+float s2=max(dot(instanceMatrix[0].xyz,instanceMatrix[0].xyz),1e-4);
+transformed+=(transpose(mat3(instanceMatrix))*vec3(pw.x,-length(pw)*.45,pw.y))/s2*hk;}
+#endif` : ''}}`
 );
 };
 return m;
@@ -4736,7 +4744,7 @@ const k = texKey(file,nm);
 const sway = !/Rock|Bridge|Lantern|Sculpt/.test(file);
 if(k && MASKC[k]){
 const m = new THREE.MeshStandardMaterial({color: MASKC[k],alphaMap: tex(k,true),alphaTest: 0.4,side: THREE.DoubleSide,roughness: 1});
-return tintMat(sway ? windify(m,true,swU): m,'czleaf');
+return tintMat(sway ? windify(m,true,swU,/^(grass0|grass1|weed)$/.test(k)): m,'czleaf');
 }
 const m = new THREE.MeshStandardMaterial({roughness: 1});
 if(k)m.map = tex(k,false);
@@ -5293,6 +5301,28 @@ o.visible = false;
 scene.add(m);
 ns++;
 });
+}
+try{
+const LM = L.lantern,
+LG = window.__LGLOW;
+if(LM && LG && put.lantern){
+const N = put.lantern.length;
+put.lantern.forEach(([x,z,s],i)=>{
+const gy = groundAt(x,z,heightAt(x,z)+ 3);
+const o = new THREE.Object3D();
+o.position.set(x,gy - LM.y0 * s - 0.02 + LM.h * s * 0.6,z);
+const sp = new THREE.Sprite(
+new THREE.SpriteMaterial({map: softTex,color: 0xffc070,transparent: true,depthWrite: false,blending: THREE.AdditiveBlending,opacity: 0,fog: false})
+);
+sp.scale.set(0.95,0.95,1);
+sp.userData.noEdit = true;
+o.add(sp);
+scene.add(o);
+LG.items.push({sp,ms:[],paper: false,flick: true,ph: N > 1 ? i /(N - 1): 0});
+});
+}
+}catch(e){
+console.warn('lantern glow',e);
 }
 window.__czDressed ={...counts,bridges: nb,stones: ns};
 };
@@ -14394,7 +14424,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 52;
+const LOOKV = 53;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -26579,8 +26609,9 @@ const k = Math.min(
 n >= 0.999 ? 1 : n <= 0.001 ? 0 : clamp((n - it.ph * 0.6)/ 0.4,0,1),
 G.wel >= 0.999 ? 1 : clamp((G.wel - it.ph * 0.7)/ 0.3,0,1)
 );
-const l = 0.85 * k;
-it.sp.material.opacity = l *(it.paper ? 0.5 : 0.42);
+const fl = it.flick ? 0.86 + 0.09 * Math.sin(performance.now()* 0.011 + it.ph * 40)+ 0.05 * Math.sin(performance.now()* 0.023 + it.ph * 17): 1;
+const l = 0.85 * k * fl;
+it.sp.material.opacity = l *(it.paper ? 0.5 : it.flick ? 0.6 : 0.42);
 it.sp.visible = l > 0.01;
 for(const m of it.ms)m.emissiveIntensity = l *(it.paper ? 1.3 : 0.55);
 it.l = l;
