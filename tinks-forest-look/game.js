@@ -3851,7 +3851,7 @@ CLOUD_GLSL +
 )
 .replace(
 '#include <emissivemap_fragment>',
-'#include <emissivemap_fragment>\n{float pa=fn(vGW.xz*.11+vec2(uTime*.02,0.))*.65+fn(vGW.xz*.37)*.35;float lp=smoothstep(.5,.78,pa)*vGW.y;diffuseColor.rgb=mix(diffuseColor.rgb,uGLight*(.75+.25*vGW.y),lp*.75);\n float can=smoothstep(.08,.6,texture2D(uCanopy,(vGW.xz+85.)/170.).r);vec2 sw=vec2(sin(uTime*.6+vGW.z*.05),cos(uTime*.45+vGW.x*.05))*(.12+.35*uGust);vec2 q=(vGW.xz+sw)*vec2(1.,1.35);float dp=fn(q*.85)*.55+fn(q*2.1+7.)*.3+fn(q*4.7-3.)*.15;float spot=smoothstep(.57,.63,dp);\n diffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*vec3(.84,.87,.93),can*uDap*.7);diffuseColor.rgb+=can*uDap*spot*diffuseColor.rgb*.85;\n /* the silvery sheen of a gust: bent blades show their pale undersides */diffuseColor.rgb=mix(diffuseColor.rgb,mix(uGLight,vec3(.92,.95,.82),.4)*(.85+.3*vGW.y),clamp(vGu*vGW.y*.65,0.,.55));/* Build 296: shadows of the clouds slide over the meadow */diffuseColor.rgb*=mix(vec3(1.),vec3(.62,.68,.8),cloudSh(vGW.xz,uCloudOff)*uCloudK);totalEmissiveRadiance+=diffuseColor.rgb*uGEmis;}'
+'#include <emissivemap_fragment>\n{float pa=fn(vGW.xz*.11+vec2(uTime*.02,0.))*.65+fn(vGW.xz*.37)*.35;float lp=smoothstep(.5,.78,pa)*vGW.y;diffuseColor.rgb=mix(diffuseColor.rgb,uGLight*(.75+.25*vGW.y),lp*.42);/* LOOK: softer sunlit patches */\n float can=smoothstep(.08,.6,texture2D(uCanopy,(vGW.xz+85.)/170.).r);vec2 sw=vec2(sin(uTime*.6+vGW.z*.05),cos(uTime*.45+vGW.x*.05))*(.12+.35*uGust);vec2 q=(vGW.xz+sw)*vec2(1.,1.35);float dp=fn(q*.85)*.55+fn(q*2.1+7.)*.3+fn(q*4.7-3.)*.15;float spot=smoothstep(.57,.63,dp);\n diffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*vec3(.84,.87,.93),can*uDap*.7);diffuseColor.rgb+=can*uDap*spot*diffuseColor.rgb*.85;\n /* the silvery sheen of a gust: bent blades show their pale undersides */diffuseColor.rgb=mix(diffuseColor.rgb,mix(uGLight,vec3(.92,.95,.82),.4)*(.85+.3*vGW.y),clamp(vGu*vGW.y*.5,0.,.4));/* Build 296: shadows of the clouds slide over the meadow */diffuseColor.rgb*=mix(vec3(1.),vec3(.62,.68,.8),cloudSh(vGW.xz,uCloudOff)*uCloudK);totalEmissiveRadiance+=diffuseColor.rgb*uGEmis*.45;}/* LOOK: the dense blades glowed white in the sun */'
 );
 sh.uniforms.uGLight = grassU.uGLight;
 sh.uniforms.uGEmis = grassU.uGEmis;
@@ -3862,7 +3862,7 @@ sh.fragmentShader = sh.fragmentShader
 .replace('#include <common>','#include <common>\nuniform vec3 uWarm;uniform float uWarmK;')
 .replace(
 '#include <lights_fragment_end>',
-'#include <lights_fragment_end>\n{float tk=vGW.y*vGW.y;vec3 dd=reflectedLight.directDiffuse;reflectedLight.directDiffuse+=dd*uWarm*tk*1.6*uWarmK+uWarm*dot(dd,vec3(.33))*tk*.9*uWarmK;}'
+'#include <lights_fragment_end>\n{float tk=vGW.y*vGW.y;vec3 dd=reflectedLight.directDiffuse;reflectedLight.directDiffuse*=.82;reflectedLight.directDiffuse+=dd*uWarm*tk*.8*uWarmK+uWarm*dot(dd,vec3(.33))*tk*.45*uWarmK;}'
 );
 sh.vertexShader = sh.vertexShader.replace(
 'uniform float uTime,uTile,uWorld;',
