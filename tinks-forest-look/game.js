@@ -3895,20 +3895,37 @@ mesh.receiveShadow = true;
 scene.add(mesh);
 window.__grass = mesh;
 {
-const WSTY ={gentle:[0.6,0.55,0.6,0.75],medium:[1,1,1,1],heavy:[1.9,1.75,1.6,1.4]};
-let ws = 'medium';
+const WSTY ={auto: null,gentle:[0.6,0.55,0.6,0.75],medium:[1,1,1,1],heavy:[1.9,1.75,1.6,1.4]};
+let ws = 'auto';
 try{
-ws = localStorage.getItem('tink.look.wind')|| 'medium';
+ws = localStorage.getItem('tink.look.wind2')|| 'auto';
 }catch(e){}
-if(!WSTY[ws])ws = 'medium';
+if(!(ws in WSTY))ws = 'auto';
+const cur = new THREE.Vector4(0.6,0.55,0.6,0.75),
+tgt = new THREE.Vector4(),
+G0 = new THREE.Vector4(...WSTY.gentle),
+M0 = new THREE.Vector4(...WSTY.medium),
+H0 = new THREE.Vector4(...WSTY.heavy);
+let lastT = performance.now();
+mesh.onBeforeRender =()=>{
+const now = performance.now(),
+dt = Math.min(0.1,(now - lastT)/ 1000);
+lastT = now;
+if(ws === 'auto'){
+const w =(grassU.uWind.value || 0)+(grassU.uGust.value || 0)* 0.6 +(grassU.uBus.value.w > 0 ? 0.5 : 0);
+const k = clamp((w - 0.3)/ 0.75,0,1);
+if(k < 0.5)tgt.copy(G0).lerp(M0,k * 2);
+else tgt.copy(M0).lerp(H0,(k - 0.5)* 2);
+}else tgt.set(...WSTY[ws]);
+cur.lerp(tgt,1 - Math.exp(-dt *(window.__TRANS_RATE || 0.5)));
+grassU.uWS.value.copy(cur);
+};
 const setWS = k =>{
 ws = k;
-grassU.uWS.value.set(...WSTY[k]);
 try{
-localStorage.setItem('tink.look.wind',k);
+localStorage.setItem('tink.look.wind2',k);
 }catch(e){}
 };
-setWS(ws);
 window.__grassWind = setWS;
 }
 {
@@ -12925,7 +12942,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 510;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 14;
+const LOOKV = 15;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
