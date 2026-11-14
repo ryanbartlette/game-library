@@ -12845,7 +12845,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 505;
+const BUILD = 506;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -43021,7 +43021,7 @@ return(
 ' style="animation-delay:' +
 d.toFixed(2)+
 's' +
-(key ? ';font-weight:800;text-transform:uppercase;letter-spacing:.08em' : '')+
+(key ? ';font-weight:700;font-size:1.35em;line-height:1;text-shadow:0 0 22px rgba(140,255,215,1),0 0 60px rgba(93,255,200,.6),0 2px 10px rgba(0,0,0,.95)' : '')+
 '">' +
 tx +
 '</span>'
