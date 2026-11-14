@@ -6176,8 +6176,8 @@ fl.style.opacity = 0;
 });
 }
 window.__dawn ={t: 0};
-window.__slowK = o.noLook ? 1 : 0.3;
-if(!o.noLook)window.__lookBack ={t: 0,c: new V3(c.x,ROOM.fy + 1.2,c.z)};
+window.__slowK = o.noLook || window.__ROAM ? 1 : 0.3;
+if(!o.noLook && !window.__ROAM)window.__lookBack ={t: 0,c: new V3(c.x,ROOM.fy + 1.2,c.z)};
 MAGIC.gustNow && MAGIC.gustNow();
 entryChime();
 LIFE.swell = 30;
@@ -12731,7 +12731,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 508;
+const BUILD = 509;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -34646,6 +34646,7 @@ if(window.__ROAM){
 try{
 I.skip();
 }catch(e){}
+window.__CUTSKIP = null;
 }
 const wakeTink =()=>{
 sfx('cat_purr_meow',{vol: 0.8,rate: 1.1});
@@ -35031,7 +35032,7 @@ I.ph = 'back';
 I.t = 99;
 I.snapFree = true;
 };
-window.__CUTSKIP =()=>{
+if(!window.__ROAM)window.__CUTSKIP =()=>{
 if(['sleep','pan','arrive','wake'].includes(I.ph))skipOpening();
 else if(['railUp','watch','jumpDown','reveal','back'].includes(I.ph))skipToGuide();
 };
