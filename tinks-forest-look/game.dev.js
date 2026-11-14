@@ -4378,10 +4378,73 @@ const isOldFlower = o =>{
 const ms = Array.isArray(o.material)? o.material :[o.material];
 return ms.some(mm => mm &&((mm.userData && /^(flower|flow)$/.test(mm.userData.tag || ''))|| mm.map === flowerTex));
 };
+const srcOf = o =>{
+const ms = Array.isArray(o.material)? o.material :[o.material];
+return(o.geometry && o.geometry.userData && o.geometry.userData.src)|| o.userData.src ||(ms[0]&& ms[0].userData && ms[0].userData.tag)|| o.name || '';
+};
+const OLDFLOW = /^(pack:Flowers|flow\d+_0$)/;
+const mc0 =()=> grassU.uMask.value && grassU.uMask.value.image;
+let mdat = null;
+const inGrass =(x,z)=>{
+const mc = mc0();
+if(!mc || !mc.getContext)return false;
+if(!mdat)mdat = mc.getContext('2d').getImageData(0,0,mc.width,mc.height).data;
+const S = mc.width,
+px = clamp(Math.floor(((x + WORLD / 2)/ WORLD)* S),0,S - 1),
+pz = clamp(Math.floor(((z + WORLD / 2)/ WORLD)* S),0,S - 1);
+return mdat[(pz * S + px)* 4]/ 255 > 0.3;
+};
+const _m = new THREE.Matrix4(),
+_v = new V3(),
+_q = new THREE.Quaternion(),
+_s = new V3(),
+_sz = new V3(),
+ZERO = new THREE.Matrix4().makeScale(0,0,0);
+const tidy =()=>{
+mdat = null;
+scene.updateMatrixWorld(true);
+scene.traverse(o =>{
+if(!o.isMesh || o === fl || !o.visible || o === window.__lookPebbles || o.userData.lookKept)return;
+const src = srcOf(o);
+if(OLDFLOW.test(src)){
+o.visible = false;
+return;
+}
+const kind = /^bushes\.glb$/.test(src)? 'bush' : /^pebble\.glb$/.test(src)? 'pebble' : null;
+if(!kind)return;
+const g = o.geometry;
+if(!g.boundingBox)g.computeBoundingBox();
+g.boundingBox.getSize(_sz);
+const small =()=> _sz.y * Math.abs(_s.y)< 0.4 && Math.max(_sz.x * Math.abs(_s.x),_sz.z * Math.abs(_s.z))< 1.2;
+if(o.isInstancedMesh){
+let left = 0,
+ch = false;
+for(let i = 0;i < o.count;i++){
+o.getMatrixAt(i,_m);
+if(_m.elements[0]=== 0 && _m.elements[5]=== 0 && _m.elements[10]=== 0)continue;
+_m.premultiply(o.matrixWorld).decompose(_v,_q,_s);
+if((kind === 'pebble' || small())&& inGrass(_v.x,_v.z)){
+o.setMatrixAt(i,ZERO);
+ch = true;
+}else left++;
+}
+if(ch)o.instanceMatrix.needsUpdate = true;
+if(!left)o.visible = false;
+}else{
+o.matrixWorld.decompose(_v,_q,_s);
+if((kind === 'pebble' || small())&& inGrass(_v.x,_v.z))o.visible = false;
+}
+});
+};
 const hideOld =()=>{
 scene.traverse(o =>{
 if(o.isMesh && o !== fl && o.visible && isOldFlower(o))o.visible = false;
 });
+try{
+tidy();
+}catch(e){
+console.warn('look tidy',e);
+}
 if(window.__FDRIFT && !window.__FDRIFT.look){
 const f0 = window.__FDRIFT;
 window.__FDRIFT = se =>{
@@ -13278,7 +13341,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 510;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 17;
+const LOOKV = 18;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
