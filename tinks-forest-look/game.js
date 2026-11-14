@@ -4065,6 +4065,62 @@ console.warn('pebbles',e);
 },2500);
 },1000);
 }
+if(window.__ROAM){
+const BASE = '/tinks-forest-look/cz/';
+const TREES =[
+['Foliage_Trees_Tree_1_Tree1_High','leaf'],
+['Foliage_Trees_Tree_2_Tree2_High','leaf'],
+['Foliage_Trees_Tree_3_Oak_OakTree2_High','leaf'],
+['Foliage_Trees_Tree_4_Brich_Tree4_High','leafbirch']
+];
+const tl = new THREE.TextureLoader(),
+tc ={};
+const tex =(k,mask)=>{
+if(!tc[k]){
+tc[k]= tl.load(BASE + 't/' + k + '.png');
+tc[k].flipY = false;
+tc[k].wrapS = tc[k].wrapT = THREE.RepeatWrapping;
+tc[k].colorSpace = mask ? THREE.NoColorSpace : THREE.SRGBColorSpace;
+}
+return tc[k];
+};
+const plant =()=>{
+const P0 = P.pos.clone(),
+f = new V3(-Math.sin(P.yaw || 0),0,-Math.cos(P.yaw || 0)),
+sd = new V3(f.z,0,-f.x);
+const gl2 = new GLTFLoader();
+TREES.forEach(([file,leafK],i)=>{
+gl2.load(BASE + file + '.glb',g =>{
+const o = g.scene;
+o.traverse(m =>{
+if(!m.isMesh)return;
+const nm =(m.material.name || '').toLowerCase();
+let mm;
+if(/leaf/.test(nm)){
+mm = new THREE.MeshStandardMaterial({color: leafK === 'leafbirch' ? 0x8fb15a : 0x6f9a4a,alphaMap: tex(leafK,true),alphaTest: 0.4,side: THREE.DoubleSide,roughness: 1});
+}else{
+m.geometry.computeVertexNormals();
+mm = new THREE.MeshStandardMaterial({map: tex(/birch/.test(nm)? 'birch' : 'bark'),roughness: 1});
+}
+m.material = tintMat(mm,/leaf/.test(nm)? 'czleaf' : 'czbark');
+m.castShadow = m.receiveShadow = true;
+});
+const p = P0.clone().addScaledVector(f,9).addScaledVector(sd,(i - 1.5)* 6);
+p.y = groundAt(p.x,p.z,heightAt(p.x,p.z)+ 3)- 0.05;
+o.position.copy(p);
+o.rotation.y = i * 1.3;
+o.userData.noEdit = true;
+scene.add(o);
+(window.__czTrees = window.__czTrees ||[]).push(o);
+});
+});
+};
+const tv = setInterval(()=>{
+if(!window.__worldBuilt || !window.__ready)return;
+clearInterval(tv);
+setTimeout(plant,3000);
+},500);
+}
 {
 const fp =[],
 fu =[],
@@ -13143,7 +13199,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 21;
+const LOOKV = 22;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
