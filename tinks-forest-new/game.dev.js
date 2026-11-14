@@ -4661,6 +4661,9 @@ if(!o.isMesh || o.isInstancedMesh || !o.visible || o.frustumCulled === false)ret
 const ms = Array.isArray(o.material)? o.material :[o.material];
 if(ms.some(m => m && m.transparent))return;
 if(!o.geometry.boundingSphere)o.geometry.computeBoundingSphere();
+const tri = o.geometry.index ? o.geometry.index.count / 3 : o.geometry.attributes.position.count / 3;
+const sc = o.getWorldScale(new V3());
+if(tri > 6000 || o.geometry.boundingSphere.radius * Math.max(sc.x,sc.y,sc.z)> 30)return;
 solids.push(o);
 });
 const ray = new THREE.Raycaster();
@@ -4697,12 +4700,12 @@ sc = gr(),
 rot = gr(),
 ox = gr(),
 oz = gr();
-if(g0 > 0.1 || t.sprout)continue;
+if(g0 > 0.16 || t.sprout)continue;
 const x = h[0]+(ox - 0.5)* 2,
 z = h[1]+(oz - 0.5)* 2;
-if(!free(x,z,3.5)|| !clearOf(x,z,14)|| buried(x,z))continue;
-taken.push([x,z,4.5]);
-spots.push({kind: 'tree',m: pickTree(sp),x,z,s: 3.4 *(0.9 + 0.25 * sc),r: rot * 6.283,giant: true});
+if(!free(x,z,3)|| !clearOf(x,z,9)|| buried(x,z))continue;
+taken.push([x,z,3.4]);
+spots.push({kind: 'tree',m: pickTree(sp),x,z,s: 2.6 *(0.9 + 0.2 * sc),r: rot * 6.283,big: true});
 }
 for(const t of trees){
 const h = t._hole ||[t.x,t.z];
@@ -14001,7 +14004,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 40;
+const LOOKV = 41;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
