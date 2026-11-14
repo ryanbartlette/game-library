@@ -4675,17 +4675,38 @@ return h && h.point.y > gy + 0.5;
 const spots =[];
 const taken =[];
 const clearOf =(x,z,d)=>{
-for(const q of taken)if((q[0]- x)** 2 +(q[1]- z)** 2 < d * d)return false;
+for(const q of taken){
+const dd = Math.max(d,q[2]|| 0);
+if((q[0]- x)** 2 +(q[1]- z)** 2 < dd * dd)return false;
+}
 return true;
 };
+}
 const pickTree = r =>{
 let a = 0;
 for(let i = 0;i < TREES.length;i++)if(r <(a += TREES[i][1]))return i;
 return 0;
 };
+{
+const gr = mulberry32(70411);
 for(const t of trees){
 const h = t._hole ||[t.x,t.z];
-const n = 3 + Math.floor(pr()* 4);
+const g0 = gr(),
+sp = gr(),
+sc = gr(),
+rot = gr(),
+ox = gr(),
+oz = gr();
+if(g0 > 0.1 || t.sprout)continue;
+const x = h[0]+(ox - 0.5)* 2,
+z = h[1]+(oz - 0.5)* 2;
+if(!free(x,z,3.5)|| !clearOf(x,z,14)|| buried(x,z))continue;
+taken.push([x,z,4.5]);
+spots.push({kind: 'tree',m: pickTree(sp),x,z,s: 3.4 *(0.9 + 0.25 * sc),r: rot * 6.283,giant: true});
+}
+for(const t of trees){
+const h = t._hole ||[t.x,t.z];
+const n = 4 + Math.floor(pr()* 3);
 for(let k = 0;k < 6;k++){
 const a = pr()* 6.283,
 d = k === 0 ? pr()* 1.2 : 2.4 + pr()*(k < 3 ? 3.6 : 6.5),
@@ -4698,7 +4719,7 @@ extra = pr();
 if(k >= n || t.sprout)continue;
 const x = h[0]+ Math.cos(a)* d,
 z = h[1]+ Math.sin(a)* d;
-if(!free(x,z,2.0)|| !clearOf(x,z,2.5)|| buried(x,z))continue;
+if(!free(x,z,2.0)|| !clearOf(x,z,2.3)|| buried(x,z))continue;
 taken.push([x,z]);
 spots.push({kind: 'tree',m: pickTree(sp),x,z,s: 1.8 *(0.85 + 0.35 * sc),r: rot * 6.283});
 if(bushR < 0.45){
@@ -13980,7 +14001,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 39;
+const LOOKV = 40;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
