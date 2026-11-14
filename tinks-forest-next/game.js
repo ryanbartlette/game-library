@@ -713,12 +713,12 @@ Object.assign(DEF,{
 'lfaceFore': 0,
 'jfaceFore': -0.1,
 'jfaceFlat': 0,
-'jfaceNose': 0.22,
+'jfaceNose': 0.44,
 'jfaceChin': 0,
-'jtailLen': 0.1,
+'jtailLen': 0,
 'jtailThick': 0,
-'jheadSize': -0.04,
-'jearSize': 0,
+'jheadSize': 0,
+'jearSize': -0.15,
 'throatHigh': 1.5,
 'colEarIn': 1.4,
 'buttHigh': 0,
@@ -12732,7 +12732,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 511;
+const BUILD = 512;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
