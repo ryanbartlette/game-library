@@ -1,4 +1,25 @@
 <meta charset="utf-8"><base href="/tinks-forest/"><meta name="robots" content="noindex">
+<script>/* Build 507: FREE ROAM - the open world with the story already finished, for checking the look without playing through.
+   ?roam opens it (dev pages now; on the player page only once tink.roamUnlocked is set when the story is finished, ready for a menu button later).
+   It keeps its OWN save: every story key 'tink.x' is read and written as 'tinkroam.x', so the real story save is never touched.
+   Settings (sound mix, options, HUD, world edits, night look) stay shared. */(()=>{try{
+const q=new URLSearchParams(location.search);if(!q.has('roam'))return;
+const dev=/dev\.html/.test(location.pathname)||q.has('dev');let ok=dev;try{ok=ok||localStorage.getItem('tink.roamUnlocked')==='1'}catch(e){}if(!ok)return;
+window.__ROAM=true;window.__devSkip=true;
+const SHARED=/^tink\.(mix|opt|hud|hudStyle|pov|world\.|edit\.|nightLook|roamUnlocked|qstyle)/;
+const map=k=>typeof k==='string'&&k.indexOf('tink.')===0&&!SHARED.test(k)?'tinkroam.'+k.slice(5):k;
+const SP=Storage.prototype,g=SP.getItem,st=SP.setItem,rm=SP.removeItem;
+SP.getItem=function(k){return g.call(this,map(k))};SP.setItem=function(k,v){return st.call(this,map(k),v)};SP.removeItem=function(k){return rm.call(this,map(k))};
+/* the first time (or ?roam=fresh): a world where the story is done - every chapter, all five gifts, Jack known and playable */
+if(q.get('roam')==='fresh'||g.call(localStorage,'tinkroam.quests')==null){
+for(let i=localStorage.length-1;i>=0;i--){const k=localStorage.key(i);if(k&&k.indexOf('tinkroam.')===0)rm.call(localStorage,k)}
+const done={};for(const id of ['spirit','house','rain','bean','boat','home'])done[id]=1;
+st.call(localStorage,'tinkroam.quests',JSON.stringify({done,unl:Object.assign({},done),ann:Object.assign({},done),track:null,p:{finDone:1,closing:1,busSaid:1,dotDone:1,roam:999},step:{}}));
+st.call(localStorage,'tinkroam.gifts',JSON.stringify(['flower','pebble','bell','leaf','boat']));
+st.call(localStorage,'tinkroam.jack','known');st.call(localStorage,'tinkroam.jackPlay','1');
+st.call(localStorage,'tinkroam.farmSeen','1');st.call(localStorage,'tinkroam.farmSeen2','1');}
+addEventListener('DOMContentLoaded',()=>{const b=document.createElement('div');b.textContent='FREE ROAM';b.style.cssText='position:fixed;left:6px;top:18px;z-index:99999;font:600 10px system-ui;color:#fff;background:#2e7d5bcc;padding:1px 5px;border-radius:3px;pointer-events:none';document.body.appendChild(b)});
+}catch(e){console.warn('roam',e)}})();</script>
 <script>/* Build 375: pausing stops the story too - timers set during play wait out the pause, and the game's own clock (__gnow) stands still. Jack's lines also hold the story (not the world) until you press Enter. */(()=>{let p=false,q=false,acc=0,t0=0;const held=()=>p===true||q;const flip=(was)=>{const now=held();if(was===now)return;const n=performance.now();if(now)t0=n;else acc+=n-t0};
  Object.defineProperty(window,'__pause',{configurable:true,get(){return p},set(v){/* (keep the raw value: the warm-up sets it to 'warm' and checks for that; only a real pause stops the story clock) */const was=held(),wasP=p===true;p=v;flip(was);const nowP=p===true;if(wasP!==nowP)document.documentElement.classList.toggle('gpaused',nowP)}});
  Object.defineProperty(window,'__qHold',{configurable:true,get(){return q},set(v){const was=held();q=!!v;flip(was)}});
@@ -480,7 +501,7 @@ body[data-pad=xbox] kbd[data-btn=Y],body[data-pad=xbox] .kc[data-btn=Y],#padMap.
 <div id="gate">
   <div class="g-shade"></div>
   <div class="g-corner">In loving memory of<b>Jack</b></div>
-  <div class="g-build" id="gBuild">Build 506</div>
+  <div class="g-build" id="gBuild">Build 507</div>
   <div class="g-music" id="gMusic" aria-pressed="false"><i></i>Music</div>
   <header class="g-title">
     <div class="g-small">Tink's Magical</div>
@@ -531,8 +552,8 @@ window.__THEME=(()=>{let done=false;const M=window.__MUS.mk('audio/music/01-the-
  b.addEventListener('click',e=>{e.stopPropagation();if(on){want=false;stop(600)}else{want=true;start()}});
  const tk=setInterval(()=>{if(done||on){if(done)clearInterval(tk);return}start()},300);for(const ev of ['pointerdown','keydown'])addEventListener(ev,start,{capture:true});return {el:null,stop,play:()=>{done=false;want=true;start()},state:()=>({on,want,done,ready:ready()})}})();</script>
 <script type="importmap">{"imports":{"three":"./three.module.js","three/addons/":"./jsm/"}}</script>
-<script>(async()=>{if(/[?&]dev\b/.test(location.search)){location.replace(location.pathname.replace(/[^/]*$/,"")+"dev.html"+location.search+location.hash);return}const lay=fetch("./data/world-layout.9bf0ca4036.json").then(r=>r.ok?r.text():null).catch(()=>null);const u="/tinks-forest-next/game.js?v=1794619538";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
+<script>(async()=>{if(/[?&]dev\b/.test(location.search)){location.replace(location.pathname.replace(/[^/]*$/,"")+"dev.html"+location.search+location.hash);return}const lay=fetch("./data/world-layout.9bf0ca4036.json").then(r=>r.ok?r.text():null).catch(()=>null);const u="/tinks-forest-next/game.js?v=1794620932";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
  if(!txt){const g=document.getElementById("goTxt");if(g)g.textContent="Could not download the game. Please reload";return}
  try{const lt=await lay;if(lt)window.__LAYOUT=JSON.parse(lt)}catch(e){} const sc=document.createElement("script");sc.type="module";sc.src=URL.createObjectURL(new Blob([txt],{type:"text/javascript"}));document.body.appendChild(sc)})()</script>
 <div style="position:fixed;left:6px;top:4px;z-index:99999;font:600 10px system-ui;color:#fff;background:#c0392bcc;padding:1px 5px;border-radius:3px;pointer-events:none">STAGING</div>
-<script>if(/[?&]bench\b/.test(location.search)){const s=document.createElement("script");s.src="/tinks-forest-next/bench.js?v=1794619538";document.body.appendChild(s)}</script>
+<script>if(/[?&]bench\b/.test(location.search)){const s=document.createElement("script");s.src="/tinks-forest-next/bench.js?v=1794620932";document.body.appendChild(s)}</script>

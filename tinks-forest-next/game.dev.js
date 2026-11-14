@@ -12845,7 +12845,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 506;
+const BUILD = 507;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -27827,6 +27827,9 @@ SC.shot = 'farewell';
 if(Qd && Qd.p && Qd.p.finDone && !Qd.p.closing && !(SC.cur && SC.cur.k === 'farewell' && !SC.cur.ended)){
 Qd.p.closing = 1;
 try{
+localStorage.setItem('tink.roamUnlocked','1');
+}catch(e){}
+try{
 QQ.saveQ && QQ.saveQ();
 }catch(e){}
 SC.shot = 'credits';
@@ -35368,6 +35371,11 @@ c3Play(k,'Idle_1',0.2);
 }
 };
 I.begin();
+if(window.__ROAM){
+try{
+I.skip();
+}catch(e){}
+}
 const wakeTink =()=>{
 sfx('cat_purr_meow',{vol: 0.8,rate: 1.1});
 P.script ={
