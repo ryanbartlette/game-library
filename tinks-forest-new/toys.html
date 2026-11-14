@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Jack's Toy Studio</title>
+<style>
+	:root { --bg:#1d1b22; --panel:#26232c; --ink:#f1ece4; --mute:#a79f95; --acc:#e7a24a; --line:#3a3540; }
+	* { box-sizing:border-box; }
+	html,body { margin:0; height:100%; background:var(--bg); color:var(--ink); font:13px/1.4 system-ui,-apple-system,Segoe UI,sans-serif; }
+	#wrap { display:grid; grid-template-columns:330px 1fr 260px; height:100%; }
+	#panel,#refs { background:var(--panel); overflow:auto; padding:12px 14px; }
+	#refs { border-left:1px solid var(--line); }
+	#panel { border-right:1px solid var(--line); }
+	h1 { font-size:16px; margin:0 0 2px; }
+	.sub { color:var(--mute); font-size:12px; margin-bottom:10px; }
+	h2 { font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--acc); margin:16px 0 6px; }
+	.row { display:grid; grid-template-columns:118px 1fr 42px; align-items:center; gap:6px; margin:3px 0; }
+	.row label { color:var(--mute); }
+	.row input[type=range] { width:100%; accent-color:var(--acc); }
+	.row output { text-align:right; font-variant-numeric:tabular-nums; }
+	.row input[type=color] { width:42px; height:22px; border:0; background:none; padding:0; }
+	.btns { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+	button { background:#3a3540; color:var(--ink); border:1px solid #4a4450; border-radius:6px; padding:6px 10px; cursor:pointer; font:inherit; }
+	button.pri { background:var(--acc); color:#1d1b22; border-color:var(--acc); font-weight:600; }
+	#view { position:relative; }
+	canvas#c { width:100%; height:100%; display:block; }
+	#hint { position:absolute; left:12px; bottom:10px; color:var(--mute); font-size:12px; }
+	#toast { position:absolute; left:50%; top:14px; transform:translateX(-50%); background:var(--acc); color:#1d1b22; padding:6px 12px; border-radius:6px; font-weight:600; opacity:0; transition:opacity .3s; }
+	#refs img { width:100%; border-radius:6px; margin-bottom:8px; display:block; }
+	#out { width:100%; height:90px; background:#1d1b22; color:var(--ink); border:1px solid var(--line); border-radius:6px; font:11px ui-monospace,monospace; margin-top:6px; }
+	@media (max-width:900px){ #wrap{grid-template-columns:1fr;grid-template-rows:auto 60vh auto;} }
+</style>
+<script type="importmap">{"imports":{"three":"/tinks-forest/three.module.js","three/addons/":"/tinks-forest/jsm/"}}</script>
+</head>
+<body>
+<div id="wrap">
+	<div id="panel">
+		<h1>Jack's Toy Studio</h1>
+		<div class="sub">Shape Corny and the drumstick to match the photos, then press <b>Copy for Claude</b> and paste it in the chat.</div>
+		<div id="ctl"></div>
+		<div class="btns">
+			<button class="pri" id="copy">Copy for Claude</button>
+			<button id="reset">Reset all</button>
+		</div>
+		<textarea id="out" readonly></textarea>
+	</div>
+	<div id="view"><canvas id="c"></canvas><div id="toast">Copied</div><div id="hint">Drag to turn · scroll to zoom · the grey bar is Jack's height to the shoulder (about 30 cm)</div></div>
+	<div id="refs">
+		<h2>Your photos</h2>
+		<img src="toyref/8485.jpg" alt="Both toys side by side">
+		<img src="toyref/8481.jpg" alt="Corny's face">
+		<img src="toyref/8477.jpg" alt="Drumstick face">
+		<img src="toyref/8478.jpg" alt="Drumstick side">
+		<img src="toyref/8479.jpg" alt="Drumstick back">
+		<img src="toyref/8482.jpg" alt="Corny side">
+		<img src="toyref/8483.jpg" alt="Corny back">
+	</div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+/* ---------- settings (every slider is one of these; Copy sends them all) ---------- */
+const DEF = {
+	/* Corny */
+	cSize: 11, cEyeX: 0.13, cEyeY: 0.43, cEyeR: 0.072, cRing: 0.018, cRingCol: '#9fb27a', cWhite: '#f2ecd9', cPupil: 0.03,
+	cLookLX: -0.25, cLookLY: 0.15, cLookRX: 0.3, cLookRY: -0.1, cPupilCol: '#2b2a24',
+	cSmileY: 0.31, cSmileW: 0.09, cSmileCurve: 0.035, cSmileTilt: -0.15, cStitch: 0.006, cStitchCol: '#3a2a20',
+	cOrange: '#ef7a2e', cYellow: '#f2d22c', cTip: '#eef0ef',
+	/* Drumstick */
+	dSize: 10.5, dMeatLen: 0.5, dMeatW: 0.42, dPlump: 0.6, dNeck: 0.34, dFlat: 0.8,
+	dBoneLen: 0.13, dBoneW: 0.09, dKnob: 0.11, dKnobSpread: 0.1,
+	dMeat: '#a69a52', dMeatDark: '#7e7337', dBone: '#e8ebee', dFuzz: 0.6,
+	dEyeX: 0.05, dEyeY: 0.0, dEyeR: 0.014, dCheekR: 0.02, dCheekCol: '#f2a2a8', dSmileW: 0.022, dFaceAt: 0.7
+};
+let S = { ...DEF };
+try { Object.assign(S, JSON.parse(localStorage.getItem('toystudio') || '{}')); } catch (e) {}
+const GROUPS = [
+	['Corny · size and colours', [['cSize','Length (cm)',6,18,0.5],['cOrange','Orange','c'],['cYellow','Yellow','c'],['cTip','White tip','c']]],
+	['Corny · eyes', [['cEyeX','Apart',0.05,0.25,0.005],['cEyeY','Height',0.3,0.6,0.005],['cEyeR','Size',0.03,0.12,0.002],['cRing','Ring width',0,0.04,0.001],['cRingCol','Ring colour','c'],['cWhite','Eye white','c'],['cPupil','Pupil size',0.01,0.06,0.001],['cPupilCol','Pupil colour','c'],['cLookLX','Left eye looks ←→',-1,1,0.02],['cLookLY','Left eye looks ↓↑',-1,1,0.02],['cLookRX','Right eye looks ←→',-1,1,0.02],['cLookRY','Right eye looks ↓↑',-1,1,0.02]]],
+	['Corny · smile', [['cSmileY','Height',0.2,0.42,0.002],['cSmileW','Width',0.02,0.2,0.002],['cSmileCurve','Curve',-0.06,0.08,0.001],['cSmileTilt','Tilt',-0.6,0.6,0.01],['cStitch','Thread',0.002,0.015,0.0005],['cStitchCol','Thread colour','c']]],
+	['Drumstick · shape', [['dSize','Length (cm)',6,18,0.5],['dMeatLen','Meat length',0.4,0.85,0.01],['dMeatW','Meat width',0.2,0.5,0.005],['dPlump','Roundness',0.2,0.9,0.01],['dNeck','Neck width',0.15,0.5,0.01],['dFlat','Flatness',0.5,1,0.01],['dBoneLen','Bone length',0.08,0.4,0.005],['dBoneW','Bone width',0.03,0.12,0.002],['dKnob','Knob size',0.04,0.14,0.002],['dKnobSpread','Knob spread',0.03,0.12,0.002]]],
+	['Drumstick · colours and felt', [['dMeat','Meat','c'],['dMeatDark','Meat shadow','c'],['dBone','Bone','c'],['dFuzz','Felt fuzz',0,1,0.02]]],
+	['Drumstick · face', [['dFaceAt','Face position',0.4,0.85,0.005],['dEyeX','Eyes apart',0.02,0.1,0.001],['dEyeY','Eyes height',-0.05,0.05,0.001],['dEyeR','Eye size',0.006,0.03,0.0005],['dCheekR','Cheek size',0,0.04,0.001],['dCheekCol','Cheek colour','c'],['dSmileW','Smile width',0,0.06,0.001]]]
+];
+const ctl = document.getElementById('ctl');
+const save = () => { try { localStorage.setItem('toystudio', JSON.stringify(S)); } catch (e) {} };
+let dirtyC = true, dirtyD = true;
+for (const [title, items] of GROUPS) {
+	const h = document.createElement('h2'); h.textContent = title; ctl.appendChild(h);
+	for (const [k, label, a, b, st] of items) {
+		const r = document.createElement('div'); r.className = 'row';
+		const lb = document.createElement('label'); lb.textContent = label; r.appendChild(lb);
+		const inp = document.createElement('input');
+		const out = document.createElement('output');
+		if (a === 'c') { inp.type = 'color'; inp.value = S[k]; r.appendChild(inp); r.appendChild(document.createElement('span')); }
+		else { inp.type = 'range'; inp.min = a; inp.max = b; inp.step = st; inp.value = S[k]; out.textContent = (+S[k]).toFixed(3).replace(/\.?0+$/, ''); r.appendChild(inp); r.appendChild(out); }
+		inp.oninput = () => { S[k] = a === 'c' ? inp.value : +inp.value; out.textContent = a === 'c' ? '' : (+S[k]).toFixed(3).replace(/\.?0+$/, ''); if (k[0] === 'c') dirtyC = true; else dirtyD = true; save(); };
+		inp.dataset.k = k;
+		ctl.appendChild(r);
+	}
+}
+document.getElementById('reset').onclick = () => { S = { ...DEF }; save(); location.reload(); };
+document.getElementById('copy').onclick = async () => {
+	const txt = JSON.stringify({ toyStudio: 1, ...S });
+	document.getElementById('out').value = txt;
+	try { await navigator.clipboard.writeText(txt); } catch (e) {}
+	const t = document.getElementById('toast'); t.style.opacity = 1; setTimeout(() => (t.style.opacity = 0), 1200);
+};
+
+/* ---------- scene ---------- */
+const cvs = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas: cvs, antialias: true });
+renderer.setPixelRatio(Math.min(2, devicePixelRatio));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x4a3a2e);
+const cam = new THREE.PerspectiveCamera(32, 1, 0.01, 50);
+scene.add(new THREE.HemisphereLight(0xfff2e0, 0x5a4636, 1.6));
+const key = new THREE.DirectionalLight(0xfff0dc, 2.2); key.position.set(0.6, 1.4, 1.0); scene.add(key);
+const fill = new THREE.DirectionalLight(0xd8e4ff, 0.6); fill.position.set(-1, 0.5, -0.6); scene.add(fill);
+/* wooden floor like the photos */
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.MeshStandardMaterial({ color: 0x3e2a1e, roughness: 0.9 }));
+floor.rotation.x = -Math.PI / 2; scene.add(floor);
+/* Jack's shoulder height for scale */
+const bar = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.3, 0.01), new THREE.MeshBasicMaterial({ color: 0x8a8a8a }));
+bar.position.set(-0.17, 0.15, -0.06); scene.add(bar);
+
+/* ---------- Corny ---------- */
+const corny = new THREE.Group(); scene.add(corny);
+let cornyMeshes = [], cornyFace = null, cornyBody = null;
+const b64 = await (await fetch('/tinks-forest/models/props/corny.glb.txt')).text();
+const bin = Uint8Array.from(atob(b64.trim()), c => c.charCodeAt(0));
+const gltf = await new Promise((res, rej) => new GLTFLoader().parse(bin.buffer, '', res, rej));
+{
+	const o = gltf.scene; o.updateMatrixWorld(true);
+	const bb = new THREE.Box3().setFromObject(o);
+	const k = 1 / Math.max(1e-6, bb.max.y - bb.min.y);
+	o.scale.multiplyScalar(k);
+	o.position.set((-(bb.min.x + bb.max.x) / 2) * k, -bb.min.y * k, (-(bb.min.z + bb.max.z) / 2) * k);
+	cornyBody = new THREE.Group(); cornyBody.add(o); corny.add(cornyBody);
+	o.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.metalness = 0; m.material.roughness = 1; cornyMeshes.push(m); } });
+}
+const recolourCorny = () => {
+	/* the model's own bands: sort its materials by brightness and hue into tip / orange / yellow */
+	for (const m of cornyMeshes) {
+		const c = m.material.userData.orig || (m.material.userData.orig = m.material.color.clone());
+		const hsl = {}; c.getHSL(hsl);
+		let target = null;
+		if (hsl.s < 0.2 && hsl.l > 0.6) target = S.cTip;
+		else if (hsl.h < 0.1 || (hsl.h > 0.9)) target = S.cOrange;
+		else if (hsl.h < 0.2) target = S.cYellow;
+		if (target && !m.material.map) m.material.color.set(target);
+		if (m.material.map) { m.material.color.set(0xffffff); }
+	}
+};
+const faceCanvas = document.createElement('canvas'); faceCanvas.width = 1024; faceCanvas.height = 640;
+const faceTex = new THREE.CanvasTexture(faceCanvas); faceTex.colorSpace = THREE.SRGBColorSpace;
+const FW = 0.66, FH = 0.41, FCY = 0.42;
+const drawCornyFace = () => {
+	const x = faceCanvas.getContext('2d'), W = faceCanvas.width, H = faceCanvas.height;
+	x.clearRect(0, 0, W, H);
+	const px = u => W / 2 + (u / FW) * W, py = v => H / 2 - ((v - FCY) / FH) * H, pr = r => (r / FW) * W;
+	for (const s of [-1, 1]) {
+		const cx = px(s * S.cEyeX), cy = py(S.cEyeY), R = pr(S.cEyeR);
+		x.fillStyle = S.cRingCol; x.beginPath(); x.arc(cx, cy, R + pr(S.cRing), 0, 7); x.fill();
+		x.fillStyle = S.cWhite; x.beginPath(); x.arc(cx, cy, R, 0, 7); x.fill();
+		x.strokeStyle = 'rgba(80,90,60,.5)'; x.lineWidth = 2; x.stroke();
+		const lx = s < 0 ? S.cLookLX : S.cLookRX, ly = s < 0 ? S.cLookLY : S.cLookRY;
+		const pR = pr(S.cPupil), room = Math.max(0, R - pR - 2);
+		x.fillStyle = S.cPupilCol; x.beginPath(); x.arc(cx + lx * room, cy - ly * room, pR, 0, 7); x.fill();
+		x.fillStyle = 'rgba(255,255,255,.8)'; x.beginPath(); x.arc(cx + lx * room - pR * 0.35, cy - ly * room - pR * 0.35, pR * 0.28, 0, 7); x.fill();
+	}
+	/* the smile: a thin embroidered curve, a little tilted, in stitches */
+	const sx = px(0), sy = py(S.cSmileY), sw = pr(S.cSmileW), cv = pr(S.cSmileCurve);
+	x.save(); x.translate(sx, sy); x.rotate(S.cSmileTilt);
+	x.strokeStyle = S.cStitchCol; x.lineWidth = pr(S.cStitch); x.lineCap = 'round';
+	x.setLineDash([pr(S.cStitch) * 2.2, pr(S.cStitch) * 0.9]);
+	x.beginPath(); x.moveTo(-sw, 0); x.quadraticCurveTo(0, cv * 2, sw, 0); x.stroke();
+	x.restore();
+	faceTex.needsUpdate = true;
+};
+const buildCornyFace = () => {
+	if (cornyFace) cornyBody.remove(cornyFace);
+	corny.updateMatrixWorld(true);
+	const pg = new THREE.PlaneGeometry(FW, FH, 40, 26);
+	const pa = pg.attributes.position, rc = new THREE.Raycaster(), dir = new THREE.Vector3(0, 0, -1);
+	const inv = new THREE.Matrix4().copy(cornyBody.matrixWorld).invert();
+	for (let i = 0; i < pa.count; i++) {
+		const lx = pa.getX(i), ly = pa.getY(i) + FCY;
+		const wp = new THREE.Vector3(lx, ly, 3).applyMatrix4(cornyBody.matrixWorld);
+		rc.set(wp, dir.clone().transformDirection(cornyBody.matrixWorld));
+		const h = rc.intersectObjects(cornyMeshes, false)[0];
+		if (h) { const n = h.face.normal.clone().transformDirection(h.object.matrixWorld); const p = h.point.clone().addScaledVector(n, 0.004).applyMatrix4(inv); pa.setXYZ(i, p.x, p.y, p.z); }
+		else pa.setXYZ(i, lx, ly, -5);
+	}
+	pa.needsUpdate = true;
+	cornyFace = new THREE.Mesh(pg, new THREE.MeshStandardMaterial({ map: faceTex, transparent: true, roughness: 1, polygonOffset: true, polygonOffsetFactor: -2 }));
+	cornyBody.add(cornyFace);
+};
+
+/* ---------- the drumstick (felted wool, built from scratch) ---------- */
+const drum = new THREE.Group(); scene.add(drum);
+const feltTex = (() => {
+	const c = document.createElement('canvas'); c.width = c.height = 512; const x = c.getContext('2d');
+	return { c, x, t: Object.assign(new THREE.CanvasTexture(c), { colorSpace: THREE.SRGBColorSpace }) };
+})();
+const paintFelt = () => {
+	const { c, x, t } = feltTex; const W = c.width;
+	x.fillStyle = S.dMeat; x.fillRect(0, 0, W, W);
+	/* felted wool: soft mottling and stray fibres */
+	let sd = 7; const r = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+	for (let i = 0; i < 2600 * S.dFuzz + 200; i++) {
+		x.strokeStyle = r() < 0.5 ? S.dMeatDark + '55' : 'rgba(255,250,220,.18)';
+		x.lineWidth = 1 + r() * 1.5; const a = r() * 6.28, l = 3 + r() * 10, X = r() * W, Y = r() * W;
+		x.beginPath(); x.moveTo(X, Y); x.quadraticCurveTo(X + Math.cos(a + 1) * l, Y + Math.sin(a + 1) * l, X + Math.cos(a) * l * 1.6, Y + Math.sin(a) * l * 1.6); x.stroke();
+	}
+	/* the face, painted where u = 0.25 faces the camera; v runs bone (0) to tip (1) */
+	const fu = 0.25 * W, fv = (1 - S.dFaceAt) * W;
+	const per = W / (2 * Math.PI * S.dMeatW * 0.5); // pixels per unit around
+	const sx = S.dEyeX * per, sy = S.dEyeY * per, er = S.dEyeR * per;
+	for (const s of [-1, 1]) {
+		x.fillStyle = S.dCheekCol; x.globalAlpha = 0.85; x.beginPath(); x.ellipse(fu + s * (sx + er * 1.6), fv + sy + er * 1.9, S.dCheekR * per, S.dCheekR * per * 0.75, 0, 0, 7); x.fill(); x.globalAlpha = 1;
+		x.fillStyle = '#121212'; x.beginPath(); x.arc(fu + s * sx, fv + sy, er, 0, 7); x.fill();
+		x.fillStyle = 'rgba(255,255,255,.75)'; x.beginPath(); x.arc(fu + s * sx - er * 0.3, fv + sy - er * 0.35, er * 0.3, 0, 7); x.fill();
+	}
+	if (S.dSmileW > 0) { const w = S.dSmileW * per; x.strokeStyle = '#1a1612'; x.lineWidth = Math.max(2, er * 0.35); x.lineCap = 'round'; x.beginPath(); x.moveTo(fu - w, fv + sy + er * 1.6); x.quadraticCurveTo(fu, fv + sy + er * 1.6 + w * 0.9, fu + w, fv + sy + er * 1.6); x.stroke(); }
+	t.needsUpdate = true;
+};
+const buildDrum = () => {
+	for (const c of [...drum.children]) { drum.remove(c); c.geometry && c.geometry.dispose(); }
+	/* the meat: a lathe profile from the narrow neck by the bone out to the round end */
+	const L = S.dMeatLen, Rm = S.dMeatW / 2, pts = [];
+	const N = 40;
+	for (let i = 0; i <= N; i++) {
+		const t = i / N;
+		/* neck → bulge → rounded end */
+		/* a teardrop: narrow at the bone, widest about two thirds up, then a round end */
+		const pk = 0.45 + S.dPlump * 0.3;
+		const up = t < pk ? Math.pow(t / pk, 0.75 + (1 - S.dPlump) * 0.8) : 1;
+		const sm = up * up * (3 - 2 * up);
+		const endRound = t > pk ? Math.sqrt(Math.max(0, 1 - Math.pow((t - pk) / (1 - pk), 2))) : 1;
+		const neck = S.dNeck + (1 - S.dNeck) * sm;
+		pts.push(new THREE.Vector2(Math.max(0.0005, Rm * neck * endRound), t * L));
+	}
+	const mg = new THREE.LatheGeometry(pts, 64);
+	mg.scale(1, 1, S.dFlat);
+	/* a little lumpy, like hand-felted wool */
+	{ const p = mg.attributes.position; for (let i = 0; i < p.count; i++) { const X = p.getX(i), Y = p.getY(i), Z = p.getZ(i); const n = Math.sin(X * 60 + Y * 41) * Math.sin(Z * 55 - Y * 23) * 0.004 * S.dFuzz; const l = Math.hypot(X, Z) || 1; p.setXYZ(i, X + (X / l) * n, Y, Z + (Z / l) * n); } mg.computeVertexNormals(); }
+	paintFelt();
+	const meat = new THREE.Mesh(mg, new THREE.MeshStandardMaterial({ map: feltTex.t, roughness: 1 }));
+	/* standing up like your side-by-side photo: bone at the bottom, the face turned to the front */
+	meat.position.y = S.dBoneLen + S.dKnob * 0.3; meat.rotation.y = -Math.PI / 2;
+	drum.add(meat);
+	/* the bone: a shaft with a pair of round knobs at its end */
+	const bm = new THREE.MeshStandardMaterial({ color: S.dBone, roughness: 1 });
+	const shaft = new THREE.Mesh(new THREE.CylinderGeometry(S.dBoneW / 2, S.dBoneW / 2 * 1.1, S.dBoneLen, 24), bm);
+	shaft.position.y = S.dKnob * 0.3 + S.dBoneLen / 2 + 0.01; drum.add(shaft);
+	for (const s of [-1, 1]) { const k = new THREE.Mesh(new THREE.SphereGeometry(S.dKnob / 2, 24, 16), bm); k.scale.set(1, 1, 0.8); k.position.set(s * S.dKnobSpread / 2, S.dKnob * 0.3, 0); drum.add(k); }
+	/* lift so it lies on the floor */
+	drum.updateMatrixWorld(true);
+	const bb = new THREE.Box3().setFromObject(drum);
+	for (const c of drum.children) c.position.y -= bb.min.y;
+};
+
+/* ---------- layout, sizing, drawing ---------- */
+const layout = () => {
+	corny.scale.setScalar(S.cSize / 100 / 1.0 * 0.85);
+	corny.position.set(0.07, 0, 0);
+	corny.rotation.set(0, 0, 0);
+	const len = S.dBoneLen + S.dMeatLen + S.dKnob;
+	drum.scale.setScalar(S.dSize / 100 / len);
+	drum.position.set(-0.075, 0, 0.0);
+	drum.rotation.set(0, 0, 0);
+};
+let yaw = 0.0, pitch = 0.22, dist = 0.62;
+const placeCam = () => { cam.position.set(Math.sin(yaw) * Math.cos(pitch) * dist, Math.sin(pitch) * dist + 0.02, Math.cos(yaw) * Math.cos(pitch) * dist); cam.lookAt(-0.03, 0.055, 0); };
+let drag = null;
+cvs.addEventListener('pointerdown', e => { drag = [e.clientX, e.clientY]; cvs.setPointerCapture(e.pointerId); });
+cvs.addEventListener('pointermove', e => { if (!drag) return; yaw -= (e.clientX - drag[0]) * 0.008; pitch = Math.max(-0.1, Math.min(1.45, pitch + (e.clientY - drag[1]) * 0.006)); drag = [e.clientX, e.clientY]; });
+cvs.addEventListener('pointerup', () => (drag = null));
+cvs.addEventListener('wheel', e => { e.preventDefault(); dist = Math.max(0.15, Math.min(1.5, dist * (1 + e.deltaY * 0.001))); }, { passive: false });
+const resize = () => { const r = cvs.parentElement.getBoundingClientRect(); renderer.setSize(r.width, r.height, false); cam.aspect = r.width / Math.max(1, r.height); cam.updateProjectionMatrix(); };
+addEventListener('resize', resize); resize();
+const loop = () => {
+	if (dirtyC) { dirtyC = false; layout(); recolourCorny(); drawCornyFace(); if (!cornyFace) buildCornyFace(); }
+	if (dirtyD) { dirtyD = false; buildDrum(); layout(); }
+	placeCam(); renderer.render(scene, cam); requestAnimationFrame(loop);
+};
+loop();
+</script>
+</body>
+</html>
