@@ -4846,7 +4846,8 @@ ${grassy ? `/* (Ryan) the tall grass and ferns part round the cats as they push 
 for(int ci=0;ci<2;ci++){vec3 cp=ci==0?uCat:uCat2;vec2 d=wq.xz-cp.xz;float dl=length(d);float k=(1.-smoothstep(.2,.8,dl))*step(abs(wq.y-cp.y),1.5);pw+=d/max(dl,.05)*k*.5;}
 float s2=max(dot(instanceMatrix[0].xyz,instanceMatrix[0].xyz),1e-4);
 transformed+=(transpose(mat3(instanceMatrix))*vec3(pw.x,-length(pw)*.45,pw.y))/s2*hk;}
-#endif` : ''}}`
+#endif
+` : ''}}`
 );
 };
 return m;
@@ -14622,7 +14623,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 59;
+const LOOKV = 60;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
