@@ -4868,9 +4868,9 @@ console.warn('forest wall',e);
 };
 const dressGreatTree =()=>{
 try{
-let GTR = 10;
+let GTR = 14;
 try{
-GTR = parseFloat(new URLSearchParams(location.search).get('gtleaf'))|| 10;
+GTR = parseFloat(new URLSearchParams(location.search).get('gtleaf'))|| 14;
 }catch(e){}
 const gtLeafT = tex('leaf',true).clone();
 gtLeafT.wrapS = gtLeafT.wrapT = THREE.RepeatWrapping;
@@ -14012,7 +14012,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 43;
+const LOOKV = 44;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
