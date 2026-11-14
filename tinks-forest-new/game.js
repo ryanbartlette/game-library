@@ -1663,6 +1663,8 @@ WC_GLSL
   /* painted grass: short brushed strokes, lighter tips catching the light */{float an=big*3.1+mid*1.7;vec2 dir=vec2(cos(an),sin(an));vec2 q=vec2(dot(p,dir),dot(p,vec2(-dir.y,dir.x)));float b1=wcN(vec2(q.x*7.,q.y*1.2));c*=.95+.1*smoothstep(.45,.85,b1);c=mix(c,lit,smoothstep(.75,.92,b1)*.18);}
   {/* dappled light: under the tree crowns the ground is in cool shade, scattered with warm swaying sunflecks */float can=smoothstep(.08,.6,texture2D(uCanopyG,(p+uWorldG*.5)/uWorldG).r);vec2 sw=vec2(sin(uTime*.6+p.y*.05),cos(uTime*.45+p.x*.05))*(.12+.35*uGustG);vec2 q=(p+sw)*vec2(1.,1.35);float dp=wcN(q*.85)*.55+wcN(q*2.1+7.)*.3+wcN(q*4.7-3.)*.15;float spot=smoothstep(.57,.63,dp);c=mix(c,c*vec3(.84,.87,.93),can*uDap*.7);c+=can*uDap*spot*(c*.85+uGLight*.08);}c*=mix(vec3(1.),vec3(.62,.68,.8),cloudSh(p,uCloudOff)*uCloudK);
   /* LOOK: the painted grass texture laid softly under the meadow */{vec3 gtx=texture2D(uGTexG,p*.09).rgb;c*=mix(vec3(1.),gtx/vec3(.33,.52,.3),.35);}
+  /* FOREST (Ryan: grass should match the ground below it): under the grass the ground takes the blades' own root green, keeping only a soft trace of its painted pools */
+  {float gm0=texture2D(uMaskG,(p+uWorldG*.5)/uWorldG).r;float under=smoothstep(.1,.25,gm0);vec3 root=mix(uGBase*2.2,uGTip*.55,.35)*(.92+.16*gran)*(.9+.2*pool);c=mix(c,root,under*.7);}
   // tiny painted blossoms dotted through the light pools
   vec2 cell=floor(p*2.2);vec2 f=fract(p*2.2)-.5;float h=wcH(cell);float dotm=step(.93,h)*(1.-smoothstep(.06,.1,length(f-vec2(wcH(cell+3.)-.5,wcH(cell+7.)-.5)*.6)));
   c=mix(c,mix(vec3(.95,.93,.82),vec3(.95,.8,.35),step(.965,h)),dotm*pool);
@@ -3847,7 +3849,7 @@ vec2 rel=mod(aOff.xy-uCenter.xz+uTile*.5,uTile)-uTile*.5;vec2 wp=uCenter.xz+rel;
 float msk=texture2D(uMask,tuv).r;float dist=length(rel);float sc=aOff.z*smoothstep(.36,.6,msk)*(.55+.45*msk)*smoothstep(uTile*.5,uTile*.5-5.,dist);
 /* (Ryan) every tuft leans along the breeze, give or take about 15 degrees */float th=atan(-uWDir.x,uWDir.y)+(aOff.w/6.283-.5)*1.2;float cs=cos(th),sn=sin(th);float rk=fract(sin(dot(aOff.xy,vec2(41.3,17.9)))*24634.6);/* (Ryan) never sparse, like a painted meadow: the grass stays full everywhere and only gets shorter toward the paths, thinning just at a path's very edge *//* (Ryan's rule) paths are bare; the grass runs full and short right up to their edge (a crisp, slightly ragged border) */float keep=step(.11+rk*.05,msk);sc=aOff.z*keep*(.75+.25*msk)*smoothstep(uTile*.5,uTile*.5-5.,dist);float wsc=(0.6+sc*1.5)*keep;/* sparse ground keeps fewer whole clumps instead of squashed star shapes *//* short clumps shrink whole instead of lying flat as star shapes *//* drifts of long grass here and there (where the ferns used to grow) */float tallP=smoothstep(.35,.8,.5+.5*sin(wp.x*.19+sin(wp.y*.15)*2.1)*sin(wp.y*.17+sin(wp.x*.12)*2.3));float hsc=sc*(1.+1.6*tallP);
 /* (Ryan) long and wild away from the paths, shorter where it's trodden: the grass shortens as the mask fades toward a path, and slow patches of taller and shorter grass drift across the fields */
-{float wild=smoothstep(.2,.95,msk);float pn=.5+.25*sin(wp.x*.07+sin(wp.y*.05)*2.3)+.25*sin(wp.y*.083+sin(wp.x*.061)*1.9);hsc*=mix(.3,1.,wild)*(.72+.6*pn);}vec3 lp=vec3(position.x*wsc,position.y*hsc,position.z*wsc);lp=vec3(lp.x*cs-lp.z*sn,lp.y,lp.x*sn+lp.z*cs);
+{float wild=smoothstep(.11,.32,msk);/* FOREST (Ryan: sparse bare patches): the whole meadow grows full; only a path's edge band is shorter */float pn=.5+.25*sin(wp.x*.07+sin(wp.y*.05)*2.3)+.25*sin(wp.y*.083+sin(wp.x*.061)*1.9);hsc*=mix(.3,1.,wild)*(.72+.6*pn);}vec3 lp=vec3(position.x*wsc,position.y*hsc,position.z*wsc);lp=vec3(lp.x*cs-lp.z*sn,lp.y,lp.x*sn+lp.z*cs);
 /* (Ryan) the wind as flowing currents, like the middle of the ocean: a soft noise field drifts across the meadow along the breeze, warped
    by a slower noise so it swirls and eddies. Each blade reads it at its root: how hard to bow, and which way (the current turns the
    breeze a little here and there). Then each blade is ROTATED about its root (never pushed), so it keeps its length, never dips into
@@ -4453,7 +4455,7 @@ vHead=aHead;`
 `float msk=texture2D(uMask,tuv).r;float dist=length(rel);float keep=step(rk,.12+.33*smoothstep(.35,.9,dn))*step(.45,msk)*smoothstep(uTile*.5,uTile*.5-4.,dist);
 float sc=aOff.z*keep;float cs=cos(aOff.w),sn=sin(aOff.w);
 /* (Ryan) each stem is as tall as the grass around it (the same rule the grass uses: wild patches tall, trodden edges short), so the flower always peeps out just above it */
-float tallP=smoothstep(.35,.8,.5+.5*sin(wp.x*.19+sin(wp.y*.15)*2.1)*sin(wp.y*.17+sin(wp.x*.12)*2.3));float wild=smoothstep(.2,.95,msk);float pn=.5+.25*sin(wp.x*.07+sin(wp.y*.05)*2.3)+.25*sin(wp.y*.083+sin(wp.x*.061)*1.9);
+float tallP=smoothstep(.35,.8,.5+.5*sin(wp.x*.19+sin(wp.y*.15)*2.1)*sin(wp.y*.17+sin(wp.x*.12)*2.3));float wild=smoothstep(.11,.32,msk);float pn=.5+.25*sin(wp.x*.07+sin(wp.y*.05)*2.3)+.25*sin(wp.y*.083+sin(wp.x*.061)*1.9);
 float gh=.21*(1.+1.6*tallP)*mix(.3,1.,wild)*(.72+.6*pn);float fh=(gh*1.12+.03)*keep;float hs=(.55+.6*fract(rk*7.31))*keep;
 vec3 lp=aHead>.5?vec3(position.x*hs,fh+(position.y-1.)*hs,position.z*hs):vec3(position.x*keep,position.y*fh,position.z*fh);lp=vec3(lp.x*cs-lp.z*sn,lp.y,lp.x*sn+lp.z*cs);sc=fh;
 /* FOREST (Ryan, Nov 14: "the flowers dont blow at all"): each flower now rides the very same slow current as the grass around it, leaning about its root */
@@ -13449,7 +13451,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 32;
+const LOOKV = 33;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
