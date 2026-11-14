@@ -4684,7 +4684,6 @@ if((q[0]- x)** 2 +(q[1]- z)** 2 < dd * dd)return false;
 }
 return true;
 };
-}
 const pickTree = r =>{
 let a = 0;
 for(let i = 0;i < TREES.length;i++)if(r <(a += TREES[i][1]))return i;
@@ -4706,6 +4705,7 @@ z = h[1]+(oz - 0.5)* 2;
 if(!free(x,z,3)|| !clearOf(x,z,9)|| buried(x,z))continue;
 taken.push([x,z,3.4]);
 spots.push({kind: 'tree',m: pickTree(sp),x,z,s: 2.6 *(0.9 + 0.2 * sc),r: rot * 6.283,big: true});
+}
 }
 for(const t of trees){
 const h = t._hole ||[t.x,t.z];
@@ -14004,7 +14004,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 41;
+const LOOKV = 42;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
