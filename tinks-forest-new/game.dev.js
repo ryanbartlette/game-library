@@ -4842,10 +4842,58 @@ if(sprites.length && window.__BACKDROP)window.__BACKDROP.repaint(sprites);
 console.warn('forest wall',e);
 }
 };
+const dressGreatTree =()=>{
+try{
+const leafM = windMat(
+tintMat(new THREE.MeshStandardMaterial({color: 0x55864a,alphaMap: tex('leaf',true),alphaTest: 0.4,side: THREE.DoubleSide,roughness: 1}),'clumpcz'),
+0.012,
+'ancient'
+);
+const barkT = tex('bark',false);
+const GT = window.__LIFE && window.__LIFE.tree;
+let nl = 0,
+nb = 0;
+scene.traverse(o =>{
+if(!o.isMesh)return;
+if(o.userData.ancLeaf){
+o.material = leafM;
+o.userData.sumMat = leafM;
+nl++;
+return;
+}
+const m = o.material;
+if(!m || Array.isArray(m)|| !m.userData || m.userData.tag !== 'clumpancient' || m.userData.czBark)return;
+m.userData.czBark = true;
+const pv = m.onBeforeCompile;
+m.onBeforeCompile =(sh,r)=>{
+pv && pv.call(m,sh,r);
+sh.uniforms.uCzBark ={value: barkT};
+sh.fragmentShader = sh.fragmentShader
+.replace('#include <common>','#include <common>\nuniform sampler2D uCzBark;')
+.replace(
+'diffuseColor.rgb=bk*(.85+.3*gr);}',
+'{vec2 bu=vec2(atan(vWin.z-(' +
+(GT ? GT.z : 0).toFixed(2)+
+'),vWin.x-(' +
+(GT ? GT.x : 0).toFixed(2)+
+'))/6.2832*14.,vWin.y/2.2);vec3 cz=texture2D(uCzBark,bu).rgb;bk=cz*(gl_FrontFacing?1.:.55);}diffuseColor.rgb=bk*(.92+.16*gr);}'
+);
+};
+const ck = m.customProgramCacheKey;
+m.customProgramCacheKey =()=>(ck ? ck.call(m): '')+ 'czbarkGT';
+m.needsUpdate = true;
+nb++;
+});
+window.__gtDressed ={leaves: nl,bark: nb};
+}catch(e){
+console.warn('great tree dress',e);
+}
+};
 const tvp = setInterval(()=>{
 if(!window.__worldBuilt || !window.__ready || !window.__forestCleared)return;
 clearInterval(tvp);
 setTimeout(()=> plant().catch(e => console.warn('forest plant',e)),1600);
+setTimeout(dressGreatTree,2000);
 },500);
 }
 {
@@ -13932,7 +13980,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 38;
+const LOOKV = 39;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
