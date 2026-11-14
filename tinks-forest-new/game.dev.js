@@ -2739,7 +2739,7 @@ let m = 1e9;
 for(const o of[-1,-0.5,0,0.5,1]){
 m = Math.min(m,h0(q.x - q.tz * q.w * o,q.z + q.tx * q.w * o));
 }
-q.lvl = m - 0.16;
+q.lvl = m - 0.16 - 1.1;
 });
 const sm = SS.map((q,i)=>{
 let a = 0,
@@ -5159,14 +5159,28 @@ const BM = L.bridge;
 if(BM)
 for(const b of window.__BRIDGES ||[]){
 if(!b.m || !b.span)continue;
-const len = BM.geo.boundingBox.max.z - BM.geo.boundingBox.min.z;
-const s =(b.span * 1.08)/ len;
-const mesh = new THREE.Mesh(BM.geo,BM.mats);
+const bb = BM.geo.boundingBox;
+const len = bb.max.z - bb.min.z,
+hgt = bb.max.y - bb.min.y,
+wid = bb.max.x - bb.min.x;
 const nx = -Math.sin(b.ang),
 nz = Math.cos(b.ang);
+const g = d => heightAt(b.x + nx * d,b.z + nz * d);
+const top = Math.min(g(9),g(-9),Math.max(g(5),g(-5)));
+const reach = sd =>{
+let d = b.span / 2 - 1;
+while(d < 9 && g(d * sd)< top - 0.08)d += 0.1;
+return d;
+};
+const d1 = reach(1),
+d2 = reach(-1);
+const span = d1 + d2 + 1.2,
+mid =(d1 - d2)/ 2;
+const H = Math.max(1.2,top + 0.06 -(b.lvl - 0.6));
+const mesh = new THREE.Mesh(BM.geo,BM.mats);
 mesh.rotation.y = -Math.atan2(nz,nx)+ Math.PI / 2;
-mesh.scale.setScalar(s);
-mesh.position.set(b.x,b.lvl - 0.3 - BM.y0 * s,b.z);
+mesh.scale.set(1.15,H / hgt,span / len);
+mesh.position.set(b.x + nx * mid,top + 0.06 - bb.max.y *(H / hgt),b.z + nz * mid);
 mesh.castShadow = mesh.receiveShadow = true;
 mesh.userData.noEdit = true;
 scene.add(mesh);
@@ -14279,7 +14293,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 47;
+const LOOKV = 48;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
