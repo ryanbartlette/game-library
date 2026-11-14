@@ -12731,7 +12731,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 502;
+const BUILD = 503;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -46691,8 +46691,8 @@ sk =>{
 if(!sk)
 window.__storyLine &&
 window.__storyLine(
-'And then, summer…',
-'long golden days, and the whole forest humming with life',
+'Then came the long, warm days…',
+'the summer we spent chasing light',
 5600
 );
 }
