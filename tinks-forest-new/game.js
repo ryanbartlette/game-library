@@ -2998,6 +2998,51 @@ const i = near(POND.x - 3.5,POND.z + 3);
 const q = SS[i];
 PROPS.frog ={x: POND.x - 2.2,z: POND.z + 4.6,rot: 2.4};
 }
+{
+const KEEP =[
+[-31,-14],
+[44,-30]
+];
+PROPS.bridges = PROPS.bridges.filter(b => KEEP.some(k => Math.hypot(b.x - k[0],b.z - k[1])< 5));
+window.__CROSS =[];
+const info = PROPS.bridges.map(b =>{
+const q = SS[near(b.x,b.z)];
+const tx = Math.cos(b.ang),
+tz = Math.sin(b.ang),
+nx = -tz,
+nz = tx;
+const top = Math.max(heightAt(b.x + nx *(q.w + 5),b.z + nz *(q.w + 5)),heightAt(b.x - nx *(q.w + 5),b.z - nz *(q.w + 5)),b.lvl + 1.2);
+const need = Math.max((top + 0.05 -(b.lvl - 0.45))/ 1.99,((q.w + 0.5)* 2)/ 4.58 / 0.8);
+return{b,q,tx,tz,nx,nz,top,need};
+});
+const S = clamp(Math.max(1,...info.map(o => o.need)),1,1.8);
+for(const{b,q,tx,tz,nx,nz,top}of info){
+const hl =(4.58 * S)/ 2;
+b.czS = S;
+b.czTop = top;
+const R = hl + 6;
+for(let i = 0;i < HN;i++)
+for(let j = 0;j < HN;j++){
+const x = -WORLD / 2 + j * CELL - b.x,
+z = -WORLD / 2 + i * CELL - b.z;
+if(Math.abs(x)> R || Math.abs(z)> R)continue;
+const dt = Math.abs(x * tx + z * tz),
+dn = Math.abs(x * nx + z * nz);
+if(dn < q.w + 0.25)continue;
+const kt = 1 - smooth(0.9 * S,0.9 * S + 3,dt),
+kn = smooth(q.w + 0.25,q.w + 0.6,dn)*(1 - smooth(hl + 1.5,hl + 5,dn));
+const k = kt * kn;
+if(k <= 0)continue;
+const id = i * HN + j;
+HGT[id]= Math.max(HGT[id],lerp(HGT[id],top,k));
+}
+window.__CROSS.push({x: b.x,z: b.z,nx,nz,hl: hl - 0.25,kind: 'bridge'});
+}
+if(PROPS.stones.length){
+const q = SS[near(19,-18)];
+window.__CROSS.push({x: q.x,z: q.z,nx: -q.tz,nz: q.tx,hl: q.w + 0.75,kind: 'stones'});
+}
+}
 }
 [
 [3.2,-3.5,0.36,0.42],
@@ -4194,6 +4239,53 @@ cx.fillRect(0,0,ci.width,ci.height);
 grassU.uCanopy.value.needsUpdate = true;
 }catch(e){}
 try{
+let T = window.__TRAILS;
+for(const c of window.__CROSS ||[]){
+const R = c.hl + 4.5;
+const nT =[];
+const approach =(x,z)=>{
+const sd =(x - c.x)* c.nx +(z - c.z)* c.nz >= 0 ? 1 : -1;
+return[c.x + c.nx * sd *(c.hl + 2.6),c.z + c.nz * sd *(c.hl + 2.6),c.x + c.nx * sd * c.hl,c.z + c.nz * sd * c.hl];
+};
+for(const fl of T){
+let touched = false;
+for(let i = 0;i < fl.length;i += 2)if(Math.hypot(fl[i]- c.x,fl[i + 1]- c.z)< R)touched = true;
+if(!touched){
+nT.push(fl);
+continue;
+}
+let cur =[],
+startCut = false;
+const flush = endCut =>{
+if(cur.length >= 2){
+let pts = cur;
+if(startCut){
+const a = approach(pts[0],pts[1]);
+pts =[a[2],a[3],a[0],a[1],...pts];
+}
+if(endCut){
+const a = approach(pts[pts.length - 2],pts[pts.length - 1]);
+pts =[...pts,a[0],a[1],a[2],a[3]];
+}
+if(pts.length >= 4)nT.push(pts);
+}
+cur =[];
+};
+for(let i = 0;i < fl.length;i += 2){
+if(Math.hypot(fl[i]- c.x,fl[i + 1]- c.z)< R){
+if(cur.length)flush(true);
+startCut = true;
+}else cur.push(fl[i],fl[i + 1]);
+}
+flush(false);
+}
+T = nT;
+}
+window.__TRAILS = T;
+}catch(e){
+console.warn('trail crossings',e);
+}
+try{
 const mc = grassU.uMask.value.image,
 mx2 = mc.getContext('2d'),
 W2P = mc.width / WORLD,
@@ -5046,27 +5138,14 @@ if(BM)
 for(const b of window.__BRIDGES ||[]){
 if(!b.m || !b.span)continue;
 const bb = BM.geo.boundingBox;
-const len = bb.max.z - bb.min.z,
-hgt = bb.max.y - bb.min.y,
-wid = bb.max.x - bb.min.x;
+const s = b.czS || 1.1,
+top = b.czTop != null ? b.czTop : b.lvl + 1.5;
 const nx = -Math.sin(b.ang),
 nz = Math.cos(b.ang);
-const g = d => heightAt(b.x + nx * d,b.z + nz * d);
-const top = Math.min(g(9),g(-9),Math.max(g(5),g(-5)));
-const reach = sd =>{
-let d = b.span / 2 - 1;
-while(d < 9 && g(d * sd)< top - 0.08)d += 0.1;
-return d;
-};
-const d1 = reach(1),
-d2 = reach(-1);
-const span = d1 + d2 + 1.2,
-mid =(d1 - d2)/ 2;
-const H = Math.max(1.2,top + 0.06 -(b.lvl - 0.6));
 const mesh = new THREE.Mesh(BM.geo,BM.mats);
 mesh.rotation.y = -Math.atan2(nz,nx)+ Math.PI / 2;
-mesh.scale.set(1.15,H / hgt,span / len);
-mesh.position.set(b.x + nx * mid,top + 0.06 - bb.max.y *(H / hgt),b.z + nz * mid);
+mesh.scale.setScalar(s);
+mesh.position.set(b.x,top + 0.04 - bb.max.y * s,b.z);
 mesh.castShadow = mesh.receiveShadow = true;
 mesh.userData.noEdit = true;
 scene.add(mesh);
@@ -5080,7 +5159,28 @@ sf.czNew = true;
 }
 nb++;
 }
-window.__czDressed ={...counts,bridges: nb};
+let ns = 0;
+const SR = L.rock3;
+if(SR){
+const bb = SR.geo.boundingBox,
+wd = Math.max(bb.max.x - bb.min.x,bb.max.z - bb.min.z);
+scene.traverse(o =>{
+const st = o.userData && o.userData.stepStone;
+if(!st || o.userData.czDone)return;
+o.userData.czDone = true;
+const sc =(2.15 * st.r)/ wd;
+const m = new THREE.Mesh(SR.geo,SR.mats);
+m.scale.set(sc,sc * 0.75,sc);
+m.rotation.y = st.rot;
+m.position.set(st.x,st.top - bb.max.y * sc * 0.75,st.z);
+m.castShadow = m.receiveShadow = true;
+m.userData.noEdit = true;
+o.visible = false;
+scene.add(m);
+ns++;
+});
+}
+window.__czDressed ={...counts,bridges: nb,stones: ns};
 };
 const tvp = setInterval(()=>{
 if(!window.__worldBuilt || !window.__ready || !window.__forestCleared)return;
@@ -6751,6 +6851,7 @@ const sc =(2 * st.r)/ wx;
 const base = st.top - h * sc * 0.9;
 const m = placeStatic(g,stoneMat,new V3(st.x,base,st.z),st.rot,new V3(sc,sc * 0.9,sc));
 meshSurface(worldTris(m),0.06,true);
+m.userData.stepStone = st;
 }
 const __rk0 = SURF.length;
 {
@@ -14179,7 +14280,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 49;
+const LOOKV = 50;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -45440,7 +45541,7 @@ const SW = S.swimTo ||(S.swimTo ={on: false,t: 0});
 const here = !!(K && K.op > 0.05 && K.holder.visible && P.mode !== 'air' && !window.__asJack && !S.fin);
 const story = !!(window.__qHold || say ||(J.st && J.st.ph === 'story')|| J.card);
 const boatJust = window.__boatGotT && performance.now()- window.__boatGotT < 40000 && !SW.boatDone;
-if(here && story &&(P.inWater ||(boatJust && K.holder.position.distanceTo(P.pos)> 1.6))&& !SW.on){
+if(here && story && !window.__ROAM &&(P.inWater ||(boatJust && K.holder.position.distanceTo(P.pos)> 1.6))&& !SW.on){
 SW.on = true;
 SW.t = 0;
 if(boatJust)SW.boatDone = true;
