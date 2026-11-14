@@ -3890,7 +3890,11 @@ CLOUD_GLSL +
 )
 .replace(
 '#include <emissivemap_fragment>',
-'#include <emissivemap_fragment>\n{float pa=fn(vGW.xz*.11+vec2(uTime*.02,0.))*.65+fn(vGW.xz*.37)*.35;float lp=smoothstep(.5,.78,pa)*vGW.y;diffuseColor.rgb*=1.+lp*.28;/* FOREST (Ryan: still silvery): sunlit patches brighten the blades own green, not toward white light */\n float can=smoothstep(.08,.6,texture2D(uCanopy,(vGW.xz+85.)/170.).r);vec2 sw=vec2(sin(uTime*.6+vGW.z*.05),cos(uTime*.45+vGW.x*.05))*(.12+.35*uGust);vec2 q=(vGW.xz+sw)*vec2(1.,1.35);float dp=fn(q*.85)*.55+fn(q*2.1+7.)*.3+fn(q*4.7-3.)*.15;float spot=smoothstep(.57,.63,dp);\n diffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*vec3(.84,.87,.93),can*uDap*.7);diffuseColor.rgb+=can*uDap*spot*diffuseColor.rgb*.85;\n /* the silvery sheen of a gust: bent blades show their pale undersides */diffuseColor.rgb*=1.+clamp(vGu*vGW.y*.5,0.,.4)*.45;/* FOREST: the gust lightens the green a little, no silver *//* Build 296: shadows of the clouds slide over the meadow */diffuseColor.rgb*=mix(vec3(1.),vec3(.62,.68,.8),cloudSh(vGW.xz,uCloudOff)*uCloudK);totalEmissiveRadiance+=diffuseColor.rgb*uGEmis*.45;}/* LOOK: the dense blades glowed white in the sun */'
+'#include <emissivemap_fragment>\n{float pa=fn(vGW.xz*.11+vec2(uTime*.02,0.))*.65+fn(vGW.xz*.37)*.35;float lp=smoothstep(.5,.78,pa)*vGW.y;diffuseColor.rgb*=1.+lp*.28;/* FOREST (Ryan: still silvery): sunlit patches brighten the blades own green, not toward white light */\n float can=smoothstep(.08,.6,texture2D(uCanopy,(vGW.xz+85.)/170.).r);vec2 sw=vec2(sin(uTime*.6+vGW.z*.05),cos(uTime*.45+vGW.x*.05))*(.12+.35*uGust);vec2 q=(vGW.xz+sw)*vec2(1.,1.35);float dp=fn(q*.85)*.55+fn(q*2.1+7.)*.3+fn(q*4.7-3.)*.15;float spot=smoothstep(.57,.63,dp);\n diffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*vec3(.84,.87,.93),can*uDap*.7);diffuseColor.rgb+=can*uDap*spot*diffuseColor.rgb*.85;\n /* the silvery sheen of a gust: bent blades show their pale undersides */diffuseColor.rgb*=1.+clamp(vGu*vGW.y*.5,0.,.4)*.45;/* FOREST: the gust lightens the green a little, no silver *//* Build 296: shadows of the clouds slide over the meadow */diffuseColor.rgb*=mix(vec3(1.),vec3(.62,.68,.8),cloudSh(vGW.xz,uCloudOff)*uCloudK);totalEmissiveRadiance+=diffuseColor.rgb*uGEmis*.2;}/* LOOK: the dense blades glowed white in the sun (FOREST: glow cut from .45 to .2) */'
+)
+.replace(
+'#include <opaque_fragment>',
+'{/* FOREST (Ryan: bright bloom washes everything out, not Ghibli): sunlit blades ease off above a soft limit, so they stay a rich green and never reach the glow threshold */float L=dot(outgoingLight,vec3(.3,.59,.11));if(L>.5)outgoingLight*=(.5+(L-.5)*.3)/L;}\n#include <opaque_fragment>'
 );
 sh.uniforms.uGLight = grassU.uGLight;
 sh.uniforms.uGEmis = grassU.uGEmis;
@@ -13451,7 +13455,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 33;
+const LOOKV = 34;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
