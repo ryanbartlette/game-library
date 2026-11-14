@@ -4002,7 +4002,7 @@ CLOUD_GLSL +
 )
 .replace(
 '#include <emissivemap_fragment>',
-'#include <emissivemap_fragment>\n{float pa=fn(vGW.xz*.11+vec2(uTime*.02,0.))*.65+fn(vGW.xz*.37)*.35;float lp=smoothstep(.5,.78,pa)*vGW.y;diffuseColor.rgb=mix(diffuseColor.rgb,uGLight*(.75+.25*vGW.y),lp*.42);/* LOOK: softer sunlit patches */\n float can=smoothstep(.08,.6,texture2D(uCanopy,(vGW.xz+85.)/170.).r);vec2 sw=vec2(sin(uTime*.6+vGW.z*.05),cos(uTime*.45+vGW.x*.05))*(.12+.35*uGust);vec2 q=(vGW.xz+sw)*vec2(1.,1.35);float dp=fn(q*.85)*.55+fn(q*2.1+7.)*.3+fn(q*4.7-3.)*.15;float spot=smoothstep(.57,.63,dp);\n diffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*vec3(.84,.87,.93),can*uDap*.7);diffuseColor.rgb+=can*uDap*spot*diffuseColor.rgb*.85;\n /* the silvery sheen of a gust: bent blades show their pale undersides */diffuseColor.rgb=mix(diffuseColor.rgb,mix(uGLight,vec3(.92,.95,.82),.4)*(.85+.3*vGW.y),clamp(vGu*vGW.y*.5,0.,.4));/* Build 296: shadows of the clouds slide over the meadow */diffuseColor.rgb*=mix(vec3(1.),vec3(.62,.68,.8),cloudSh(vGW.xz,uCloudOff)*uCloudK);totalEmissiveRadiance+=diffuseColor.rgb*uGEmis*.45;}/* LOOK: the dense blades glowed white in the sun */'
+'#include <emissivemap_fragment>\n{float pa=fn(vGW.xz*.11+vec2(uTime*.02,0.))*.65+fn(vGW.xz*.37)*.35;float lp=smoothstep(.5,.78,pa)*vGW.y;diffuseColor.rgb*=1.+lp*.28;/* FOREST (Ryan: still silvery): sunlit patches brighten the blades own green, not toward white light */\n float can=smoothstep(.08,.6,texture2D(uCanopy,(vGW.xz+85.)/170.).r);vec2 sw=vec2(sin(uTime*.6+vGW.z*.05),cos(uTime*.45+vGW.x*.05))*(.12+.35*uGust);vec2 q=(vGW.xz+sw)*vec2(1.,1.35);float dp=fn(q*.85)*.55+fn(q*2.1+7.)*.3+fn(q*4.7-3.)*.15;float spot=smoothstep(.57,.63,dp);\n diffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*vec3(.84,.87,.93),can*uDap*.7);diffuseColor.rgb+=can*uDap*spot*diffuseColor.rgb*.85;\n /* the silvery sheen of a gust: bent blades show their pale undersides */diffuseColor.rgb*=1.+clamp(vGu*vGW.y*.5,0.,.4)*.45;/* FOREST: the gust lightens the green a little, no silver *//* Build 296: shadows of the clouds slide over the meadow */diffuseColor.rgb*=mix(vec3(1.),vec3(.62,.68,.8),cloudSh(vGW.xz,uCloudOff)*uCloudK);totalEmissiveRadiance+=diffuseColor.rgb*uGEmis*.45;}/* LOOK: the dense blades glowed white in the sun */'
 );
 sh.uniforms.uGLight = grassU.uGLight;
 sh.uniforms.uGEmis = grassU.uGEmis;
@@ -4449,7 +4449,10 @@ o.traverse(m =>{
 if(!m.isMesh)return;
 const k = texFor(file,m.material.name || '');
 let mm;
-if(k && MASK[k])mm = new THREE.MeshStandardMaterial({color: MASK[k],alphaMap: tex(k,true),alphaTest: 0.4,side: THREE.DoubleSide,roughness: 1});
+if(k && MASK[k]){
+mm = new THREE.MeshStandardMaterial({color: MASK[k],alphaMap: tex(k,true),alphaTest: 0.4,side: THREE.DoubleSide,roughness: 1});
+(window.__czLeafMats = window.__czLeafMats ||[]).push([mm,k === 'leafbirch' ? 0.75 : k === 'bush' ? 0.45 : 0.6]);
+}
 else{
 m.geometry.computeVertexNormals();
 mm = new THREE.MeshStandardMaterial({roughness: 1,side: k === 'ivy' ? THREE.DoubleSide : THREE.FrontSide});
@@ -4475,6 +4478,9 @@ if(!window.__worldBuilt || !window.__ready)return;
 clearInterval(tv);
 setTimeout(plant,3000);
 },500);
+setInterval(()=>{
+for(const[mm,f]of window.__czLeafMats ||[])mm.color.copy(grassU.uGBase.value).lerp(grassU.uGTip.value,f).multiplyScalar(1.1);
+},250);
 }
 {
 const fp =[],
@@ -13560,7 +13566,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 29;
+const LOOKV = 30;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
