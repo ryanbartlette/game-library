@@ -3858,7 +3858,7 @@ const ang =(b / NB)* Math.PI * 2 + hr(b)* 1.1,
 rr = 0.01 + hr(b + 10)* 0.05,
 lean = 0.015 + hr(b + 20)* 0.05,
 hh = 0.8 + hr(b + 30)* 0.4,
-w0 = 0.011 + hr(b + 40)* 0.005;
+w0 = 0.02 + hr(b + 40)* 0.012;
 const dx = Math.cos(ang),
 dz = Math.sin(ang),
 px0 = -dz,
@@ -3871,7 +3871,7 @@ y = t * hh *(1 - 0.22 * t * lean);
 const cx = dx * fw,
 cz = dz * fw;
 if(s2 < SEG){
-const w = w0 * Math.pow(1 - t,0.75);
+const w = w0 * Math.pow(1 - t,0.55);
 for(const sd of[-1,1]){
 pos.push(cx + px0 * w * sd,y,cz + pz0 * w * sd);
 tt.push(t);
@@ -4009,7 +4009,7 @@ const a = s2 * 2;
 fi2.push(a,a + 1,a + 2,a + 1,a + 3,a + 2);
 }
 const hb = fp.length / 3,
-HS = 0.09,
+HS = 0.06,
 tilt = 0.9;
 for(const[u,v]of[
 [0,0],
@@ -4061,8 +4061,10 @@ uniform float uTime,uTile,uWorld,uWind,uWPh,uGust,uGF;uniform vec2 uWDir;uniform
 `#include <uv_vertex>
 vec2 rel=mod(aOff.xy-uCenter.xz+uTile*.5,uTile)-uTile*.5;vec2 wp=uCenter.xz+rel;vec2 tuv=(wp+uWorld*.5)/uWorld;
 /* drifts: which flower grows here, and whether any do, both follow slow noise over the world, so the same patch always has the same flowers */
-float dn=.5+.25*sin(wp.x*.23+sin(wp.y*.19)*2.)+.25*sin(wp.y*.21+sin(wp.x*.17)*1.7);float kind=floor(fract((floor(wp.x*.11+sin(wp.y*.09)*1.3)*7.13+floor(wp.y*.11+sin(wp.x*.08)*1.1)*3.71)*.618)*5.);
-float rk=fract(sin(dot(aOff.xy,vec2(41.3,17.9)))*24634.6);
+float dn=.5+.25*sin(wp.x*.23+sin(wp.y*.19)*2.)+.25*sin(wp.y*.21+sin(wp.x*.17)*1.7);
+float rk=fract(sin(dot(aOff.xy,vec2(41.3,17.9)))*24634.6);float rk2=fract(sin(dot(aOff.xy,vec2(12.9,78.2)))*43758.5);
+/* (Ryan's references) little single flowers of every kind scattered through the grass, a touch more where the meadow is open: white daisies most of all */
+float kind=rk2<.36?0.:rk2<.5?1.:rk2<.62?2.:rk2<.82?3.:4.;
 #ifdef USE_MAP
 vMapUv=vec2((kind+uv.x)/5.,uv.y);
 #endif
@@ -4070,7 +4072,7 @@ vHead=aHead;`
 )
 .replace(
 '#include <begin_vertex>',
-`float msk=texture2D(uMask,tuv).r;float dist=length(rel);float keep=step(rk,smoothstep(.55,.85,dn))*step(.45,msk)*smoothstep(uTile*.5,uTile*.5-4.,dist);
+`float msk=texture2D(uMask,tuv).r;float dist=length(rel);float keep=step(rk,.12+.33*smoothstep(.35,.9,dn))*step(.45,msk)*smoothstep(uTile*.5,uTile*.5-4.,dist);
 float sc=aOff.z*keep;float cs=cos(aOff.w),sn=sin(aOff.w);vec3 lp=position*sc;lp.x=position.x*(aHead>.5?sc*1.:1.);lp=vec3(lp.x*cs-lp.z*sn,lp.y,lp.x*sn+lp.z*cs);
 float gust=.6+.4*sin(uTime*.35+wp.x*.04+wp.y*.03);float gsF=dot(wp,uWDir)-uGF;float gw=(gsF>0.?exp(-gsF*gsF/16.):exp(-gsF*gsF/220.))*uGust;
 float wv=sin((uTime*1.2+uWPh*.5)+wp.x*.33+wp.y*.21)*.6+sin((uTime*2.4+uWPh*.8)+wp.x*1.1-wp.y*.7)*.25;float bend=aT*aT*sc*(.3*uWind*gust+.25*wv*min(uWind,1.6)+gw*1.25);lp.xz+=uWDir*bend*.8;lp.y-=bend*bend*.5;
