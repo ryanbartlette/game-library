@@ -3907,7 +3907,7 @@ mesh.receiveShadow = true;
 scene.add(mesh);
 window.__grass = mesh;
 {
-const WSTY ={auto: null,gentle:[0.6,0.55,0.6,0.75],medium:[1,1,1,1],heavy:[1.9,1.75,1.6,1.4]};
+const WSTY ={auto: null,gentle:[0.6,0.55,0.6,0.75],medium:[1,1,1,1],heavy:[1.45,1.35,1.3,1.15]};
 const ws = 'auto';
 const cur = new THREE.Vector4(0.6,0.55,0.6,0.75),
 tgt = new THREE.Vector4(),
@@ -13371,7 +13371,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 25;
+const LOOKV = 26;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -25056,10 +25056,8 @@ wa2 += d * M.homeK;
 grassU.uWDir.value.set(Math.cos(wa2),Math.sin(wa2));
 }
 }
-grassU.uGust.value = Math.max(
-window.__tunGust || 0,
-Math.min(1,clamp(gust * 1.4,0,1)*(NIGHTISH()? 0.4 : 1)*(0.6 + 0.4 * Math.min(W.wind,1.2)))
-);
+const gRaw = Math.min(1,clamp(gust * 1.4,0,1)*(NIGHTISH()? 0.4 : 1)*(0.6 + 0.4 * Math.min(W.wind,1.2)));
+grassU.uGust.value = Math.max(window.__tunGust || 0,gRaw < 0.4 ? gRaw : 0.4 +(gRaw - 0.4)* 0.5);
 };
 return M;
 })();
