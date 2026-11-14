@@ -1470,9 +1470,9 @@ uLit:{value: new THREE.Color()},
 uSunA:{value: 0}
 };
 const defs =[
-[150,0.14,7,1,90,0.85],
-[118,0.24,11,1.1,60,0.9],
-[92,0.36,23,1.25,40,1]
+[158,0.14,7,1,90,0.85],
+[126,0.24,11,1.1,60,0.9],
+[98,0.36,23,1.25,40,1]
 ];
 for(const[R,str,seed,rs,dens,ht]of defs){
 const tex = paint(seed,2048,512,dens,0.62 * ht);
@@ -1504,10 +1504,42 @@ fragmentShader: `uniform sampler2D uTex;uniform vec3 uFog,uSil,uLit;uniform floa
 const m = new THREE.Mesh(geo,mat);
 m.frustumCulled = false;
 m.renderOrder = -10 - R * 0.001;
+m.userData.bd ={R,rep: Math.round(4 * rs),H,seed,tex};
 scene.add(m);
 layers.push(m);
 }
-return{layers,U};
+const repaint = sprites =>{
+for(const L of layers){
+const{R,rep,H,seed,tex}= L.userData.bd;
+const c = tex.image,
+g = c.getContext('2d'),
+W2 = c.width,
+H2 = c.height;
+let sd = seed * 7919 + 13;
+const r =()=>(sd =(sd * 16807)% 2147483647)/ 2147483647;
+const pxV = H2 / H,
+pxH =(W2 * rep)/(2 * Math.PI * R);
+const gy = H2 * 0.8;
+g.clearRect(0,0,W2,H2);
+g.fillStyle = 'rgba(255,70,0,1)';
+g.fillRect(0,gy,W2,H2 - gy);
+for(const row of[0,1]){
+let x = r()* 30;
+while(x < W2){
+const sp = sprites[Math.floor(r()* sprites.length)],
+k = 0.85 + 0.35 * r();
+const hp = sp.h * k * pxV,
+wp = sp.w * k * pxH;
+const yb = gy + 2 + row * 6 + r()* 4;
+for(const q of[x,x - W2,x + W2])if(q > -wp && q < W2 + wp)g.drawImage(sp.c,q - wp / 2,yb - hp,wp,hp);
+x +=(2.4 + r()* 2.2)* pxH *(row ? 1.3 : 1);
+}
+}
+tex.needsUpdate = true;
+}
+};
+window.__BACKDROP ={layers,repaint};
+return{layers,U,repaint};
 })();
 const CLOUDBAND =(()=>{
 const W2 = 2048,
@@ -1582,7 +1614,7 @@ const c = camera.position;
 CLOUDBAND.mesh.position.set(c.x,0,c.z);
 if(window.__ridges)window.__ridges.position.set(c.x,0,c.z);
 try{
-for(const L of BACKDROP.layers)L.position.set(c.x,0,c.z);
+for(const L of BACKDROP.layers)L.position.set(0,0,0);
 }catch(e){}
 };
 function cnv(w,h){
@@ -4419,35 +4451,37 @@ new GLTFLoader().load(
 BASE + file + '.glb',
 g =>{
 g.scene.updateMatrixWorld(true);
-let src = null;
+const parts =[];
 g.scene.traverse(m =>{
-if(m.isMesh && !src)src = m;
+if(!m.isMesh)return;
+const ms = Array.isArray(m.material)? m.material :[m.material];
+const gg = m.geometry.clone().applyMatrix4(m.matrixWorld);
+for(const k of Object.keys(gg.attributes))if(!['position','normal','uv'].includes(k))gg.deleteAttribute(k);
+if(!gg.attributes.uv)gg.setAttribute('uv',new THREE.Float32BufferAttribute(new Float32Array(gg.attributes.position.count * 2),2));
+const leafy = !!MASKC[texKey(file,ms[0].name)];
+if(!leafy || !gg.attributes.normal)gg.computeVertexNormals();
+parts.push({gg: gg.index ? gg : gg,leafy,mat: matFor(file,ms[0].name)});
 });
-if(!src)return res(null);
-const geo = src.geometry.clone().applyMatrix4(src.matrixWorld);
-const mats0 = Array.isArray(src.material)? src.material :[src.material];
-const mats = mats0.map(m => matFor(file,m.name));
-const leafy = mats0.map(m => !!MASKC[texKey(file,m.name)]);
-if(!leafy.some(Boolean)|| geo.groups.length){
-if(!leafy.some(Boolean))geo.computeVertexNormals();
-}
+if(!parts.length)return res(null);
+const anyIdx = parts.some(q => q.gg.index);
+if(anyIdx)for(const q of parts)if(!q.gg.index)q.gg = q.gg.toNonIndexed();
+const allIdx = parts.every(q => q.gg.index);
+if(!allIdx)for(const q of parts)if(q.gg.index)q.gg = q.gg.toNonIndexed();
+const geo = parts.length > 1 ? mergeGeometries(parts.map(q => q.gg),true): parts[0].gg;
+const mats = parts.map(q => q.mat);
 geo.computeBoundingBox();
-let tr = 0;
-const P = geo.attributes.position,
-bb = geo.boundingBox;
-const barkIdx = new Set();
-if(geo.groups.length && geo.index)
-geo.groups.forEach(gp =>{
-if(!leafy[gp.materialIndex])
-for(let i = gp.start;i < gp.start + gp.count;i++)barkIdx.add(geo.index.getX(i));
-});
+const bb = geo.boundingBox;
 const cx =(bb.min.x + bb.max.x)/ 2,
 cz =(bb.min.z + bb.max.z)/ 2;
-const scan = i =>{
+let tr = 0;
+for(const q of parts){
+if(q.leafy)continue;
+const P = q.gg.attributes.position;
+for(let i = 0;i < P.count;i++){
 const y = P.getY(i);
 if(y < bb.min.y + 0.6 && y > bb.min.y + 0.15)tr = Math.max(tr,Math.hypot(P.getX(i)- cx,P.getZ(i)- cz));
-};
-if(barkIdx.size)barkIdx.forEach(scan);
+}
+}
 res({geo,mats: mats.length > 1 ? mats : mats[0],tr: Math.min(tr || 0.25,0.6),h: bb.max.y - bb.min.y,w: Math.max(bb.max.x - bb.min.x,bb.max.z - bb.min.z),y0: bb.min.y});
 },
 undefined,
@@ -4476,6 +4510,23 @@ for(const s of near(x + ox,z + oz))if(!s.dead && s.t !== 'trunk' && surfAt(s,x +
 }
 return true;
 };
+const solids =[];
+scene.traverse(o =>{
+if(!o.isMesh || o.isInstancedMesh || !o.visible || o.frustumCulled === false)return;
+const ms = Array.isArray(o.material)? o.material :[o.material];
+if(ms.some(m => m && m.transparent))return;
+if(!o.geometry.boundingSphere)o.geometry.computeBoundingSphere();
+solids.push(o);
+});
+const ray = new THREE.Raycaster();
+ray.far = 80;
+const DOWN = new V3(0,-1,0);
+const buried =(x,z)=>{
+const gy = groundAt(x,z,heightAt(x,z)+ 3);
+ray.set(new V3(x,gy + 60,z),DOWN);
+const h = ray.intersectObjects(solids,false)[0];
+return h && h.point.y > gy + 0.5;
+};
 const spots =[];
 const taken =[];
 const clearOf =(x,z,d)=>{
@@ -4489,10 +4540,10 @@ return 0;
 };
 for(const t of trees){
 const h = t._hole ||[t.x,t.z];
-const n = 1 + Math.floor(pr()* 3);
-for(let k = 0;k < 3;k++){
+const n = 3 + Math.floor(pr()* 4);
+for(let k = 0;k < 6;k++){
 const a = pr()* 6.283,
-d = k === 0 ? pr()* 1.2 : 2.6 + pr()* 3.6,
+d = k === 0 ? pr()* 1.2 : 2.4 + pr()*(k < 3 ? 3.6 : 6.5),
 sp = pr(),
 sc = pr(),
 rot = pr(),
@@ -4502,14 +4553,14 @@ extra = pr();
 if(k >= n || t.sprout)continue;
 const x = h[0]+ Math.cos(a)* d,
 z = h[1]+ Math.sin(a)* d;
-if(!free(x,z,2.2)|| !clearOf(x,z,2.7))continue;
+if(!free(x,z,2.0)|| !clearOf(x,z,2.5)|| buried(x,z))continue;
 taken.push([x,z]);
 spots.push({kind: 'tree',m: pickTree(sp),x,z,s: 1.8 *(0.85 + 0.35 * sc),r: rot * 6.283});
 if(bushR < 0.45){
 const ba = extra * 6.283,
 bx = x + Math.cos(ba)*(2 + bushR * 3),
 bz = z + Math.sin(ba)*(2 + bushR * 3);
-if(free(bx,bz,1.2)&& clearOf(bx,bz,1.6)){
+if(free(bx,bz,1.2)&& clearOf(bx,bz,1.6)&& !buried(bx,bz)){
 taken.push([bx,bz]);
 spots.push({kind: 'bush',m: bushR < 0.18 ? 0 : 1,x: bx,z: bz,s: 0.7 *(0.8 + 0.5 * sc),r: extra * 40});
 }
@@ -4518,7 +4569,7 @@ if(rockR < 0.16){
 const ra = extra * 6.283 + 2.4,
 rx = x + Math.cos(ra)*(2.4 + rockR * 6),
 rz = z + Math.sin(ra)*(2.4 + rockR * 6);
-if(free(rx,rz,1.0)&& clearOf(rx,rz,1.8)){
+if(free(rx,rz,1.0)&& clearOf(rx,rz,1.8)&& !buried(rx,rz)){
 taken.push([rx,rz]);
 spots.push({kind: 'rock',m: Math.floor(rockR * 25)% 4,x: rx,z: rz,s: 0.65 + 0.6 * sc,r: rot * 6.283});
 }
@@ -4590,6 +4641,60 @@ cx2.globalCompositeOperation = 'source-over';
 grassU.uCanopy.value.needsUpdate = true;
 }catch(e){}
 window.__czPlanted = out;
+try{
+const sprites =[];
+const rt = new THREE.WebGLRenderTarget(256,512);
+const sc2 = new THREE.Scene();
+sc2.add(new THREE.AmbientLight(0xffffff,0.9));
+const dl = new THREE.DirectionalLight(0xffffff,1.6);
+dl.position.set(-0.5,1,0.8);
+sc2.add(dl);
+models.tree.forEach(M =>{
+if(!M)return;
+const mesh = new THREE.Mesh(M.geo,M.mats);
+sc2.add(mesh);
+const bb = M.geo.boundingBox;
+const w = Math.max(bb.max.x - bb.min.x,0.1),
+h = bb.max.y - bb.min.y;
+const PW = 256,
+PH = Math.min(512,Math.round((256 * h)/ w));
+rt.setSize(PW,PH);
+const cam = new THREE.OrthographicCamera(bb.min.x,bb.max.x,bb.max.y,bb.min.y,-100,100);
+cam.position.set(0,0,50);
+const oc = renderer.getClearColor(new THREE.Color()),
+oa = renderer.getClearAlpha();
+renderer.setRenderTarget(rt);
+renderer.setClearColor(0x000000,0);
+renderer.clear();
+renderer.render(sc2,cam);
+const px = new Uint8Array(PW * PH * 4);
+renderer.readRenderTargetPixels(rt,0,0,PW,PH,px);
+renderer.setRenderTarget(null);
+renderer.setClearColor(oc,oa);
+sc2.remove(mesh);
+const c = document.createElement('canvas');
+c.width = PW;
+c.height = PH;
+const id = c.getContext('2d').createImageData(PW,PH);
+for(let yy = 0;yy < PH;yy++)
+for(let xx = 0;xx < PW;xx++){
+const s0 =((PH - 1 - yy)* PW + xx)* 4,
+d0 =(yy * PW + xx)* 4;
+const a = px[s0 + 3];
+const L =(px[s0]* 0.3 + px[s0 + 1]* 0.59 + px[s0 + 2]* 0.11)/ 255;
+id.data[d0]= 255;
+id.data[d0 + 1]= Math.min(255,L * 1.7 * 255);
+id.data[d0 + 2]= 0;
+id.data[d0 + 3]= a > 100 ? 255 : 0;
+}
+c.getContext('2d').putImageData(id,0,0);
+sprites.push({c,h: h * 1.8,w: w * 1.8});
+});
+rt.dispose();
+if(sprites.length && window.__BACKDROP)window.__BACKDROP.repaint(sprites);
+}catch(e){
+console.warn('forest wall',e);
+}
 };
 const tvp = setInterval(()=>{
 if(!window.__worldBuilt || !window.__ready || !window.__forestCleared)return;
@@ -13681,7 +13786,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 35;
+const LOOKV = 36;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
