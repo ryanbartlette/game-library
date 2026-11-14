@@ -4364,9 +4364,6 @@ if(!window.__worldBuilt || !window.__ready)return;
 clearInterval(tv);
 setTimeout(plant,3000);
 },500);
-setInterval(()=>{
-for(const[mm,f]of window.__czLeafMats ||[])mm.color.copy(grassU.uGBase.value).lerp(grassU.uGTip.value,f).multiplyScalar(1.1);
-},250);
 }
 {
 const fp =[],
@@ -13452,7 +13449,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 30;
+const LOOKV = 31;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -23467,11 +23464,16 @@ U.uCT.value += dt * W.cSpd * 0.004;
 grassU.uGBase.value.setRGB(...W.gBase);
 grassU.uGTip.value.setRGB(...W.gTip);
 {
-const hsl =(window.__czHsl = window.__czHsl ||{h: 0,s: 0,l: 0});
-for(const[c,sk]of[[grassU.uGBase.value,0.95],[grassU.uGTip.value,0.85]]){
-c.getHSL(hsl);
-const g = Math.max(0,1 - Math.abs(hsl.h - 0.36)/ 0.2);
-if(g > 0)c.setHSL(hsl.h +(0.3 - hsl.h)* g,hsl.s +(Math.min(hsl.s,0.62)* sk - hsl.s)* g,hsl.l);
+const CB =(window.__CYCLE && window.__CYCLE.blend)||{};
+const keep = Math.min(1,Math.max(CB.gTip || 0,CB.gBase || 0));
+const lum = c => c.r * 0.3 + c.g * 0.59 + c.b * 0.11;
+const HB =(window.__czGB = window.__czGB || new THREE.Color(0.03,0.105,0.032)),
+HT =(window.__czGT = window.__czGT || new THREE.Color(0.31,0.55,0.15));
+const tmp =(window.__czTmp = window.__czTmp || new THREE.Color());
+for(const[c,H,L0]of[[grassU.uGBase.value,HB,0.14],[grassU.uGTip.value,HT,0.555]]){
+const k = Math.min(1.25,lum(c)/ L0);
+tmp.copy(H).multiplyScalar(k *(lum(H)> 0 ? L0 / lum(H): 1));
+c.lerp(tmp,1 - keep);
 }
 }
 grassU.uGLight.value.setRGB(...W.gLight);
