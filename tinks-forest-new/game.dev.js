@@ -5421,8 +5421,8 @@ console.warn('great tree dress',e);
 };
 const dress = async()=>{
 const dr = mulberry32(70631);
-let GS = 0.8,
-WS = 0.8;
+let GS = 0.4,
+WS = 0.5;
 try{
 const q = new URLSearchParams(location.search);
 GS = parseFloat(q.get('gscale'))|| GS;
@@ -5687,6 +5687,51 @@ grassU.uFPrev.value = SI[prevSea]?? SI[sea];
 grassU.uFP.value = p;
 };
 setInterval(tick,100);
+}
+{
+const tv2 = setInterval(()=>{
+const MM = window.__MORE;
+if(!window.__worldBuilt || !MM || !MM.ffMat || !window.__trailsDrawn)return;
+clearInterval(tv2);
+const fr = mulberry32(71077),
+N = LOW ? 450 : 1100,
+SS2 = window.__SS ||[];
+const p = new Float32Array(N * 3),
+ph = new Float32Array(N);
+for(let i = 0;i < N;i++){
+let x,z;
+const a = fr(),
+b = fr(),
+c = fr(),
+d = fr();
+if(i < N * 0.62 && SS2.length){
+const q = SS2[Math.floor(a * SS2.length)];
+const side = b < 0.5 ? 1 : -1,
+o = side *(q.w + 0.15 + c * 2.6);
+x = q.x - q.tz * o;
+z = q.z + q.tx * o;
+}else{
+x =(a - 0.5)*(WORLD - 16);
+z =(b - 0.5)*(WORLD - 16);
+}
+let gy = heightAt(x,z);
+try{
+gy = Math.max(gy,waterLevelAt(x,z));
+}catch(e){}
+p[i * 3]= x;
+p[i * 3 + 1]= gy + 0.08 + d * d * 0.55;
+p[i * 3 + 2]= z;
+ph[i]= fr();
+}
+const g = new THREE.BufferGeometry();
+g.setAttribute('position',new THREE.BufferAttribute(p,3));
+g.setAttribute('aPh',new THREE.BufferAttribute(ph,1));
+const pts = new THREE.Points(g,MM.ffMat);
+pts.frustumCulled = false;
+pts.userData.noEdit = true;
+scene.add(pts);
+window.__glowBugs = N;
+},500);
 }
 const tvp = setInterval(()=>{
 if(!window.__worldBuilt || !window.__ready || !window.__forestCleared)return;
@@ -14800,7 +14845,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 63;
+const LOOKV = 64;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -31066,8 +31111,9 @@ depthWrite: false,
 blending: THREE.AdditiveBlending,
 uniforms:{...U,map:{value: softTex}},
 vertexShader: `attribute float aPh;uniform float uT,uScale;varying float vB;void main(){vec3 q=position;float t=uT*.35+aPh*30.;q+=vec3(sin(t*1.3)*.5,sin(t*.9+aPh*4.)*.1,cos(t*1.1)*.5);float pl=sin(uT*(.55+aPh*.5)+aPh*50.);vB=smoothstep(-.2,.8,pl)*.92+.08;vec4 mv=viewMatrix*vec4(q,1.);gl_Position=projectionMatrix*mv;gl_PointSize=clamp((.07+.08*fract(aPh*7.3))*uScale/-mv.z,1.5,10.);}`,
-fragmentShader: `uniform sampler2D map;uniform float uOp;varying float vB;void main(){vec4 t=texture2D(map,gl_PointCoord);gl_FragColor=vec4(vec3(.82,1.,.32)*t.rgb*vB*uOp,t.a*vB*uOp);}`
+fragmentShader: `uniform sampler2D map;uniform float uOp;varying float vB;void main(){vec4 t=texture2D(map,gl_PointCoord);gl_FragColor=vec4(vec3(.62,1.,.38)*t.rgb*vB*uOp,t.a*vB*uOp);}`
 });
+M.ffMat = m;
 const pts = new THREE.Points(g,m);
 pts.frustumCulled = false;
 scene.add(pts);
