@@ -4459,12 +4459,17 @@ flush(false);
 T = nT;
 }
 try{
-const F = window.__riceField;
+const F0 = window.__riceField,
+ST = window.__farmSteps;
+const F = ST ?(()=>{
+const l = Math.hypot(ST.fx,ST.fz)|| 1;
+return{x: ST.x,z: ST.z,fx: ST.fx / l,fz: ST.fz / l,at: 0};
+})(): F0 &&{...F0,at: 3.6};
 if(F){
-const sx = F.x + F.fx * 3.6,
-sz = F.z + F.fz * 3.6,
-ex = F.x + F.fx * 7,
-ez = F.z + F.fz * 7;
+const sx = F.x + F.fx * F.at,
+sz = F.z + F.fz * F.at,
+ex = F.x + F.fx *(F.at + 3.4),
+ez = F.z + F.fz *(F.at + 3.4);
 let best = null,
 bd = 1e9;
 for(const fl of T)
@@ -4476,7 +4481,7 @@ best =[fl[i],fl[i + 1]];
 }
 }
 const pts =[sx,sz];
-for(let u = 0.6;u <= 3.4;u += 0.6)pts.push(F.x + F.fx *(3.6 + u),F.z + F.fz *(3.6 + u));
+for(let u = 0.6;u <= 3.4;u += 0.6)pts.push(F.x + F.fx *(F.at + u),F.z + F.fz *(F.at + u));
 if(best && bd < 20){
 const n = Math.ceil(bd / 0.6);
 for(let k = 1;k <= n;k++){
@@ -4559,6 +4564,16 @@ mx2.fill();
 };
 pass(0.65,'rgb(46,46,46)');
 pass(0,'rgb(0,0,0)');
+if(window.__wheatPoly){
+mx2.fillStyle = '#000';
+mx2.beginPath();
+window.__wheatPoly.forEach(([x,z],i)=>{
+const[a,b]= tp(x,z);
+i ? mx2.lineTo(a,b): mx2.moveTo(a,b);
+});
+mx2.closePath();
+mx2.fill();
+}
 mx2.restore();
 grassU.uMask.value.needsUpdate = true;
 }catch(e){
@@ -5060,10 +5075,58 @@ spots.push({kind: 'tree',m: pickTree(sp),x,z,s: 1.8 *(0.85 + 0.45 * sc),r: rot *
 [-27.07,-25.89,0.31],
 [-19.93,-33.91,0.62],
 [-22.07,-28.86,0.88]
-].forEach(([x,z,r])=>{
+].forEach(([x0,z0,r])=>{
+let x = x0,
+z = z0;
+outer: for(let rr = 0;rr <= 5;rr += 0.4)
+for(let a = 0;a < 16;a++){
+const tx = x0 + Math.cos((a / 16)* 6.283)* rr,
+tz = z0 + Math.sin((a / 16)* 6.283)* rr;
+if(free(tx,tz,1.3)&& clearOf(tx,tz,2)){
+x = tx;
+z = tz;
+break outer;
+}
+}
 taken.push([x,z]);
 spots.push({kind: 'tree',m: pickTree(r),x,z,s: 1.8 *(0.9 + 0.3 * r),r: r * 6.283});
 });
+{
+const H = window.__MORE && window.__MORE.house;
+if(H){
+const hr = mulberry32(70901),
+ca = Math.cos(H.yaw),
+sa = Math.sin(H.yaw);
+const inHouse =(x,z)=>{
+const dx = x - H.x,
+dz = z - H.z;
+const lx = dx * ca - dz * sa,
+lz = dx * sa + dz * ca;
+return Math.abs(lx)<(H.hw || 3.5)+ 1.3 && Math.abs(lz)<(H.hd || 2.5)+ 1.3;
+};
+for(let i = 0;i < 70;i++){
+const a = hr()* 6.283,
+d = 4 + hr()* 9,
+sp = hr(),
+sc = hr(),
+ro = hr();
+const x = H.x + Math.cos(a)* d,
+z = H.z + Math.sin(a)* d;
+const W2 = window.__farmSteps;
+if(W2){
+const fl = Math.hypot(W2.fx,W2.fz)|| 1;
+const ox = x - W2.x,
+oz = z - W2.z,
+along =(ox * W2.fx + oz * W2.fz)/ fl,
+side = Math.abs((ox * W2.fz - oz * W2.fx)/ fl);
+if(along > -1 && side < 4.5 && along < 14)continue;
+}
+if(inHouse(x,z)|| !free(x,z,0.9)|| !clearOf(x,z,2.1)|| buried(x,z))continue;
+taken.push([x,z]);
+spots.push({kind: 'tree',m: pickTree(sp),x,z,s: 1.8 *(0.85 + 0.4 * sc),r: ro * 6.283});
+}
+}
+}
 const models ={
 tree: await Promise.all(TREES.map(t => loadModel(t[0]))),
 bush: await Promise.all(BUSHES.map(loadModel)),
@@ -14623,7 +14686,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 62;
+const LOOKV = 63;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -31153,6 +31216,11 @@ let hw = 0;
 while(hw < 3 && gA(hw + 0.05,zm,fl + 0.05)> hA(hw + 0.05,zm)+ 0.03)hw += 0.05;
 let hw2 = 0;
 while(hw2 < 3 && gA(-hw2 - 0.05,zm,fl + 0.05)> hA(-hw2 - 0.05,zm)+ 0.03)hw2 += 0.05;
+{
+const st = W((hw - hw2)/ 2,z1 + 0.15),
+st2 = W((hw - hw2)/ 2,z1 + 1.15);
+window.__farmSteps ={x: st.x,z: st.z,fx: st2.x - st.x,fz: st2.z - st.z};
+}
 if(fl > hA(0,frontZ - 1.6)+ 0.2 && z1 - z0 > 0.3 && hw + hw2 > 0.5){
 const ye = hA(0,z1 + 0.15)+ 0.01;
 const a = W(-hw2,z0 - 0.08),
@@ -33469,6 +33537,25 @@ pts.push([wp.x,heightAt(wp.x,wp.z),wp.z,rnd()* 6.28,0.85 + rnd()* 0.4]);
 parts.forEach((pt,i)=>{
 const m = windMat(tintMat(pt.mat.clone(),'wheat'),0.08,'wheat');
 m.side = THREE.DoubleSide;
+{
+const pv = m.onBeforeCompile;
+m.onBeforeCompile =(sh,r)=>{
+pv && pv.call(m,sh,r);
+sh.uniforms.uCat = grassU.uCat;
+sh.uniforms.uCat2 = grassU.uCat2;
+sh.vertexShader = sh.vertexShader.replace('#include <common>','#include <common>\nuniform vec3 uCat,uCat2;').replace(
+'#include <project_vertex>',
+`#ifdef USE_INSTANCING
+{vec3 wq=(instanceMatrix*vec4(transformed,1.)).xyz;vec2 pw=vec2(0.);float hk=clamp(position.y/.9,0.,1.);hk*=hk;
+for(int ci=0;ci<2;ci++){vec3 cp=ci==0?uCat:uCat2;vec2 d=wq.xz-cp.xz;float dl=length(d);float k=(1.-smoothstep(.15,.7,dl))*step(abs(wq.y-cp.y),1.5);pw+=d/max(dl,.05)*k*.45;}
+float s2=max(dot(instanceMatrix[0].xyz,instanceMatrix[0].xyz),1e-4);transformed+=(transpose(mat3(instanceMatrix))*vec3(pw.x,-length(pw)*.5,pw.y))/s2*hk;}
+#endif
+#include <project_vertex>`
+);
+};
+const pk = m.customProgramCacheKey.bind(m);
+m.customProgramCacheKey =()=> pk()+ 'push';
+}
 const im = new THREE.InstancedMesh(pt.geo,m,pts.length);
 const mt = new THREE.Matrix4();
 pts.forEach((q,j)=>{
@@ -33483,15 +33570,15 @@ im.castShadow = true;
 im.computeBoundingSphere();
 scene.add(im);
 });
-const mc = grassU.uMask.value && grassU.uMask.value.image;
-if(mc && mc.getContext){
-const mx = mc.getContext('2d');
-const W2P = mc.width / WORLD;
-mx.fillStyle = '#000';
-for(const q of pts)
-mx.fillRect((q[0]+ WORLD / 2)* W2P - 1,(q[2]+ WORLD / 2)* W2P - 1,3,3);
-grassU.uMask.value.needsUpdate = true;
-}
+window.__wheatPoly =[
+[X0 - 5.4,-2.95],
+[X0 - 0.95,-2.95],
+[X0 - 0.95,3.15],
+[X0 - 5.4,3.15]
+].map(([a,b])=>{
+const w = g.localToWorld(new V3(a,0,b));
+return[w.x,w.z];
+});
 }
 }
 }else{
@@ -34408,7 +34495,7 @@ g.add(cl);
 M.cloths.push({m: cl,base: geo.attributes.position.array.slice(),ph: Math.random()* 6});
 }
 }
-M.house ={x,z,yaw};
+M.house ={x,z,yaw,hw: W0 / 2,hd: D0 / 2};
 {
 const rec =
 COLREC;
