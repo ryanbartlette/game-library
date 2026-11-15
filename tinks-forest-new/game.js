@@ -5325,8 +5325,18 @@ models[kind].forEach((M,mi)=>{
 if(!M)return;
 const list = spots.filter(s => s.kind === kind && s.m === mi);
 if(!list.length)return;
-const im = new THREE.InstancedMesh(M.geo,M.mats,list.length);
-list.forEach((s,i)=>{
+const CELLS = new Map();
+for(const s of list){
+const key = Math.floor(s.x / 32)+ ',' + Math.floor(s.z / 32);
+let c = CELLS.get(key);
+if(!c)CELLS.set(key,(c ={n: 0}));
+s._ci = c.n++;
+s._cell = c;
+}
+for(const c of CELLS.values())c.im = new THREE.InstancedMesh(M.geo,M.mats,c.n);
+list.forEach(s =>{
+const im = s._cell.im,
+i = s._ci;
 const gy = groundAt(s.x,s.z,heightAt(s.x,s.z)+ 3);
 const sink = kind === 'rock' ? M.h * s.s * 0.12 : 0.05;
 q4.setFromAxisAngle(up,s.r);
@@ -5350,6 +5360,8 @@ const rr =(M.w * s.s)/ 2;
 addSurf({t: 'ell',czNew: true,x: s.x,z: s.z,r: rr * 0.85,y: gy - sink,ry: M.h * s.s * 0.9},s.x - rr,s.z - rr,s.x + rr,s.z + rr);
 }
 });
+for(const c of CELLS.values()){
+const im = c.im;
 im.instanceMatrix.needsUpdate = true;
 im.computeBoundingSphere();
 im.castShadow = true;
@@ -5358,6 +5370,11 @@ im.userData.czKind = kind;
 im.userData.src = 'forest-' + kind + '-' +(mi + 1);
 scene.add(im);
 (window.__czEditable = window.__czEditable ||[]).push(im);
+}
+for(const s of list){
+delete s._cell;
+delete s._ci;
+}
 out[kind]+= list.length;
 });
 try{
@@ -6527,9 +6544,10 @@ const LAZYKINDS = new Set([
 LAZY.load = async()=>{
 if(LAZY.loading)return;
 LAZY.loading = true;
+const wantSpirit = LAZY.pending.some(a => a && a.kind === 'Forest spirit');
 for(const[k,f]of[
 ['trees','models/plants/ghibli-trees.glb'],
-['spirit','models/creatures/forest-spirit.glb']
+...(wantSpirit ?[['spirit','models/creatures/forest-spirit.glb']]:[])
 ]){
 try{
 LAZY[k]= await ld(f);
@@ -15054,7 +15072,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 514;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 80;
+const LOOKV = 81;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -55813,7 +55831,11 @@ for(const k in store.objs)if(k.startsWith(id + '#'))taken.add(+k.slice(id.length
 for(const k of Object.keys(store.objs)){
 const e = store.objs[k],
 hs = k.lastIndexOf('#');
-if(hs < 0 || k.slice(0,hs)=== id || !e || e.s !== src0 || !e.o || !k.startsWith(pre))continue;
+if(hs < 0 || k.slice(0,hs)=== id || !e || e.s !== src0 || !e.o)continue;
+{
+const owner = E.imById && E.imById.get(k.slice(0,hs));
+if(owner && owner !== im && owner.userData.o0)continue;
+}
 let best = -1,
 bd = 0.3;
 for(let i = 0;i < im.count;i++){
