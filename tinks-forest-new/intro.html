@@ -41,7 +41,7 @@
 <div id="wrap">
 	<div class="side" id="left">
 		<h1>Tink's Intro Studio</h1>
-		<div class="sub">Everything the opening shows, from the room at the top of the tower down to the meadow before the tunnel. Click one to look at it, then choose to keep it, remove it, or swap it for one of the models on the right. Press <b>Copy for Claude</b> when you're done.</div>
+		<div class="sub">Everything the opening shows, from the room at the top of the tower down the meadow and through the tunnel of trees. Click one to look at it, then choose to keep it, remove it, or swap it for one of the models on the right. Press <b>Copy for Claude</b> when you're done.</div>
 		<div id="items"></div>
 		<div class="chips" style="margin-top:12px"><button class="pri" id="copy">Copy for Claude</button><button id="reset">Start over</button></div>
 		<textarea id="out" readonly></textarea>
@@ -56,6 +56,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 
 /* what the opening shows now (the forest round the tower is already the new forest) */
 const ITEMS = [
@@ -67,7 +68,14 @@ const ITEMS = [
 	{ id: 'busstop', name: 'The bus stop', what: 'Where the catbus stops, 21 m from the tower', file: '/tinks-forest/bus-stop.glb.txt' },
 	{ id: 'frogrock', name: 'The frog rock', what: 'By the pond, 23 m from the tower', file: '/tinks-forest/models/rocks/frog-rock-by-the-pond.glb.txt' },
 	{ id: 'boat', name: 'The little boat', what: 'On the stream, 27 m away (a secret gift)', file: '/tinks-forest/ponyo-boat.glb.txt' },
-	{ id: 'puff', name: 'The moss puff', what: 'The little puff that wakes Tink and leads her out', file: '/tinks-forest/models/characters/moss-puff.glb.txt' }
+	{ id: 'puff', name: 'The moss puff', what: 'The little puff that wakes Tink and leads her out', file: '/tinks-forest/models/characters/moss-puff.glb.txt' },
+	/* the tunnel of trees (built from the big painted Ghibli trees and the old bushes) */
+	{ sec: 'The tunnel of trees', id: 'tArches', name: 'The arches', what: 'Trunks bent into arches over the path, from the big painted Ghibli trees (pick a cizzy7 tree to use its bark and shape instead)', file: '/tinks-forest/models/plants/ghibli-trees.glb.txt' },
+	{ id: 'tCanopy', name: 'The leafy roof', what: 'Leaf clumps along the arches, cut from the Ghibli tree crowns (pick a cizzy7 tree or ivy for its leaves)', file: '/tinks-forest/models/plants/ghibli-trees.glb.txt' },
+	{ id: 'tTufts', name: 'Ferny tufts along the path', what: 'Low leafy tufts lining the tunnel floor', file: '/tinks-forest/models/plants/leaf-clumps.glb.txt' },
+	{ id: 'tRing', name: 'The ring of old trunks', what: 'Trunks all round the meadow so the tunnel is the only way in', file: '/tinks-forest/models/plants/ghibli-trees.glb.txt' },
+	{ id: 'tThickets', name: 'The thickets', what: 'Thick bushes between the ring trunks', file: '/tinks-forest/models/plants/bushes.glb.txt' },
+	{ id: 'tGlow', name: 'The glowing mouth and floating motes', what: 'A warm glow at the entrance and little motes drifting inside (no model: keep or remove, or leave a note)', file: null }
 ];
 /* what could take their place: cizzy7's pack, and the game's own library */
 const CZ = n => ({ cz: true, file: '/tinks-forest-new/cz/' + n + '.glb' });
@@ -101,7 +109,9 @@ let cur = ITEMS[0].id, showing = null;
 const itemsEl = document.getElementById('items'), candEl = document.getElementById('cands');
 const drawItems = () => {
 	itemsEl.innerHTML = '';
+	itemsEl.appendChild(Object.assign(document.createElement('h2'), { textContent: 'The tower and the meadow' }));
 	for (const it of ITEMS) {
+		if (it.sec) itemsEl.appendChild(Object.assign(document.createElement('h2'), { textContent: it.sec }));
 		const c = S.choices[it.id] || { act: 'keep' };
 		const d = document.createElement('div'); d.className = 'item' + (cur === it.id ? ' on' : '');
 		d.innerHTML = '<b>' + it.name + '</b><span class="what">' + it.what + '</span>';
@@ -168,6 +178,7 @@ const catRef = new THREE.Group();
 }
 const busy = document.getElementById('busy'), cap = document.getElementById('cap');
 const loader = new GLTFLoader(), cache = new Map();
+loader.setMeshoptDecoder(MeshoptDecoder);
 const tl = new THREE.TextureLoader(), texc = {};
 const czTex = k => { if (!texc[k]) { const t = tl.load('/tinks-forest-new/cz/t/' + k + '.png'); t.flipY = false; t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; texc[k] = t; } return texc[k]; };
 const czKey = (file, nm) => {
@@ -214,8 +225,8 @@ let spin = true;
 const show = async key => {
 	showing = key; drawCands();
 	const it = ITEMS.find(i => i.id === key);
-	const src = it ? { file: it.file } : ICAND.get(key);
-	if (!src) return;
+	const src = it ? (it.file ? { file: it.file } : null) : ICAND.get(key);
+	if (!src) { holder.clear(); cap.innerHTML = '<b>' + (it ? it.name : key) + '</b><small>Nothing to show here: keep it, remove it, or leave a note</small>'; return; }
 	busy.style.display = 'block';
 	let root;
 	try { root = await loadModel(src); } catch (e) { busy.style.display = 'none'; cap.innerHTML = '<b>Could not load this one</b><small>' + e.message + '</small>'; return; }
