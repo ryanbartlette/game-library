@@ -1212,7 +1212,7 @@ fragmentShader: `uniform sampler2D tDiffuse;uniform sampler2D tDepth;uniform vec
    float n=float((R+1)*(R+1));float best=1e9;vec3 outc=texture2D(tDiffuse,vUv).rgb;
    for(int k=0;k<4;k++){vec3 mu=m[k]/n;vec3 v=abs(s[k]/n-mu*mu);float sv=v.r+v.g+v.b;if(sv<best){best=sv;outc=mu;}}
    /* a soft depth of field: the far woods melt gently, the cats stay sharp */
-   float coc=fr*uDof;if(coc>.02){float rad=coc*5.*(uRes.y/1300.);vec3 b=outc;float w=1.;for(int k=0;k<10;k++){float a=float(k)*2.39996;float r=sqrt((float(k)+.5)/10.)*rad;vec2 o=vec2(cos(a),sin(a))*r*px;vec2 uv2=vUv+o;/* don't let sharp near things bleed into the blur */float zs=uHasD>.5?zAt(uv2):z;float ok=smoothstep(uFocus*1.1,uFocus*1.25+2.5,zs);b+=texture2D(tDiffuse,uv2).rgb*ok;w+=ok;}outc=mix(outc,b/w,min(1.,coc*1.1));}
+   /* FOREST 72 (Ryan: the stars came out as little asterisks): the open sky skips the brush and the depth blur, whose ten spread samples drew each star point as a spiky star */bool skyPx=uHasD>.5&&texture2D(tDepth,vUv).x>.99999;if(skyPx)outc=texture2D(tDiffuse,vUv).rgb;float coc=skyPx?0.:fr*uDof;if(coc>.02){float rad=coc*5.*(uRes.y/1300.);vec3 b=outc;float w=1.;for(int k=0;k<10;k++){float a=float(k)*2.39996;float r=sqrt((float(k)+.5)/10.)*rad;vec2 o=vec2(cos(a),sin(a))*r*px;vec2 uv2=vUv+o;/* don't let sharp near things bleed into the blur */float zs=uHasD>.5?zAt(uv2):z;float ok=smoothstep(uFocus*1.1,uFocus*1.25+2.5,zs);b+=texture2D(tDiffuse,uv2).rgb*ok;w+=ok;}outc=mix(outc,b/w,min(1.,coc*1.1));}
    /* (fix, Ryan's black squares: one broken pixel from the scene (not-a-number) was smeared into a growing black box by the glow; it's caught here so the glow never sees it) */
    if(any(isnan(outc))||any(isinf(outc)))outc=vec3(0.);outc=clamp(outc,0.,64.);
    gl_FragColor=vec4(outc,1.);}`
@@ -4987,6 +4987,7 @@ if(/Weed/.test(file))return 'weed';
 if(/Bridge_Bridge/.test(file))return 'bridge';
 if(/Lantern/.test(file))return 'lantern';
 if(/Sculpt/.test(file))return 'sculpt';
+if(/Ivy/.test(file))return 'ivy';
 if(/leaf birch/.test(nm))return 'leafbirch';
 if(/^leaf/.test(nm))return 'leaf';
 if(/birch/.test(nm))return 'birch';
@@ -5057,9 +5058,40 @@ if(k && MASKC[k]){
 const m = new THREE.MeshStandardMaterial({color: MASKC[k],alphaMap: tex(k,true),alphaTest: 0.4,side: THREE.DoubleSide,roughness: 1});
 return tintMat(sway ? windify(m,true,swU,/^(grass0|grass1|weed)$/.test(k)): m,'czleaf');
 }
+if(k === 'ivy'){
+const m = new THREE.MeshStandardMaterial({map: tex('ivy',false),alphaTest: 0.45,side: THREE.DoubleSide,roughness: 1});
+return tintMat(windify(m,true,swU),'czleaf');
+}
 const m = new THREE.MeshStandardMaterial({roughness: 1});
 if(k)m.map = tex(k,false);
+if(k && /^rock/.test(k))return tintMat(mossify(m),'czbark');
 return tintMat(sway ? windify(m,false,swU): m,'czbark');
+};
+const mossify = m =>{
+m.customProgramCacheKey =()=> 'czmoss';
+m.onBeforeCompile = sh =>{
+sh.vertexShader = sh.vertexShader
+.replace('#include <common>','#include <common>\nvarying vec3 vMW;varying vec3 vMP;')
+.replace(
+'#include <begin_vertex>',
+`#include <begin_vertex>
+{mat4 mm=modelMatrix;
+#ifdef USE_INSTANCING
+mm=modelMatrix*instanceMatrix;
+#endif
+vMW=normalize(mat3(mm)*objectNormal);vMP=(mm*vec4(transformed,1.)).xyz;}`
+);
+sh.fragmentShader = sh.fragmentShader
+.replace('#include <common>','#include <common>\nvarying vec3 vMW;varying vec3 vMP;float mh(vec2 p){return fract(sin(dot(p,vec2(41.3,289.1)))*43758.5);}float mn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(mh(i),mh(i+vec2(1,0)),f.x),mix(mh(i+vec2(0,1)),mh(i+vec2(1,1)),f.x),f.y);}')
+.replace(
+'#include <map_fragment>',
+`#include <map_fragment>
+{float up=normalize(vMW).y;float bl=mn(vMP.xz*3.1)*.6+mn(vMP.xz*9.7+3.)*.4;float mo=smoothstep(.38,.72,up+(bl-.5)*.45);
+float lu=dot(diffuseColor.rgb,vec3(.3,.59,.11));vec3 mc=mix(vec3(.30,.42,.17),vec3(.45,.56,.24),bl)*(.75+.5*lu);
+diffuseColor.rgb=mix(diffuseColor.rgb,mc,mo*.85);}`
+);
+};
+return m;
 };
 const loadModel = file =>
 new Promise(res =>{
@@ -5543,7 +5575,9 @@ for(const[k,f]of[
 ['rock4','Props_Rocks_Rock_4_Rock4_High'],
 ['lantern','Props_Lantern_Lantern_High'],
 ['sculpt','Props_Sculptures_Sculpture1'],
-['bridge','Props_Bridge_Bridge']
+['bridge','Props_Bridge_Bridge'],
+['ivyS','Foliage_Ivy_SmallClump1'],
+['ivyL','Foliage_Ivy_LargeClump1']
 ])
 L[k]= await loadModel(f);
 const put ={};
@@ -5647,6 +5681,47 @@ else if(r < 0.81)add(r < 0.79 ? 'rock1' : 'rock4',x,z,0.3 + sc * 0.45,ro * 6.283
 }
 }
 }
+try{
+const ir = mulberry32(71201);
+put.ivyS = put.ivyS ||[];
+put.ivyL = put.ivyL ||[];
+const hS = L.ivyS ? L.ivyS.h : 1,
+hL = L.ivyL ? L.ivyL.h : 1;
+for(const[x,z]of put.lantern ||[]){
+const a = ir(),
+b = ir(),
+c = ir();
+if(a > 0.7)continue;
+const an = b * 6.283;
+put.ivyS.push([x + Math.cos(an)* 0.22,z + Math.sin(an)* 0.22,(0.38 + 0.2 * c)/ hS,b * 6.283,0.05]);
+}
+for(const cr of window.__CROSS ||[]){
+if(cr.kind !== 'bridge')continue;
+const tx = -cr.nz,
+tz = cr.nx;
+for(const e of[-1,1])
+for(const sd of[-1,1]){
+const a = ir(),
+b = ir();
+if(a > 0.8)continue;
+const x = cr.x + cr.nx * e *(cr.hl + 0.35)+ tx * sd *(0.75 + 0.2 * b),
+z = cr.z + cr.nz * e *(cr.hl + 0.35)+ tz * sd *(0.75 + 0.2 * b);
+put.ivyL.push([x,z,(0.55 + 0.25 * a)/ hL,b * 6.283,0.1]);
+}
+}
+for(const q of(window.__SS ||[]).filter((_,i)=> i % 23 === 0)){
+const a = ir(),
+b = ir();
+if(a > 0.35)continue;
+const o =(b < 0.5 ? 1 : -1)*(q.w + 0.5 + a);
+const x = q.x - q.tz * o,
+z = q.z + q.tx * o;
+if(wet(x,z))continue;
+put.ivyS.push([x,z,(0.3 + 0.2 * b)/ hS,a * 30,0.08]);
+}
+}catch(e){
+console.warn('ivy',e);
+}
 const m4 = new THREE.Matrix4(),
 q4 = new THREE.Quaternion(),
 up = new V3(0,1,0);
@@ -5655,6 +5730,7 @@ for(const k in put){
 const M = L[k];
 if(!M)continue;
 const list = put[k];
+if(!list.length)continue;
 const im = new THREE.InstancedMesh(M.geo,M.mats,list.length);
 list.forEach(([x,z,s,r,sink],i)=>{
 const gy = groundAt(x,z,heightAt(x,z)+ 3);
@@ -15000,7 +15076,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 514;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 71;
+const LOOKV = 72;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -26918,6 +26994,7 @@ m.scale.set(s2,s2,1);
 M.clouds.push({m,a,d,h: 30 + s2 * 0.72,sp: 0.0025});
 }
 }
+for(const c of M.clouds)c.m.visible = false;
 {
 const N = LOW ? 1500 : 4000;
 const g = new THREE.BufferGeometry();
