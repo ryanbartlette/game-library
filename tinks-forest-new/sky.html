@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Tink's Sky Studio</title>
+<style>
+	:root { --bg:#1b1d24; --panel:#24262e; --ink:#eef0f4; --mute:#9ea3b0; --acc:#7fb3e6; --line:#363946; }
+	* { box-sizing:border-box; }
+	html,body { margin:0; height:100%; background:var(--bg); color:var(--ink); font:13px/1.4 system-ui,-apple-system,Segoe UI,sans-serif; }
+	#wrap { display:grid; grid-template-columns:340px 1fr; height:100%; }
+	#panel { background:var(--panel); overflow:auto; padding:12px 14px; border-right:1px solid var(--line); }
+	h1 { font-size:16px; margin:0 0 2px; }
+	.sub { color:var(--mute); font-size:12px; margin-bottom:8px; }
+	h2 { font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--acc); margin:16px 0 6px; }
+	.row { display:grid; grid-template-columns:128px 1fr 44px; align-items:center; gap:6px; margin:3px 0; }
+	.row label { color:var(--mute); }
+	.row input[type=range] { width:100%; accent-color:var(--acc); }
+	.row output { text-align:right; font-variant-numeric:tabular-nums; }
+	.row input[type=color] { width:44px; height:22px; border:0; background:none; padding:0; }
+	.tabs { display:flex; flex-wrap:wrap; gap:4px; margin:4px 0; }
+	button { background:#353844; color:var(--ink); border:1px solid #464a58; border-radius:6px; padding:5px 9px; cursor:pointer; font:inherit; }
+	button.on { background:var(--acc); color:#151820; border-color:var(--acc); font-weight:600; }
+	button.pri { background:var(--acc); color:#151820; border-color:var(--acc); font-weight:600; }
+	#view { position:relative; }
+	canvas#c { width:100%; height:100%; display:block; cursor:grab; }
+	#hint { position:absolute; left:12px; bottom:10px; color:#fff; opacity:.75; font-size:12px; text-shadow:0 1px 3px #0008; }
+	#toast { position:absolute; left:50%; top:14px; transform:translateX(-50%); background:var(--acc); color:#151820; padding:6px 12px; border-radius:6px; font-weight:600; opacity:0; transition:opacity .3s; }
+	#out { width:100%; height:80px; background:#1b1d24; color:var(--ink); border:1px solid var(--line); border-radius:6px; font:11px ui-monospace,monospace; margin-top:6px; }
+	@media (max-width:900px){ #wrap{grid-template-columns:1fr;grid-template-rows:60vh auto;} #view{order:-1} }
+</style>
+<script type="importmap">{"imports":{"three":"/tinks-forest/three.module.js","three/addons/":"/tinks-forest/jsm/"}}</script>
+</head>
+<body>
+<div id="wrap">
+	<div id="panel">
+		<h1>Tink's Sky Studio</h1>
+		<div class="sub">Only the sky, the clouds and the hills. Pick a time of day, shape everything, then press <b>Copy for Claude</b> and paste it in the chat.</div>
+		<h2>Time of day</h2>
+		<div class="tabs" id="times"></div>
+		<h2>Season</h2>
+		<div class="tabs" id="seasons"></div>
+		<div id="ctl"></div>
+		<div class="tabs" style="margin-top:10px">
+			<button class="pri" id="copy">Copy for Claude</button>
+			<button id="resetT">Reset this time</button>
+			<button id="reset">Reset all</button>
+		</div>
+		<textarea id="out" readonly></textarea>
+	</div>
+	<div id="view"><canvas id="c"></canvas><img id="ref" src="skyref.png" alt="Ryan's reference" style="position:absolute;right:10px;top:10px;width:28%;max-width:340px;border-radius:6px;box-shadow:0 2px 10px #0006;cursor:pointer" title="Your reference (click to hide)" onclick="this.style.opacity=this.style.opacity==='0.1'?'1':'0.1'"><img src="skyref3.png" alt="Ghibli sunset" style="position:absolute;right:10px;bottom:34px;width:22%;max-width:260px;border-radius:6px;box-shadow:0 2px 10px #0006;cursor:pointer" onclick="this.style.opacity=this.style.opacity==='0.1'?'1':'0.1'"><img src="skyref2.png" alt="Ghibli clouds" style="position:absolute;right:10px;top:calc(10px + min(28vw,340px) * .57 + 8px);width:9%;max-width:110px;border-radius:6px;box-shadow:0 2px 10px #0006;cursor:pointer" onclick="this.style.opacity=this.style.opacity==='0.1'?'1':'0.1'"><div id="toast">Copied</div><div id="hint">Drag to look around · scroll to look up and down</div></div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
+
+/* ---------------- settings ---------------- */
+const TIMES = ['dawn', 'midday', 'golden', 'sunset', 'dusk', 'night'];
+const SEASONS = ['spring', 'summer', 'autumn', 'winter'];
+/* each time of day has its own colours (sky, haze, sun, clouds, hills); the shapes are shared */
+const TDEF = {
+	dawn:   { top:'#4a6aa8', mid:'#c9a7c9', hor:'#f4c7a8', haze:'#e6cbc6', sun:'#ffc9a0', sunH:6,  glow:0.8, stars:0.12, cLit:'#ffe6da', cMid:'#d6bcd2', cShade:'#8f86b8', hNear:'#5d6e66', hFar:'#c2b6cc' },
+	midday: { top:'#2f8fc4', mid:'#5cb7d6', hor:'#bfe8ec', haze:'#dff2ef', sun:'#fff1cc', sunH:55, glow:0.8, stars:0,    cLit:'#ffffff', cMid:'#dfe9ee', cShade:'#8fa3b6', hNear:'#3f8a4a', hFar:'#5e9fb8' },
+	golden: { top:'#4f86c8', mid:'#a9cde0', hor:'#ffd9a0', haze:'#f0dcc2', sun:'#ffcf8a', sunH:14, glow:1.1, stars:0,    cLit:'#fff0d0', cMid:'#e6ccb8', cShade:'#9a8fc6', hNear:'#5c7a42', hFar:'#c8c4bc' },
+	sunset: { top:'#6e9ec6', mid:'#f2b58a', hor:'#ffb04a', haze:'#f0a070', sun:'#ff9a40', sunH:3,  glow:1.4, stars:0,    cLit:'#ffcf8a', cMid:'#e48aa6', cShade:'#6f5a8c', hNear:'#2e3a2c', hFar:'#a86f78' },
+	dusk:   { top:'#26365f', mid:'#6b5f8f', hor:'#c98a8a', haze:'#6f6a8c', sun:'#ff9f7a', sunH:-3, glow:0.7, stars:0.5,  cLit:'#c8a0b8', cMid:'#6f6a98', cShade:'#403f6a', hNear:'#2c3348', hFar:'#606590' },
+	night:  { top:'#0b1430', mid:'#1c2c55', hor:'#34497a', haze:'#26385a', sun:'#c8d6ff', sunH:32, glow:0.5, stars:1,    cLit:'#7088bc', cMid:'#3f5486', cShade:'#26325c', hNear:'#141c30', hFar:'#2c3c62' }
+};
+const GDEF = {
+	/* sky */
+	hazeH: 0.12, hazePow: 2.2, warm: 0.3, halo: 1, sunAz: 135, cirrus: 0.8,
+	/* clouds */
+	cCount: 16, cSize: 1.1, cStretch: 1.9, cFlat: 0.55, cLump: 0.3, cWisp: 0.45, cNearD: 300, cFarD: 560, cNearH: 70, cFarH: 110, cFarShare: 0.55, cDrift: 1.3, cOpacity: 1, cSeed: 1,
+	/* hills */
+	hLayers: 4, hDist: 280, hGap: 60, hHeight: 0.07, hGrow: 0.02, hBump: 1.0, hRoll: 1.1, hCrowns: 0.25, hFade: 0.7, hMist: 0.7, hSeed: 3,
+	/* seasons */
+	autumnTint: '#b9783a', autumnAmt: 0.45, winterTint: '#e8eef4', winterAmt: 0.55, springTint: '#7fae52', springAmt: 0.2
+};
+const DEF = { time: 'midday', season: 'summer', T: JSON.parse(JSON.stringify(TDEF)), ...GDEF };
+let S = JSON.parse(JSON.stringify(DEF));
+try {
+	const sv = JSON.parse(localStorage.getItem('skystudio') || 'null');
+	if (sv) { Object.assign(S, sv); for (const t of TIMES) S.T[t] = { ...TDEF[t], ...(sv.T && sv.T[t]) }; }
+} catch (e) {}
+const save = () => { try { localStorage.setItem('skystudio', JSON.stringify(S)); } catch (e) {} };
+
+const TGROUP = [
+	['Sky', [['top', 'Top of the sky', 'c'], ['mid', 'Middle', 'c'], ['hor', 'Near the horizon', 'c'], ['haze', 'Haze at the horizon', 'c']]],
+	['Sun (moon at night)', [['sun', 'Glow colour', 'c'], ['sunH', 'Height in the sky', -10, 80, 1], ['glow', 'Glow strength', 0, 2, 0.02], ['stars', 'Stars', 0, 1.5, 0.02]]],
+	['Cloud colours', [['cLit', 'Sunlit tops', 'c'], ['cMid', 'Sides', 'c'], ['cShade', 'Bellies', 'c']]],
+	['Hill colours', [['hNear', 'Nearest hills', 'c'], ['hFar', 'Farthest hills', 'c']]]
+];
+const GGROUP = [
+	['Sky · shape', [['hazeH', 'Haze height', 0.02, 0.4, 0.005], ['hazePow', 'Haze softness', 0.6, 5, 0.05], ['warm', 'Warmth by the sun', 0, 1, 0.01], ['halo', 'Sun glow size', 0.3, 3, 0.02], ['sunAz', 'Sun direction (°)', 0, 360, 1], ['cirrus', 'High wispy streaks', 0, 1, 0.01]]],
+	['Clouds · shape', [['cCount', 'How many', 0, 24, 1], ['cSize', 'Size', 0.4, 2.5, 0.02], ['cStretch', 'Long and flat', 0.8, 3.5, 0.02], ['cFlat', 'Flatness', 0.3, 1.2, 0.01], ['cLump', 'Lumpiness', 0, 0.9, 0.01], ['cWisp', 'Wispy edges', 0, 1.2, 0.01], ['cOpacity', 'Opacity', 0.2, 1, 0.01], ['cDrift', 'Drift speed', 0, 5, 0.05], ['cSeed', 'Shuffle', 1, 40, 1]]],
+	['Clouds · where', [['cNearD', 'Near layer distance', 120, 400, 5], ['cNearH', 'Near layer height', 20, 200, 2], ['cFarD', 'Far layer distance', 300, 700, 5], ['cFarH', 'Far layer height', 40, 320, 2], ['cFarShare', 'Share in far layer', 0, 1, 0.01]]],
+	['Hills · layers', [['hLayers', 'How many layers', 1, 6, 1], ['hDist', 'Nearest distance', 150, 500, 5], ['hGap', 'Gap between layers', 20, 200, 5], ['hHeight', 'Nearest height', 0.005, 0.15, 0.001], ['hGrow', 'Each layer taller by', -0.03, 0.08, 0.001]]],
+	['Hills · shape', [['hBump', 'Bumpiness', 0, 1.5, 0.01], ['hRoll', 'Wide or narrow hills', 0.1, 2, 0.01], ['hCrowns', 'Tree tops on near hills', 0, 1.5, 0.01], ['hFade', 'Fade into the haze', 0, 1, 0.01], ['hMist', 'Mist at their feet', 0, 1, 0.01], ['hSeed', 'Shuffle', 1, 40, 1]]],
+	['Seasons', [['springTint', 'Spring green', 'c'], ['springAmt', 'Spring amount', 0, 1, 0.01], ['autumnTint', 'Autumn colour', 'c'], ['autumnAmt', 'Autumn amount', 0, 1, 0.01], ['winterTint', 'Winter snow', 'c'], ['winterAmt', 'Winter amount', 0, 1, 0.01]]]
+];
+let dirtyC = true, dirtyH = true;
+const ctl = document.getElementById('ctl');
+const makeRow = (obj, k, label, a, b, st, onChange) => {
+	const r = document.createElement('div'); r.className = 'row';
+	const lb = document.createElement('label'); lb.textContent = label; r.appendChild(lb);
+	const inp = document.createElement('input'); inp.id = 'k_' + k;
+	const out = document.createElement('output');
+	const fmt = v => (+v).toFixed(3).replace(/\.?0+$/, '');
+	if (a === 'c') { inp.type = 'color'; inp.value = obj[k]; r.appendChild(inp); r.appendChild(document.createElement('span')); }
+	else { inp.type = 'range'; inp.min = a; inp.max = b; inp.step = st; inp.value = obj[k]; out.textContent = fmt(obj[k]); r.appendChild(inp); r.appendChild(out); }
+	inp.oninput = () => { obj[k] = a === 'c' ? inp.value : +inp.value; if (a !== 'c') out.textContent = fmt(obj[k]); onChange(k); save(); };
+	return r;
+};
+const build = () => {
+	ctl.innerHTML = '';
+	const T = S.T[S.time];
+	for (const [title, items] of TGROUP) {
+		const h = document.createElement('h2'); h.textContent = title + ' · ' + S.time; ctl.appendChild(h);
+		for (const [k, label, a, b, st] of items) ctl.appendChild(makeRow(T, k, label, a, b, st, k => { if (/^c/.test(k)) {} }));
+	}
+	for (const [title, items] of GGROUP) {
+		const h = document.createElement('h2'); h.textContent = title; ctl.appendChild(h);
+		for (const [k, label, a, b, st] of items) ctl.appendChild(makeRow(S, k, label, a, b, st, k => { if (k[0] === 'c' && !/^c(Opacity|Drift)$/.test(k)) dirtyC = true; if (/^h(Layers|Dist|Gap|Seed)$/.test(k)) dirtyH = true; }));
+	}
+};
+const tabs = (id, list, key) => {
+	const el = document.getElementById(id); el.innerHTML = '';
+	for (const v of list) {
+		const b = document.createElement('button'); b.textContent = v[0].toUpperCase() + v.slice(1);
+		if (S[key] === v) b.className = 'on';
+		b.onclick = () => { S[key] = v; save(); tabs(id, list, key); if (key === 'time') { blendFrom = cur(); blendT = 0; build(); } };
+		el.appendChild(b);
+	}
+};
+tabs('times', TIMES, 'time'); tabs('seasons', SEASONS, 'season'); build();
+document.getElementById('copy').onclick = async () => {
+	const txt = JSON.stringify({ skyStudio: 1, ...S });
+	document.getElementById('out').value = txt;
+	try { await navigator.clipboard.writeText(txt); } catch (e) { document.getElementById('out').select(); }
+	const t = document.getElementById('toast'); t.style.opacity = 1; setTimeout(() => (t.style.opacity = 0), 1200);
+};
+document.getElementById('reset').onclick = () => { S = JSON.parse(JSON.stringify(DEF)); save(); location.reload(); };
+document.getElementById('resetT').onclick = () => { S.T[S.time] = { ...TDEF[S.time] }; save(); build(); };
+
+/* ---------------- scene ---------------- */
+const cvs = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas: cvs, antialias: true });
+renderer.setPixelRatio(Math.min(2, devicePixelRatio));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+const scene = new THREE.Scene();
+const cam = new THREE.PerspectiveCamera(75, 1, 0.5, 2000);
+cam.position.set(0, 2, 0);
+let yaw = Math.PI * 0.75, pitch = 0.08;
+
+/* the colours in play right now (they slide over when you switch the time of day) */
+const col = k => new THREE.Color(k);
+const cur = () => { const T = S.T[S.time], o = {}; for (const k in T) o[k] = typeof T[k] === 'string' ? col(T[k]) : T[k]; return o; };
+let blendFrom = cur(), blendT = 1;
+const live = () => {
+	const to = cur(); if (blendT >= 1) return to;
+	const k = blendT * blendT * (3 - 2 * blendT), o = {};
+	for (const key in to) o[key] = to[key].isColor ? blendFrom[key].clone().lerp(to[key], k) : blendFrom[key] + (to[key] - blendFrom[key]) * k;
+	return o;
+};
+const seasonTint = c => {
+	const s = S.season;
+	if (s === 'autumn') return c.clone().lerp(col(S.autumnTint), S.autumnAmt);
+	if (s === 'winter') return c.clone().lerp(col(S.winterTint), S.winterAmt);
+	if (s === 'spring') return c.clone().lerp(col(S.springTint), S.springAmt);
+	return c.clone();
+};
+const sunDir = new THREE.Vector3();
+
+/* --- the sky dome (after nicksonthc's Ghibli sky, MIT): gradient, horizon haze, warmth toward the sun, a soft three-lobed glow with no
+   disc, low-sun dimming, dithering; at night a narrow moon glow, a small moon and stars --- */
+const SKY = {
+	uTop: { value: new THREE.Color() }, uMid: { value: new THREE.Color() }, uHor: { value: new THREE.Color() }, uHaze: { value: new THREE.Color() },
+	uSun: { value: new THREE.Color() }, uSunDir: { value: sunDir }, uGlow: { value: 1 }, uHazeH: { value: 0.14 }, uHazePow: { value: 2.2 },
+	uWarm: { value: 0.45 }, uHalo: { value: 1 }, uStars: { value: 0 }, uNight: { value: 0 }, uT: { value: 0 }, uCir: { value: 0.35 }
+};
+{
+	const m = new THREE.ShaderMaterial({
+		side: THREE.BackSide, depthWrite: false, fog: false, uniforms: SKY,
+		vertexShader: `varying vec3 vd;void main(){vd=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);gl_Position.z=gl_Position.w;}`,
+		fragmentShader: `varying vec3 vd;uniform vec3 uTop,uMid,uHor,uHaze,uSun,uSunDir;uniform float uGlow,uHazeH,uHazePow,uWarm,uHalo,uStars,uNight,uT,uCir;
+float hs(vec3 p){p=fract(p*vec3(.1031,.1030,.0973));p+=dot(p,p.yxz+33.33);return fract((p.x+p.y)*p.z);}
+vec3 hh3(vec3 p){p=fract(p*vec3(.1031,.1030,.0973));p+=dot(p,p.yxz+33.33);return fract((p.xxy+p.yxx)*p.zyx);}
+float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);float a=hs(vec3(i,1.)),b=hs(vec3(i+vec2(1,0),1.)),c=hs(vec3(i+vec2(0,1),1.)),d=hs(vec3(i+vec2(1,1),1.));return mix(mix(a,b,f.x),mix(c,d,f.x),f.y);}
+float fb(vec2 p){float s=0.,a=.5;for(int i=0;i<5;i++){s+=a*vn(p);p=p*2.03+7.1;a*=.5;}return s;}
+void main(){float h=vd.y;float t=clamp(h,0.,1.);
+ vec3 g=mix(uHor,uMid,smoothstep(0.,.224,t));g=mix(g,uTop,smoothstep(.14,.85,pow(t,.8)));
+ float hz=pow(1.-smoothstep(-.04,uHazeH*.55,h),uHazePow);g=mix(g,uHaze,hz);
+ vec2 sxz=normalize(uSunDir.xz+1e-4),dxz=normalize(vd.xz+1e-4);float tw=pow(max(dot(sxz,dxz),0.),3.)*(1.-smoothstep(0.,.35,h));g=mix(g,uHor*vec3(1.05,.95,.85),tw*uWarm*(1.-uNight));
+ float cA=dot(vd,uSunDir);vec3 sc=uSun/max(max(uSun.r,uSun.g),max(uSun.b,1e-3));
+ float halo=exp(-(1.-cA)*90./uHalo)*.75+exp(-(1.-cA)*11./uHalo)*.28+exp(-(1.-cA)*2.2/uHalo)*.08;
+ float moonG=pow(max(cA,0.),24.)*.35+pow(max(cA,0.),900.)*.6;
+ g+=sc*mix(halo*.9,moonG,uNight)*uGlow*smoothstep(-.1,.02,h+.06);
+ float moonD=smoothstep(.99965,.9998,cA)*uNight;g=mix(g,vec3(.96,.97,1.),moonD*.9);
+ g*=mix(1.,mix(.55,1.,smoothstep(-.05,.3,uSunDir.y)),1.-uNight);
+ if(h>0.&&uCir>0.){vec2 cq=vd.xz/(h+.18);float cir=fb(vec2(cq.x*.5+cq.y*1.6,cq.y*.22-cq.x*.35)*1.1+vec2(uT*.004,0.));float ci=smoothstep(.56,.86,cir)*smoothstep(.06,.4,h)*(1.-smoothstep(.75,1.,h));g=mix(g,mix(vec3(1.),uHor,.5),ci*.6*uCir*(1.-.85*uNight));}
+ if(uStars>0.){float sk=0.;for(int L=0;L<3;L++){float N=L==0?260.:L==1?560.:1100.;float P=L==0?.0042:L==1?.0055:.006;float B=L==0?1.5:L==1?.85:.5;vec3 g3=vd*N;vec3 q=floor(g3);vec3 h3=hh3(q+float(L)*17.);if(h3.x<P){vec3 cp=q+.5+(h3-.5)*.5;float d=length(g3-cp);float rad=L==0?.42:.36;float tw2=.82+.18*sin(uT*(1.1+h3.y*2.6)+h3.z*6.283)*sin(uT*(.37+h3.z*.9)+h3.y*9.);sk+=smoothstep(rad,rad*.25,d)*tw2*B*(.6+.8*fract(h3.y*7.13));}}g+=vec3(.9,.94,1.)*sk*uStars*smoothstep(.02,.22,h);}
+ g+=(hs(vec3(gl_FragCoord.xy,uT))-.5)/255.;
+ gl_FragColor=vec4(g,1.);
+ #include <tonemapping_fragment>
+ #include <colorspace_fragment>
+}`
+	});
+	const sky = new THREE.Mesh(new THREE.SphereGeometry(900, 48, 24), m);
+	sky.renderOrder = -40; sky.frustumCulled = false; scene.add(sky);
+}
+
+/* --- clouds (after nicksonthc, MIT): instanced icosphere puffs, flat bellies and cauliflower crowns, three-tone painted light, torn
+   wispy edges, silver lining, a near and a far layer sinking into the haze, slow drift --- */
+const CU = {
+	uTime: { value: 0 }, uSunDir: { value: sunDir }, uSunColor: { value: new THREE.Color() }, uMist: { value: new THREE.Color() }, uSkyTop: { value: new THREE.Color() },
+	uLit: { value: new THREE.Color() }, uMidC: { value: new THREE.Color() }, uShade: { value: new THREE.Color() }, uDusk: { value: 0 }, uFlat: { value: 0.68 },
+	uLump: { value: 0.38 }, uWisp: { value: 0.6 }, uOp: { value: 0.85 }, uDrift: { value: 1.3 }, uNight: { value: 0 }, uFarD: { value: 460 }
+};
+const NOISE = `float h31(vec3 p){p=fract(p*.3183099+.1);p*=17.;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}
+float vn3(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.-2.*f);return mix(mix(mix(h31(i),h31(i+vec3(1,0,0)),f.x),mix(h31(i+vec3(0,1,0)),h31(i+vec3(1,1,0)),f.x),f.y),mix(mix(h31(i+vec3(0,0,1)),h31(i+vec3(1,0,1)),f.x),mix(h31(i+vec3(0,1,1)),h31(i+vec3(1,1,1)),f.x),f.y),f.z);}
+float fbm3(vec3 p){float s=0.,a=.5;for(int i=0;i<4;i++){s+=a*vn3(p);p=p*2.02+1.7;a*=.5;}return s;}`;
+const cloudMat = new THREE.ShaderMaterial({
+	fog: false, transparent: true, depthWrite: false, uniforms: CU,
+	vertexShader: `attribute vec4 aPos;attribute vec3 aCenter;attribute vec2 aDrift;uniform float uTime,uFlat,uLump,uDrift;varying vec3 vN,vCN,vWP,vLP;
+${NOISE}
+void main(){vec3 n=normalize(position);float lump=fbm3(n*2.6+aDrift.y)-.5;vec3 p=aPos.xyz+n*aPos.w*(1.+lump*uLump*2.)*vec3(1.,uFlat,1.);vec3 c=aCenter;
+float shift=mod(c.x+uTime*uDrift*aDrift.x*.35+840.,1680.)-840.-c.x;p.x+=shift;c.x+=shift;
+vN=n;vCN=normalize((p-c)*vec3(1.,1.7,1.));vLP=p;vec4 w=modelMatrix*vec4(p,1.);vWP=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`,
+	fragmentShader: `uniform vec3 uSunDir,uSunColor,uMist,uLit,uMidC,uShade,uSkyTop;uniform float uTime,uDusk,uWisp,uOp,uNight,uFarD;varying vec3 vN,vCN,vWP,vLP;
+${NOISE}
+float hg(float c,float g){float g2=g*g;return (1.-g2)/pow(1.+g2-2.*g*c,1.5)*(1.-g)*(1.-g)/(1.+g);}
+void main(){vec3 V=normalize(cameraPosition-vWP),L=normalize(uSunDir);vec3 N=normalize(mix(vN,vCN,.42));float t=uTime*.012;
+float rim=dot(vN,V);float wisp=fbm3(vLP*.045+vec3(t,0.,-t*.6));float far=smoothstep(uFarD*.65,uFarD*1.05,length(vLP.xz));
+float alpha=smoothstep(.02,.5,rim+(wisp-.5)*uWisp)*uOp*(1.-.25*far);if(alpha<.02)discard;
+float l=dot(N,L)+(fbm3(vLP*.035)-.5)*.35;float k1=smoothstep(-.52,-.32,l);float k2=smoothstep(-.16,.04,l);
+vec3 sunTint=mix(vec3(1.),uSunColor/max(max(uSunColor.r,uSunColor.g),max(uSunColor.b,1e-3)),.45+.4*uDusk);vec3 lit=uLit*mix(sunTint,vec3(1.),uNight);
+vec3 c=mix(uShade,uMidC,k1);c=mix(c,lit,k2);c=mix(c,mix(uMist,uSkyTop,.5+.5*N.y)*.9,.18);c=mix(c,uShade,smoothstep(-.15,-.6,vCN.y)*.45);
+c*=mix(.6,1.,smoothstep(-.35,.75,dot(vN,vCN)));float det=fbm3(vLP*.11+vec3(0.,0.,t*.5)),powder=1.-exp(-2.2*(1.-rim));c*=.84+.3*det;c=mix(c,lit,.18*powder*k2);
+float fwd=hg(dot(-V,L),.62),thin=1.-smoothstep(0.,.45,rim);c+=lit*fwd*thin*(.35+.9*uDusk)*(1.-uNight*.7);
+float low=1.-smoothstep(30.,150.,vLP.y-length(vLP.xz)*.06);c=mix(c,uMist,.35*low);c=mix(c,uMist,.4*far);
+gl_FragColor=vec4(c,alpha);
+#include <tonemapping_fragment>
+#include <colorspace_fragment>
+}`
+});
+let clouds = null;
+const buildClouds = () => {
+	if (clouds) { scene.remove(clouds); clouds.geometry.dispose(); }
+	let sd = S.cSeed * 9973 + 17;
+	const rand = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+	const P = [];
+	const cloud = (ang, R, cy, w, speed) => {
+		const cx = Math.sin(ang) * R, cz = -Math.cos(ang) * R, seed = rand() * 100;
+		const st = S.cStretch, n = Math.round((5 + rand() * 5) * st), yw = rand() * Math.PI, ca = Math.cos(yw), sa = Math.sin(yw);
+		const put = (px, py, pz, rad) => P.push([cx + px * ca - pz * sa, cy + py, cz + px * sa + pz * ca, rad, cx, cy + w * 0.12, cz, speed, seed]);
+		for (let k = 0; k < n; k++) { const u = (k + 0.5) / n - 0.5, rad = w * (0.15 + 0.08 * rand()) * Math.sqrt(1 - Math.abs(u) * 1.4); put(u * w * 0.9 * st, rad * 0.5 + (rand() - 0.5) * w * 0.04, (rand() - 0.5) * w * 0.14, rad); }
+		const m = Math.round((4 + rand() * 4) * (0.6 + 0.4 * st)), peak = (rand() - 0.5) * 0.4;
+		for (let k = 0; k < m; k++) { const u = peak + (rand() - 0.5) * 0.6, rad = w * (0.09 + 0.11 * rand()) * (1 - Math.abs(u - peak) * 0.7); put(u * w * 0.8 * (0.5 + 0.5 * st), rad * 0.5 + w * (0.09 + 0.14 * rand()), (rand() - 0.5) * w * 0.16, rad); }
+	};
+	const n = S.cCount | 0;
+	for (let i = 0; i < n; i++) {
+		const far = i >= Math.round(n * (1 - S.cFarShare));
+		const R = far ? S.cFarD * (0.85 + 0.3 * rand()) : S.cNearD * (0.8 + 0.4 * rand());
+		cloud(rand() * Math.PI * 2, R, (far ? S.cFarH : S.cNearH) * (0.75 + 0.5 * rand()), (30 + rand() * 54) * (far ? 1.8 : 1) * S.cSize, 0.6 + rand() * 0.9);
+	}
+	if (!P.length) { clouds = null; return; }
+	const ico = new THREE.IcosahedronGeometry(1, 3); ico.deleteAttribute('normal'); ico.deleteAttribute('uv');
+	const base = mergeVertices(ico);
+	const geo = new THREE.InstancedBufferGeometry();
+	geo.index = base.index; geo.setAttribute('position', base.attributes.position); geo.instanceCount = P.length;
+	const f = (k, nn) => new THREE.InstancedBufferAttribute(new Float32Array(P.flatMap(k)), nn);
+	geo.setAttribute('aPos', f(p => [p[0], p[1], p[2], p[3]], 4));
+	geo.setAttribute('aCenter', f(p => [p[4], p[5], p[6]], 3));
+	geo.setAttribute('aDrift', f(p => [p[7], p[8]], 2));
+	clouds = new THREE.Mesh(geo, cloudMat); clouds.frustumCulled = false; clouds.renderOrder = -30; scene.add(clouds);
+};
+
+/* --- hills: layered painted ridges, wooded and green near, paling through blue-green into the haze far off --- */
+const HU = { uNear: { value: new THREE.Color() }, uFar: { value: new THREE.Color() }, uHaze: { value: new THREE.Color() }, uSunDir: { value: sunDir }, uSun: { value: new THREE.Color() },
+	uBump: { value: 0.5 }, uRoll: { value: 0.5 }, uCrowns: { value: 0.6 }, uFade: { value: 0.6 }, uMist: { value: 0.45 }, uNight: { value: 0 }, uDusk: { value: 0 } };
+let hills = null;
+const buildHills = () => {
+	if (hills) { scene.remove(hills); hills.traverse(o => o.geometry && o.geometry.dispose()); }
+	hills = new THREE.Group();
+	const N = S.hLayers | 0;
+	for (let i = 0; i < N; i++) {
+		const R = S.hDist + i * S.hGap, k = N > 1 ? i / (N - 1) : 0;
+		const g = new THREE.CylinderGeometry(R, R, 1, 720, 1, true); g.translate(0, 0.5, 0);
+		const m = new THREE.ShaderMaterial({
+			side: THREE.BackSide, fog: false, depthWrite: false, transparent: true,
+			uniforms: { ...HU, uK: { value: k }, uR: { value: R }, uEl: { value: 0 }, uSeed: { value: i * 17.3 + S.hSeed * 3.1 } },
+			vertexShader: `varying vec3 vP;uniform float uR;void main(){vec3 p=position;p.y=mix(-.1*uR,.3*uR,p.y);vP=p;gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.);gl_Position.z=gl_Position.w*.99999;}`,
+			fragmentShader: `varying vec3 vP;uniform vec3 uNear,uFar,uHaze,uSunDir,uSun;uniform float uK,uR,uEl,uSeed,uBump,uRoll,uCrowns,uFade,uMist,uNight,uDusk;
+float h1(float x){return fract(sin(x*127.1+uSeed)*43758.5453);}float n1(float x){float i=floor(x),f=fract(x);f=f*f*(3.-2.*f);return mix(h1(i),h1(i+1.),f);}
+float h2(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7))+uSeed)*43758.5453);}float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h2(i),h2(i+vec2(1,0)),f.x),mix(h2(i+vec2(0,1)),h2(i+vec2(1,1)),f.x),f.y);}
+float ridgeAt(float a){float r=n1(a*.16*uRoll)*.6+n1(a*.42*uRoll+3.)*.28+n1(a*1.1*uRoll+9.)*.12;return smoothstep(.05,.95,r);}
+void main(){float a=atan(vP.z,vP.x)*uR*.01;float ridge=ridgeAt(a);
+ float crowns=(n1(a*7.+uSeed)*.55+n1(a*19.)*.45)*(1.-uK)*.0035*uCrowns;
+ float top=(uEl+uEl*uBump*(ridge-.4)*1.6)*uR+crowns*uR;float y=vP.y;if(y>top)discard;
+ float d=clamp((top-y)/max(top+.1*uR,1.),0.,1.);
+ vec3 c=mix(uNear,uFar,uK);c=mix(c,uHaze,uFade*uK*uK*.85+.06);
+ float bl=n2(vec2(a*5.,y*.12))*.6+n2(vec2(a*13.,y*.35))*.4;c*=1.+(bl-.5)*.22*(1.-uK*.8);
+ float sl=ridgeAt(a+.05)-ridgeAt(a-.05);c*=1.+clamp(sl*3.,-.12,.12)*(1.-uK*.6);
+ float an=atan(vP.z,vP.x);vec2 dir=vec2(cos(an),sin(an));float sunSide=max(dot(normalize(uSunDir.xz+1e-4),dir),0.);
+ vec3 rimC=mix(vec3(1.06,1.04,.94),vec3(1.3,1.,.66),uDusk);c=mix(c,c*rimC,(1.-smoothstep(0.,.07,d))*(.3+.5*sunSide)*(1.-uNight));
+ float hgt=max(top,1.);float low=1.-smoothstep(-.03*uR,hgt*.3,y);c=mix(c,uHaze*1.04,low*low*uMist*(.7+.3*n2(vec2(a*2.,y*.05))));/* white mist pooling at the hills' feet, as in the valley of the reference */
+ float edge=smoothstep(0.,uR*.002,top-y);gl_FragColor=vec4(c,edge);
+ #include <tonemapping_fragment>
+ #include <colorspace_fragment>
+}`
+		});
+		const mesh = new THREE.Mesh(g, m); mesh.renderOrder = -20 - i * 0.1; mesh.frustumCulled = false; hills.add(mesh);
+	}
+	scene.add(hills);
+};
+/* the meadow below, so the hills have something to stand on */
+const ground = new THREE.Mesh(new THREE.CircleGeometry(1, 96).rotateX(-Math.PI / 2), new THREE.ShaderMaterial({
+	uniforms: { uC: { value: new THREE.Color() }, uHaze: { value: new THREE.Color() } },
+	vertexShader: `varying vec3 vW;void main(){vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`,
+	fragmentShader: `varying vec3 vW;uniform vec3 uC,uHaze;void main(){float d=length(vW.xz);vec3 c=mix(uC,uHaze,smoothstep(40.,320.,d)*.85);gl_FragColor=vec4(c,1.);
+ #include <tonemapping_fragment>
+ #include <colorspace_fragment>
+}`
+}));
+ground.renderOrder = -5; scene.add(ground);
+/* the meadow reaches just short of the nearest hills */
+
+/* ---------------- frame ---------------- */
+const resize = () => { const r = cvs.parentElement.getBoundingClientRect(); renderer.setSize(r.width, r.height, false); cam.aspect = r.width / r.height; cam.updateProjectionMatrix(); };
+addEventListener('resize', resize); resize();
+let drag = null;
+cvs.addEventListener('pointerdown', e => { drag = [e.clientX, e.clientY, yaw, pitch]; cvs.setPointerCapture(e.pointerId); cvs.style.cursor = 'grabbing'; });
+cvs.addEventListener('pointermove', e => { if (!drag) return; yaw = drag[2] - (e.clientX - drag[0]) * 0.004; pitch = Math.max(-0.3, Math.min(1.5, drag[3] + (e.clientY - drag[1]) * 0.004)); });
+cvs.addEventListener('pointerup', () => { drag = null; cvs.style.cursor = 'grab'; });
+cvs.addEventListener('wheel', e => { e.preventDefault(); pitch = Math.max(-0.3, Math.min(1.5, pitch - e.deltaY * 0.001)); }, { passive: false });
+const t0 = performance.now();
+let last = t0;
+const loop = () => {
+	const now = performance.now(), dt = Math.min(0.1, (now - last) / 1000), time = (now - t0) / 1000; last = now;
+	if (blendT < 1) blendT = Math.min(1, blendT + dt / 0.8);
+	if (dirtyC) { dirtyC = false; buildClouds(); }
+	if (dirtyH) { dirtyH = false; buildHills(); }
+	const L = live(), night = S.time === 'night' ? 1 : 0, dusk = { sunset: 1, dusk: 0.8, golden: 0.4, dawn: 0.6 }[S.time] || 0;
+	const el = THREE.MathUtils.degToRad(L.sunH), az = THREE.MathUtils.degToRad(S.sunAz);
+	sunDir.set(Math.cos(el) * Math.sin(az), Math.sin(el), Math.cos(el) * Math.cos(az)).normalize();
+	SKY.uTop.value.copy(L.top); SKY.uMid.value.copy(L.mid); SKY.uHor.value.copy(L.hor); SKY.uHaze.value.copy(L.haze); SKY.uSun.value.copy(L.sun);
+	SKY.uGlow.value = L.glow; SKY.uStars.value = L.stars; SKY.uNight.value = night; SKY.uT.value = time;
+	SKY.uHazeH.value = S.hazeH; SKY.uHazePow.value = S.hazePow; SKY.uWarm.value = S.warm; SKY.uHalo.value = S.halo; SKY.uCir.value = S.cirrus;
+	CU.uTime.value = time; CU.uSunColor.value.copy(L.sun); CU.uMist.value.copy(L.haze); CU.uSkyTop.value.copy(L.top);
+	CU.uLit.value.copy(L.cLit); CU.uMidC.value.copy(L.cMid); CU.uShade.value.copy(L.cShade); CU.uDusk.value = dusk; CU.uNight.value = night;
+	CU.uFlat.value = S.cFlat; CU.uLump.value = S.cLump; CU.uWisp.value = S.cWisp; CU.uOp.value = S.cOpacity; CU.uDrift.value = S.cDrift; CU.uFarD.value = S.cFarD;
+	HU.uNear.value.copy(seasonTint(L.hNear)); HU.uFar.value.copy(L.hFar); HU.uHaze.value.copy(L.haze); HU.uSun.value.copy(L.sun);
+	HU.uBump.value = S.hBump; HU.uRoll.value = S.hRoll; HU.uCrowns.value = S.hCrowns; HU.uFade.value = S.hFade; HU.uMist.value = S.hMist; HU.uNight.value = night; HU.uDusk.value = dusk;
+	if (hills) hills.children.forEach((m, i) => { m.material.uniforms.uEl.value = Math.max(0.002, S.hHeight + i * S.hGrow); });
+	ground.material.uniforms.uC.value.copy(seasonTint(L.hNear)).multiplyScalar(0.9); ground.material.uniforms.uHaze.value.copy(L.haze);
+	ground.scale.setScalar(S.hDist * 0.92);
+	cam.position.set(0, 2, 0);
+	cam.lookAt(Math.sin(yaw) * Math.cos(pitch), 2 + Math.sin(pitch), Math.cos(yaw) * Math.cos(pitch));
+	renderer.render(scene, cam);
+	requestAnimationFrame(loop);
+};
+loop();
+</script>
+</body>
+</html>
