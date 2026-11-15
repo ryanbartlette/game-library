@@ -226,9 +226,9 @@ float vn3(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.-2.*f);return mix(mix(mix(
 float fbm3(vec3 p){float s=0.,a=.5;for(int i=0;i<4;i++){s+=a*vn3(p);p=p*2.02+1.7;a*=.5;}return s;}`;
 const cloudMat = new THREE.ShaderMaterial({
 	fog: false, transparent: true, depthWrite: false, uniforms: CU,
-	vertexShader: `attribute vec4 aPos;attribute vec3 aCenter;attribute vec2 aDrift;uniform float uTime,uFlat,uLump,uDrift;varying vec3 vN,vCN,vWP,vLP;
+	vertexShader: `attribute vec4 aPos;attribute vec3 aCenter;attribute vec2 aDrift;attribute float aBase;uniform float uTime,uFlat,uLump,uDrift;varying vec3 vN,vCN,vWP,vLP;
 ${NOISE}
-void main(){vec3 n=normalize(position);float lump=fbm3(n*2.6+aDrift.y)-.5;vec3 p=aPos.xyz+n*aPos.w*(1.+lump*uLump*2.)*vec3(1.,uFlat,1.);vec3 c=aCenter;
+void main(){vec3 n=normalize(position);float lump=fbm3(n*2.6+aDrift.y)-.5;vec3 p=aPos.xyz+n*aPos.w*(1.+lump*uLump*2.)*vec3(1.,uFlat,1.);/* (Ryan) a flat base, level with the ground whichever way you look */p.y=max(p.y,aBase);vec3 c=aCenter;
 /* every cloud sails round the sky in a circle about you, so none drifts toward you or away and turns end-on */float th=uTime*uDrift*aDrift.x*.35/max(length(c.xz),1.);float cs=cos(th),sn=sin(th);mat2 rot=mat2(cs,sn,-sn,cs);p.xz=rot*p.xz;c.xz=rot*c.xz;
 vN=n;vCN=normalize((p-c)*vec3(1.,1.7,1.));vLP=p;vec4 w=modelMatrix*vec4(p,1.);vWP=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`,
 	fragmentShader: `uniform vec3 uSunDir,uSunColor,uMist,uLit,uMidC,uShade,uSkyTop;uniform float uTime,uDusk,uWisp,uOp,uNight,uFarD;varying vec3 vN,vCN,vWP,vLP;
@@ -257,7 +257,7 @@ const buildClouds = () => {
 	const cloud = (ang, R, cy, w, speed) => {
 		const cx = Math.sin(ang) * R, cz = -Math.cos(ang) * R, seed = rand() * 100;
 		const st = S.cStretch, n = Math.round((5 + rand() * 5) * st), yw = ang + (rand() - 0.5) * 0.3, ca = Math.cos(yw), sa = Math.sin(yw); /* each cloud lies along the sky's curve, its long side facing you */
-		const put = (px, py, pz, rad) => P.push([cx + px * ca - pz * sa, cy + py, cz + px * sa + pz * ca, rad, cx, cy + w * 0.12, cz, speed, seed]);
+		const put = (px, py, pz, rad) => P.push([cx + px * ca - pz * sa, cy + py, cz + px * sa + pz * ca, rad, cx, cy + w * 0.12, cz, speed, seed, cy + w * 0.03]);
 		for (let k = 0; k < n; k++) { const u = (k + 0.5) / n - 0.5, rad = w * (0.15 + 0.08 * rand()) * Math.sqrt(1 - Math.abs(u) * 1.4); put(u * w * 0.9 * st, rad * 0.5 + (rand() - 0.5) * w * 0.04, (rand() - 0.5) * w * 0.14, rad); }
 		const m = Math.round((4 + rand() * 4) * (0.6 + 0.4 * st)), peak = (rand() - 0.5) * 0.4;
 		for (let k = 0; k < m; k++) { const u = peak + (rand() - 0.5) * 0.6, rad = w * (0.09 + 0.11 * rand()) * (1 - Math.abs(u - peak) * 0.7); put(u * w * 0.8 * (0.5 + 0.5 * st), rad * 0.5 + w * (0.09 + 0.14 * rand()), (rand() - 0.5) * w * 0.16, rad); }
@@ -266,7 +266,7 @@ const buildClouds = () => {
 	for (let i = 0; i < n; i++) {
 		const far = i >= Math.round(n * (1 - S.cFarShare));
 		const R = far ? S.cFarD * (0.85 + 0.3 * rand()) : S.cNearD * (0.8 + 0.4 * rand());
-		cloud(rand() * Math.PI * 2, R, (far ? S.cFarH : S.cNearH) * (0.75 + 0.5 * rand()), (30 + rand() * 54) * (far ? 1.8 : 1) * S.cSize, 0.6 + rand() * 0.9);
+		cloud(((i + 0.5) / n + (rand() - 0.5) * 0.6 / n) * Math.PI * 2 * (far ? 1 : 1) + (far ? Math.PI / n : 0), R, (far ? S.cFarH : S.cNearH) * (0.75 + 0.5 * rand()), (30 + rand() * 54) * (far ? 1.8 : 1) * S.cSize, 0.6 + rand() * 0.9);
 	}
 	if (!P.length) { clouds = null; return; }
 	const ico = new THREE.IcosahedronGeometry(1, 3); ico.deleteAttribute('normal'); ico.deleteAttribute('uv');
@@ -277,6 +277,7 @@ const buildClouds = () => {
 	geo.setAttribute('aPos', f(p => [p[0], p[1], p[2], p[3]], 4));
 	geo.setAttribute('aCenter', f(p => [p[4], p[5], p[6]], 3));
 	geo.setAttribute('aDrift', f(p => [p[7], p[8]], 2));
+	geo.setAttribute('aBase', f(p => [p[9]], 1));
 	clouds = new THREE.Mesh(geo, cloudMat); clouds.frustumCulled = false; clouds.renderOrder = -30; scene.add(clouds);
 };
 
