@@ -75,6 +75,9 @@ const DEF = {
 	dMeat: '#a69a52', dMeatDark: '#7e7337', dBone: '#e8ebee', dFuzz: 0.6,
 	dEyeX: 0.05, dEyeY: 0.0, dEyeR: 0.014, dCheekR: 0.02, dCheekCol: '#f2a2a8', dSmileW: 0.022, dFaceAt: 0.7
 };
+/* Ryan's saved toys (the ones baked into the game) are where the studio starts; your own tweaks on top are kept in this browser */
+const RYAN = {"toyStudio":1,"cSize":11,"cEyeX":0.115,"cEyeY":0.505,"cEyeR":0.07,"cRing":0.014,"cRingCol":"#9fb27a","cWhite":"#f2ecd9","cPupil":0.03,"cLookLX":-0.25,"cLookLY":0.15,"cLookRX":-0.28,"cLookRY":0.14,"cPupilCol":"#2b2a24","cSmileY":0.354,"cSmileW":0.126,"cSmileCurve":0.044,"cSmileTilt":-0.13,"cStitch":0.0105,"cStitchCol":"#3a2a20","cOrange":"#ef7a2e","cYellow":"#f2d22c","cTip":"#eef0ef","dSize":10.5,"dMeatLen":0.5,"dMeatW":0.36,"dPlump":0.6,"dNeck":0.34,"dFlat":0.62,"dBoneLen":0.14,"dBoneW":0.08,"dKnob":0.1,"dKnobSpread":0.1,"dMeat":"#a69a52","dMeatDark":"#7e7337","dBone":"#e8ebee","dFuzz":0.6,"dEyeX":0.07,"dEyeY":0,"dEyeR":0.03,"dCheekR":0.033,"dCheekCol":"#f2a2a8","dSmileW":0.022,"dFaceAt":0.515};
+for (const k of Object.keys(DEF)) if (k in RYAN) DEF[k] = RYAN[k];
 let S = { ...DEF };
 try { Object.assign(S, JSON.parse(localStorage.getItem('toystudio') || '{}')); } catch (e) {}
 const GROUPS = [

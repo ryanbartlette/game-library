@@ -5055,7 +5055,7 @@ for(const k of Object.keys(gg.attributes))if(!['position','normal','uv'].include
 if(!gg.attributes.uv)gg.setAttribute('uv',new THREE.Float32BufferAttribute(new Float32Array(gg.attributes.position.count * 2),2));
 const leafy = !!MASKC[texKey(file,ms[0].name)];
 if(!leafy || !gg.attributes.normal)gg.computeVertexNormals();
-parts.push({gg,leafy,mat: matFor(file,ms[0].name,swU)});
+parts.push({gg,leafy,k: texKey(file,ms[0].name),mat: matFor(file,ms[0].name,swU)});
 });
 if(!parts.length)return res(null);
 const anyIdx = parts.some(q => q.gg.index);
@@ -5092,12 +5092,16 @@ tcz = sz[sz.length >> 1];
 }
 const rs = bx.map((x,i)=> Math.hypot(x - tcx,bz[i]- tcz)).sort((u,v)=> u - v);
 const tr = rs.length ? rs[Math.floor(rs.length * 0.5)]: 0;
-res({geo,mats: mats.length > 1 ? mats : mats[0],tr: Math.min(tr || 0.2,0.35),tcx,tcz,h: bb.max.y - bb.min.y,w: Math.max(bb.max.x - bb.min.x,bb.max.z - bb.min.z),y0: bb.min.y});
+res({parts: parts.map(q =>({g: q.gg,k: q.k,leafy: q.leafy,mat: q.mat})),geo,mats: mats.length > 1 ? mats : mats[0],tr: Math.min(tr || 0.2,0.35),tcx,tcz,h: bb.max.y - bb.min.y,w: Math.max(bb.max.x - bb.min.x,bb.max.z - bb.min.z),y0: bb.min.y});
 },
 undefined,
 ()=> res(null)
 );
 });
+const czCache ={};
+const czLoad =(window.__czLoad = f => czCache[f]||(czCache[f]= loadModel(f)));
+window.__czTreeFiles = TREES.map(t => t[0]);
+window.__czBushFiles = BUSHES.slice();
 const plant = async()=>{
 const GT = window.__LIFE && window.__LIFE.tree;
 const mc = grassU.uMask.value.image,
@@ -5312,8 +5316,8 @@ spots.push({kind: 'tree',m: pickTree(sp),x,z,s: 1.8 *(0.85 + 0.4 * sc),r: ro * 6
 }
 }
 const models ={
-tree: await Promise.all(TREES.map(t => loadModel(t[0]))),
-bush: await Promise.all(BUSHES.map(loadModel)),
+tree: await Promise.all(TREES.map(t => czLoad(t[0]))),
+bush: await Promise.all(BUSHES.map(czLoad)),
 rock: await Promise.all(ROCKS.map(loadModel))
 };
 const m4 = new THREE.Matrix4(),
@@ -5544,7 +5548,7 @@ for(const[k,f]of[
 ['ivyV','Foliage_Ivy_Vines'],
 ['ivyVL','Foliage_Ivy_VineLong']
 ])
-L[k]= await loadModel(f);
+L[k]= await czLoad(f);
 const put ={};
 const wet =(x,z)=>{
 try{
@@ -15069,10 +15073,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 514;
+const BUILD = 516;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 81;
+const LOOKV = 82;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -37498,7 +37502,16 @@ if(!window.__ROAM)window.__CUTSKIP =()=>{
 if(['sleep','pan','arrive','wake'].includes(I.ph))skipOpening();
 else if(['railUp','watch','jumpDown','reveal','back'].includes(I.ph))skipToGuide();
 };
+if(/[?&]introworld/.test(location.search))window.__INTROWORLD = true;
 I.update = dt =>{
+if(window.__INTROWORLD && !I.iwDone && window.__ready && I.ph !== 'off'){
+I.iwDone = true;
+try{
+skipToGuide();
+}catch(e){
+console.warn('introworld',e);
+}
+}
 if(
 !I.nl &&
 ROOM &&
@@ -39766,6 +39779,8 @@ new V3(b[4],b[4],b[4])
 );
 im.setMatrixAt(i,mt);
 });
+im.userData.introFern = true;
+T3.fernIM = im;
 grp.add(im);
 }
 if(MUSHG){
@@ -40849,7 +40864,7 @@ W.g.attributes.position.needsUpdate = true;
 W.g.attributes.aA.needsUpdate = true;
 }
 }
-if(!T3.gone && beyond >(T3.cs ? 0.8 : 1.1)&& near1 && !lockI &&(T3.hesDone || T3.passed)){
+if(!window.__INTROWORLD && !T3.gone && beyond >(T3.cs ? 0.8 : 1.1)&& near1 && !lockI &&(T3.hesDone || T3.passed)){
 T3.passed = true;
 T3.povEnd = time + 1e9;
 T3.burst = 1;
@@ -41449,6 +41464,244 @@ return O.clone()
 })
 };
 };
+const CZ = BTUN.CZ && BTUN.CZ.birch ? BTUN.CZ : null;
+const czr = mulberry32(71431);
+const cr2 =(a,b)=> a +(b - a)* czr();
+const czEd =[];
+const czArch =[],
+czV =[];
+const czTreeSpots =[],
+czLow =[];
+if(CZ){
+const M = CZ.birch;
+const parts = M.parts.filter(q => !q.leafy);
+const tris =[];
+let ymin = 1e9,
+ymax = -1e9;
+parts.forEach((q,gi)=>{
+const g = q.g.index ? q.g.toNonIndexed(): q.g;
+const P = g.attributes.position,
+N = g.attributes.normal,
+UVa = g.attributes.uv;
+for(let i = 0;i < P.count;i += 3){
+const t ={gi,v:[]};
+for(let j = 0;j < 3;j++){
+const k = i + j;
+const y = P.getY(k);
+ymin = Math.min(ymin,y);
+ymax = Math.max(ymax,y);
+t.v.push([P.getX(k)-(M.tcx || 0),y,P.getZ(k)-(M.tcz || 0),N ? N.getX(k): 0,N ? N.getY(k): 1,N ? N.getZ(k): 0,UVa ? UVa.getX(k): 0,UVa ? UVa.getY(k): 0]);
+}
+tris.push(t);
+}
+});
+const TH = ymax - ymin;
+for(const t of tris)
+for(const v of t.v){
+v[0]/= TH;
+v[1]=(v[1]- ymin)/ TH;
+v[2]/= TH;
+}
+{
+const CROP = 0.68;
+for(let i = tris.length - 1;i >= 0;i--)if(Math.max(tris[i].v[0][1],tris[i].v[1][1],tris[i].v[2][1])> CROP)tris.splice(i,1);
+for(const t of tris)for(const v of t.v)for(let c = 0;c < 3;c++)v[c]/= CROP;
+}
+const NB = 16,
+band =[];
+for(let bI = 0;bI < NB;bI++){
+const xs =[],
+zs =[];
+for(const t of tris)
+for(const v of t.v)
+if(Math.floor(v[1]* NB)=== bI){
+xs.push(v[0]);
+zs.push(v[2]);
+}
+if(!xs.length){
+band.push(band.length ? band[band.length - 1]:{x: 0,z: 0,r: 0.02});
+continue;
+}
+const sx = xs.slice().sort((u,w)=> u - w),
+sz = zs.slice().sort((u,w)=> u - w);
+const cx = sx[sx.length >> 1],
+cz = sz[sz.length >> 1];
+const ds = xs.map((x,i)=> Math.hypot(x - cx,zs[i]- cz)).sort((u,w)=> u - w);
+band.push({x: cx,z: cz,r: Math.max(0.006,ds[Math.floor(ds.length * 0.35)])});
+}
+const keep = tris.filter(t =>{
+const cx =(t.v[0][0]+ t.v[1][0]+ t.v[2][0])/ 3,
+cy =(t.v[0][1]+ t.v[1][1]+ t.v[2][1])/ 3,
+cz =(t.v[0][2]+ t.v[1][2]+ t.v[2][2])/ 3;
+const B = band[Math.min(NB - 1,Math.max(0,Math.floor(cy * NB)))];
+return Math.hypot(cx - B.x,cz - B.z)< B.r * 1.7 + 0.003;
+});
+const mid =(a,b)=> a.map((x,i)=>(x + b[i])/ 2);
+const fine =[];
+const queue = keep.slice();
+while(queue.length && fine.length < 60000){
+const t = queue.pop();
+let li = -1,
+ll = 0.035;
+for(let e = 0;e < 3;e++){
+const A = t.v[e],
+B = t.v[(e + 1)% 3];
+const d = Math.hypot(A[0]- B[0],A[1]- B[1],A[2]- B[2]);
+if(d > ll){
+ll = d;
+li = e;
+}
+}
+if(li < 0){
+fine.push(t);
+continue;
+}
+const A = t.v[li],
+B = t.v[(li + 1)% 3],
+C = t.v[(li + 2)% 3],
+m = mid(A,B);
+queue.push({gi: t.gi,v:[A,m,C]},{gi: t.gi,v:[m,B,C]});
+}
+fine.sort((u,w)=> u.gi - w.gi);
+const nV = fine.length * 3;
+const PA = new Float32Array(nV * 3),
+NA = new Float32Array(nV * 3),
+UA = new Float32Array(nV * 2);
+fine.forEach((t,i)=>
+t.v.forEach((v,j)=>{
+const k = i * 3 + j;
+PA[k * 3]= v[0];
+PA[k * 3 + 1]= v[1];
+PA[k * 3 + 2]= v[2];
+NA[k * 3]= v[3];
+NA[k * 3 + 1]= v[4];
+NA[k * 3 + 2]= v[5];
+UA[k * 2]= v[6];
+UA[k * 2 + 1]= v[7];
+})
+);
+const tg = new THREE.BufferGeometry();
+tg.setAttribute('position',new THREE.BufferAttribute(PA,3));
+tg.setAttribute('normal',new THREE.BufferAttribute(NA,3));
+tg.setAttribute('uv',new THREE.BufferAttribute(UA,2));
+{
+let st = 0;
+for(let gi = 0;gi < parts.length;gi++){
+let n = 0;
+for(const t of fine)if(t.gi === gi)n++;
+if(n)tg.addGroup(st * 3,n * 3,gi);
+st += n;
+}
+}
+BTUN.czTrunkTris =[tris.length,keep.length,fine.length];
+const mats = parts.map(q => q.mat);
+const r0 = Math.max(0.004,(M.tr || 0.2)/(TH * 0.68));
+const TK = clamp(0.14 /(r0 *(1.6 * S.height + 0.5 * S.width)* S.thick * 0.9),0.3,8);
+const piece ={geo: tg};
+const U0 = new V3(1,0,0),
+T0 = new V3(0,0,1),
+O0 = new V3();
+for(let v = 0;v < 7;v++){
+const wv0 = S.wild;
+const o ={
+w: S.width * cr2(0.9,1.2),
+h: S.height * cr2(0.9,1.15),
+cross: S.cross * cr2(1 - 0.4 * wv0,1 + 0.3 * wv0),
+thick: S.thick * TK * cr2(0.8,1.2),
+rot: cr2(0,6.28),
+twist: S.twist * cr2(-1,1),
+lean: 0,
+out: cr2(-0.05,0.15)* wv0
+};
+const b = bend(piece,O0,U0,T0,1,o);
+b.g.computeBoundingSphere();
+czV.push({g: b.g,o,tops: b.tops,mats});
+}
+const lp = M.parts.filter(q => q.leafy);
+BTUN.czLeafMat = lp.length ? lp[0].mat : null;
+const czClumps =[];
+for(const q of lp){
+const geo = q.g.index ? q.g.toNonIndexed(): q.g;
+const pos = geo.attributes.position,
+tri = pos.count / 3;
+const cent = new Float32Array(tri * 3);
+for(let t = 0;t < tri;t++)
+for(let j = 0;j < 3;j++){
+cent[t * 3]+= pos.getX(t * 3 + j)/ 3;
+cent[t * 3 + 1]+= pos.getY(t * 3 + j)/ 3;
+cent[t * 3 + 2]+= pos.getZ(t * 3 + j)/ 3;
+}
+const RAD = M.h * 0.17;
+for(let n = 0;n < 10 && czClumps.length < 6;n++){
+const pk = Math.floor(czr()* tri);
+const keep =[];
+for(let t = 0;t < tri;t++){
+const dx = cent[t * 3]- cent[pk * 3],
+dy = cent[t * 3 + 1]- cent[pk * 3 + 1],
+dz = cent[t * 3 + 2]- cent[pk * 3 + 2];
+if(dx * dx + dy * dy + dz * dz < RAD * RAD)keep.push(t);
+}
+if(keep.length < 12)continue;
+const P2 = new Float32Array(keep.length * 9),
+N2 = new Float32Array(keep.length * 9),
+UV2 = new Float32Array(keep.length * 6);
+const nA = geo.attributes.normal,
+uA = geo.attributes.uv;
+keep.forEach((t,i)=>{
+for(let j = 0;j < 3;j++){
+const si = t * 3 + j,
+di = i * 3 + j;
+P2[di * 3]= pos.getX(si);
+P2[di * 3 + 1]= pos.getY(si);
+P2[di * 3 + 2]= pos.getZ(si);
+if(nA){
+N2[di * 3]= nA.getX(si);
+N2[di * 3 + 1]= nA.getY(si);
+N2[di * 3 + 2]= nA.getZ(si);
+}
+if(uA){
+UV2[di * 2]= uA.getX(si);
+UV2[di * 2 + 1]= uA.getY(si);
+}
+}
+});
+const g2 = new THREE.BufferGeometry();
+g2.setAttribute('position',new THREE.BufferAttribute(P2,3));
+g2.setAttribute('normal',new THREE.BufferAttribute(N2,3));
+g2.setAttribute('uv',new THREE.BufferAttribute(UV2,2));
+if(!nA)g2.computeVertexNormals();
+g2.computeBoundingBox();
+const bc = g2.boundingBox.getCenter(new V3()),
+sz = g2.boundingBox.getSize(new V3());
+const s2 = 1 / Math.max(sz.x,sz.y,sz.z);
+g2.translate(-bc.x,-bc.y,-bc.z);
+g2.scale(s2,s2,s2);
+g2.computeBoundingSphere();
+czClumps.push(g2);
+}
+}
+if(czClumps.length && BTUN.czLeafMat){
+clumps.length = 0;
+clumps.push(...czClumps);
+leafMat = BTUN.czLeafMat;
+}
+}
+const arch =(pi,O,U,T,side,o)=>{
+if(!czV.length){
+const b = bend(trunks[pi],O,U,T,side,o);
+byPiece[pi].push(b.g);
+return b.tops;
+}
+const vi =(czr()* czV.length)| 0,
+v = czV[vi];
+const sx = o.w / v.o.w,
+sy = o.h / v.o.h;
+const X = U.clone().multiplyScalar(side * sx),
+Z = T.clone().multiplyScalar(side);
+const m = new THREE.Matrix4().makeBasis(X,new V3(0,sy,0),Z).setPosition(O);
+czArch.push([vi,m]);
+return v.tops.map(t => t.clone().applyMatrix4(m));
+};
 const grp = new THREE.Group();
 grp.name = 'branchTunnel';
 scene.add(grp);
@@ -41486,9 +41739,7 @@ const O = q.clone().addScaledVector(T,rr(-0.35,0.35)* gap);
 const bx = O.x + U.x * side * o.w * 0.5,
 bzz = O.z + U.z * side * o.w * 0.5;
 O.y = Math.min(heightAt(bx,bzz),q.y)- 0.08;
-const b = bend(trunks[pi],O,U,T,side,o);
-byPiece[pi].push(b.g);
-tops.push(...b.tops);
+tops.push(...arch(pi,O,U,T,side,o));
 if(
 !LOW &&
 rnd()< 0.5
@@ -41497,9 +41748,7 @@ const o2 ={...o,w: o.w * rr(1.35,1.6),h: o.h * rr(1.05,1.2),rot: rr(0,6.28)};
 const pi2 = Math.floor(rnd()* trunks.length);
 const O2 = q.clone().addScaledVector(T,rr(-0.5,0.5)* gap);
 O2.y = Math.min(heightAt(O2.x + U.x * side * o2.w * 0.5,O2.z + U.z * side * o2.w * 0.5),q.y)- 0.08;
-const b2 = bend(trunks[pi2],O2,U,T,side,o2);
-byPiece[pi2].push(b2.g);
-tops.push(...b2.tops);
+tops.push(...arch(pi2,O2,U,T,side,o2));
 }
 for(let j = 0;j < 2;j++){
 const p = q
@@ -41545,9 +41794,9 @@ return false;
 const ring =[],
 ringTops =[];
 if(T3.ring){
-const GT =(
-window.__TREEIM ||[]
-).filter(e => e.GREEN);
+const GT = CZ
+?[1]
+:(window.__TREEIM ||[]).filter(e => e.GREEN);
 let gi = 0;
 const BT = window.__bigTrees ||(window.__bigTrees =[]);
 const greenAt =(x,z,stay)=>{
@@ -41555,6 +41804,10 @@ if(!GT.length)return;
 for(const b of BT)
 if((b.x - x)** 2 +(b.z - z)** 2 < 5.2 * 5.2)return;
 BT.push({x,z});
+if(CZ){
+czTreeSpots.push({x,z,ring: true});
+return;
+}
 const E = GT[gi++ % GT.length],
 V = E.V;
 const sc = clamp(((15 + rr(0,6))* 0.62)/ V.H,0.6,3.5)* 1.15;
@@ -41652,9 +41905,7 @@ out: 0.05
 };
 const O = M.q.clone();
 O.y = heightAt(O.x + M.U.x * side * o.w * 0.5,O.z + M.U.z * side * o.w * 0.5)- 0.1;
-const b = bend(trunks[pi],O,M.U,M.T,side,o);
-byPiece[pi].push(b.g);
-tops.push(...b.tops);
+tops.push(...arch(pi,O,M.U,M.T,side,o));
 }
 }
 const NCH = 8;
@@ -41693,6 +41944,28 @@ m.userData.noEdit = true;
 grp.add(m);
 });
 });
+if(czArch.length){
+czV.forEach((v,vi)=>{
+const byC = Array.from({length: NCH},()=>[]);
+for(const[i,m]of czArch){
+if(i !== vi)continue;
+const p = new V3().setFromMatrixPosition(m);
+byC[chunkOf(p.x,p.z)].push(m);
+}
+byC.forEach((l2,ci)=>{
+if(!l2.length)return;
+const im = new THREE.InstancedMesh(v.g,v.mats,l2.length);
+l2.forEach((m,j)=> im.setMatrixAt(j,m));
+im.instanceMatrix.needsUpdate = true;
+im.computeBoundingSphere();
+im.castShadow = false;
+im.receiveShadow = true;
+im.userData.src = 'intro-arch-' +(vi + 1);
+grp.add(im);
+czEd.push(im);
+});
+});
+}
 {
 const cap =
 LOW ? 380 : 900;
@@ -41707,7 +41980,11 @@ S.leafSize * rr(0.7,1.4)* 1.65
 }
 for(const b of ringTops)
 all.push([b.clone().add(new V3(rr(-0.6,0.6),rr(-0.3,0.4),rr(-0.6,0.6))),rr(1.6,2.5)]);
-for(const p of low)if(rnd()< S.leaves)all.push([p,S.leafSize * rr(0.4,0.7)]);
+for(const p of low)
+if(rnd()< S.leaves){
+if(CZ)czLow.push(p);
+else all.push([p,S.leafSize * rr(0.4,0.7)]);
+}
 {
 const hw = W * 0.5;
 for(let i = all.length - 1;i >= 0;i--){
@@ -41737,20 +42014,26 @@ list.forEach(([p,s2],j)=>{
 qq.setFromEuler(new THREE.Euler(rr(-0.6,0.6),rr(0,6.28),rr(-0.6,0.6)));
 m.compose(p,qq,new V3(s2,s2 * rr(0.7,1),s2));
 im.setMatrixAt(j,m);
-col.setHSL(0.25 + rr(-0.03,0.03),0.12,0.82 + rr(-0.1,0.1));
+if(CZ)col.setHSL(0.25 + rr(-0.03,0.03),0.08,0.92 + rr(-0.06,0.06));
+else col.setHSL(0.25 + rr(-0.03,0.03),0.12,0.82 + rr(-0.1,0.1));
 im.setColorAt(j,col);
 });
 im.computeBoundingSphere();
 im.castShadow = false;
 im.receiveShadow = true;
 im.userData.noEdit = true;
+if(CZ){
+im.userData.noEdit = false;
+im.userData.src = 'intro-leaves-' +(i + 1);
+czEd.push(im);
+}
 grp.add(im);
 });
 }
-if(typeof BUSH !== 'undefined' && BUSH &&(ring.length || wall.length)){
+if(((typeof BUSH !== 'undefined' && BUSH)|| CZ)&&(ring.length || wall.length)){
 try{
 const r2 = mulberry32(5153);
-const variants = bushClump(kit(BUSH.scene,o => o.name.slice(0,6)));
+const variants = CZ ? CZ.bushes.filter(Boolean): bushClump(kit(BUSH.scene,o => o.name.slice(0,6)));
 const by = variants.map(()=>[]);
 for(const p of ring)
 for(let j = 0;j < 2;j++){
@@ -41788,6 +42071,26 @@ by[(r2()* variants.length)| 0].push([x,heightAt(x,z)- 0.05,z,r2()* 6.28,0.45 + r
 by.forEach((list,vi)=>{
 if(!list.length)return;
 const v = variants[vi];
+if(CZ){
+const im = new THREE.InstancedMesh(v.geo,v.mats,list.length);
+const mm = new THREE.Matrix4();
+list.forEach((b,i)=>{
+const sc =(b[4]* 1.35)/ v.h;
+mm.compose(
+new V3(b[0],b[1]+ 0.05 - v.y0 * sc - 0.05,b[2]),
+new THREE.Quaternion().setFromEuler(new THREE.Euler(0,b[3],0)),
+new V3(sc,sc,sc)
+);
+im.setMatrixAt(i,mm);
+});
+im.computeBoundingSphere();
+im.castShadow = false;
+im.receiveShadow = true;
+im.userData.src = 'intro-bush-' +(vi + 1);
+grp.add(im);
+czEd.push(im);
+return;
+}
 v.parts.forEach((pt,pi)=>{
 const mat = windMat(tintMat(pt.mat.clone(),'bush' + vi + '_' + pi),0.06);
 const im = new THREE.InstancedMesh(pt.g,mat,list.length);
@@ -41878,6 +42181,12 @@ ch = true;
 if(ch)o.instanceMatrix.needsUpdate = true;
 });
 }
+if(CZ)
+try{
+BTUN.czDress(T3,CZ,czr,czTreeSpots,czLow,czEd,grp,nearPath,W);
+}catch(e){
+console.warn('intro dressing',e);
+}
 console.log('branch tunnel built',rings,'rings');
 };
 BTUN.update = dt =>{
@@ -41923,7 +42232,136 @@ const d = Math.hypot(P.pos.x - T3.mouth.x,P.pos.z - T3.mouth.z);
 BTUN.mouthGlow.material.opacity =(0.35 + 0.15 * Math.sin(time * 1.3))* smooth(2,8,d);
 }
 };
+BTUN.czPrep = async()=>{
+const L = window.__czLoad;
+if(!L || /[?&]oldtunnel/.test(location.search))return;
+const tf = window.__czTreeFiles ||[],
+bf = window.__czBushFiles ||[];
+const[trees,bushes,grass]= await Promise.all([
+Promise.all(tf.map(L)),
+Promise.all(bf.map(L)),
+Promise.all(['Foliage_Grass_Weeds_Grass0','Foliage_Grass_Weeds_Grass1','Foliage_Grass_Weeds_Weed1V2'].map(L))
+]);
+const bi = tf.findIndex(f => /Brich|Birch/i.test(f));
+BTUN.CZ ={trees,bushes,grass,birch: bi >= 0 ? trees[bi]: null};
+};
+BTUN.czDress =(T3,CZ,czr,spots,low,czEd,grp,nearPath,W)=>{
+const trees = CZ.trees;
+const WT =[0.28,0.3,0.2,0.22];
+const pick =()=>{
+let r = czr()* WT.reduce((a,b)=> a + b,0);
+for(let i = 0;i < WT.length;i++)if((r -= WT[i])< 0)return i;
+return 0;
+};
+const c = ROOM ? ROOM.root.position : new V3();
+const yard =[];
+if(T3.yard)
+for(const ch of T3.yard.children){
+const tr = ch.userData.trunk;
+if(!tr)continue;
+ch.visible = false;
+ch.userData.noEdit = true;
+for(const sf of SURF)if(sf.tree === tr)sf.dead = true;
+yard.push({x: tr.x,z: tr.z,yard: true});
+}
+const all = spots.concat(yard);
+for(const s of all){
+s.m = pick();
+s.s = 1.8 *(0.85 + 0.4 * czr());
+s.r = czr()* 6.283;
+const M = trees[s.m];
+if(M && s.yard){
+const half = M.w * 0.5,
+room = Math.hypot(s.x - c.x,s.z - c.z)- 4.2;
+if(half * s.s > room)s.s = Math.max(0.7,room / half);
+}
+}
+const m4 = new THREE.Matrix4(),
+q4 = new THREE.Quaternion(),
+up = new V3(0,1,0);
+for(const yd of[false,true])
+trees.forEach((M,mi)=>{
+if(!M)return;
+const list = all.filter(s => !!s.yard === yd && s.m === mi);
+if(!list.length)return;
+const im = new THREE.InstancedMesh(M.geo,M.mats,list.length);
+const ed =(im.userData.ed ={trees:[]});
+list.forEach((s,i)=>{
+const gy = groundAt(s.x,s.z,heightAt(s.x,s.z)+ 3);
+q4.setFromAxisAngle(up,s.r);
+m4.compose(new V3(s.x,gy - M.y0 * s.s - 0.05,s.z),q4,new V3(s.s,s.s,s.s));
+im.setMatrixAt(i,m4);
+const ox = M.tcx || 0,
+oz = M.tcz || 0,
+cr = Math.cos(s.r),
+sr = Math.sin(s.r);
+const kx = s.x +(ox * cr + oz * sr)* s.s,
+kz = s.z +(-ox * sr + oz * cr)* s.s;
+const tr ={x: kx,z: kz,r: M.tr * s.s * 0.85,h: M.h * s.s,g: gy,s0: s.s,noClimb: true,czTree: true,climbTop: gy + M.h * s.s * 0.55};
+const sf ={t: 'trunk',x: kx,z: kz,r: tr.r,tree: tr};
+addSurf(sf,kx - 1.5,kz - 1.5,kx + 1.5,kz + 1.5);
+if(!yd)(T3.wallSurfs ||(T3.wallSurfs =[])).push(sf);
+ed.trees[i]= tr;
+});
+im.instanceMatrix.needsUpdate = true;
+im.computeBoundingSphere();
+im.castShadow = true;
+im.receiveShadow = true;
+im.userData.czKind = 'tree';
+im.userData.src =(yd ? 'intro-yard-tree-' : 'intro-tree-')+(mi + 1);
+(yd ? scene : grp).add(im);
+czEd.push(im);
+if(yd)(window.__czEditable = window.__czEditable ||[]).push(im);
+});
+const gsp =[];
+const fim = T3.fernIM;
+if(fim){
+const mt = new THREE.Matrix4(),
+p = new V3();
+for(let i = 0;i < fim.count;i += 6){
+fim.getMatrixAt(i,mt);
+p.setFromMatrixPosition(mt);
+gsp.push([p.x,p.z]);
+gsp.push([p.x +(czr()- 0.5)* 0.8,p.z +(czr()- 0.5)* 0.8]);
+}
+fim.visible = false;
+}
+for(const p of low)gsp.push([p.x,p.z]);
+const by =[[],[],[]];
+for(const[x,z]of gsp){
+const r = czr(),
+k = r < 0.62 ?(r < 0.31 ? 0 : 1): 2;
+const sc = k < 2 ?(3.6 + czr()* 2.6)* 0.4 :(3.4 + czr()* 2.2)* 0.5;
+const ro = czr()* 6.283;
+if(nearPath(x,z,Math.max(0.9,W * 0.5 - 0.3)))continue;
+by[k].push([x,z,sc,ro]);
+}
+by.forEach((list,k)=>{
+const M = CZ.grass[k];
+if(!M || !list.length)return;
+const im = new THREE.InstancedMesh(M.geo,M.mats,list.length);
+list.forEach(([x,z,sc,ro],i)=>{
+q4.setFromAxisAngle(up,ro);
+m4.compose(new V3(x,heightAt(x,z)- M.y0 * sc - 0.02,z),q4,new V3(sc,sc,sc));
+im.setMatrixAt(i,m4);
+});
+im.instanceMatrix.needsUpdate = true;
+im.computeBoundingSphere();
+im.castShadow = false;
+im.receiveShadow = true;
+im.userData.src = 'intro-grass-' +(k + 1);
+((fim && fim.parent)|| grp).add(im);
+czEd.push(im);
+});
+BTUN.czEd = czEd;
+try{
+window.__EDIT && window.__EDIT.adopt && window.__EDIT.ims && window.__EDIT.adopt(czEd);
+}catch(e){
+console.warn('adopt intro',e);
+}
+};
 LAZY.onReady.push(()=>{
+const go =()=>{
 try{
 BTUN.build();
 }catch(e){
@@ -41932,6 +42370,13 @@ console.warn('branch tunnel',e);
 try{
 window.__seasonVis && window.__seasonVis();
 }catch(e){}
+};
+if(window.__czLoad && !/[?&]oldtunnel/.test(location.search))
+BTUN.czPrep().then(go,e =>{
+console.warn('intro pack',e);
+go();
+});
+else go();
 });
 const JACK =(()=>{
 const J ={};
