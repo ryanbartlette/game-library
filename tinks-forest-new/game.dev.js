@@ -1269,7 +1269,7 @@ fragmentShader: `uniform sampler2D tDiffuse;uniform sampler2D tDepth;uniform vec
    float n=float((R+1)*(R+1));float best=1e9;vec3 outc=texture2D(tDiffuse,vUv).rgb;
    for(int k=0;k<4;k++){vec3 mu=m[k]/n;vec3 v=abs(s[k]/n-mu*mu);float sv=v.r+v.g+v.b;if(sv<best){best=sv;outc=mu;}}
    /* a soft depth of field: the far woods melt gently, the cats stay sharp */
-   /* FOREST 76: the open sky (nothing drawn into the depth: stars, the sky's painted clouds) skips the brush and the blur, whose ten spread samples drew each star as a spiky asterisk; the hills and the far forest are drawn into the depth, so they keep their soft focus */bool skyPx=uHasD>.5&&texture2D(tDepth,vUv).x>.99999;if(skyPx)outc=texture2D(tDiffuse,vUv).rgb;float coc=skyPx?0.:fr*uDof;if(coc>.02){float rad=coc*5.*(uRes.y/1300.);vec3 b=outc;float w=1.;for(int k=0;k<10;k++){float a=float(k)*2.39996;float r=sqrt((float(k)+.5)/10.)*rad;vec2 o=vec2(cos(a),sin(a))*r*px;vec2 uv2=vUv+o;/* don't let sharp near things bleed into the blur */float zs=uHasD>.5?zAt(uv2):z;float ok=smoothstep(uFocus*1.1,uFocus*1.25+2.5,zs);b+=texture2D(tDiffuse,uv2).rgb*ok;w+=ok;}outc=mix(outc,b/w,min(1.,coc*1.1));}
+   /* FOREST 78: only a star's own bright point skips the brush and the blur (whose ten spread samples drew each star as a spiky asterisk), and round a star the blur takes in only a little of its light; the hills and the far forest blur softly as before */bool skyPx=uHasD>.5&&texture2D(tDepth,vUv).x>.99999;vec3 orig=texture2D(tDiffuse,vUv).rgb;float lN=dot(texture2D(tDiffuse,vUv+vec2(px.x*2.,0.)).rgb+texture2D(tDiffuse,vUv-vec2(px.x*2.,0.)).rgb+texture2D(tDiffuse,vUv+vec2(0.,px.y*2.)).rgb+texture2D(tDiffuse,vUv-vec2(0.,px.y*2.)).rgb,vec3(.0833));bool starPx=skyPx&&dot(orig,vec3(.333))-lN>.06;if(starPx)outc=orig;float coc=starPx?0.:fr*uDof;if(coc>.02){float rad=coc*5.*(uRes.y/1300.);vec3 b=outc;float w=1.;for(int k=0;k<10;k++){float a=float(k)*2.39996;float r=sqrt((float(k)+.5)/10.)*rad;vec2 o=vec2(cos(a),sin(a))*r*px;vec2 uv2=vUv+o;/* don't let sharp near things bleed into the blur */float zs=uHasD>.5?zAt(uv2):z;float ok=smoothstep(uFocus*1.1,uFocus*1.25+2.5,zs);vec3 sc=texture2D(tDiffuse,uv2).rgb;if(skyPx)sc=min(sc,outc+.25);b+=sc*ok;w+=ok;}outc=mix(outc,b/w,min(1.,coc*1.1));}
    /* (fix, Ryan's black squares: one broken pixel from the scene (not-a-number) was smeared into a growing black box by the glow; it's caught here so the glow never sees it) */
    if(any(isnan(outc))||any(isinf(outc)))outc=vec3(0.);outc=clamp(outc,0.,64.);
    gl_FragColor=vec4(outc,1.);}`
@@ -1404,6 +1404,31 @@ const hemi = new THREE.HemisphereLight(0xc4d2dc,0x6a5232,0.85);
 scene.add(hemi);
 const rim = new THREE.DirectionalLight(0xffe2b8,1.1);
 scene.add(rim,rim.target);
+const SKYS ={"skyStudio":1,"time":"midday","season":"summer","T":{"dawn":{"top":"#4a6aa8","mid":"#c9a7c9","hor":"#f4c7a8","haze":"#e6cbc6","sun":"#ffc9a0","sunH":6,"glow":0.8,"stars":0.12,"cLit":"#ffe6da","cMid":"#d6bcd2","cShade":"#8f86b8","hNear":"#5d6e66","hFar":"#c2b6cc"},"midday":{"top":"#2f8fc4","mid":"#5cb7d6","hor":"#bfe8ec","haze":"#dff2ef","sun":"#fff1cc","sunH":55,"glow":0.8,"stars":0,"cLit":"#ffffff","cMid":"#dfe9ee","cShade":"#8fa3b6","hNear":"#3f8a4a","hFar":"#5e9fb8"},"golden":{"top":"#4f86c8","mid":"#a9cde0","hor":"#ffd9a0","haze":"#f0dcc2","sun":"#ffcf8a","sunH":14,"glow":1.1,"stars":0,"cLit":"#fff0d0","cMid":"#e6ccb8","cShade":"#9a8fc6","hNear":"#5c7a42","hFar":"#c8c4bc"},"sunset":{"top":"#6e9ec6","mid":"#f2b58a","hor":"#ffb04a","haze":"#f0a070","sun":"#ff9a40","sunH":3,"glow":1.4,"stars":0,"cLit":"#ffcf8a","cMid":"#e48aa6","cShade":"#6f5a8c","hNear":"#2e3a2c","hFar":"#a86f78"},"dusk":{"top":"#26365f","mid":"#6b5f8f","hor":"#c98a8a","haze":"#6f6a8c","sun":"#ff9f7a","sunH":-3,"glow":0.7,"stars":0.5,"cLit":"#c8a0b8","cMid":"#6f6a98","cShade":"#403f6a","hNear":"#2c3348","hFar":"#606590"},"night":{"top":"#0b1430","mid":"#1c2c55","hor":"#34497a","haze":"#26385a","sun":"#c8d6ff","sunH":32,"glow":0.5,"stars":1,"cLit":"#7088bc","cMid":"#3f5486","cShade":"#26325c","hNear":"#141c30","hFar":"#2c3c62"}},"hazeH":0.12,"hazePow":2.2,"warm":0.3,"halo":1,"sunAz":135,"cirrus":0.8,"cCount":16,"cSize":1.2,"cStretch":1.9,"cFlat":0.55,"cLump":0.4,"cWisp":1,"cNearD":300,"cFarD":560,"cNearH":70,"cFarH":110,"cFarShare":0.55,"cDrift":1.3,"cOpacity":0.6,"cSeed":1,"hLayers":4,"hDist":280,"hGap":60,"hL1":0.05,"hL2":0.08,"hL3":0.15,"hL4":0.15,"hL5":0.15,"hL6":0.17,"hBump":0.7,"hRoll":1.2,"hCrowns":1.5,"hFade":0.4,"hMist":0.7,"hSeed":3,"autumnTint":"#b9783a","autumnAmt":0.45,"winterTint":"#e8eef4","winterAmt":0.55,"springTint":"#7fae52","springAmt":0.2};
+window.__SKYS = SKYS;
+const SKYP =(()=>{
+const P ={};
+for(const k in SKYS.T.midday)if(typeof SKYS.T.midday[k]=== 'string')P[k]= new THREE.Color(SKYS.T.midday[k]);
+P.glow = SKYS.T.midday.glow;
+P.night = 0;
+P.dusk = 0;
+P.hNearS = P.hNear.clone();
+const tgt = new THREE.Color();
+P.tick = W =>{
+const key ={day: 'midday',midday: 'midday'}[W]||(SKYS.T[W]? W : 'midday');
+const T = SKYS.T[key];
+const k = 0.03;
+for(const c in P)if(P[c]&& P[c].isColor && T[c])P[c].lerp(tgt.set(T[c]),k);
+P.glow +=(T.glow - P.glow)* k;
+P.night +=((key === 'night' ? 1 : 0)- P.night)* k;
+P.dusk +=((({sunset: 1,dusk: 0.8,golden: 0.4,dawn: 0.6})[key]|| 0)- P.dusk)* k;
+const se =(window.__CYCLE && window.__CYCLE.season)|| 'summer';
+const tint ={spring:[SKYS.springTint,SKYS.springAmt],autumn:[SKYS.autumnTint,SKYS.autumnAmt],winter:[SKYS.winterTint,SKYS.winterAmt]}[se];
+P.hNearS.copy(P.hNear);
+if(tint)P.hNearS.lerp(tgt.set(tint[0]),tint[1]);
+};
+return P;
+})();
 {
 const g = new THREE.SphereGeometry(500,32,16);
 const m = new THREE.ShaderMaterial({
@@ -1438,17 +1463,38 @@ uGH:{value: new THREE.Color(0xf7e6c6)},
 uGTd:{value: new THREE.Color(0x3a5f9a)},
 uGMd:{value: new THREE.Color(0xe9a26f)},
 uGHd:{value: new THREE.Color(0xffb46a)},
-uGSun:{value: new THREE.Color(0xffe2a8)}
+uGSun:{value: new THREE.Color(0xffe2a8)},
+uSTop:{value: SKYP.top},
+uSMid:{value: SKYP.mid},
+uSHor:{value: SKYP.hor},
+uSHaze:{value: SKYP.haze},
+uSSun:{value: SKYP.sun},
+uSGlow:{value: 1},
+uSNight:{value: 0},
+uHazeH:{value: SKYS.hazeH},
+uHazePow:{value: SKYS.hazePow},
+uWarm:{value: SKYS.warm},
+uHalo:{value: SKYS.halo},
+uCir:{value: SKYS.cirrus}
 },
 vertexShader: `varying vec3 vd;void main(){vd=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);gl_Position.z=gl_Position.w;}`,
-fragmentShader: `varying vec3 vd;uniform vec3 sd,uHor,uZen,uLow,uGlow,uDisk,uCLit,uCShade,uMid,uCRim,uFogC,uGT,uGM,uGH,uGTd,uGMd,uGHd,uGSun;uniform vec3 uCamF;uniform float uAur,uStars,uT,uCAmt,uCT,uSunR,uSunG,uDayK,uDuskK;float hs(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}vec3 hh3(vec3 p){p=fract(p*vec3(.1031,.1030,.0973));p+=dot(p,p.yxz+33.33);return fract((p.xxy+p.yxx)*p.zyx);}
+fragmentShader: `varying vec3 vd;uniform vec3 sd,uHor,uZen,uLow,uGlow,uDisk,uCLit,uCShade,uMid,uCRim,uFogC,uGT,uGM,uGH,uGTd,uGMd,uGHd,uGSun;uniform vec3 uCamF,uSTop,uSMid,uSHor,uSHaze,uSSun;uniform float uSGlow,uSNight,uHazeH,uHazePow,uWarm,uHalo,uCir;uniform float uAur,uStars,uT,uCAmt,uCT,uSunR,uSunG,uDayK,uDuskK;float hs(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}vec3 hh3(vec3 p){p=fract(p*vec3(.1031,.1030,.0973));p+=dot(p,p.yxz+33.33);return fract((p.xxy+p.yxx)*p.zyx);}
  float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);float a=hs(vec3(i,1.)),b=hs(vec3(i+vec2(1,0),1.)),c=hs(vec3(i+vec2(0,1),1.)),d=hs(vec3(i+vec2(1,1),1.));return mix(mix(a,b,f.x),mix(c,d,f.x),f.y);}
  float fb(vec2 p){float s=0.,a=.5;for(int i=0;i<5;i++){s+=a*vn(p);p=p*2.03+7.1;a*=.5;}return s;}
  void main(){float h=vd.y;float tg=pow(clamp(h,0.,1.),.55);vec3 c=mix(mix(uHor,uMid,smoothstep(0.,.42,tg)),uZen,smoothstep(.32,1.,tg));c=mix(c,uLow,smoothstep(0.,-.2,h));float s=max(dot(vd,sd),0.);
  c+=uGlow*(pow(s,8.)*.4+pow(s,2.5)*.16*(1.-smoothstep(0.,.45,h)))*uSunG;
  if(uSunR>.001){float cd=dot(vd,sd);float dsk=smoothstep(cos(uSunR*1.07),cos(uSunR*.93),cd);c+=uDisk*smoothstep(cos(uSunR*2.6),cos(uSunR),cd)*.14*uSunG;c=mix(c,uDisk,dsk);}else c+=uDisk*pow(s,900.)*6.;
- /* FOREST: the painted Ghibli day sky: blue zenith, pale turquoise mid-sky, warm cream horizon melting into the fog, warmth on the sun side, a soft three-lobed sun glow with no disc; dusk palette as the sun goes down */
- {float t=clamp(h,0.,1.);vec3 T=mix(uGT,uGTd,uDuskK),M=mix(uGM,uGMd,uDuskK),H=mix(uGH,uGHd,uDuskK);vec3 g=mix(H,M,smoothstep(0.,.224,t));g=mix(g,T,smoothstep(.14,.85,pow(t,.8)));float hz=pow(1.-smoothstep(-.04,.077,h),2.2);g=mix(g,uFogC,hz);vec2 sxz=normalize(sd.xz+1e-4),dxz=normalize(vd.xz+1e-4);float tw=pow(max(dot(sxz,dxz),0.),3.)*(1.-smoothstep(0.,.35,h));g=mix(g,H*vec3(1.05,.95,.85),tw*.45);float cA=dot(vd,sd);float halo=exp(-(1.-cA)*90.)*.75+exp(-(1.-cA)*11.)*.28+exp(-(1.-cA)*2.2)*.08;vec3 st2=uGSun/max(max(uGSun.r,uGSun.g),uGSun.b);g+=st2*halo*.9*smoothstep(-.08,.02,h+.06);if(h>0.){vec2 cq=vd.xz/(h+.18);float cir=fb(vec2(cq.x*.5+cq.y*1.6,cq.y*.22-cq.x*.35)*1.1+vec2(uT*.004,0.));float ci=smoothstep(.56,.86,cir)*smoothstep(.06,.4,h)*(1.-smoothstep(.75,1.,h));g=mix(g,mix(vec3(1.),uGHd,uDuskK*.6),ci*.6);}/* FOREST: high, brushed cirrus streaks (Ryan's reference) */g*=mix(1.,.82,uDuskK*.6);c=mix(c,g,uDayK);}
+ /* FOREST 78 (Ryan's Sky Studio): the painted sky after nicksonthc's Ghibli sky: his colours for each time of day, a haze band at the
+    horizon, warmth toward the sun, a soft three-lobed sun glow with no disc (a narrow glow round the moon at night), low-sun dimming */
+ {float t=clamp(h,0.,1.);vec3 g=mix(uSHor,uSMid,smoothstep(0.,.224,t));g=mix(g,uSTop,smoothstep(.14,.85,pow(t,.8)));
+  float hz=pow(1.-smoothstep(-.04,uHazeH*.55,h),uHazePow);g=mix(g,uSHaze,hz);
+  vec2 sxz=normalize(sd.xz+1e-4),dxz=normalize(vd.xz+1e-4);float tw=pow(max(dot(sxz,dxz),0.),3.)*(1.-smoothstep(0.,.35,h));g=mix(g,uSHor*vec3(1.05,.95,.85),tw*uWarm*(1.-uSNight));
+  float cA=dot(vd,sd);vec3 scl=uSSun/max(max(uSSun.r,uSSun.g),max(uSSun.b,1e-3));
+  float halo=exp(-(1.-cA)*90./uHalo)*.75+exp(-(1.-cA)*11./uHalo)*.28+exp(-(1.-cA)*2.2/uHalo)*.08;float moonG=pow(max(cA,0.),24.)*.35;
+  g+=scl*mix(halo*.9,moonG,uSNight)*uSGlow*smoothstep(-.1,.02,h+.06);
+  g*=mix(1.,mix(.55,1.,smoothstep(-.05,.3,sd.y)),1.-uSNight);
+  if(h>0.&&uCir>0.){vec2 cq=vd.xz/(h+.18);float cir=fb(vec2(cq.x*.5+cq.y*1.6,cq.y*.22-cq.x*.35)*1.1+vec2(uT*.004,0.));float ci=smoothstep(.56,.86,cir)*smoothstep(.06,.4,h)*(1.-smoothstep(.75,1.,h));g=mix(g,mix(vec3(1.),uSHor,.5),ci*.6*uCir*(1.-.85*uSNight));}
+  c=g;}
  /* FOREST 69 (Ryan): shooting stars, every 6 to 14 seconds, mostly in the half of the sky you are looking at, a long soft streak */
  if(uStars>0.){float per=7.;float k=floor(uT/per);float f=fract(uT/per)*per;float sh=fract(sin(k*12.9898)*43758.5);float st0=fract(sin(k*3.17)*91.7)*3.5;if(f>st0&&f<st0+1.5&&sh>.2){float pp=(f-st0)/1.5;float a0=atan(uCamF.x,uCamF.z);float a1=a0+(fract(sin(k*78.233)*43758.5)-.5)*2.2,e1=.3+.5*fract(sin(k*39.42)*1e4);vec3 A=normalize(vec3(sin(a1)*cos(e1),sin(e1),cos(a1)*cos(e1)));float sd2=fract(sin(k*5.1)*77.)>.5?1.:-1.;vec3 T=normalize(cross(A,vec3(0.,1.,0.))*sd2+vec3(0.,-.45,0.));vec3 H=normalize(A+T*.38*pp),Tl=normalize(A+T*.38*max(0.,pp-.28));vec3 sg=H-Tl;float u=clamp(dot(vd-Tl,sg)/max(dot(sg,sg),1e-6),0.,1.);float dd=length(vd-(Tl+sg*u));float fade=smoothstep(0.,.12,pp)*(1.-smoothstep(.75,1.,pp));c+=vec3(1.,.97,.88)*smoothstep(.0017,.0004,dd)*1.25*u*u*fade*min(uStars,1.2);}}
  /* FOREST 69 (Ryan): the stars are round dots, fewer, all over the sky (straight overhead too), each glistening at its own pace and never
@@ -1456,7 +1502,7 @@ fragmentShader: `varying vec3 vd;uniform vec3 sd,uHor,uZen,uLow,uGlow,uDisk,uCLi
  if(uStars>0.){float sk=0.;for(int L=0;L<3;L++){float N=L==0?260.:L==1?560.:1100.;float P=L==0?.0042:L==1?.0055:.006;float B=L==0?1.5:L==1?.85:.5;vec3 g3=vd*N;vec3 q=floor(g3);vec3 h3=hh3(q+float(L)*17.);if(h3.x<P){vec3 cpos=q+.5+(h3-.5)*.5;float d=length(g3-cpos);float rad=L==0?.42:.36;float dot1=smoothstep(rad,rad*.25,d);float tw=.82+.18*sin(uT*(1.1+h3.y*2.6)+h3.z*6.283)*sin(uT*(.37+h3.z*.9)+h3.y*9.);sk+=dot1*tw*B*(.6+.8*fract(h3.y*7.13));}}c+=vec3(.9,.94,1.)*sk*uStars*smoothstep(.02,.22,h);}
  /* FOREST 69 (Ryan): on winter nights the northern lights ripple across the north of the sky: green curtains with rays, lilac at their tops */
  if(uAur>.001&&h>0.){float az=atan(vd.x,-vd.z);float wN=1.-smoothstep(1.,1.9,abs(az));float aur=0.;vec3 ac=vec3(0.);for(int i=0;i<2;i++){float fi=float(i);float e0=.2+fi*.1+.09*fb(vec2(az*1.6+uT*.015+fi*4.,fi*3.))-.04;float up=h-e0;float body=smoothstep(-.03,0.,up)*exp(-max(up,0.)*(7.-fi*2.));float rays=.45+.55*vn(vec2(az*38.+uT*.25+fi*11.,fi))*vn(vec2(az*9.-uT*.08,fi+5.));float wave=.55+.45*sin(az*5.+uT*.12+fi*2.)*sin(az*2.3-uT*.07);float a=body*rays*wave;aur+=a;ac+=a*mix(vec3(.18,1.,.52),vec3(.62,.32,.95),smoothstep(.0,.22,up)*.85);}c+=ac*uAur*wN*.55*smoothstep(0.,.08,h);}
- if(h>0.){vec2 cu=vd.xz/(h+.12)*.55+vec2(uCT,uCT*.4);float cn=fb(cu*.95);float cl=mix(.12,.4,uDayK)*smoothstep(1.-uCAmt,1.-uCAmt+.22,cn)*smoothstep(0.,.18,h);float lit=smoothstep(.35,.85,fb(cu*.95+sd.xz*.08)-cn*.2+.45);vec3 cc=mix(uCShade,uCLit,lit);float edge=cl*(1.-smoothstep(.3,.95,cl));cc=mix(cc,uCRim,clamp(edge*(.35+1.6*pow(s,3.))+lit*pow(s,6.)*.5,0.,.9));c=mix(c,cc,cl);}
+/* FOREST 78: the old painted cloud layer in the sky is off; the Ghibli clouds fill the sky */ if(false&&h>0.){vec2 cu=vd.xz/(h+.12)*.55+vec2(uCT,uCT*.4);float cn=fb(cu*.95);float cl=mix(.12,.4,uDayK)*smoothstep(1.-uCAmt,1.-uCAmt+.22,cn)*smoothstep(0.,.18,h);float lit=smoothstep(.35,.85,fb(cu*.95+sd.xz*.08)-cn*.2+.45);vec3 cc=mix(uCShade,uCLit,lit);float edge=cl*(1.-smoothstep(.3,.95,cl));cc=mix(cc,uCRim,clamp(edge*(.35+1.6*pow(s,3.))+lit*pow(s,6.)*.5,0.,.9));c=mix(c,cc,cl);}
  {vec2 q=vd.xz/(abs(vd.y)+.35)*3.;float w1=fb(q*.7+uT*.6),w2=fb(q*2.3-3.);c*=.94+.1*w1;c=mix(c,c*vec3(1.03,1.,.96),smoothstep(.45,.7,w2)*.6);c*=.985+.03*hs(floor(vd*900.));}gl_FragColor=vec4(c,1.);
  #include <tonemapping_fragment>
  #include <colorspace_fragment>
@@ -1470,35 +1516,37 @@ window.__sky = sky;
 window.__skyU = m.uniforms;
 }
 const GCLOUDS =(()=>{
-const rand = mulberry32(80117);
+let sd = SKYS.cSeed * 9973 + 17;
+const rand =()=>(sd =(sd * 16807)% 2147483647)/ 2147483647;
 const P =[];
-const cloud =(ang,R,cy,w,speed = 0.6 + rand()* 0.9)=>{
+const cloud =(ang,R,cy,w,speed)=>{
 const cx = Math.sin(ang)* R,
 cz = -Math.cos(ang)* R,
 seed = rand()* 100;
-const n = 5 +((rand()* 5)| 0),
-yaw = rand()* Math.PI,
-ca = Math.cos(yaw),
-sa = Math.sin(yaw);
-const put =(px,py,pz,rad)=> P.push([cx + px * ca - pz * sa,cy + py,cz + px * sa + pz * ca,rad,cx,cy + w * 0.12,cz,speed,seed]);
+const st = SKYS.cStretch,
+n = Math.round((5 + rand()* 5)* st),
+yw = ang +(rand()- 0.5)* 0.3,
+ca = Math.cos(yw),
+sa = Math.sin(yw);
+const put =(px,py,pz,rad)=> P.push([cx + px * ca - pz * sa,cy + py,cz + px * sa + pz * ca,rad,cx,cy + w * 0.12,cz,speed,seed,cy + w * 0.03]);
 for(let k = 0;k < n;k++){
 const u =(k + 0.5)/ n - 0.5,
 rad = w *(0.15 + 0.08 * rand())* Math.sqrt(1 - Math.abs(u)* 1.4);
-put(u * w * 0.9,rad * 0.5 +(rand()- 0.5)* w * 0.04,(rand()- 0.5)* w * 0.14,rad);
+put(u * w * 0.9 * st,rad * 0.5 +(rand()- 0.5)* w * 0.04,(rand()- 0.5)* w * 0.14,rad);
 }
-const m = 4 +((rand()* 4)| 0),
+const m = Math.round((4 + rand()* 4)*(0.6 + 0.4 * st)),
 peak =(rand()- 0.5)* 0.4;
 for(let k = 0;k < m;k++){
 const u = peak +(rand()- 0.5)* 0.6,
 rad = w *(0.09 + 0.11 * rand())*(1 - Math.abs(u - peak)* 0.7);
-put(u * w * 0.8,rad * 0.5 + w *(0.09 + 0.14 * rand()),(rand()- 0.5)* w * 0.16,rad);
+put(u * w * 0.8 *(0.5 + 0.5 * st),rad * 0.5 + w *(0.09 + 0.14 * rand()),(rand()- 0.5)* w * 0.16,rad);
 }
 };
-const COUNT = 14;
-for(let i = 0;i < COUNT;i++){
-const far = i >= Math.ceil(COUNT * 0.55),
-R = far ? 330 + rand()* 120 : 190 + rand()* 80;
-cloud(rand()* Math.PI * 2,R,far ? 110 + rand()* 80 : 60 + rand()* 50,(30 + rand()* 54)*(far ? 1.8 : 1));
+const n = SKYS.cCount | 0;
+for(let i = 0;i < n;i++){
+const far = i >= Math.round(n *(1 - SKYS.cFarShare));
+const R = far ? SKYS.cFarD *(0.85 + 0.3 * rand()): SKYS.cNearD *(0.8 + 0.4 * rand());
+cloud(((i + 0.5)/ n +((rand()- 0.5)* 0.6)/ n)* Math.PI * 2 +(far ? Math.PI / n : 0),R,(far ? SKYS.cFarH : SKYS.cNearH)*(0.75 + 0.5 * rand()),(30 + rand()* 54)*(far ? 1.8 : 1)* SKYS.cSize,0.6 + rand()* 0.9);
 }
 const ico = new THREE.IcosahedronGeometry(1,3);
 ico.deleteAttribute('normal');
@@ -1508,26 +1556,34 @@ const geo = new THREE.InstancedBufferGeometry();
 geo.index = base.index;
 geo.setAttribute('position',base.attributes.position);
 geo.instanceCount = P.length;
-const f =(k,n)=> new THREE.InstancedBufferAttribute(new Float32Array(P.flatMap(k)),n);
+const f =(k,nn)=> new THREE.InstancedBufferAttribute(new Float32Array(P.flatMap(k)),nn);
 geo.setAttribute('aPos',f(p =>[p[0],p[1],p[2],p[3]],4));
 geo.setAttribute('aCenter',f(p =>[p[4],p[5],p[6]],3));
 geo.setAttribute('aDrift',f(p =>[p[7],p[8]],2));
+geo.setAttribute('aBase',f(p =>[p[9]],1));
 const NOISE = `float h31(vec3 p){p=fract(p*.3183099+.1);p*=17.;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}
 float vn3(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.-2.*f);return mix(mix(mix(h31(i),h31(i+vec3(1,0,0)),f.x),mix(h31(i+vec3(0,1,0)),h31(i+vec3(1,1,0)),f.x),f.y),mix(mix(h31(i+vec3(0,0,1)),h31(i+vec3(1,0,1)),f.x),mix(h31(i+vec3(0,1,1)),h31(i+vec3(1,1,1)),f.x),f.y),f.z);}
 float fbm3(vec3 p){float s=0.,a=.5;for(int i=0;i<4;i++){s+=a*vn3(p);p=p*2.02+1.7;a*=.5;}return s;}`;
 const U ={
 uTime:{value: 0},
 uSunDir:{value: sunDir},
-uSunColor:{value: new THREE.Color(0xffe2a8)},
-uMist:{value: new THREE.Color(0xdcefe4)},
-uSkyTop:{value: new THREE.Color(0x3684d8)},
-uLit:{value: new THREE.Color(0xfff8e8)},
-uMidC:{value: new THREE.Color(0xb4dcef)},
-uShade:{value: new THREE.Color(0x9a8fc6)},
-uDayK:{value: 1},
-uDuskK:{value: 0},
+uSunColor:{value: SKYP.sun},
+uMist:{value: SKYP.haze},
+uSkyTop:{value: SKYP.top},
+uLit:{value: SKYP.cLit},
+uMidC:{value: SKYP.cMid},
+uShade:{value: SKYP.cShade},
+uDusk:{value: 0},
+uNight:{value: 0},
 uGrey:{value: 0},
-uNightC:{value: new THREE.Color(0x2c3a66)}
+uFlat:{value: SKYS.cFlat},
+uLump:{value: SKYS.cLump},
+uWisp:{value: SKYS.cWisp},
+uOp:{value: SKYS.cOpacity},
+uDrift:{value: SKYS.cDrift},
+uFarD:{value: SKYS.cFarD},
+uDayK:{value: 1},
+uDuskK:{value: 0}
 };
 const mat = new THREE.ShaderMaterial({
 fog: false,
@@ -1537,26 +1593,25 @@ blendSrc: THREE.SrcAlphaFactor,
 blendDst: THREE.OneMinusSrcAlphaFactor,
 depthWrite: false,
 uniforms: U,
-vertexShader: `attribute vec4 aPos;attribute vec3 aCenter;attribute vec2 aDrift;uniform float uTime;varying vec3 vN,vCN,vWP,vLP;
+vertexShader: `attribute vec4 aPos;attribute vec3 aCenter;attribute vec2 aDrift;attribute float aBase;uniform float uTime,uFlat,uLump,uDrift;varying vec3 vN,vCN,vWP,vLP;
 ${NOISE}
-void main(){vec3 n=normalize(position);float lump=fbm3(n*2.6+aDrift.y)-.5;vec3 p=aPos.xyz+n*aPos.w*(1.+lump*.38*2.)*vec3(1.,.68,1.);vec3 c=aCenter;
-float shift=mod(c.x+uTime*1.3*aDrift.x*.35+420.,840.)-420.-c.x;p.x+=shift;c.x+=shift;
+void main(){vec3 n=normalize(position);float lump=fbm3(n*2.6+aDrift.y)-.5;vec3 p=aPos.xyz+n*aPos.w*(1.+lump*uLump*2.)*vec3(1.,uFlat,1.);p.y=max(p.y,aBase);vec3 c=aCenter;
+float th=uTime*uDrift*aDrift.x*.35/max(length(c.xz),1.);float cs=cos(th),sn=sin(th);mat2 rot=mat2(cs,sn,-sn,cs);p.xz=rot*p.xz;c.xz=rot*c.xz;
 vN=n;vCN=normalize((p-c)*vec3(1.,1.7,1.));vLP=p;vec4 w=modelMatrix*vec4(p,1.);vWP=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`,
-fragmentShader: `uniform vec3 uSunDir,uSunColor,uMist,uLit,uMidC,uShade,uSkyTop,uNightC;uniform float uTime,uDayK,uDuskK,uGrey;varying vec3 vN,vCN,vWP,vLP;
+fragmentShader: `uniform vec3 uSunDir,uSunColor,uMist,uLit,uMidC,uShade,uSkyTop;uniform float uTime,uDusk,uNight,uGrey,uWisp,uOp,uFarD;varying vec3 vN,vCN,vWP,vLP;
 ${NOISE}
 float hg(float c,float g){float g2=g*g;return (1.-g2)/pow(1.+g2-2.*g*c,1.5)*(1.-g)*(1.-g)/(1.+g);}
 void main(){vec3 V=normalize(cameraPosition-vWP),L=normalize(uSunDir);vec3 N=normalize(mix(vN,vCN,.42));float t=uTime*.012;
-float rim=dot(vN,V);float wisp=fbm3(vLP*.045+vec3(t,0.,-t*.6));float far=smoothstep(300.,480.,length(vLP.xz));
-float alpha=smoothstep(.02,.5,rim+(wisp-.5)*.6)*.8*(1.-.25*far);if(alpha<.02)discard;
-float l=dot(N,L)+(fbm3(vLP*.035)-.5)*.35;float k1=smoothstep(-.62,-.22,l);float k2=smoothstep(-.26,.14,l);
-vec3 sunTint=mix(vec3(1.),uSunColor/max(max(uSunColor.r,uSunColor.g),max(uSunColor.b,1e-3)),.45+.4*uDuskK);vec3 lit=uLit*sunTint;
+float rim=dot(vN,V);float wisp=fbm3(vLP*.045+vec3(t,0.,-t*.6));float far=smoothstep(uFarD*.65,uFarD*1.05,length(vLP.xz));
+float alpha=smoothstep(.02,.5,rim+(wisp-.5)*uWisp)*uOp*(1.-.25*far);if(alpha<.02)discard;
+float l=dot(N,L)+(fbm3(vLP*.035)-.5)*.35;float k1=smoothstep(-.52,-.32,l);float k2=smoothstep(-.16,.04,l);
+vec3 sunTint=mix(vec3(1.),uSunColor/max(max(uSunColor.r,uSunColor.g),max(uSunColor.b,1e-3)),.45+.4*uDusk);vec3 lit=uLit*mix(sunTint,vec3(1.),uNight);
 vec3 c=mix(uShade,uMidC,k1);c=mix(c,lit,k2);c=mix(c,mix(uMist,uSkyTop,.5+.5*N.y)*.9,.18);c=mix(c,uShade,smoothstep(-.15,-.6,vCN.y)*.45);
 c*=mix(.6,1.,smoothstep(-.35,.75,dot(vN,vCN)));float det=fbm3(vLP*.11+vec3(0.,0.,t*.5)),powder=1.-exp(-2.2*(1.-rim));c*=.84+.3*det;c=mix(c,lit,.18*powder*k2);
-float fwd=hg(dot(-V,L),.62),thin=1.-smoothstep(0.,.45,rim);c+=lit*fwd*thin*(.35+.9*uDuskK)*uDayK;
+float fwd=hg(dot(-V,L),.62),thin=1.-smoothstep(0.,.45,rim);c+=lit*fwd*thin*(.35+.9*uDusk)*(1.-uNight*.7);
 float low=1.-smoothstep(30.,150.,vLP.y-length(vLP.xz)*.06);c=mix(c,uMist,.35*low);c=mix(c,uMist,.4*far);
 float gl=dot(c,vec3(.3,.59,.11));c=mix(c,vec3(gl)*vec3(.82,.85,.9),uGrey*.6);
-c=mix(mix(uNightC*1.25,vec3(.55,.58,.72),.35*k2)*(.85+.25*det),c,uDayK);/* FOREST 74 (Ryan: dark puffs at night): moonlit, soft and pale-edged instead of near-black */
-gl_FragColor=vec4(c,alpha*(.4+.6*uDayK));
+gl_FragColor=vec4(c,alpha);
 #include <tonemapping_fragment>
 #include <colorspace_fragment>
 }`
@@ -1570,71 +1625,54 @@ window.__gClouds ={mesh,U};
 return{mesh,U};
 })();
 {
-const N = 6,
-U ={
-uNear:{value: new THREE.Color(0.16,0.36,0.36)},
-uFar:{value: new THREE.Color(0.75,0.85,0.9)},
-uMist:{value: new THREE.Color(0.85,0.9,0.92)},
-uRim:{value: new THREE.Color(1,0.95,0.8)},
-uT:{value: 0},
-uHill:{value: new THREE.Color(0x3f6b3a)},
-uFogH:{value: new THREE.Color(0xdcefe4)},
-uBlue:{value: new THREE.Color(0x6f93b8)},
-uSunH:{value: sunDir},
-uDayH:{value: 1},
-uDuskH:{value: 0}
+const OLD ={uNear:{value: new THREE.Color()},uFar:{value: new THREE.Color()},uMist:{value: new THREE.Color()},uRim:{value: new THREE.Color()},uHill:{value: new THREE.Color()},uFogH:{value: new THREE.Color()},uBlue:{value: new THREE.Color()},uDayH:{value: 1},uDuskH:{value: 0}};
+window.__ridgeU = OLD;
+const HU ={
+uHN:{value: SKYP.hNearS},
+uHF:{value: SKYP.hFar},
+uHH:{value: SKYP.haze},
+uSunDir:{value: sunDir},
+uBump:{value: SKYS.hBump},
+uRoll:{value: SKYS.hRoll},
+uCrowns:{value: SKYS.hCrowns},
+uFade:{value: SKYS.hFade},
+uMistK:{value: SKYS.hMist},
+uNight:{value: 0},
+uDusk:{value: 0}
 };
-window.__ridgeU = U;
-const grp =
-new THREE.Group();
+window.__hillU = HU;
+const grp = new THREE.Group();
+const N = SKYS.hLayers | 0;
 for(let i = 0;i < N;i++){
-const R = 300 + i * 40,
-k = i /(N - 1);
+const R = SKYS.hDist + i * SKYS.hGap,
+k = N > 1 ? i /(N - 1): 0;
 const g = new THREE.CylinderGeometry(R,R,1,720,1,true);
 g.translate(0,0.5,0);
-const elev = 0.09 + k * 0.13,
-amp = 0.05 + k * 0.07;
 const m = new THREE.ShaderMaterial({
 side: THREE.BackSide,
 fog: false,
-depthWrite: true,
+depthWrite: false,
 transparent: true,
-uniforms:{
-...U,
-uK:{value: k},
-uR:{value: R},
-uEl:{value: elev},
-uAmp:{value: amp},
-uSeed:{value: i * 17.3}
-},
-vertexShader: `varying vec3 vP;uniform float uR,uEl,uAmp;void main(){vec3 p=position;p.y=mix(-.12*uR,(uEl+uAmp*1.6+.02)*uR,p.y);vP=p;gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.);gl_Position.z=gl_Position.w*.99999;}`,
-fragmentShader: `varying vec3 vP;uniform vec3 uNear,uFar,uMist,uRim,uHill,uFogH,uBlue,uSunH;uniform float uK,uR,uEl,uAmp,uSeed,uT,uDayH,uDuskH;
-   float h1(float x){return fract(sin(x*127.1+uSeed)*43758.5453);}float n1(float x){float i=floor(x),f=fract(x);f=f*f*(3.-2.*f);return mix(h1(i),h1(i+1.),f);}
-   float h2(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7))+uSeed)*43758.5453);}float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h2(i),h2(i+vec2(1,0)),f.x),mix(h2(i+vec2(0,1)),h2(i+vec2(1,1)),f.x),f.y);}
-   /* FOREST (Ryan's references, Nov 14): broad, smooth rolling hills like a Ghibli background: the near ones wooded in our own
-      (seasonal) tree green with a soft crown texture, each layer further away fading through blue-green to pale blue into the
-      sky's haze, white valley mist pooling at the foot of each layer, warm light on the crests on the sun's side (gold at dusk),
-      deep blue silhouettes at night */
-   float ridgeAt(float a){float r=n1(a*.16)*.6+n1(a*.42+3.)*.28+n1(a*1.1+9.)*.12;return smoothstep(.05,.95,r);}
-   void main(){float a=atan(vP.z,vP.x)*uR*.01;
-    float ridge=ridgeAt(a);
-    float crowns=(n1(a*7.+uSeed)*.55+n1(a*19.)*.45)*(1.-uK)*.0035;
-    float top=(uEl+uAmp*ridge*1.25)*uR+crowns*uR;
-    float y=vP.y;if(y>top)discard;
-    float d=clamp((top-y)/(uR*.2),0.,1.);
-    float kq=uK;
-    vec3 c=mix(uHill,mix(uHill,uBlue,.55),smoothstep(0.,.55,kq));c=mix(c,uBlue,smoothstep(.45,1.,kq));
-    c=mix(c,uFogH,.12+.62*kq*kq);
-    float bl=n2(vec2(a*5.,y*.12))*.6+n2(vec2(a*13.,y*.35))*.4;c*=1.+(bl-.5)*.26*(1.-kq*.8);
-    float sl=ridgeAt(a+.05)-ridgeAt(a-.05);c*=1.+clamp(sl*3.,-.15,.15)*(1.-kq*.6);
-    float an=atan(vP.z,vP.x);vec2 dir=vec2(cos(an),sin(an));float sunSide=max(dot(normalize(uSunH.xz+1e-4),dir),0.);
-    vec3 rimC=mix(vec3(1.08,1.05,.92),vec3(1.35,1.,.62),uDuskH);c=mix(c,c*rimC,(1.-smoothstep(0.,.07,d))*(.35+.55*sunSide)*(.4+.6*uDayH));
-    float mist=smoothstep(.3,1.,d);c=mix(c,uFogH*1.04,mist*(.55+.35*kq));
-    c=mix(mix(vec3(.05,.07,.14),vec3(.16,.2,.34),1.-kq*.6),c,clamp(uDayH*1.1,0.,1.));
-    float edge=smoothstep(0.,uR*.0025,top-y);gl_FragColor=vec4(c,edge);
-    #include <tonemapping_fragment>
-    #include <colorspace_fragment>
-   }`
+uniforms:{...HU,uK:{value: k},uR:{value: R},uEl:{value: Math.max(0.002,SKYS['hL' +(i + 1)]?? 0.1)},uSeed:{value: i * 17.3 + SKYS.hSeed * 3.1}},
+vertexShader: `varying vec3 vP;uniform float uR;void main(){vec3 p=position;p.y=mix(-.1*uR,.3*uR,p.y);vP=p;gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.);gl_Position.z=gl_Position.w*.99999;}`,
+fragmentShader: `varying vec3 vP;uniform vec3 uHN,uHF,uHH,uSunDir;uniform float uK,uR,uEl,uSeed,uBump,uRoll,uCrowns,uFade,uMistK,uNight,uDusk;
+float h2(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7))+uSeed)*43758.5453);}float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h2(i),h2(i+vec2(1,0)),f.x),mix(h2(i+vec2(0,1)),h2(i+vec2(1,1)),f.x),f.y);}
+vec2 ring(float an){return vec2(cos(an),sin(an))*uR*.01;}
+float ridgeAt(vec2 q){float r=n2(q*.16*uRoll)*.6+n2(q*.42*uRoll+3.)*.28+n2(q*1.1*uRoll+9.)*.12;return smoothstep(.05,.95,r);}
+void main(){float an=atan(vP.z,vP.x);vec2 q=ring(an);float ridge=ridgeAt(q);
+ float crowns=(n2(q*7.+uSeed)*.55+n2(q*19.)*.45)*(1.-uK)*.0035*uCrowns;
+ float top=(uEl+uEl*uBump*(ridge-.4)*1.6)*uR+crowns*uR;float y=vP.y;if(y>top)discard;
+ float d=clamp((top-y)/max(top+.1*uR,1.),0.,1.);
+ vec3 c=mix(uHN,uHF,uK);c=mix(c,uHH,uFade*uK*uK*.85+.06);
+ float bl=n2(q*5.+vec2(0.,y*.12))*.6+n2(q*13.+vec2(0.,y*.35))*.4;c*=1.+(bl-.5)*.22*(1.-uK*.8);
+ float da=.05/(uR*.01);float sl=ridgeAt(ring(an+da))-ridgeAt(ring(an-da));c*=1.+clamp(sl*3.,-.12,.12)*(1.-uK*.6);
+ vec2 dir=vec2(cos(an),sin(an));float sunSide=max(dot(normalize(uSunDir.xz+1e-4),dir),0.);
+ vec3 rimC=mix(vec3(1.06,1.04,.94),vec3(1.3,1.,.66),uDusk);c=mix(c,c*rimC,(1.-smoothstep(0.,.07,d))*(.3+.5*sunSide)*(1.-uNight));
+ float hgt=max(top,1.);float low=1.-smoothstep(-.03*uR,hgt*.3,y);c=mix(c,uHH*1.04,low*low*uMistK*(.7+.3*n2(q*2.+vec2(0.,y*.05))));
+ float edge=smoothstep(0.,uR*.002,top-y);gl_FragColor=vec4(c,edge);
+ #include <tonemapping_fragment>
+ #include <colorspace_fragment>
+}`
 });
 const mesh = new THREE.Mesh(g,m);
 mesh.renderOrder = -20 - i * 0.1;
@@ -1786,7 +1824,7 @@ geo.translate(0,H * 0.5 - R * 0.1,0);
 const mat = new THREE.ShaderMaterial({
 side: THREE.BackSide,
 transparent: true,
-depthWrite: true,
+depthWrite: false,
 fog: false,
 uniforms:{...U,uTex:{value: tex},uStr:{value: str},uRep:{value: Math.round(4 * rs)}},
 vertexShader: `varying vec2 vUv;varying vec3 vW;void main(){vUv=uv;vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`,
@@ -1913,6 +1951,7 @@ mesh.renderOrder = -28;
 scene.add(mesh);
 return{mesh,U};
 })();
+CLOUDBAND.mesh.visible = false;
 GCLOUDS.mesh.onBeforeRender =(r,sc2,cam)=>{
 GCLOUDS.mesh.position.set(cam.position.x,0,cam.position.z);
 try{
@@ -1931,18 +1970,16 @@ SU.uAur.value +=(on - SU.uAur.value)* 0.01;
 cam.getWorldDirection(SU.uCamF.value);
 }
 if(scene.fog)SU.uFogC.value.copy(scene.fog.color);
-G.uDayK.value = SU.uDayK.value;
-G.uDuskK.value = SU.uDuskK.value;
-G.uMist.value.copy(SU.uFogC.value);
-G.uSkyTop.value.copy(SU.uGT.value).lerp(SU.uGTd.value,SU.uDuskK.value);
-G.uSunColor.value.copy(sun.color);
+SKYP.tick(W);
+SU.uSGlow.value = SKYP.glow;
+SU.uSNight.value = SKYP.night;
+G.uDusk.value = SKYP.dusk;
+G.uNight.value = SKYP.night;
 G.uTime.value = performance.now()/ 1000;
-const RU = window.__ridgeU;
-if(RU){
-RU.uFogH.value.copy(SU.uFogC.value);
-RU.uDayH.value = SU.uDayK.value;
-RU.uDuskH.value = SU.uDuskK.value;
-if(window.__czHillC)RU.uHill.value.copy(window.__czHillC);
+const HU = window.__hillU;
+if(HU){
+HU.uNight.value = SKYP.night;
+HU.uDusk.value = SKYP.dusk;
 }
 const ev = window.__EV;
 G.uGrey.value +=((ev ? Math.max(ev.rain || 0,(ev.snow || 0)* 0.6): 0)- G.uGrey.value)* k;
@@ -15172,7 +15209,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 514;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 76;
+const LOOKV = 78;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
