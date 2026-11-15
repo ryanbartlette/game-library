@@ -624,7 +624,7 @@ Object.assign(DEF,{
 'crouchDepth': 4,
 'camDist': 1.2,
 'camHeight': 0.6,
-'fov': 80,
+'fov': 75,
 'sens': 0.7,
 'timeScale': 1,
 'music': 0.5,
@@ -12732,7 +12732,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 514;
+const BUILD = 515;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -40477,8 +40477,8 @@ if(id === 'toys' && window.__cornyMesh && window.__chickumMesh){
 const g = new THREE.Group(),
 a = window.__cornyMesh(),
 b = window.__chickumMesh();
-a.position.x = 0.055;
-b.position.x = -0.06;
+a.position.x = -0.055;
+b.position.x = 0.06;
 g.add(a,b);
 return g;
 }
@@ -43863,7 +43863,7 @@ try{
 window.__storyLine &&
 window.__storyLine(
 'He left his favorite toys behind…',
-'Corny and Chickum, where he faded into the light',
+'where he faded into the light',
 5200
 );
 }catch(e){}
