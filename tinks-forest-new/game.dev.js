@@ -5821,7 +5821,7 @@ counts[k]= list.length;
 try{
 const IV = L.ivyS,
 LM = L.lantern;
-if(IV && LM && put.lantern){
+if(false && IV && LM && put.lantern){
 const ir = mulberry32(71219),
 lst =[];
 const m4b = new THREE.Matrix4(),
@@ -15209,7 +15209,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 514;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 78;
+const LOOKV = 79;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
