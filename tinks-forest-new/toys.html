@@ -258,15 +258,20 @@ const buildDrum = () => {
 	drum.add(meat);
 	/* the bone (Ryan: flat, white felt): one flat cut-out, a shaft ending in two round knobs, like a cartoon bone */
 	/* a cartoon bone end, as on the real toy: a straight shaft splitting into two round lobes with a little notch between */
-	const bs = new THREE.Shape(), hw = S.dBoneW / 2, kr = S.dKnob / 2, ks = Math.max(S.dKnobSpread / 2, hw * 0.6), top = S.dBoneLen + kr * 0.6;
+	const bs = new THREE.Shape(), hw = S.dBoneW / 2, kr = S.dKnob / 2, ks = Math.max(S.dKnobSpread / 2, hw * 0.4), top = S.dBoneLen + kr * 0.6;
 	const cl = v => Math.max(-0.97, Math.min(0.97, v));
 	bs.moveTo(-hw, top);
 	{
-		const a0 = Math.acos(cl((-hw + ks) / kr)), a1 = 2 * Math.PI - Math.acos(cl(ks / kr));
-		bs.lineTo(-ks + Math.cos(a0) * kr, kr + Math.sin(a0) * kr);
+		/* (Ryan's drawing) the shaft flares softly into two big round lobes that overlap, with a shallow notch between them */
+		const a0 = Math.acos(cl((-hw * 1.35 + ks) / kr)), a1 = 2 * Math.PI - Math.acos(cl(ks / kr));
+		const jx = -ks + Math.cos(a0) * kr, jy = kr + Math.sin(a0) * kr;
+		bs.lineTo(-hw, jy + kr * 0.35);
+		bs.quadraticCurveTo(-hw, jy + kr * 0.05, jx, jy);
 		bs.absarc(-ks, kr, kr, a0, a1, false);
-		const b0 = Math.PI + Math.acos(cl(ks / kr)), b1 = 2 * Math.PI + Math.acos(cl((hw - ks) / kr));
+		const b0 = Math.PI + Math.acos(cl(ks / kr)), b1 = 2 * Math.PI + Math.acos(cl((hw * 1.35 - ks) / kr));
 		bs.absarc(ks, kr, kr, b0, b1, false);
+		const kx = ks + Math.cos(b1) * kr, ky = kr + Math.sin(b1) * kr;
+		bs.quadraticCurveTo(hw, ky + kr * 0.05, hw, ky + kr * 0.35);
 	}
 	bs.lineTo(hw, top);
 	bs.lineTo(-hw, top);
