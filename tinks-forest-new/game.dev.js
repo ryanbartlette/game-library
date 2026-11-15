@@ -15209,7 +15209,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 514;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 79;
+const LOOKV = 80;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -22233,9 +22233,9 @@ const beanPlace =()=>{
 let w = null;
 const v = new V3();
 scene.traverse(o =>{
-if(!w && o.isMesh && /^well/i.test(srcOf0(o))){
-o.getWorldPosition(v);
-w = v.clone();
+if(!w && o.isMesh && o.visible && /^well/i.test(srcOf0(o))){
+const bx = new THREE.Box3().setFromObject(o);
+if(!bx.isEmpty()&& bx.max.x - bx.min.x < 12)w = bx.getCenter(v).clone();
 }
 });
 if(!w){
