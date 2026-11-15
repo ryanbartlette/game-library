@@ -18236,7 +18236,7 @@ switchCat('tink');
 document.getElementById('pickLuca').setAttribute('aria-pressed','false');
 document.getElementById('pickTink').setAttribute('aria-pressed','true');
 const cam ={yaw: ROOM ? ROOM.yaw - Math.PI : Math.PI,pitch: 0.32,pos: new V3(),tgt: new V3()};
-window.__camO = cam;
+window.__camO = cam;window.__Pdev = P;
 window.__CAMST ={
 cam,
 get T(){
