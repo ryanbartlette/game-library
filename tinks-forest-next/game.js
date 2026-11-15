@@ -12732,7 +12732,7 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 513;
+const BUILD = 514;
 try{
 const gb = document.getElementById('gBuild');
 if(gb)gb.textContent = 'Build ' + BUILD;
@@ -40473,6 +40473,15 @@ return m;
 J.sparkleU = sparkleU;
 const giftMesh = id =>{
 if(id === 'bean' && window.__beanMesh)return window.__beanMesh(true);
+if(id === 'toys' && window.__cornyMesh && window.__chickumMesh){
+const g = new THREE.Group(),
+a = window.__cornyMesh(),
+b = window.__chickumMesh();
+a.position.x = 0.055;
+b.position.x = -0.06;
+g.add(a,b);
+return g;
+}
 if(id === 'corny' && window.__cornyMesh){
 const m = window.__cornyMesh();
 if(m)return m;
@@ -41993,6 +42002,179 @@ g.add(fg);
 return g;
 };
 window.__candyCorn = candyCorn;
+const JTOYS ={"toyStudio":1,"cSize":11,"cEyeX":0.115,"cEyeY":0.505,"cEyeR":0.07,"cRing":0.014,"cRingCol":"#9fb27a","cWhite":"#f2ecd9","cPupil":0.03,"cLookLX":-0.25,"cLookLY":0.15,"cLookRX":-0.28,"cLookRY":0.14,"cPupilCol":"#2b2a24","cSmileY":0.354,"cSmileW":0.126,"cSmileCurve":0.044,"cSmileTilt":-0.13,"cStitch":0.0105,"cStitchCol":"#3a2a20","cOrange":"#ef7a2e","cYellow":"#f2d22c","cTip":"#eef0ef","dSize":10.5,"dMeatLen":0.5,"dMeatW":0.36,"dPlump":0.6,"dNeck":0.34,"dFlat":0.62,"dBoneLen":0.14,"dBoneW":0.08,"dKnob":0.1,"dKnobSpread":0.1,"dMeat":"#a69a52","dMeatDark":"#7e7337","dBone":"#e8ebee","dFuzz":0.6,"dEyeX":0.07,"dEyeY":0,"dEyeR":0.03,"dCheekR":0.033,"dCheekCol":"#f2a2a8","dSmileW":0.022,"dFaceAt":0.515};
+const chickumMake =()=>{
+const S = JTOYS,
+drum = new THREE.Group();
+const fc = document.createElement('canvas');
+fc.width = fc.height = 512;
+const x = fc.getContext('2d'),
+W = 512;
+x.fillStyle = S.dMeat;
+x.fillRect(0,0,W,W);
+let sd = 7;
+const r =()=>(sd =(sd * 16807)% 2147483647)/ 2147483647;
+for(let i = 0;i < 2600 * S.dFuzz + 200;i++){
+x.strokeStyle = r()< 0.5 ? S.dMeatDark + '55' : 'rgba(255,250,220,.18)';
+x.lineWidth = 1 + r()* 1.5;
+const a = r()* 6.28,
+l = 3 + r()* 10,
+X = r()* W,
+Y = r()* W;
+x.beginPath();
+x.moveTo(X,Y);
+x.quadraticCurveTo(X + Math.cos(a + 1)* l,Y + Math.sin(a + 1)* l,X + Math.cos(a)* l * 1.6,Y + Math.sin(a)* l * 1.6);
+x.stroke();
+}
+{
+const fu = 0.25 * W,
+fv =(1 - S.dFaceAt)* W;
+const per = W /(2 * Math.PI * S.dMeatW * 0.5);
+const sx = S.dEyeX * per,
+sy = S.dEyeY * per,
+er = S.dEyeR * per;
+for(const s of[-1,1]){
+x.fillStyle = S.dCheekCol;
+x.globalAlpha = 0.85;
+x.beginPath();
+x.ellipse(fu + s *(sx + er * 1.6),fv + sy + er * 1.9,S.dCheekR * per,S.dCheekR * per * 0.75,0,0,7);
+x.fill();
+x.globalAlpha = 1;
+x.fillStyle = '#121212';
+x.beginPath();
+x.arc(fu + s * sx,fv + sy,er,0,7);
+x.fill();
+x.fillStyle = 'rgba(255,255,255,.75)';
+x.beginPath();
+x.arc(fu + s * sx - er * 0.3,fv + sy - er * 0.35,er * 0.3,0,7);
+x.fill();
+}
+if(S.dSmileW > 0){
+const w = S.dSmileW * per;
+x.strokeStyle = '#1a1612';
+x.lineWidth = Math.max(2,er * 0.35);
+x.lineCap = 'round';
+x.beginPath();
+x.moveTo(fu - w,fv + sy + er * 1.6);
+x.quadraticCurveTo(fu,fv + sy + er * 1.6 + w * 0.9,fu + w,fv + sy + er * 1.6);
+x.stroke();
+}
+}
+const ft = new THREE.CanvasTexture(fc);
+ft.colorSpace = THREE.SRGBColorSpace;
+const L = S.dMeatLen,
+Rm = S.dMeatW / 2,
+pts =[],
+N = 40;
+for(let i = 0;i <= N;i++){
+const t = i / N,
+pk = 0.45 + S.dPlump * 0.3;
+const up = t < pk ? Math.pow(t / pk,0.75 +(1 - S.dPlump)* 0.8): 1;
+const sm = up * up *(3 - 2 * up);
+const endRound = t > pk ? Math.sqrt(Math.max(0,1 - Math.pow((t - pk)/(1 - pk),2))): 1;
+const neck = S.dNeck +(1 - S.dNeck)* sm;
+pts.push(new THREE.Vector2(Math.max(0.0005,Rm * neck * endRound),t * L));
+}
+const mg = new THREE.LatheGeometry(pts,64);
+mg.scale(S.dFlat,1,1);
+{
+const p = mg.attributes.position;
+for(let i = 0;i < p.count;i++){
+const X = p.getX(i),
+Y = p.getY(i),
+Z = p.getZ(i);
+const n = Math.sin(X * 60 + Y * 41)* Math.sin(Z * 55 - Y * 23)* 0.004 * S.dFuzz;
+const l = Math.hypot(X,Z)|| 1;
+p.setXYZ(i,X +(X / l)* n,Y,Z +(Z / l)* n);
+}
+mg.computeVertexNormals();
+}
+const meat = new THREE.Mesh(mg,new THREE.MeshStandardMaterial({map: ft,roughness: 1,metalness: 0}));
+meat.position.y = S.dBoneLen + S.dKnob * 0.3;
+meat.rotation.y = -Math.PI / 2;
+drum.add(meat);
+const bs = new THREE.Shape(),
+hw = S.dBoneW / 2,
+kr = S.dKnob / 2,
+ks = Math.max(S.dKnobSpread / 2,hw * 0.4),
+top = S.dBoneLen + kr * 0.6;
+const cl = v => Math.max(-0.97,Math.min(0.97,v));
+bs.moveTo(-hw,top);
+{
+const a0 = Math.acos(cl((-hw * 1.35 + ks)/ kr)),
+a1 = 2 * Math.PI - Math.acos(cl(ks / kr));
+const jx = -ks + Math.cos(a0)* kr,
+jy = kr + Math.sin(a0)* kr;
+bs.lineTo(-hw,jy + kr * 0.35);
+bs.quadraticCurveTo(-hw,jy + kr * 0.05,jx,jy);
+bs.absarc(-ks,kr,kr,a0,a1,false);
+const b0 = Math.PI + Math.acos(cl(ks / kr)),
+b1 = 2 * Math.PI + Math.acos(cl((hw * 1.35 - ks)/ kr));
+bs.absarc(ks,kr,kr,b0,b1,false);
+const ky = kr + Math.sin(b1)* kr;
+bs.quadraticCurveTo(hw,ky + kr * 0.05,hw,ky + kr * 0.35);
+}
+bs.lineTo(hw,top);
+bs.lineTo(-hw,top);
+const bth = Math.max(0.012,S.dBoneW * 0.32);
+const bg = new THREE.ExtrudeGeometry(bs,{
+depth: bth,
+bevelEnabled: true,
+bevelThickness: bth * 0.35,
+bevelSize: bth * 0.35,
+bevelSegments: 3,
+curveSegments: 18
+});
+bg.translate(0,0,-bth / 2);
+const wc = document.createElement('canvas');
+wc.width = wc.height = 256;
+const wx = wc.getContext('2d');
+wx.fillStyle = S.dBone;
+wx.fillRect(0,0,256,256);
+{
+let sd2 = 3;
+const r2 =()=>(sd2 =(sd2 * 16807)% 2147483647)/ 2147483647;
+for(let i = 0;i < 900 * S.dFuzz + 100;i++){
+wx.strokeStyle = r2()< 0.5 ? 'rgba(160,170,180,.25)' : 'rgba(255,255,255,.5)';
+wx.lineWidth = 1 + r2();
+const X = r2()* 256,
+Y = r2()* 256,
+a = r2()* 6.28,
+l = 3 + r2()* 8;
+wx.beginPath();
+wx.moveTo(X,Y);
+wx.lineTo(X + Math.cos(a)* l,Y + Math.sin(a)* l);
+wx.stroke();
+}
+}
+const bt = new THREE.CanvasTexture(wc);
+bt.colorSpace = THREE.SRGBColorSpace;
+bt.wrapS = bt.wrapT = THREE.RepeatWrapping;
+bt.repeat.set(8,8);
+drum.add(new THREE.Mesh(bg,new THREE.MeshStandardMaterial({map: bt,roughness: 1,metalness: 0})));
+drum.updateMatrixWorld(true);
+const bb = new THREE.Box3().setFromObject(drum);
+for(const c of drum.children)c.position.y -= bb.min.y;
+drum.traverse(o =>{
+if(o.isMesh)o.castShadow = true;
+});
+const g = new THREE.Group();
+drum.scale.setScalar((S.dSize / 100 /(S.dBoneLen + S.dMeatLen + S.dKnob))*(0.1 /((S.cSize / 100)* 0.85)));
+g.add(drum);
+return g;
+};
+const chickumLying =()=>{
+const t = chickumMake(),
+w = new THREE.Group();
+t.rotation.x = -Math.PI / 2;
+w.add(t);
+w.updateMatrixWorld(true);
+const bb = new THREE.Box3().setFromObject(w);
+t.position.y -= bb.min.y;
+t.position.z -=(bb.min.z + bb.max.z)/ 2;
+return w;
+};
+window.__chickumMesh =()=> chickumMake();
 const cornyMake = src =>{
 const o = src.scene.clone(true);
 o.updateMatrixWorld(true);
@@ -42019,62 +42201,85 @@ meshes.push(m);
 }
 });
 g.updateMatrixWorld(true);
-const[cv,x]= cnv(512,320);
-x.clearRect(0,0,512,320);
-const ell =(cx,cy,rx,ry,c)=>{
-x.fillStyle = c;
-x.beginPath();
-x.ellipse(cx,cy,rx,ry,0,0,6.2832);
-x.fill();
-};
-for(const s of[-1,1]){
-const ex = 256 + s * 112;
-ell(ex,130,34,48,'#0d0d0d');
-ell(ex - 9,112,12,17,'#ffffff');
-ell(ex + 11,150,6,8,'#ffffff');
-ell(256 + s * 150,200,34,17,'rgba(250,150,140,.85)');
+for(const m of meshes){
+const c = m.material.color,hsl ={};
+c.getHSL(hsl);
+if(m.material.map)continue;
+if(hsl.s < 0.2 && hsl.l > 0.6)c.set(JTOYS.cTip);
+else if(hsl.h < 0.1 || hsl.h > 0.9)c.set(JTOYS.cOrange);
+else if(hsl.h < 0.2)c.set(JTOYS.cYellow);
 }
-x.fillStyle = '#f48fb8';
-x.strokeStyle = '#1a1a1a';
-x.lineWidth = 5;
+const T = JTOYS,
+FW = 0.66,
+FH = 0.41,
+FCY = 0.42;
+const[cv,x]= cnv(1024,640);
+x.clearRect(0,0,1024,640);
+{
+const W = 1024,
+H = 640;
+const px = u => W / 2 +(u / FW)* W,
+py = v => H / 2 -((v - FCY)/ FH)* H,
+pr = r =>(r / FW)* W;
+for(const s of[-1,1]){
+const cx = px(s * T.cEyeX),
+cy = py(T.cEyeY),
+R = pr(T.cEyeR);
+x.fillStyle = T.cRingCol;
 x.beginPath();
-x.moveTo(214,196);
-x.quadraticCurveTo(256,186,298,196);
-x.quadraticCurveTo(292,252,256,254);
-x.quadraticCurveTo(220,252,214,196);
-x.closePath();
+x.arc(cx,cy,R + pr(T.cRing),0,7);
 x.fill();
-x.stroke();
-x.save();
+x.fillStyle = T.cWhite;
 x.beginPath();
-x.moveTo(214,196);
-x.quadraticCurveTo(256,186,298,196);
-x.quadraticCurveTo(292,252,256,254);
-x.quadraticCurveTo(220,252,214,196);
-x.clip();
-ell(256,252,24,16,'#e8302a');
+x.arc(cx,cy,R,0,7);
+x.fill();
+x.strokeStyle = 'rgba(80,90,60,.5)';
+x.lineWidth = 2;
+x.stroke();
+const lx = s < 0 ? T.cLookLX : T.cLookRX,
+ly = s < 0 ? T.cLookLY : T.cLookRY;
+const pR = pr(T.cPupil),
+room = Math.max(0,R - pR - 2);
+x.fillStyle = T.cPupilCol;
+x.beginPath();
+x.arc(cx + lx * room,cy - ly * room,pR,0,7);
+x.fill();
+x.fillStyle = 'rgba(255,255,255,.8)';
+x.beginPath();
+x.arc(cx + lx * room - pR * 0.35,cy - ly * room - pR * 0.35,pR * 0.28,0,7);
+x.fill();
+}
+const sw = pr(T.cSmileW),
+cvv = pr(T.cSmileCurve);
+x.save();
+x.translate(px(0),py(T.cSmileY));
+x.rotate(T.cSmileTilt);
+x.strokeStyle = T.cStitchCol;
+x.lineWidth = pr(T.cStitch);
+x.lineCap = 'round';
+x.setLineDash([pr(T.cStitch)* 2.2,pr(T.cStitch)* 0.9]);
+x.beginPath();
+x.moveTo(-sw,0);
+x.quadraticCurveTo(0,cvv * 2,sw,0);
+x.stroke();
 x.restore();
+}
 const tex = new THREE.CanvasTexture(cv);
 tex.colorSpace = THREE.SRGBColorSpace;
-const W = 0.66,
-H = 0.41,
-cy = 0.42,
-NX = 28,
-NY = 18;
-const pg = new THREE.PlaneGeometry(W,H,NX,NY);
+const pg = new THREE.PlaneGeometry(FW,FH,72,46);
 const pa = pg.attributes.position;
 const rc = new THREE.Raycaster();
 const dir = new V3(0,0,-1);
 for(let i = 0;i < pa.count;i++){
 const px = pa.getX(i),
-py = pa.getY(i)+ cy;
+py = pa.getY(i)+ FCY;
 rc.set(new V3(px,py,3),dir);
 const h = rc.intersectObjects(meshes,false)[0];
 if(h){
 const n = h.face ? h.face.normal.clone().transformDirection(h.object.matrixWorld): new V3(0,0,1);
-const p = h.point.clone().addScaledVector(n,0.006);
+const p = h.point.clone().addScaledVector(n,0.0015);
 pa.setXYZ(i,p.x,p.y,p.z);
-}else pa.setXYZ(i,px,py,0);
+}else pa.setXYZ(i,px,py,-5);
 }
 pa.needsUpdate = true;
 pg.computeVertexNormals();
@@ -42083,7 +42288,7 @@ pg,
 new THREE.MeshStandardMaterial({
 map: tex,
 transparent: true,
-roughness: 0.9,
+roughness: 1,
 metalness: 0,
 depthWrite: false,
 polygonOffset: true,
@@ -42759,7 +42964,14 @@ t = candyCorn();
 t.scale.setScalar(0.11);
 }else t.scale.setScalar(0.1);
 t.rotation.x = -0.08;
+t.position.set(0.06,0,0);
 w.add(t);
+try{
+const c = chickumLying();
+c.position.set(-0.08,0,0.03);
+c.rotation.y = 0.35;
+w.add(c);
+}catch(e){}
 };
 if(CORNG)put();
 else corny().then(put);
@@ -43650,8 +43862,8 @@ setTimeout(()=>{
 try{
 window.__storyLine &&
 window.__storyLine(
-'He left one final gift behind…',
-'his favorite toy, where he faded into the light',
+'He left his favorite toys behind…',
+'Corny and Chickum, where he faded into the light',
 5200
 );
 }catch(e){}
@@ -43979,6 +44191,32 @@ carry:{f: 0.1,u: -0.075,yaw: Math.PI / 2}
 window.__YARNS.push(Y);
 if(grab && window.__toyGrab)window.__toyGrab(Y,true);
 }
+try{
+const cw = new THREE.Group();
+cw.add(chickumLying());
+const cp =(window.__YARNS[0].home || hp).clone().add(new V3(-0.4,0,0.42));
+cp.y = groundAt(cp.x,cp.z,cp.y + 0.5);
+cw.position.copy(cp);
+cw.rotation.y = 0.6;
+scene.add(cw);
+try{
+window.__EDIT && window.__EDIT.register(cw,'home:chickum');
+}catch(e){}
+window.__YARNS.push({
+m: cw,
+v: new V3(),
+r: 0,
+home: cp.clone(),
+kind: 'corny',
+roll: 0,
+portable: true,
+id: 'chickum',
+name: 'Chickum',
+carry:{f: 0.1,u: -0.06,yaw: Math.PI / 2}
+});
+}catch(e){
+console.warn('chickum',e);
+}
 });
 };
 let pT = 0;
@@ -44091,19 +44329,19 @@ const JJ0 = window.__JACK;
 if(JJ0 && JJ0.showcase)
 corny().then(()=>
 JJ0.showcase(
-{id: 'corny',name: 'Corny'},
+{id: 'toys',name: 'Corny & Chickum'},
 {
-title: 'One final gift',
+title: 'His favorite toys',
 btn: 'Close',
-note: "Jack's favorite toy · press E to drop him, and E again to pick him up"
+note: "Jack's favorite toys · press E to drop one, and E again to pick it up"
 }
 )
 );
 else
 window.__storyLine &&
 window.__storyLine(
-'You found Corny',
-"Jack's favorite toy · he'll wait for you at home, by the yarn",
+'You found his favorite toys',
+"Corny and Chickum · they'll wait for you at home, by the yarn",
 6000
 );
 }catch(e){}
