@@ -4891,11 +4891,13 @@ const k = texKey(file,nm);
 const sway = !/Rock|Bridge|Lantern|Sculpt/.test(file);
 if(k && MASKC[k]){
 const m = new THREE.MeshStandardMaterial({color: MASKC[k],alphaMap: tex(k,true),alphaTest: 0.4,side: THREE.DoubleSide,roughness: 1});
-return tintMat(sway ? windify(m,true,swU,/^(grass0|grass1|weed)$/.test(k)): m,'czleaf');
+m.userData.celLo = 0.34;
+return tintMat(celMat(sway ? windify(m,true,swU,/^(grass0|grass1|weed)$/.test(k)): m,'czL',1.35),'czleaf');
 }
 const m = new THREE.MeshStandardMaterial({roughness: 1});
 if(k)m.map = tex(k,false);
-return tintMat(sway ? windify(m,false,swU): m,'czbark');
+m.userData.celLo = 0.28;
+return tintMat(celMat(sway ? windify(m,false,swU): m,'czB',0.6),'czbark');
 };
 const loadModel = file =>
 new Promise(res =>{
@@ -6061,7 +6063,7 @@ u.f +=(want - u.f)* Math.min(1,dt *(want ? 0.35 : 1.2));
 u.c.copy(u.base).addScaledVector(RAYDIR,23);
 const br = 0.65 + 0.35 * Math.sin(time * 0.23 + u.ph);
 const ni = NIGHTISH();
-const gk = window.__RAYK ?? 0.8;
+const gk = window.__RAYK ?? 1.05;
 const U = s.material.uniforms;
 U.uOp.value =
 (LOW ? 0.3 : 0.38)*
@@ -14741,7 +14743,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 511;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 67;
+const LOOKV = 68;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -24921,6 +24923,12 @@ GRADE.uniforms.uLo.value.setRGB(0.88 + 0.16 * k,0.97,1.06 - 0.16 * k);
 }
 GRADE.uniforms.uSat.value = W.gsat;
 GRADE.uniforms.uVig.value = W.vig;
+{
+const day = NIGHTISH()? 0 : 1;
+GRADE.uniforms.uSat.value *= 1 + 0.07 * day;
+GRADE.uniforms.uLo.value.lerp(new THREE.Color(0.93,0.92,1.1),0.55 * day);
+GRADE.uniforms.uHi.value.multiply(new THREE.Color(1 + 0.03 * day,1 + 0.01 * day,1 - 0.03 * day));
+}
 GRADE.uniforms.uTime.value = time;
 }
 const mu = motes.pts.material.uniforms;
