@@ -187,7 +187,7 @@ const drawCornyFace = () => {
 const buildCornyFace = () => {
 	if (cornyFace) cornyBody.remove(cornyFace);
 	corny.updateMatrixWorld(true);
-	const pg = new THREE.PlaneGeometry(FW, FH, 40, 26);
+	const pg = new THREE.PlaneGeometry(FW, FH, 72, 46);
 	const pa = pg.attributes.position, rc = new THREE.Raycaster(), dir = new THREE.Vector3(0, 0, -1);
 	const inv = new THREE.Matrix4().copy(cornyBody.matrixWorld).invert();
 	for (let i = 0; i < pa.count; i++) {
@@ -195,7 +195,7 @@ const buildCornyFace = () => {
 		const wp = new THREE.Vector3(lx, ly, 3).applyMatrix4(cornyBody.matrixWorld);
 		rc.set(wp, dir.clone().transformDirection(cornyBody.matrixWorld));
 		const h = rc.intersectObjects(cornyMeshes, false)[0];
-		if (h) { const n = h.face.normal.clone().transformDirection(h.object.matrixWorld); const p = h.point.clone().addScaledVector(n, 0.004).applyMatrix4(inv); pa.setXYZ(i, p.x, p.y, p.z); }
+		if (h) { const n = h.face.normal.clone().transformDirection(h.object.matrixWorld); const p = h.point.clone().addScaledVector(n, 0.0015).applyMatrix4(inv); pa.setXYZ(i, p.x, p.y, p.z); }
 		else pa.setXYZ(i, lx, ly, -5);
 	}
 	pa.needsUpdate = true;
@@ -248,7 +248,7 @@ const buildDrum = () => {
 		pts.push(new THREE.Vector2(Math.max(0.0005, Rm * neck * endRound), t * L));
 	}
 	const mg = new THREE.LatheGeometry(pts, 64);
-	mg.scale(1, 1, S.dFlat);
+	mg.scale(S.dFlat, 1, 1); /* flatter front to back (the face side), keeping its width */
 	/* a little lumpy, like hand-felted wool */
 	{ const p = mg.attributes.position; for (let i = 0; i < p.count; i++) { const X = p.getX(i), Y = p.getY(i), Z = p.getZ(i); const n = Math.sin(X * 60 + Y * 41) * Math.sin(Z * 55 - Y * 23) * 0.004 * S.dFuzz; const l = Math.hypot(X, Z) || 1; p.setXYZ(i, X + (X / l) * n, Y, Z + (Z / l) * n); } mg.computeVertexNormals(); }
 	paintFelt();
@@ -257,11 +257,17 @@ const buildDrum = () => {
 	meat.position.y = S.dBoneLen + S.dKnob * 0.3; meat.rotation.y = -Math.PI / 2; /* sits over the top of the bone */
 	drum.add(meat);
 	/* the bone (Ryan: flat, white felt): one flat cut-out, a shaft ending in two round knobs, like a cartoon bone */
-	const bs = new THREE.Shape(), hw = S.dBoneW / 2, kr = S.dKnob / 2, ks = S.dKnobSpread / 2, top = S.dBoneLen + kr * 0.6;
+	/* a cartoon bone end, as on the real toy: a straight shaft splitting into two round lobes with a little notch between */
+	const bs = new THREE.Shape(), hw = S.dBoneW / 2, kr = S.dKnob / 2, ks = Math.max(S.dKnobSpread / 2, hw * 0.6), top = S.dBoneLen + kr * 0.6;
+	const cl = v => Math.max(-0.97, Math.min(0.97, v));
 	bs.moveTo(-hw, top);
-	bs.lineTo(-hw, kr * 0.9);
-	bs.absarc(-ks, kr * 0.6, kr, Math.PI * 0.15, Math.PI * 1.35, false);
-	bs.absarc(ks, kr * 0.6, kr, Math.PI * 1.65, Math.PI * 2.85, false);
+	{
+		const a0 = Math.acos(cl((-hw + ks) / kr)), a1 = 2 * Math.PI - Math.acos(cl(ks / kr));
+		bs.lineTo(-ks + Math.cos(a0) * kr, kr + Math.sin(a0) * kr);
+		bs.absarc(-ks, kr, kr, a0, a1, false);
+		const b0 = Math.PI + Math.acos(cl(ks / kr)), b1 = 2 * Math.PI + Math.acos(cl((hw - ks) / kr));
+		bs.absarc(ks, kr, kr, b0, b1, false);
+	}
 	bs.lineTo(hw, top);
 	bs.lineTo(-hw, top);
 	const bth = Math.max(0.012, S.dBoneW * 0.32);
