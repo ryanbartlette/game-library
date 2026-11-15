@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Tink's Intro Studio</title>
+<style>
+	:root { --bg:#1b1d24; --panel:#24262e; --ink:#eef0f4; --mute:#9ea3b0; --acc:#8fc79a; --line:#363946; --pick:#3b4d40; }
+	* { box-sizing:border-box; }
+	html,body { margin:0; height:100%; background:var(--bg); color:var(--ink); font:13px/1.4 system-ui,-apple-system,Segoe UI,sans-serif; }
+	#wrap { display:grid; grid-template-columns:360px 1fr 300px; height:100%; }
+	.side { background:var(--panel); overflow:auto; padding:12px 14px; }
+	#left { border-right:1px solid var(--line); } #right { border-left:1px solid var(--line); }
+	h1 { font-size:16px; margin:0 0 2px; }
+	.sub { color:var(--mute); font-size:12px; margin-bottom:8px; }
+	h2 { font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--acc); margin:14px 0 6px; }
+	.item { border:1px solid var(--line); border-radius:8px; padding:8px; margin:6px 0; cursor:pointer; }
+	.item.on { border-color:var(--acc); background:var(--pick); }
+	.item b { display:block; }
+	.item .what { color:var(--mute); font-size:12px; }
+	.item select, .item input { width:100%; margin-top:6px; background:#1b1d24; color:var(--ink); border:1px solid #464a58; border-radius:6px; padding:4px; font:inherit; }
+	.chips { display:flex; gap:4px; margin-top:6px; }
+	.chips button { flex:1; }
+	button { background:#353844; color:var(--ink); border:1px solid #464a58; border-radius:6px; padding:5px 8px; cursor:pointer; font:inherit; }
+	button.on, button.pri { background:var(--acc); color:#151820; border-color:var(--acc); font-weight:600; }
+	.cand { display:block; width:100%; text-align:left; margin:3px 0; }
+	.cand.on { border-color:var(--acc); }
+	#view { position:relative; }
+	canvas#c { width:100%; height:100%; display:block; cursor:grab; }
+	#cap { position:absolute; left:12px; top:10px; background:#0008; padding:6px 10px; border-radius:6px; font-size:13px; }
+	#cap small { color:#cfd3dc; display:block; }
+	#busy { position:absolute; right:12px; top:10px; background:var(--acc); color:#151820; padding:4px 10px; border-radius:6px; font-weight:600; display:none; }
+	#toast { position:absolute; left:50%; bottom:14px; transform:translateX(-50%); background:var(--acc); color:#151820; padding:6px 12px; border-radius:6px; font-weight:600; opacity:0; transition:opacity .3s; }
+	#out { width:100%; height:70px; background:#1b1d24; color:var(--ink); border:1px solid var(--line); border-radius:6px; font:11px ui-monospace,monospace; margin-top:6px; }
+	@media (max-width:1000px){ #wrap{grid-template-columns:1fr;grid-template-rows:50vh auto auto;} #view{order:-1} }
+</style>
+<script type="importmap">{"imports":{"three":"/tinks-forest/three.module.js","three/addons/":"/tinks-forest/jsm/"}}</script>
+</head>
+<body>
+<div id="wrap">
+	<div class="side" id="left">
+		<h1>Tink's Intro Studio</h1>
+		<div class="sub">Everything the opening shows, from the room at the top of the tower down to the meadow before the tunnel. Click one to look at it, then choose to keep it, remove it, or swap it for one of the models on the right. Press <b>Copy for Claude</b> when you're done.</div>
+		<div id="items"></div>
+		<div class="chips" style="margin-top:12px"><button class="pri" id="copy">Copy for Claude</button><button id="reset">Start over</button></div>
+		<textarea id="out" readonly></textarea>
+	</div>
+	<div id="view"><canvas id="c"></canvas><div id="cap"></div><div id="busy">Loading…</div><div id="toast">Copied</div></div>
+	<div class="side" id="right">
+		<h2>Swap it for…</h2>
+		<div class="sub">Click a model to look at it beside the cat. Click <b>Use this</b> to swap the chosen intro piece for it.</div>
+		<div id="cands"></div>
+	</div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+/* what the opening shows now (the forest round the tower is already the new forest) */
+const ITEMS = [
+	{ id: 'tower', name: 'The tower house', what: 'Where the story starts: the stone tower the cats wake up in', file: '/tinks-forest/models/buildings/tower-house.glb.txt' },
+	{ id: 'room', name: 'The tower room', what: 'The room inside: the sofa, the balcony door, the rail', file: '/tinks-forest/models/buildings/tower-room.glb.txt' },
+	{ id: 'fence', name: 'Wooden fences', what: '24 pieces along the meadow paths below the tower', file: '/tinks-forest/wooden-fence.glb.txt' },
+	{ id: 'paperlant', name: 'Paper lanterns', what: '9 hanging round the tower', file: '/tinks-forest/models/buildings/paper-lanterns.glb.txt' },
+	{ id: 'lanterns', name: 'Old stone lanterns', what: '2 near the tower (the new forest has its own lanterns)', file: '/tinks-forest/models/buildings/stone-lanterns.glb.txt' },
+	{ id: 'busstop', name: 'The bus stop', what: 'Where the catbus stops, 21 m from the tower', file: '/tinks-forest/bus-stop.glb.txt' },
+	{ id: 'frogrock', name: 'The frog rock', what: 'By the pond, 23 m from the tower', file: '/tinks-forest/models/rocks/frog-rock-by-the-pond.glb.txt' },
+	{ id: 'boat', name: 'The little boat', what: 'On the stream, 27 m away (a secret gift)', file: '/tinks-forest/ponyo-boat.glb.txt' },
+	{ id: 'puff', name: 'The moss puff', what: 'The little puff that wakes Tink and leads her out', file: '/tinks-forest/models/characters/moss-puff.glb.txt' }
+];
+/* what could take their place: cizzy7's pack, and the game's own library */
+const CZ = n => ({ cz: true, file: '/tinks-forest-new/cz/' + n + '.glb' });
+const LIB = f => ({ file: '/tinks-forest/' + f });
+const CANDS = [
+	['cizzy7 · rocks and stone', [
+		['Rock 1', CZ('Props_Rocks_Rock_1_Rock1_High')], ['Rock 2', CZ('Props_Rocks_Rock_2_Rock2_High')], ['Rock 3', CZ('Props_Rocks_Rock_3_Rocks3_High')], ['Rock 4', CZ('Props_Rocks_Rock_4_Rock4_High')],
+		['Stone lantern', CZ('Props_Lantern_Lantern_High')], ['Stone sculpture (pagoda)', CZ('Props_Sculptures_Sculpture1')], ['Stone bridge', CZ('Props_Bridge_Bridge')], ['Bridge pillars', CZ('Props_Bridge_Pillars')],
+		['Pebble 1', CZ('Props_Rocks_Pebals_pebal1')], ['Pebble 2', CZ('Props_Rocks_Pebals_pebal2')], ['Pebble 3', CZ('Props_Rocks_Pebals_pebal3')]]],
+	['cizzy7 · trees and plants', [
+		['Tree 1', CZ('Foliage_Trees_Tree_1_Tree1_High')], ['Tree 2', CZ('Foliage_Trees_Tree_2_Tree2_High')], ['Oak', CZ('Foliage_Trees_Tree_3_Oak_OakTree2_High')], ['Birch', CZ('Foliage_Trees_Tree_4_Brich_Tree4_High')],
+		['Bush', CZ('Foliage_Bushes_Bush_Bush1')], ['Large bush', CZ('Foliage_Bushes_Large_bush_LargeBush_HighNew')],
+		['Ivy (large)', CZ('Foliage_Ivy_LargeClump1')], ['Ivy (vines)', CZ('Foliage_Ivy_Vines')],
+		['Flowers (white)', CZ('Foliage_Flowers_White_Flower_White_High')], ['Flowers (yellow)', CZ('Foliage_Flowers_Yellow_Flower_Yellow_High')], ['Flowers (blue)', CZ('Foliage_Flowers_Blue_Flowers_BlueFlower_High')], ['Flowers (purple)', CZ('Foliage_Flowers_Purple_Flower_Purple_High')]]],
+	['The game · buildings', [
+		['Farmhouse', LIB('models/buildings/farmhouse.glb.txt')], ['Stone rain shelter', LIB('models/buildings/stone-rain-shelter.glb.txt')], ['Stone well', LIB('models/buildings/stone-well.glb.txt')],
+		['Washing line', LIB('models/buildings/washing-line.glb.txt')], ['Wind chime', LIB('models/buildings/wind-chime.glb.txt')], ['Studio interior', LIB('models/buildings/studio-interior.glb.txt')]]],
+	['The game · furniture and props', [
+		['Fireplace stove', LIB('models/furniture/fireplace-stove.glb.txt')], ['Charpai bed', LIB('models/furniture/charpai-bed.glb.txt')], ['Kitchen table and stool', LIB('models/furniture/kitchen-table-and-stool.glb.txt')],
+		['Wooden barrel', LIB('models/furniture/wooden-barrel.glb.txt')], ['Farm tools', LIB('models/furniture/farm-tools.glb.txt')], ['Wooden bridge', LIB('wooden-bridge.glb.txt')], ['Ghibli rock', LIB('ghibli-rock.glb.txt')]]]
+];
+const ICAND = new Map();
+for (const [, list] of CANDS) for (const [n, c] of list) ICAND.set(n, c);
+
+let S = { choices: {} };
+try { const sv = JSON.parse(localStorage.getItem('introstudio') || 'null'); if (sv) S = sv; } catch (e) {}
+const save = () => { try { localStorage.setItem('introstudio', JSON.stringify(S)); } catch (e) {} };
+let cur = ITEMS[0].id, showing = null;
+
+/* ---------- lists ---------- */
+const itemsEl = document.getElementById('items'), candEl = document.getElementById('cands');
+const drawItems = () => {
+	itemsEl.innerHTML = '';
+	for (const it of ITEMS) {
+		const c = S.choices[it.id] || { act: 'keep' };
+		const d = document.createElement('div'); d.className = 'item' + (cur === it.id ? ' on' : '');
+		d.innerHTML = '<b>' + it.name + '</b><span class="what">' + it.what + '</span>';
+		const chips = document.createElement('div'); chips.className = 'chips';
+		for (const [a, l] of [['keep', 'Keep'], ['remove', 'Remove'], ['swap', 'Swap']]) {
+			const b = document.createElement('button'); b.textContent = l; if (c.act === a) b.className = 'on';
+			b.onclick = e => { e.stopPropagation(); S.choices[it.id] = { ...c, act: a }; save(); cur = it.id; drawItems(); show(a === 'swap' && c.to ? c.to : it.id); };
+			chips.appendChild(b);
+		}
+		d.appendChild(chips);
+		if (c.act === 'swap') {
+			const sel = document.createElement('select');
+			sel.innerHTML = '<option value="">Pick a model on the right →</option>' + [...ICAND.keys()].map(n => '<option' + (c.to === n ? ' selected' : '') + '>' + n + '</option>').join('');
+			sel.onclick = e => e.stopPropagation();
+			sel.onchange = () => { S.choices[it.id] = { ...c, to: sel.value }; save(); show(sel.value || it.id); };
+			d.appendChild(sel);
+		}
+		const note = document.createElement('input'); note.placeholder = 'A note for Claude (optional)'; note.value = c.note || '';
+		note.onclick = e => e.stopPropagation();
+		note.oninput = () => { S.choices[it.id] = { ...(S.choices[it.id] || { act: 'keep' }), note: note.value }; save(); };
+		d.appendChild(note);
+		d.onclick = () => { cur = it.id; drawItems(); show(it.id); };
+		itemsEl.appendChild(d);
+	}
+};
+const drawCands = () => {
+	candEl.innerHTML = '';
+	for (const [title, list] of CANDS) {
+		const h = document.createElement('h2'); h.textContent = title; candEl.appendChild(h);
+		for (const [n] of list) {
+			const row = document.createElement('div'); row.style.display = 'flex'; row.style.gap = '4px';
+			const b = document.createElement('button'); b.className = 'cand' + (showing === n ? ' on' : ''); b.textContent = n; b.onclick = () => show(n);
+			const u = document.createElement('button'); u.textContent = 'Use this'; u.title = 'Swap the chosen intro piece for this';
+			u.onclick = () => { S.choices[cur] = { ...(S.choices[cur] || {}), act: 'swap', to: n }; save(); drawItems(); show(n); };
+			row.appendChild(b); row.appendChild(u); candEl.appendChild(row);
+		}
+	}
+};
+
+/* ---------- viewer ---------- */
+const cvs = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas: cvs, antialias: true });
+renderer.setPixelRatio(Math.min(2, devicePixelRatio));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.shadowMap.enabled = true;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xbfe0ea);
+const cam = new THREE.PerspectiveCamera(40, 1, 0.05, 2000);
+scene.add(new THREE.HemisphereLight(0xeaf6ff, 0x55704a, 1.4));
+const sun = new THREE.DirectionalLight(0xfff1d6, 2.2); sun.position.set(5, 9, 6); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); scene.add(sun);
+const ground = new THREE.Mesh(new THREE.CircleGeometry(1, 64).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0x6f9a55, roughness: 1 }));
+ground.receiveShadow = true; scene.add(ground);
+const holder = new THREE.Group(); scene.add(holder);
+/* a little cat for a rough sense of scale (each model comes in its own units; the game sizes it to fit) */
+const catRef = new THREE.Group();
+{
+	const m = new THREE.MeshStandardMaterial({ color: 0xc89b6e, roughness: 1 });
+	const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.11, 0.3, 6, 12).rotateZ(Math.PI / 2), m); body.position.y = 0.2;
+	const head = new THREE.Mesh(new THREE.SphereGeometry(0.1, 16, 12), m); head.position.set(0.27, 0.32, 0);
+	for (const z of [-0.05, 0.05]) { const e = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.07, 8), m); e.position.set(0.28, 0.43, z); catRef.add(e); }
+	const tail = new THREE.Mesh(new THREE.CapsuleGeometry(0.03, 0.3, 4, 8), m); tail.position.set(-0.3, 0.33, 0); tail.rotation.z = 0.6;
+	catRef.add(body, head, tail); catRef.traverse(o => (o.castShadow = true)); scene.add(catRef);
+}
+const busy = document.getElementById('busy'), cap = document.getElementById('cap');
+const loader = new GLTFLoader(), cache = new Map();
+const tl = new THREE.TextureLoader(), texc = {};
+const czTex = k => { if (!texc[k]) { const t = tl.load('/tinks-forest-new/cz/t/' + k + '.png'); t.flipY = false; t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; texc[k] = t; } return texc[k]; };
+const czKey = (file, nm) => {
+	nm = (nm || '').toLowerCase();
+	if (/Bridge_Bridge/.test(file)) return 'bridge'; if (/Pillars/.test(file)) return 'pillar'; if (/Lantern/.test(file)) return 'lantern'; if (/Sculpt/.test(file)) return 'sculpt'; if (/Ivy/.test(file)) return 'ivy';
+	if (/Flowers/.test(file)) return 'flowers'; if (/pebal(\d)/.test(file)) return 'peb' + file.match(/pebal(\d)/)[1];
+	if (/leaf birch/.test(nm)) return 'leafbirch'; if (/^leaf/.test(nm)) return 'leaf'; if (/birch/.test(nm)) return 'birch'; if (/bark|default obj/.test(nm)) return 'bark'; if (/bush/.test(nm)) return 'bush';
+	const m = file.match(/Rock_(\d)/); if (m) return 'rock' + m[1]; return null;
+};
+const LEAFY = { leaf: 0x5f8f3e, leafbirch: 0x86a64a, bush: 0x557f3a, ivy: null, flowers: null };
+const loadModel = async (src) => {
+	if (cache.has(src.file)) return cache.get(src.file);
+	const p = (async () => {
+		let gl;
+		if (src.cz) gl = await loader.loadAsync(src.file);
+		else {
+			const txt = (await (await fetch(src.file)).text()).trim();
+			const bin = atob(txt), u = new Uint8Array(bin.length);
+			for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+			gl = await new Promise((res, rej) => loader.parse(u.buffer, '', res, rej));
+		}
+		const root = gl.scene;
+		if (src.cz) root.traverse(o => {
+			if (!o.isMesh) return;
+			const ms = Array.isArray(o.material) ? o.material : [o.material];
+			o.material = ms.map(m => {
+				const k = czKey(src.file, m.name);
+				if (!k) return m;
+				const leafy = k in LEAFY;
+				const nm = new THREE.MeshStandardMaterial({ map: czTex(k), roughness: 1, side: leafy ? THREE.DoubleSide : THREE.FrontSide, alphaTest: leafy ? 0.45 : 0 });
+				if (LEAFY[k]) { nm.color.set(LEAFY[k]); }
+				return nm;
+			});
+			if (o.material.length === 1) o.material = o.material[0];
+		});
+		root.traverse(o => { if (o.isMesh) { o.castShadow = o.receiveShadow = true; } });
+		return root;
+	})();
+	cache.set(src.file, p);
+	return p;
+};
+let yaw = 0.7, pitch = 0.35, dist = 6, target = new THREE.Vector3();
+let spin = true;
+const show = async key => {
+	showing = key; drawCands();
+	const it = ITEMS.find(i => i.id === key);
+	const src = it ? { file: it.file } : ICAND.get(key);
+	if (!src) return;
+	busy.style.display = 'block';
+	let root;
+	try { root = await loadModel(src); } catch (e) { busy.style.display = 'none'; cap.innerHTML = '<b>Could not load this one</b><small>' + e.message + '</small>'; return; }
+	if (showing !== key) return;
+	busy.style.display = 'none';
+	holder.clear();
+	const m = root.clone(true);
+	holder.add(m);
+	m.position.set(0, 0, 0); m.rotation.set(0, 0, 0); m.scale.setScalar(1);
+	m.updateMatrixWorld(true);
+	const bb = new THREE.Box3().setFromObject(m), sz = bb.getSize(new THREE.Vector3());
+	m.position.set(-(bb.min.x + bb.max.x) / 2, -bb.min.y, -(bb.min.z + bb.max.z) / 2);
+	const big = Math.max(sz.x, sz.y, sz.z, 0.5);
+	catRef.position.set(sz.x / 2 + 0.6, 0, 0);
+	ground.scale.setScalar(big * 3 + 3);
+	target.set(0, sz.y * 0.4, 0); dist = big * 1.6 + 1.2;
+	sun.shadow.camera.left = sun.shadow.camera.bottom = -big * 1.5; sun.shadow.camera.right = sun.shadow.camera.top = big * 1.5; sun.shadow.camera.far = big * 10 + 50; sun.position.set(big * 2, big * 3 + 4, big * 2.4); sun.shadow.camera.updateProjectionMatrix();
+	const name = it ? it.name : key;
+	cap.innerHTML = '<b>' + name + '</b><small>' + (it ? 'In the opening now' : 'A possible swap') + ' · about ' + sz.x.toFixed(1) + ' × ' + sz.y.toFixed(1) + ' × ' + sz.z.toFixed(1) + ' in its own units (the game sizes each piece to fit, so the little cat is only a rough guide)</small>';
+};
+
+const resize = () => { const r = cvs.parentElement.getBoundingClientRect(); renderer.setSize(r.width, r.height, false); cam.aspect = r.width / r.height; cam.updateProjectionMatrix(); };
+addEventListener('resize', resize); resize();
+let drag = null;
+cvs.addEventListener('pointerdown', e => { drag = [e.clientX, e.clientY, yaw, pitch]; spin = false; cvs.setPointerCapture(e.pointerId); });
+cvs.addEventListener('pointermove', e => { if (!drag) return; yaw = drag[2] - (e.clientX - drag[0]) * 0.006; pitch = Math.max(-0.1, Math.min(1.4, drag[3] + (e.clientY - drag[1]) * 0.005)); });
+cvs.addEventListener('pointerup', () => (drag = null));
+cvs.addEventListener('wheel', e => { e.preventDefault(); dist *= Math.exp(e.deltaY * 0.001); }, { passive: false });
+const loop = () => {
+	if (spin) yaw += 0.003;
+	cam.position.set(target.x + Math.sin(yaw) * Math.cos(pitch) * dist, target.y + Math.sin(pitch) * dist, target.z + Math.cos(yaw) * Math.cos(pitch) * dist);
+	cam.lookAt(target);
+	renderer.render(scene, cam);
+	requestAnimationFrame(loop);
+};
+loop();
+
+document.getElementById('copy').onclick = async () => {
+	const txt = JSON.stringify({ introStudio: 1, choices: S.choices });
+	document.getElementById('out').value = txt;
+	try { await navigator.clipboard.writeText(txt); } catch (e) { document.getElementById('out').select(); }
+	const t = document.getElementById('toast'); t.style.opacity = 1; setTimeout(() => (t.style.opacity = 0), 1200);
+};
+document.getElementById('reset').onclick = () => { S = { choices: {} }; save(); drawItems(); };
+drawItems(); drawCands(); show(cur);
+</script>
+</body>
+</html>
