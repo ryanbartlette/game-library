@@ -1118,7 +1118,7 @@ fragmentShader: `uniform sampler2D tDiffuse;uniform sampler2D tDepth;uniform vec
    float n=float((R+1)*(R+1));float best=1e9;vec3 outc=texture2D(tDiffuse,vUv).rgb;
    for(int k=0;k<4;k++){vec3 mu=m[k]/n;vec3 v=abs(s[k]/n-mu*mu);float sv=v.r+v.g+v.b;if(sv<best){best=sv;outc=mu;}}
    /* a soft depth of field: the far woods melt gently, the cats stay sharp */
-   /* FOREST 72 (Ryan: the stars came out as little asterisks): the open sky skips the brush and the depth blur, whose ten spread samples drew each star point as a spiky star */bool skyPx=uHasD>.5&&texture2D(tDepth,vUv).x>.99999;if(skyPx)outc=texture2D(tDiffuse,vUv).rgb;float coc=skyPx?0.:fr*uDof;if(coc>.02){float rad=coc*5.*(uRes.y/1300.);vec3 b=outc;float w=1.;for(int k=0;k<10;k++){float a=float(k)*2.39996;float r=sqrt((float(k)+.5)/10.)*rad;vec2 o=vec2(cos(a),sin(a))*r*px;vec2 uv2=vUv+o;/* don't let sharp near things bleed into the blur */float zs=uHasD>.5?zAt(uv2):z;float ok=smoothstep(uFocus*1.1,uFocus*1.25+2.5,zs);b+=texture2D(tDiffuse,uv2).rgb*ok;w+=ok;}outc=mix(outc,b/w,min(1.,coc*1.1));}
+   /* FOREST 74 (Ryan: the stars came out as little asterisks, but the far hills need their soft blur): only a star's own bright point skips the brush and the blur, and round it the blur may not pick up more than a hint of the star, so no spikes */bool skyPx=uHasD>.5&&texture2D(tDepth,vUv).x>.99999;vec3 orig=texture2D(tDiffuse,vUv).rgb;float lN=dot(texture2D(tDiffuse,vUv+vec2(px.x*2.,0.)).rgb+texture2D(tDiffuse,vUv-vec2(px.x*2.,0.)).rgb+texture2D(tDiffuse,vUv+vec2(0.,px.y*2.)).rgb+texture2D(tDiffuse,vUv-vec2(0.,px.y*2.)).rgb,vec3(.0833));bool starPx=skyPx&&dot(orig,vec3(.333))-lN>.05;if(starPx)outc=orig;float coc=starPx?0.:fr*uDof;if(coc>.02){float rad=coc*5.*(uRes.y/1300.);vec3 b=outc;float w=1.;for(int k=0;k<10;k++){float a=float(k)*2.39996;float r=sqrt((float(k)+.5)/10.)*rad;vec2 o=vec2(cos(a),sin(a))*r*px;vec2 uv2=vUv+o;/* don't let sharp near things bleed into the blur */float zs=uHasD>.5?zAt(uv2):z;float ok=smoothstep(uFocus*1.1,uFocus*1.25+2.5,zs);vec3 sc=texture2D(tDiffuse,uv2).rgb;if(skyPx)sc=min(sc,outc+.08);b+=sc*ok;w+=ok;}outc=mix(outc,b/w,min(1.,coc*1.1));}
    /* (fix, Ryan's black squares: one broken pixel from the scene (not-a-number) was smeared into a growing black box by the glow; it's caught here so the glow never sees it) */
    if(any(isnan(outc))||any(isinf(outc)))outc=vec3(0.);outc=clamp(outc,0.,64.);
    gl_FragColor=vec4(outc,1.);}`
@@ -1404,8 +1404,8 @@ c*=mix(.6,1.,smoothstep(-.35,.75,dot(vN,vCN)));float det=fbm3(vLP*.11+vec3(0.,0.
 float fwd=hg(dot(-V,L),.62),thin=1.-smoothstep(0.,.45,rim);c+=lit*fwd*thin*(.35+.9*uDuskK)*uDayK;
 float low=1.-smoothstep(30.,150.,vLP.y-length(vLP.xz)*.06);c=mix(c,uMist,.35*low);c=mix(c,uMist,.4*far);
 float gl=dot(c,vec3(.3,.59,.11));c=mix(c,vec3(gl)*vec3(.82,.85,.9),uGrey*.6);
-c=mix(uNightC*(.55+.45*k2)*(.8+.3*det),c,uDayK);
-gl_FragColor=vec4(c,alpha*(.55+.45*uDayK));
+c=mix(mix(uNightC*1.25,vec3(.55,.58,.72),.35*k2)*(.85+.25*det),c,uDayK);/* FOREST 74 (Ryan: dark puffs at night): moonlit, soft and pale-edged instead of near-black */
+gl_FragColor=vec4(c,alpha*(.4+.6*uDayK));
 #include <tonemapping_fragment>
 #include <colorspace_fragment>
 }`
@@ -14996,7 +14996,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 514;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 73;
+const LOOKV = 74;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -26500,7 +26500,6 @@ m.scale.set(s2,s2,1);
 M.clouds.push({m,a,d,h: 30 + s2 * 0.72,sp: 0.0025});
 }
 }
-for(const c of M.clouds)c.m.visible = false;
 {
 const N = LOW ? 1500 : 4000;
 const g = new THREE.BufferGeometry();

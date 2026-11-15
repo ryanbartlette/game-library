@@ -1187,6 +1187,7 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.08;
 app.appendChild(renderer.domElement);
 const scene = new THREE.Scene();
+window.__Rdev = renderer;window.__Sdev = scene;
 window.__setShine = v =>{
 SHINE_K = v;
 THREE.ShaderLib.standard.uniforms.uShineK.value = v;
@@ -1539,8 +1540,8 @@ c*=mix(.6,1.,smoothstep(-.35,.75,dot(vN,vCN)));float det=fbm3(vLP*.11+vec3(0.,0.
 float fwd=hg(dot(-V,L),.62),thin=1.-smoothstep(0.,.45,rim);c+=lit*fwd*thin*(.35+.9*uDuskK)*uDayK;
 float low=1.-smoothstep(30.,150.,vLP.y-length(vLP.xz)*.06);c=mix(c,uMist,.35*low);c=mix(c,uMist,.4*far);
 float gl=dot(c,vec3(.3,.59,.11));c=mix(c,vec3(gl)*vec3(.82,.85,.9),uGrey*.6);
-c=mix(uNightC*(.55+.45*k2)*(.8+.3*det),c,uDayK);
-gl_FragColor=vec4(c,alpha*(.55+.45*uDayK));
+c=mix(mix(uNightC*1.25,vec3(.55,.58,.72),.35*k2)*(.85+.25*det),c,uDayK);/* FOREST 74 (Ryan: dark puffs at night): moonlit, soft and pale-edged instead of near-black */
+gl_FragColor=vec4(c,alpha*(.4+.6*uDayK));
 #include <tonemapping_fragment>
 #include <colorspace_fragment>
 }`
@@ -15135,7 +15136,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 514;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 73;
+const LOOKV = 74;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -27053,7 +27054,6 @@ m.scale.set(s2,s2,1);
 M.clouds.push({m,a,d,h: 30 + s2 * 0.72,sp: 0.0025});
 }
 }
-for(const c of M.clouds)c.m.visible = false;
 {
 const N = LOW ? 1500 : 4000;
 const g = new THREE.BufferGeometry();
