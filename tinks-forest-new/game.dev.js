@@ -624,7 +624,7 @@ Object.assign(DEF,{
 'crouchDepth': 4,
 'camDist': 1.2,
 'camHeight': 0.6,
-'fov': 80,
+'fov': 75,
 'sens': 0.7,
 'timeScale': 1,
 'music': 0.5,
@@ -1168,6 +1168,8 @@ setTimeout(()=>(e.target.textContent = 'Copy values'),1400);
 };
 })();
 const app = document.getElementById('app');
+THREE.ShaderChunk.lights_fragment_end +=
+'\n#ifdef STANDARD\nreflectedLight.directSpecular *= mix(1.0, 0.12, smoothstep(0.45, 0.8, roughnessFactor));\n#endif\n';
 const renderer = new THREE.WebGLRenderer({antialias: !LOW,powerPreference: 'high-performance'});
 renderer.setPixelRatio(Math.min(devicePixelRatio,LOW ? 1 : 1.6));
 renderer.setSize(innerWidth,innerHeight);
@@ -1391,7 +1393,7 @@ fragmentShader: `varying vec3 vd;uniform vec3 sd,uHor,uZen,uLow,uGlow,uDisk,uCLi
  /* FOREST: the painted Ghibli day sky: blue zenith, pale turquoise mid-sky, warm cream horizon melting into the fog, warmth on the sun side, a soft three-lobed sun glow with no disc; dusk palette as the sun goes down */
  {float t=clamp(h,0.,1.);vec3 T=mix(uGT,uGTd,uDuskK),M=mix(uGM,uGMd,uDuskK),H=mix(uGH,uGHd,uDuskK);vec3 g=mix(H,M,smoothstep(0.,.224,t));g=mix(g,T,smoothstep(.14,.85,pow(t,.8)));float hz=pow(1.-smoothstep(-.04,.077,h),2.2);g=mix(g,uFogC,hz);vec2 sxz=normalize(sd.xz+1e-4),dxz=normalize(vd.xz+1e-4);float tw=pow(max(dot(sxz,dxz),0.),3.)*(1.-smoothstep(0.,.35,h));g=mix(g,H*vec3(1.05,.95,.85),tw*.45);float cA=dot(vd,sd);float halo=exp(-(1.-cA)*90.)*.75+exp(-(1.-cA)*11.)*.28+exp(-(1.-cA)*2.2)*.08;vec3 st2=uGSun/max(max(uGSun.r,uGSun.g),uGSun.b);g+=st2*halo*.9*smoothstep(-.08,.02,h+.06);if(h>0.){vec2 cq=vd.xz/(h+.18);float cir=fb(vec2(cq.x*.5+cq.y*1.6,cq.y*.22-cq.x*.35)*1.1+vec2(uT*.004,0.));float ci=smoothstep(.56,.86,cir)*smoothstep(.06,.4,h)*(1.-smoothstep(.75,1.,h));g=mix(g,mix(vec3(1.),uGHd,uDuskK*.6),ci*.6);}/* FOREST: high, brushed cirrus streaks (Ryan's reference) */g*=mix(1.,.82,uDuskK*.6);c=mix(c,g,uDayK);}
  /* FOREST 69 (Ryan): shooting stars, every 6 to 14 seconds, mostly in the half of the sky you are looking at, a long soft streak */
- if(uStars>0.){float per=7.;float k=floor(uT/per);float f=fract(uT/per)*per;float sh=fract(sin(k*12.9898)*43758.5);float st0=fract(sin(k*3.17)*91.7)*3.5;if(f>st0&&f<st0+1.5&&sh>.2){float pp=(f-st0)/1.5;float a0=atan(uCamF.x,uCamF.z);float a1=a0+(fract(sin(k*78.233)*43758.5)-.5)*2.2,e1=.3+.5*fract(sin(k*39.42)*1e4);vec3 A=normalize(vec3(sin(a1)*cos(e1),sin(e1),cos(a1)*cos(e1)));float sd2=fract(sin(k*5.1)*77.)>.5?1.:-1.;vec3 T=normalize(cross(A,vec3(0.,1.,0.))*sd2+vec3(0.,-.45,0.));vec3 H=normalize(A+T*.38*pp),Tl=normalize(A+T*.38*max(0.,pp-.28));vec3 sg=H-Tl;float u=clamp(dot(vd-Tl,sg)/max(dot(sg,sg),1e-6),0.,1.);float dd=length(vd-(Tl+sg*u));float fade=smoothstep(0.,.12,pp)*(1.-smoothstep(.75,1.,pp));c+=vec3(1.,.97,.88)*(smoothstep(.003,0.,dd)*1.8+smoothstep(.012,0.,dd)*.25)*u*u*fade*min(uStars,1.3);}}
+ if(uStars>0.){float per=7.;float k=floor(uT/per);float f=fract(uT/per)*per;float sh=fract(sin(k*12.9898)*43758.5);float st0=fract(sin(k*3.17)*91.7)*3.5;if(f>st0&&f<st0+1.5&&sh>.2){float pp=(f-st0)/1.5;float a0=atan(uCamF.x,uCamF.z);float a1=a0+(fract(sin(k*78.233)*43758.5)-.5)*2.2,e1=.3+.5*fract(sin(k*39.42)*1e4);vec3 A=normalize(vec3(sin(a1)*cos(e1),sin(e1),cos(a1)*cos(e1)));float sd2=fract(sin(k*5.1)*77.)>.5?1.:-1.;vec3 T=normalize(cross(A,vec3(0.,1.,0.))*sd2+vec3(0.,-.45,0.));vec3 H=normalize(A+T*.38*pp),Tl=normalize(A+T*.38*max(0.,pp-.28));vec3 sg=H-Tl;float u=clamp(dot(vd-Tl,sg)/max(dot(sg,sg),1e-6),0.,1.);float dd=length(vd-(Tl+sg*u));float fade=smoothstep(0.,.12,pp)*(1.-smoothstep(.75,1.,pp));c+=vec3(1.,.97,.88)*smoothstep(.0017,.0004,dd)*1.25*u*u*fade*min(uStars,1.2);}}
  /* FOREST 69 (Ryan): the stars are round dots, fewer, all over the sky (straight overhead too), each glistening at its own pace and never
     fading out: three layers of near, middling and faint far stars, placed by a sine-free hash so no patch of sky comes out empty */
  if(uStars>0.){float sk=0.;for(int L=0;L<3;L++){float N=L==0?260.:L==1?560.:1100.;float P=L==0?.0042:L==1?.0055:.006;float B=L==0?1.5:L==1?.85:.5;vec3 g3=vd*N;vec3 q=floor(g3);vec3 h3=hh3(q+float(L)*17.);if(h3.x<P){vec3 cpos=q+.5+(h3-.5)*.5;float d=length(g3-cpos);float rad=L==0?.42:.36;float dot1=smoothstep(rad,rad*.25,d);float tw=.82+.18*sin(uT*(1.1+h3.y*2.6)+h3.z*6.283)*sin(uT*(.37+h3.z*.9)+h3.y*9.);sk+=dot1*tw*B*(.6+.8*fract(h3.y*7.13));}}c+=vec3(.9,.94,1.)*sk*uStars*smoothstep(.02,.22,h);}
@@ -3350,6 +3352,28 @@ if(PROPS.stones.length){
 const q = SS[near(19,-18)];
 window.__CROSS.push({x: q.x,z: q.z,nx: -q.tz,nz: q.tx,hl: q.w + 0.75,kind: 'stones'});
 }
+for(const[px,pz]of[[19.23,-14.83],[15.47,-20.27]]){
+const R2 = 4,
+j0 = Math.max(1,Math.floor((px - R2 + WORLD / 2)/ CELL)),
+j1 = Math.min(HN - 2,Math.ceil((px + R2 + WORLD / 2)/ CELL)),
+i0 = Math.max(1,Math.floor((pz - R2 + WORLD / 2)/ CELL)),
+i1 = Math.min(HN - 2,Math.ceil((pz + R2 + WORLD / 2)/ CELL));
+for(let it = 0;it < 12;it++){
+const src = HGT.slice();
+for(let i = i0;i <= i1;i++)
+for(let j = j0;j <= j1;j++){
+const x = -WORLD / 2 + j * CELL,
+z = -WORLD / 2 + i * CELL;
+const dd = Math.hypot(x - px,z - pz);
+if(dd > R2)continue;
+const q = SS[near(x,z)];
+if(Math.abs((x - q.x)* -q.tz +(z - q.z)* q.tx)< q.w + 0.3)continue;
+const id = i * HN + j;
+const avg =(src[id - 1]+ src[id + 1]+ src[id - HN]+ src[id + HN]+ src[id]* 2)/ 6;
+HGT[id]= lerp(src[id],avg,0.85 *(1 - smooth(R2 * 0.5,R2,dd)));
+}
+}
+}
 }
 }
 [
@@ -4693,6 +4717,20 @@ mx2.arc(a,b,(r * 0.8 + extra)* W2P,0,7);
 mx2.fill();
 }
 };
+for(const[x,z]of[[27.24,22.73],[16.38,30.59]]){
+const[a,b]= tp(x,z),
+r = 6 * W2P;
+const gr = mx2.createRadialGradient(a,b,0,a,b,r);
+gr.addColorStop(0,'rgba(255,255,255,.5)');
+gr.addColorStop(0.6,'rgba(255,255,255,.3)');
+gr.addColorStop(1,'rgba(255,255,255,0)');
+mx2.globalCompositeOperation = 'source-over';
+mx2.fillStyle = gr;
+mx2.beginPath();
+mx2.arc(a,b,r,0,7);
+mx2.fill();
+}
+mx2.globalCompositeOperation = 'darken';
 pass(0.65,'rgb(46,46,46)');
 pass(0,'rgb(0,0,0)');
 if(window.__wheatPoly){
@@ -5053,18 +5091,30 @@ const bb = geo.boundingBox;
 swU.value = bb.max.y;
 const cx =(bb.min.x + bb.max.x)/ 2,
 cz =(bb.min.z + bb.max.z)/ 2;
-const rs =[];
+const bx =[],
+bz =[];
 for(const q of parts){
 if(q.leafy)continue;
 const P = q.gg.attributes.position;
 for(let i = 0;i < P.count;i++){
 const y = P.getY(i);
-if(y < bb.min.y + 0.9 && y > bb.min.y + 0.35)rs.push(Math.hypot(P.getX(i)- cx,P.getZ(i)- cz));
+if(y < bb.min.y + 0.9 && y > bb.min.y + 0.35){
+bx.push(P.getX(i));
+bz.push(P.getZ(i));
 }
 }
-rs.sort((u,v)=> u - v);
+}
+let tcx = cx,
+tcz = cz;
+if(bx.length){
+const sx = bx.slice().sort((u,v)=> u - v),
+sz = bz.slice().sort((u,v)=> u - v);
+tcx = sx[sx.length >> 1];
+tcz = sz[sz.length >> 1];
+}
+const rs = bx.map((x,i)=> Math.hypot(x - tcx,bz[i]- tcz)).sort((u,v)=> u - v);
 const tr = rs.length ? rs[Math.floor(rs.length * 0.5)]: 0;
-res({geo,mats: mats.length > 1 ? mats : mats[0],tr: Math.min(tr || 0.2,0.42),h: bb.max.y - bb.min.y,w: Math.max(bb.max.x - bb.min.x,bb.max.z - bb.min.z),y0: bb.min.y});
+res({geo,mats: mats.length > 1 ? mats : mats[0],tr: Math.min(tr || 0.2,0.35),tcx,tcz,h: bb.max.y - bb.min.y,w: Math.max(bb.max.x - bb.min.x,bb.max.z - bb.min.z),y0: bb.min.y});
 },
 undefined,
 ()=> res(null)
@@ -5229,6 +5279,24 @@ break outer;
 taken.push([x,z]);
 spots.push({kind: 'tree',m: pickTree(r),x,z,s: 1.8 *(0.9 + 0.3 * r),r: r * 6.283});
 });
+[
+[-41.73,-45.03,0.17],
+[-44.2,-42.6,0.53],
+[-39.3,-47.6,0.79],
+[-44.6,-47.2,0.36],
+[-39.0,-42.4,0.94]
+].forEach(([x0,z0,r])=>{
+for(let rr = 0;rr <= 3;rr += 0.4)
+for(let a = 0;a < 16;a++){
+const tx = x0 + Math.cos((a / 16)* 6.283 + r)* rr,
+tz = z0 + Math.sin((a / 16)* 6.283 + r)* rr;
+if(free(tx,tz,1.1)&& clearOf(tx,tz,2.2)&& !buried(tx,tz)){
+taken.push([tx,tz]);
+spots.push({kind: 'tree',m: pickTree(r),x: tx,z: tz,s: 1.8 *(0.9 + 0.35 * r),r: r * 6.283});
+return;
+}
+}
+});
 {
 const H = window.__MORE && window.__MORE.house;
 if(H){
@@ -5287,8 +5355,14 @@ q4.setFromAxisAngle(up,s.r);
 m4.compose(new V3(s.x,gy - M.y0 * s.s - sink,s.z),q4,new V3(s.s,s.s,s.s));
 im.setMatrixAt(i,m4);
 if(kind === 'tree'){
-const tr ={x: s.x,z: s.z,r: M.tr * s.s,h: M.h * s.s,g: gy,s0: s.s,noClimb: true,czTree: true,climbTop: gy + M.h * s.s * 0.55};
-addSurf({t: 'trunk',x: s.x,z: s.z,r: tr.r + 0.02,tree: tr},s.x - 1.5,s.z - 1.5,s.x + 1.5,s.z + 1.5);
+const ox = M.tcx || 0,
+oz = M.tcz || 0,
+cr = Math.cos(s.r),
+sr = Math.sin(s.r);
+const kx = s.x +(ox * cr + oz * sr)* s.s,
+kz = s.z +(-ox * sr + oz * cr)* s.s;
+const tr ={x: kx,z: kz,r: M.tr * s.s * 0.85,h: M.h * s.s,g: gy,s0: s.s,noClimb: true,czTree: true,climbTop: gy + M.h * s.s * 0.55};
+addSurf({t: 'trunk',x: kx,z: kz,r: tr.r,tree: tr},kx - 1.5,kz - 1.5,kx + 1.5,kz + 1.5);
 (im.userData.ed ||(im.userData.ed ={trees:[]})).trees[i]= tr;
 (window.__czForest = window.__czForest ||[]).push(tr);
 trees.push(tr);
@@ -6246,7 +6320,7 @@ u.f +=(want - u.f)* Math.min(1,dt *(want ? 0.35 : 1.2));
 u.c.copy(u.base).addScaledVector(RAYDIR,23);
 const br = 0.65 + 0.35 * Math.sin(time * 0.23 + u.ph);
 const ni = NIGHTISH();
-const gk = window.__RAYK ?? 1.05;
+const gk = window.__RAYK ?? 0.8;
 const U = s.material.uniforms;
 U.uOp.value =
 (LOW ? 0.3 : 0.38)*
@@ -14926,7 +15000,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 514;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 70;
+const LOOKV = 71;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -25126,8 +25200,8 @@ BU.uSunA.value = Math.atan2(sun.position.z - sun.target.position.z,sun.position.
 grassU.uDap.value = W.dap;
 MAGIC.weather(dt);
 if(BLOOM){
-BLOOM.strength = W.bloom;
-BLOOM.threshold = NIGHTISH()? 0.62 : 0.82;
+BLOOM.strength = W.bloom * 0.7;
+BLOOM.threshold = NIGHTISH()? 0.68 : 0.88;
 }
 if(GRADE){
 GRADE.uniforms.uLift.value.set(...W.lift);
@@ -54785,10 +54859,10 @@ if(v && v.objs)store = v;
 }catch(e){}
 if(!store.delAll)store.delAll =[];
 {
-const FB ={"tool:Brazier":{"m":[0.5845,0,0.8114,0,0,1,0,0,-0.8114,0,0.5845,0,-26.2186,-2.8119,-41.0606,1]},"tool:Burlapsack":{"m":[-0.75,0,0.6615,0,0,1,0,0,-0.6615,0,-0.75,0,-25.9083,-2.8119,-41.9037,1]},"tool:Sythe":{"m":[0.9996,-0.0157,0.0222,0,0.023,0.9241,-0.3817,0,-0.0145,0.382,0.924,0,-26.0619,-2.6092,-41.4981,1]},"i:19200:-28.93,-8.90:9~1#3":{"m":[0.089,-0.1178,-0.2919,0,0.0334,0.3052,-0.1129,0,0.313,0.0009,0.0951,0,-36.1689,-2.3209,-10.8474,1],"o":[-35.84,-1.52,-8.63],"s":"src:bushes.glb"},"i:19200:0.00,0.00:11~1#8":{"m":[-0.3837,-0.0078,-0.1423,0,0.0539,0.3705,-0.1655,0,0.132,-0.1738,-0.3463,0,-37.7845,-1.754,-9.8886,1],"o":[-35.5,-1.26,-7.98],"s":"src:bushes.glb"},"i:19200:-20.89,-6.55:14~1#5":{"m":[0.0761,0.0924,-0.3345,0,-0.0165,0.343,0.091,0,0.3466,-0.0039,0.0778,0,-25.0375,-2.3941,-16.4714,1],"o":[-25.04,-2.42,-16.47],"s":"src:bushes.glb"},"i:19200:0.00,0.00:11#8":{"m":[-0.3837,-0.0078,-0.1423,0,0.0539,0.3705,-0.1655,0,0.132,-0.1738,-0.3463,0,-37.7845,-1.5101,-9.8886,1],"o":[-35.5,-1.26,-7.98],"s":"src:bushes.glb"},"i:19200:-20.89,-6.55:14#5":{"m":[0.0756,0.1003,-0.3323,0,-0.0153,0.3407,0.0993,0,0.3468,-0.0068,0.0768,0,-24.617,-2.2325,-17.1922,1],"o":[-25.04,-2.42,-16.47],"s":"src:bushes.glb"},"sign:4":{"m":[0.0025,-0.1134,0.9935,0,-0.0443,0.9926,0.1134,0,-0.999,-0.0443,-0.0025,0,29.4273,-3.019,-53.5757,1]},"o:G:-23.23,-2.79,-43.38":{"m":[-0.8915,0,-0.4531,0,0,1,0,0,0.4531,0,-0.8915,0,-24.7421,-2.8119,-42.6453,1],"o":[-23.23,-2.79,-43.38],"s":"src:barrel.glb"},"o:G:-23.88,-2.79,-44.68":{"m":[-0.8124,0,0.5831,0,0,1,0,0,-0.5831,0,-0.8124,0,-25.2756,-2.8119,-42.2581,1],"o":[-23.88,-2.79,-44.68],"s":"src:barrel.glb"},"o:G:-23.00,-2.79,-44.19":{"m":[0.8186,0,-0.5744,0,0,1,0,0,0.5744,0,0.8186,0,-24.7218,-2.8119,-41.9567,1],"o":[-23,-2.79,-44.19],"s":"src:barrel.glb"},"o:G:-29.28,-2.12,-39.99":{"m":[0.8256,0,-0.5643,0,0,1,0,0,0.5643,0,0.8256,0,-30.2714,-1.9613,-40.2185,1],"o":[-29.28,-2.12,-39.99],"s":"src:cushion.glb"},"o:G:-23.26,-2.74,-47.45":{"m":[0.9871,0,0.1599,0,0,1,0,0,-0.1599,0,0.9871,0,-22.5622,-2.8119,-45.2636,1],"o":[-23.26,-2.74,-47.45],"s":"src:washline.glb"}};
-if((store.fbV || 0)< 1){
+const FB ={"tool:Brazier":{"m":[0.5845,0,0.8114,0,0,1,0,0,-0.8114,0,0.5845,0,-26.2186,-2.8119,-41.0606,1]},"tool:Burlapsack":{"m":[-0.75,0,0.6615,0,0,1,0,0,-0.6615,0,-0.75,0,-25.9083,-2.8119,-41.9037,1]},"tool:Sythe":{"m":[0.9996,-0.0157,0.0222,0,0.023,0.9241,-0.3817,0,-0.0145,0.382,0.924,0,-26.0619,-2.6092,-41.4981,1]},"i:19200:-28.93,-8.90:9~1#3":{"m":[0.089,-0.1178,-0.2919,0,0.0334,0.3052,-0.1129,0,0.313,0.0009,0.0951,0,-36.1689,-2.3209,-10.8474,1],"o":[-35.84,-1.52,-8.63],"s":"src:bushes.glb"},"i:19200:0.00,0.00:11~1#8":{"m":[-0.3837,-0.0078,-0.1423,0,0.0539,0.3705,-0.1655,0,0.132,-0.1738,-0.3463,0,-37.7845,-1.754,-9.8886,1],"o":[-35.5,-1.26,-7.98],"s":"src:bushes.glb"},"i:19200:-20.89,-6.55:14~1#5":{"m":[0.0761,0.0924,-0.3345,0,-0.0165,0.343,0.091,0,0.3466,-0.0039,0.0778,0,-25.0375,-2.3941,-16.4714,1],"o":[-25.04,-2.42,-16.47],"s":"src:bushes.glb"},"i:19200:0.00,0.00:11#8":{"m":[-0.3837,-0.0078,-0.1423,0,0.0539,0.3705,-0.1655,0,0.132,-0.1738,-0.3463,0,-37.7845,-1.5101,-9.8886,1],"o":[-35.5,-1.26,-7.98],"s":"src:bushes.glb"},"i:19200:-20.89,-6.55:14#5":{"m":[0.0756,0.1003,-0.3323,0,-0.0153,0.3407,0.0993,0,0.3468,-0.0068,0.0768,0,-24.617,-2.2325,-17.1922,1],"o":[-25.04,-2.42,-16.47],"s":"src:bushes.glb"},"sign:4":{"m":[0.0025,-0.1134,0.9935,0,-0.0443,0.9926,0.1134,0,-0.999,-0.0443,-0.0025,0,29.4273,-3.019,-53.5757,1]},"o:G:-23.23,-2.79,-43.38":{"m":[-0.8915,0,-0.4531,0,0,1,0,0,0.4531,0,-0.8915,0,-24.7421,-2.8119,-42.6453,1],"o":[-23.23,-2.79,-43.38],"s":"src:barrel.glb"},"o:G:-23.88,-2.79,-44.68":{"m":[-0.8124,0,0.5831,0,0,1,0,0,-0.5831,0,-0.8124,0,-25.2756,-2.8119,-42.2581,1],"o":[-23.88,-2.79,-44.68],"s":"src:barrel.glb"},"o:G:-23.00,-2.79,-44.19":{"m":[0.8186,0,-0.5744,0,0,1,0,0,0.5744,0,0.8186,0,-24.7218,-2.8119,-41.9567,1],"o":[-23,-2.79,-44.19],"s":"src:barrel.glb"},"o:G:-29.28,-2.12,-39.99":{"m":[0.8256,0,-0.5643,0,0,1,0,0,0.5643,0,0.8256,0,-30.2714,-1.9613,-40.2185,1],"o":[-29.28,-2.12,-39.99],"s":"src:cushion.glb"},"o:G:-23.26,-2.74,-47.45":{"m":[0.9871,0,0.1599,0,0,1,0,0,-0.1599,0,0.9871,0,-22.5622,-2.8119,-45.2636,1],"o":[-23.26,-2.74,-47.45],"s":"src:washline.glb"},"i:19200:0.00,0.00:8~1#7":{"m":[-0.3837,-0.0078,-0.1423,0,0.0539,0.3705,-0.1655,0,0.132,-0.1738,-0.3463,0,-37.7845,-1.754,-9.8886,1],"o":[-35.5,-1.26,-7.98],"s":"src:bushes.glb"},"i:19200:-12.85,-38.10:10~1#4":{"m":[0.0761,0.0924,-0.3345,0,-0.0165,0.343,0.091,0,0.3466,-0.0039,0.0778,0,-25.0375,-2.3941,-16.4714,1],"o":[-25.04,-2.42,-16.47],"s":"src:bushes.glb"},"i:19200:0.00,0.00:8#7":{"m":[-0.3837,-0.0078,-0.1423,0,0.0539,0.3705,-0.1655,0,0.132,-0.1738,-0.3463,0,-37.7845,-1.5101,-9.8886,1],"o":[-35.5,-1.26,-7.98],"s":"src:bushes.glb"},"i:19200:-12.85,-38.10:10#4":{"m":[0.0756,0.1003,-0.3323,0,-0.0153,0.3407,0.0993,0,0.3468,-0.0068,0.0768,0,-24.617,-2.2325,-17.1922,1],"o":[-25.04,-2.42,-16.47],"s":"src:bushes.glb"},"i:19200:-28.93,-8.90:9#3":{"m":[0.089,-0.1178,-0.2919,0,0.0334,0.3052,-0.1129,0,0.313,0.0009,0.0951,0,-36.1689,-2.3209,-10.8474,1],"o":[-35.84,-1.52,-8.63],"s":"src:bushes.glb"},"i:18168:27.22,39.26:106#101":{"m":[-0.6579,0,-1.6619,0,0,1.7874,0,0,1.6619,0,-0.6579,0,-24.5544,-2.3579,-26.0679,1],"o":[-27.07,-2.45,-25.89],"s":"src:forest-tree-2"},"i:3087:-13.72,-75.30:68#63":{"m":[-1.4251,0,1.338,0,0,1.9548,0,0,-1.338,0,-1.4251,0,-17.9216,-3.0288,-32.219,1],"o":[-19.93,-2.88,-33.91],"s":"src:forest-tree-3"},"i:4091:53.26,75.70:79#75":{"m":[1.5271,0,1.4345,0,0,2.0952,0,0,-1.4345,0,1.5271,0,-23.1807,-2.7907,-29.9641,1],"o":[-22.07,-2.76,-28.86],"s":"src:forest-tree-4"},"i:748:11.94,-31.27:20#14":{"m":[-0.4339,0,1.9524,0,0,2,0,0,-1.9524,0,-0.4339,0,-17.3354,-2.9557,-33.9758,1],"o":[-17.14,-2.94,-34.38],"s":"src:forest-lantern"},"i:748:11.94,-31.27:20#7":{"m":[0.8803,0,1.7958,0,0,2,0,0,-1.7958,0,0.8803,0,-11.8704,-3.3703,-34.5473,1],"o":[-11.77,-3.36,-34.79],"s":"src:forest-lantern"},"i:748:11.94,-31.27:20#8":{"m":[0.7615,0,1.8494,0,0,2,0,0,-1.8494,0,0.7615,0,38.0558,-2.1469,9.5077,1],"o":[35.23,-2.36,10.52],"s":"src:forest-lantern"},"i:748:11.94,-31.27:20#11":{"m":[1.7889,0,0.8944,0,0,2,0,0,-0.8944,0,1.7889,0,33.1422,-2.1571,14.5775,1],"o":[32.3,-2.18,15.1],"s":"src:forest-lantern"},"i:748:11.94,-31.27:20#13":{"m":[0.1689,0,1.9929,0,0,2,0,0,-1.9929,0,0.1689,0,11.9976,-2.1218,31.0372,1],"o":[5.93,-1.51,30.89],"s":"src:forest-lantern"}};
+if((store.fbV || 0)< 2){
 for(const k in FB)if(!(k in store.objs))store.objs[k]= FB[k];
-store.fbV = 1;
+store.fbV = 2;
 }
 }
 {
@@ -58300,6 +58374,31 @@ im.userData.o0 = o0;
 E.ims.push(im);
 if(E.imById)E.imById.set(id,im);
 if(E.safe)continue;
+{
+const src0 = 'src:' +(im.userData.src || ''),
+pre = id.slice(0,id.lastIndexOf(':')+ 1),
+taken = new Set();
+for(const k in store.objs)if(k.startsWith(id + '#'))taken.add(+k.slice(id.length + 1));
+for(const k of Object.keys(store.objs)){
+const e = store.objs[k],
+hs = k.lastIndexOf('#');
+if(hs < 0 || k.slice(0,hs)=== id || !e || e.s !== src0 || !e.o || !k.startsWith(pre))continue;
+let best = -1,
+bd = 0.3;
+for(let i = 0;i < im.count;i++){
+if(taken.has(i))continue;
+const d = Math.hypot(o0[i * 3]- e.o[0],o0[i * 3 + 2]- e.o[2]);
+if(d < bd){
+bd = d;
+best = i;
+}
+}
+if(best < 0)continue;
+taken.add(best);
+store.objs[id + '#' + best]= e;
+delete store.objs[k];
+}
+}
 for(const k in store.objs){
 const hs = k.lastIndexOf('#');
 if(hs < 0 || k.slice(0,hs)!== id)continue;
