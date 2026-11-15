@@ -296,17 +296,17 @@ const buildHills = () => {
 			fragmentShader: `varying vec3 vP;uniform vec3 uNear,uFar,uHaze,uSunDir,uSun;uniform float uK,uR,uEl,uSeed,uBump,uRoll,uCrowns,uFade,uMist,uNight,uDusk;
 float h1(float x){return fract(sin(x*127.1+uSeed)*43758.5453);}float n1(float x){float i=floor(x),f=fract(x);f=f*f*(3.-2.*f);return mix(h1(i),h1(i+1.),f);}
 float h2(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7))+uSeed)*43758.5453);}float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h2(i),h2(i+vec2(1,0)),f.x),mix(h2(i+vec2(0,1)),h2(i+vec2(1,1)),f.x),f.y);}
-float ridgeAt(float a){float r=n1(a*.16*uRoll)*.6+n1(a*.42*uRoll+3.)*.28+n1(a*1.1*uRoll+9.)*.12;return smoothstep(.05,.95,r);}
-void main(){float a=atan(vP.z,vP.x)*uR*.01;float ridge=ridgeAt(a);
- float crowns=(n1(a*7.+uSeed)*.55+n1(a*19.)*.45)*(1.-uK)*.0035*uCrowns;
+/* the ridge is read around a circle, so it closes on itself with no seam */vec2 ring(float an){return vec2(cos(an),sin(an))*uR*.01;}float ridgeAt(vec2 q){float r=n2(q*.16*uRoll)*.6+n2(q*.42*uRoll+3.)*.28+n2(q*1.1*uRoll+9.)*.12;return smoothstep(.05,.95,r);}
+void main(){float an=atan(vP.z,vP.x);vec2 q=ring(an);float ridge=ridgeAt(q);
+ float crowns=(n2(q*7.+uSeed)*.55+n2(q*19.)*.45)*(1.-uK)*.0035*uCrowns;
  float top=(uEl+uEl*uBump*(ridge-.4)*1.6)*uR+crowns*uR;float y=vP.y;if(y>top)discard;
  float d=clamp((top-y)/max(top+.1*uR,1.),0.,1.);
  vec3 c=mix(uNear,uFar,uK);c=mix(c,uHaze,uFade*uK*uK*.85+.06);
- float bl=n2(vec2(a*5.,y*.12))*.6+n2(vec2(a*13.,y*.35))*.4;c*=1.+(bl-.5)*.22*(1.-uK*.8);
- float sl=ridgeAt(a+.05)-ridgeAt(a-.05);c*=1.+clamp(sl*3.,-.12,.12)*(1.-uK*.6);
- float an=atan(vP.z,vP.x);vec2 dir=vec2(cos(an),sin(an));float sunSide=max(dot(normalize(uSunDir.xz+1e-4),dir),0.);
+ float bl=n2(q*5.+vec2(0.,y*.12))*.6+n2(q*13.+vec2(0.,y*.35))*.4;c*=1.+(bl-.5)*.22*(1.-uK*.8);
+ float da=.05/(uR*.01);float sl=ridgeAt(ring(an+da))-ridgeAt(ring(an-da));c*=1.+clamp(sl*3.,-.12,.12)*(1.-uK*.6);
+ vec2 dir=vec2(cos(an),sin(an));float sunSide=max(dot(normalize(uSunDir.xz+1e-4),dir),0.);
  vec3 rimC=mix(vec3(1.06,1.04,.94),vec3(1.3,1.,.66),uDusk);c=mix(c,c*rimC,(1.-smoothstep(0.,.07,d))*(.3+.5*sunSide)*(1.-uNight));
- float hgt=max(top,1.);float low=1.-smoothstep(-.03*uR,hgt*.3,y);c=mix(c,uHaze*1.04,low*low*uMist*(.7+.3*n2(vec2(a*2.,y*.05))));/* white mist pooling at the hills' feet, as in the valley of the reference */
+ float hgt=max(top,1.);float low=1.-smoothstep(-.03*uR,hgt*.3,y);c=mix(c,uHaze*1.04,low*low*uMist*(.7+.3*n2(q*2.+vec2(0.,y*.05))));/* white mist pooling at the hills' feet, as in the valley of the reference */
  float edge=smoothstep(0.,uR*.002,top-y);gl_FragColor=vec4(c,edge);
  #include <tonemapping_fragment>
  #include <colorspace_fragment>
@@ -355,7 +355,7 @@ const loop = () => {
 	HU.uNear.value.copy(seasonTint(L.hNear)); HU.uFar.value.copy(L.hFar); HU.uHaze.value.copy(L.haze); HU.uSun.value.copy(L.sun);
 	HU.uBump.value = S.hBump; HU.uRoll.value = S.hRoll; HU.uCrowns.value = S.hCrowns; HU.uFade.value = S.hFade; HU.uMist.value = S.hMist; HU.uNight.value = night; HU.uDusk.value = dusk;
 	if (hills) hills.children.forEach((m, i) => { m.material.uniforms.uEl.value = Math.max(0.002, S.hHeight + i * S.hGrow); });
-	ground.material.uniforms.uC.value.copy(seasonTint(L.hNear)).multiplyScalar(0.9); ground.material.uniforms.uHaze.value.copy(L.haze);
+	ground.material.uniforms.uC.value.copy(seasonTint(L.hNear)).multiplyScalar(0.9); ground.material.uniforms.uHaze.value.copy(seasonTint(L.hNear)).lerp(L.haze, 0.3 * S.hMist);
 	ground.scale.setScalar(S.hDist * 0.92);
 	cam.position.set(0, 2, 0);
 	cam.lookAt(Math.sin(yaw) * Math.cos(pitch), 2 + Math.sin(pitch), Math.cos(yaw) * Math.cos(pitch));
