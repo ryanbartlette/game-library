@@ -1204,20 +1204,35 @@ setTimeout(()=>{
 try{
 const d = document.createElement('div');
 d.style.cssText = 'position:fixed;left:12px;bottom:6px;z-index:60;font:11px Montserrat,sans-serif;color:#fff;background:rgba(20,24,30,.55);padding:4px 8px;border-radius:8px;display:flex;gap:6px;align-items:center';
-d.innerHTML = '<span>Shine</span><input type="range" min="0" max="1" step="0.01" style="width:110px"><b style="width:30px"></b>';
-const r = d.querySelector('input'),
-b = d.querySelector('b');
-r.value = SHINE_K;
-b.textContent =(+SHINE_K).toFixed(2);
-r.oninput =()=>{
-const v = +r.value;
-b.textContent = v.toFixed(2);
-window.__setShine(v);
+d.style.flexDirection = 'column';
+d.style.alignItems = 'stretch';
+const knob =(label,key,min,max,def,apply)=>{
+let v = def;
 try{
-localStorage.setItem('tink.shine',String(v));
+const sv = parseFloat(localStorage.getItem(key));
+if(isFinite(sv))v = sv;
+}catch(e){}
+apply(v);
+const row = document.createElement('div');
+row.style.cssText = 'display:flex;gap:6px;align-items:center';
+row.innerHTML = '<span style="width:58px">' + label + '</span><input type="range" min="' + min + '" max="' + max + '" step="0.01" style="width:110px"><b style="width:30px"></b>';
+const r = row.querySelector('input'),
+b = row.querySelector('b');
+r.value = v;
+b.textContent = v.toFixed(2);
+r.oninput =()=>{
+const x = +r.value;
+b.textContent = x.toFixed(2);
+apply(x);
+try{
+localStorage.setItem(key,String(x));
 }catch(e){}
 };
-for(const ev of['keydown','keyup','mousedown','pointerdown'])r.addEventListener(ev,e => e.stopPropagation());
+for(const ev of['keydown','keyup','mousedown','pointerdown','click'])r.addEventListener(ev,e => e.stopPropagation());
+d.appendChild(row);
+};
+knob('Shine','tink.shine',0,1,SHINE_K,v => window.__setShine(v));
+knob('Bloom','tink.bloomK',0,2,0.7,v =>(window.__glowK = v));
 document.body.appendChild(d);
 }catch(e){}
 },4000);
@@ -1254,7 +1269,7 @@ fragmentShader: `uniform sampler2D tDiffuse;uniform sampler2D tDepth;uniform vec
    float n=float((R+1)*(R+1));float best=1e9;vec3 outc=texture2D(tDiffuse,vUv).rgb;
    for(int k=0;k<4;k++){vec3 mu=m[k]/n;vec3 v=abs(s[k]/n-mu*mu);float sv=v.r+v.g+v.b;if(sv<best){best=sv;outc=mu;}}
    /* a soft depth of field: the far woods melt gently, the cats stay sharp */
-   /* FOREST 72 (Ryan: the stars came out as little asterisks): the open sky skips the brush and the depth blur, whose ten spread samples drew each star point as a spiky star */bool skyPx=uHasD>.5&&texture2D(tDepth,vUv).x>.99999;if(skyPx)outc=texture2D(tDiffuse,vUv).rgb;float coc=skyPx?0.:fr*uDof;if(coc>.02){float rad=coc*5.*(uRes.y/1300.);vec3 b=outc;float w=1.;for(int k=0;k<10;k++){float a=float(k)*2.39996;float r=sqrt((float(k)+.5)/10.)*rad;vec2 o=vec2(cos(a),sin(a))*r*px;vec2 uv2=vUv+o;/* don't let sharp near things bleed into the blur */float zs=uHasD>.5?zAt(uv2):z;float ok=smoothstep(uFocus*1.1,uFocus*1.25+2.5,zs);b+=texture2D(tDiffuse,uv2).rgb*ok;w+=ok;}outc=mix(outc,b/w,min(1.,coc*1.1));}
+   /* FOREST 74 (Ryan: the stars came out as little asterisks, but the far hills need their soft blur): only a star's own bright point skips the brush and the blur, and round it the blur may not pick up more than a hint of the star, so no spikes */bool skyPx=uHasD>.5&&texture2D(tDepth,vUv).x>.99999;vec3 orig=texture2D(tDiffuse,vUv).rgb;float lN=dot(texture2D(tDiffuse,vUv+vec2(px.x*2.,0.)).rgb+texture2D(tDiffuse,vUv-vec2(px.x*2.,0.)).rgb+texture2D(tDiffuse,vUv+vec2(0.,px.y*2.)).rgb+texture2D(tDiffuse,vUv-vec2(0.,px.y*2.)).rgb,vec3(.0833));bool starPx=skyPx&&dot(orig,vec3(.333))-lN>.05;if(starPx)outc=orig;float coc=starPx?0.:fr*uDof;if(coc>.02){float rad=coc*5.*(uRes.y/1300.);vec3 b=outc;float w=1.;for(int k=0;k<10;k++){float a=float(k)*2.39996;float r=sqrt((float(k)+.5)/10.)*rad;vec2 o=vec2(cos(a),sin(a))*r*px;vec2 uv2=vUv+o;/* don't let sharp near things bleed into the blur */float zs=uHasD>.5?zAt(uv2):z;float ok=smoothstep(uFocus*1.1,uFocus*1.25+2.5,zs);vec3 sc=texture2D(tDiffuse,uv2).rgb;if(skyPx)sc=min(sc,outc+.08);b+=sc*ok;w+=ok;}outc=mix(outc,b/w,min(1.,coc*1.1));}
    /* (fix, Ryan's black squares: one broken pixel from the scene (not-a-number) was smeared into a growing black box by the glow; it's caught here so the glow never sees it) */
    if(any(isnan(outc))||any(isinf(outc)))outc=vec3(0.);outc=clamp(outc,0.,64.);
    gl_FragColor=vec4(outc,1.);}`
@@ -15136,7 +15151,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 514;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 74;
+const LOOKV = 75;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -25336,8 +25351,10 @@ BU.uSunA.value = Math.atan2(sun.position.z - sun.target.position.z,sun.position.
 grassU.uDap.value = W.dap;
 MAGIC.weather(dt);
 if(BLOOM){
-BLOOM.strength = W.bloom * 0.7;
-BLOOM.threshold = NIGHTISH()? 0.68 : 0.88;
+const GK = window.__glowK ?? 0.7,
+GT = window.__glowT ?? 0.88;
+BLOOM.strength = W.bloom * GK;
+BLOOM.threshold = NIGHTISH()? GT - 0.2 : GT;
 }
 if(GRADE){
 GRADE.uniforms.uLift.value.set(...W.lift);
