@@ -47353,7 +47353,7 @@ roll: 0,
 portable: true,
 id: 'corny',
 name: 'Corny',
-carry:{f: 0.1,u: -0.075,yaw: Math.PI / 2}
+carry:{f: 0.1,u: -0.075,yaw: Math.PI / 2,ms: -0.025}
 };
 window.__YARNS.push(Y);
 if(grab && window.__toyGrab)window.__toyGrab(Y,true);
@@ -47369,7 +47369,7 @@ scene.add(cw);
 try{
 window.__EDIT && window.__EDIT.register(cw,'home:chickum');
 }catch(e){}
-window.__YARNS.push({
+const YC ={
 m: cw,
 v: new V3(),
 r: 0,
@@ -47379,8 +47379,10 @@ roll: 0,
 portable: true,
 id: 'chickum',
 name: 'Chickum',
-carry:{f: 0.1,u: -0.06,yaw: Math.PI / 2}
-});
+carry:{f: 0.1,u: -0.06,yaw: Math.PI / 2,ms: 0.035}
+};
+window.__YARNS.push(YC);
+if(grab && window.__toyGrab)window.__toyGrab(YC,true);
 }catch(e){
 console.warn('chickum',e);
 }
@@ -49501,6 +49503,10 @@ pv.y += -rad * 0.25 +(o.mu || 0);
 }else{
 pv.copy(hp).addScaledVector(f,o.f ?? 0.08);
 pv.y += o.u ?? -0.045;
+}
+if(o.ms){
+pv.x += f.z * o.ms;
+pv.z -= f.x * o.ms;
 }
 qy.setFromAxisAngle(Y,PP.yaw +(o.yaw || 0));
 sv.copy(obj.scale);
