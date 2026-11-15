@@ -5641,7 +5641,9 @@ for(const[k,f]of[
 ['sculpt','Props_Sculptures_Sculpture1'],
 ['bridge','Props_Bridge_Bridge'],
 ['ivyS','Foliage_Ivy_SmallClump1'],
-['ivyL','Foliage_Ivy_LargeClump1']
+['ivyL','Foliage_Ivy_LargeClump1'],
+['ivyV','Foliage_Ivy_Vines'],
+['ivyVL','Foliage_Ivy_VineLong']
 ])
 L[k]= await loadModel(f);
 const put ={};
@@ -5745,47 +5747,6 @@ else if(r < 0.81)add(r < 0.79 ? 'rock1' : 'rock4',x,z,0.3 + sc * 0.45,ro * 6.283
 }
 }
 }
-try{
-const ir = mulberry32(71201);
-put.ivyS = put.ivyS ||[];
-put.ivyL = put.ivyL ||[];
-const hS = L.ivyS ? L.ivyS.h : 1,
-hL = L.ivyL ? L.ivyL.h : 1;
-for(const[x,z]of put.lantern ||[]){
-const a = ir(),
-b = ir(),
-c = ir();
-if(a > 0.7)continue;
-const an = b * 6.283;
-put.ivyS.push([x + Math.cos(an)* 0.22,z + Math.sin(an)* 0.22,(0.38 + 0.2 * c)/ hS,b * 6.283,0.05]);
-}
-for(const cr of window.__CROSS ||[]){
-if(cr.kind !== 'bridge')continue;
-const tx = -cr.nz,
-tz = cr.nx;
-for(const e of[-1,1])
-for(const sd of[-1,1]){
-const a = ir(),
-b = ir();
-if(a > 0.8)continue;
-const x = cr.x + cr.nx * e *(cr.hl + 0.35)+ tx * sd *(0.75 + 0.2 * b),
-z = cr.z + cr.nz * e *(cr.hl + 0.35)+ tz * sd *(0.75 + 0.2 * b);
-put.ivyL.push([x,z,(0.55 + 0.25 * a)/ hL,b * 6.283,0.1]);
-}
-}
-for(const q of(window.__SS ||[]).filter((_,i)=> i % 23 === 0)){
-const a = ir(),
-b = ir();
-if(a > 0.35)continue;
-const o =(b < 0.5 ? 1 : -1)*(q.w + 0.5 + a);
-const x = q.x - q.tz * o,
-z = q.z + q.tx * o;
-if(wet(x,z))continue;
-put.ivyS.push([x,z,(0.3 + 0.2 * b)/ hS,a * 30,0.08]);
-}
-}catch(e){
-console.warn('ivy',e);
-}
 const m4 = new THREE.Matrix4(),
 q4 = new THREE.Quaternion(),
 up = new V3(0,1,0);
@@ -5820,6 +5781,43 @@ im.userData.src = 'forest-' + k;
 scene.add(im);
 counts[k]= list.length;
 }
+try{
+const IV = L.ivyS,
+LM = L.lantern;
+if(IV && LM && put.lantern){
+const ir = mulberry32(71219),
+lst =[];
+const m4b = new THREE.Matrix4(),
+qb = new THREE.Quaternion(),
+upb = new V3(0,1,0);
+for(const[x,z,s2,r,sink]of put.lantern){
+const a1 = ir(),
+a2 = ir();
+if(a1 > 0.65)continue;
+const gy = groundAt(x,z,heightAt(x,z)+ 3),
+base = gy - LM.y0 * s2 -(sink || 0)* LM.h * s2 - 0.02;
+const face = r + Math.floor(a2 * 4)*(Math.PI / 2);
+const lb = LM.geo.boundingBox,
+half = Math.max(lb.max.z,-lb.min.z,lb.max.x,-lb.min.x)* 0.9;
+const off = new V3(Math.sin(face),0,Math.cos(face)).multiplyScalar(half * s2 + 0.01);
+qb.setFromAxisAngle(upb,face);
+const sc = s2 *(0.7 + 0.3 * a2);
+m4b.compose(new V3(x + off.x,base +(lb.min.y +(lb.max.y - lb.min.y)* 0.86)* s2,z + off.z),qb,new V3(sc,sc,sc));
+lst.push(m4b.clone());
+}
+if(lst.length){
+const im = new THREE.InstancedMesh(IV.geo,IV.mats,lst.length);
+lst.forEach((m,i)=> im.setMatrixAt(i,m));
+im.instanceMatrix.needsUpdate = true;
+im.computeBoundingSphere();
+im.userData.noEdit = true;
+scene.add(im);
+counts.lanternIvy = lst.length;
+}
+}
+}catch(e){
+console.warn('lantern ivy',e);
+}
 let nb = 0;
 const BM = L.bridge;
 if(BM)
@@ -5836,6 +5834,29 @@ mesh.scale.setScalar(s);
 mesh.position.set(b.x,top + 0.04 - bb.max.y * s,b.z);
 mesh.castShadow = mesh.receiveShadow = true;
 mesh.userData.noEdit = true;
+try{
+const ir = mulberry32(71201 + nb * 17),
+pTop = bb.max.y - 0.04,
+pX = Math.max(Math.abs(bb.min.x),bb.max.x)+ 0.015,
+zL = Math.max(Math.abs(bb.min.z),bb.max.z);
+for(const side of[-1,1])
+for(let k = 0;k < 4;k++){
+const a1 = ir(),
+a2 = ir(),
+a3 = ir();
+if(a1 < 0.25)continue;
+const VM =[L.ivyV,L.ivyVL,L.ivyL,L.ivyS][Math.floor(a2 * 4)% 4];
+if(!VM)continue;
+const v = new THREE.Mesh(VM.geo,VM.mats);
+v.position.set(side * pX,pTop,(-0.62 +(k / 3)* 1.24 +(a3 - 0.5)* 0.25)* zL);
+v.rotation.y = side > 0 ? Math.PI / 2 : -Math.PI / 2;
+v.scale.setScalar(0.85 + 0.5 * a3);
+v.userData.noEdit = true;
+mesh.add(v);
+}
+}catch(e){
+console.warn('bridge ivy',e);
+}
 scene.add(mesh);
 mesh.updateMatrixWorld(true);
 b.m.visible = false;
