@@ -39,6 +39,8 @@
 		<div class="sub">Only the sky, the clouds and the hills. Pick a time of day, shape everything, then press <b>Copy for Claude</b> and paste it in the chat.</div>
 		<h2>Time of day</h2>
 		<div class="tabs" id="times"></div>
+		<h2>Time passing</h2>
+		<div class="tabs" id="speeds"></div>
 		<h2>Season</h2>
 		<div class="tabs" id="seasons"></div>
 		<div id="ctl"></div>
@@ -337,9 +339,15 @@ cvs.addEventListener('pointermove', e => { if (!drag) return; yaw = drag[2] - (e
 cvs.addEventListener('pointerup', () => { drag = null; cvs.style.cursor = 'grab'; });
 cvs.addEventListener('wheel', e => { e.preventDefault(); pitch = Math.max(-0.3, Math.min(1.5, pitch - e.deltaY * 0.001)); }, { passive: false });
 const t0 = performance.now();
-let last = t0;
+let last = t0, time = 0, speed = 1;
+{
+	const el = document.getElementById('speeds');
+	const opts = [['Pause', 0], ['Normal', 1], ['10× faster', 10], ['60× faster', 60]];
+	const draw = () => { el.innerHTML = ''; for (const [l, v] of opts) { const b = document.createElement('button'); b.textContent = l; if (speed === v) b.className = 'on'; b.onclick = () => { speed = v; draw(); }; el.appendChild(b); } };
+	draw();
+}
 const loop = () => {
-	const now = performance.now(), dt = Math.min(0.1, (now - last) / 1000), time = (now - t0) / 1000; last = now;
+	const now = performance.now(), dt = Math.min(0.1, (now - last) / 1000); last = now; time += dt * speed;
 	if (blendT < 1) blendT = Math.min(1, blendT + dt / 0.8);
 	if (dirtyC) { dirtyC = false; buildClouds(); }
 	if (dirtyH) { dirtyH = false; buildHills(); }
