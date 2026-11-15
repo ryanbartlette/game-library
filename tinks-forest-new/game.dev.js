@@ -1168,8 +1168,16 @@ setTimeout(()=>(e.target.textContent = 'Copy values'),1400);
 };
 })();
 const app = document.getElementById('app');
+let SHINE_K = 0.3;
+try{
+const v = parseFloat(localStorage.getItem('tink.shine'));
+if(isFinite(v))SHINE_K = v;
+}catch(e){}
+THREE.ShaderLib.standard.uniforms.uShineK ={value: SHINE_K};
+THREE.ShaderLib.physical.uniforms.uShineK ={value: SHINE_K};
+THREE.ShaderChunk.common += '\n#ifdef STANDARD\nuniform float uShineK;\n#endif\n';
 THREE.ShaderChunk.lights_fragment_end +=
-'\n#ifdef STANDARD\nreflectedLight.directSpecular *= mix(1.0, 0.12, smoothstep(0.45, 0.8, roughnessFactor));\n#endif\n';
+'\n#ifdef STANDARD\nreflectedLight.directSpecular *= mix(1.0, uShineK, smoothstep(0.45, 0.8, roughnessFactor));\n#endif\n';
 const renderer = new THREE.WebGLRenderer({antialias: !LOW,powerPreference: 'high-performance'});
 renderer.setPixelRatio(Math.min(devicePixelRatio,LOW ? 1 : 1.6));
 renderer.setSize(innerWidth,innerHeight);
@@ -1179,6 +1187,39 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.08;
 app.appendChild(renderer.domElement);
 const scene = new THREE.Scene();
+window.__setShine = v =>{
+SHINE_K = v;
+THREE.ShaderLib.standard.uniforms.uShineK.value = v;
+THREE.ShaderLib.physical.uniforms.uShineK.value = v;
+scene.traverse(o =>{
+const ms = o.material ?(Array.isArray(o.material)? o.material :[o.material]):[];
+for(const m of ms){
+const pr = renderer.properties.get(m);
+if(pr && pr.uniforms && pr.uniforms.uShineK)pr.uniforms.uShineK.value = v;
+}
+});
+};
+setTimeout(()=>{
+try{
+const d = document.createElement('div');
+d.style.cssText = 'position:fixed;left:12px;bottom:6px;z-index:60;font:11px Montserrat,sans-serif;color:#fff;background:rgba(20,24,30,.55);padding:4px 8px;border-radius:8px;display:flex;gap:6px;align-items:center';
+d.innerHTML = '<span>Shine</span><input type="range" min="0" max="1" step="0.01" style="width:110px"><b style="width:30px"></b>';
+const r = d.querySelector('input'),
+b = d.querySelector('b');
+r.value = SHINE_K;
+b.textContent =(+SHINE_K).toFixed(2);
+r.oninput =()=>{
+const v = +r.value;
+b.textContent = v.toFixed(2);
+window.__setShine(v);
+try{
+localStorage.setItem('tink.shine',String(v));
+}catch(e){}
+};
+for(const ev of['keydown','keyup','mousedown','pointerdown'])r.addEventListener(ev,e => e.stopPropagation());
+document.body.appendChild(d);
+}catch(e){}
+},4000);
 const FOG = new THREE.Color(0xd2b48a);
 scene.fog = new THREE.FogExp2(FOG,0.017);
 const TUNFOG_C = new THREE.Color(),
@@ -5067,9 +5108,15 @@ if(k)m.map = tex(k,false);
 if(k && /^rock/.test(k))return tintMat(mossify(m),'czbark');
 return tintMat(sway ? windify(m,false,swU): m,'czbark');
 };
+const MOSSU =(window.__mossU = window.__mossU ||{
+uMA:{value: new THREE.Color(0.3,0.42,0.17)},
+uMB:{value: new THREE.Color(0.45,0.56,0.24)},
+uMSnow:{value: 0}
+});
 const mossify = m =>{
 m.customProgramCacheKey =()=> 'czmoss';
 m.onBeforeCompile = sh =>{
+Object.assign(sh.uniforms,MOSSU);
 sh.vertexShader = sh.vertexShader
 .replace('#include <common>','#include <common>\nvarying vec3 vMW;varying vec3 vMP;')
 .replace(
@@ -5082,13 +5129,14 @@ mm=modelMatrix*instanceMatrix;
 vMW=normalize(mat3(mm)*objectNormal);vMP=(mm*vec4(transformed,1.)).xyz;}`
 );
 sh.fragmentShader = sh.fragmentShader
-.replace('#include <common>','#include <common>\nvarying vec3 vMW;varying vec3 vMP;float mh(vec2 p){return fract(sin(dot(p,vec2(41.3,289.1)))*43758.5);}float mn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(mh(i),mh(i+vec2(1,0)),f.x),mix(mh(i+vec2(0,1)),mh(i+vec2(1,1)),f.x),f.y);}')
+.replace('#include <common>','#include <common>\nuniform vec3 uMA,uMB;uniform float uMSnow;varying vec3 vMW;varying vec3 vMP;float mh(vec2 p){return fract(sin(dot(p,vec2(41.3,289.1)))*43758.5);}float mn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(mh(i),mh(i+vec2(1,0)),f.x),mix(mh(i+vec2(0,1)),mh(i+vec2(1,1)),f.x),f.y);}')
 .replace(
 '#include <map_fragment>',
 `#include <map_fragment>
-{float up=normalize(vMW).y;float bl=mn(vMP.xz*3.1)*.6+mn(vMP.xz*9.7+3.)*.4;float mo=smoothstep(.38,.72,up+(bl-.5)*.45);
-float lu=dot(diffuseColor.rgb,vec3(.3,.59,.11));vec3 mc=mix(vec3(.30,.42,.17),vec3(.45,.56,.24),bl)*(.75+.5*lu);
-diffuseColor.rgb=mix(diffuseColor.rgb,mc,mo*.85);}`
+{float up=normalize(vMW).y;float bl=mn(vMP.xz*3.1)*.6+mn(vMP.xz*9.7+3.)*.4;float mo=smoothstep(.38-.12*uMSnow,.72-.12*uMSnow,up+(bl-.5)*.45);
+float lu=dot(diffuseColor.rgb,vec3(.3,.59,.11));vec3 mc=mix(uMA,uMB,bl)*(.75+.5*lu);
+mc=mix(mc,vec3(.9,.93,.98)*(.9+.1*bl),uMSnow);/* (Ryan) the moss goes brown in autumn and lies under snow in winter */
+diffuseColor.rgb=mix(diffuseColor.rgb,mc,mo*mix(.85,.95,uMSnow));}`
 );
 };
 return m;
@@ -5912,6 +5960,17 @@ if(cur.t2 && cur.bush){
 const hc =(window.__czHillC = window.__czHillC || new THREE.Color());
 const wk = sea === 'winter' ? p : prevSea === 'winter' ? 1 - p : 0;
 hc.copy(cur.t2).lerp(cur.t1 || cur.t2,sea === 'spring' ? 0.25 * p : 0).lerp(cur.bush,wk).multiplyScalar(0.72);
+}
+{
+const MU = window.__mossU;
+if(MU){
+const MP ={spring:[0x4f6b2a,0x76913c,0],summer:[0x4d6b2b,0x738f3d,0],autumn:[0x6b5530,0x8a6e3e,0],winter:[0x4d6b2b,0x738f3d,1]};
+const A = MP[sea],
+B = MP[prevSea]|| A;
+MU.uMA.value.setHex(B[0]).lerp(new THREE.Color(A[0]),p);
+MU.uMB.value.setHex(B[1]).lerp(new THREE.Color(A[1]),p);
+MU.uMSnow.value = B[2]+(A[2]- B[2])* p;
+}
 }
 grassU.uFSea.value = SI[sea];
 grassU.uFPrev.value = SI[prevSea]?? SI[sea];
@@ -15076,7 +15135,7 @@ if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE
 const BUILD = 514;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 72;
+const LOOKV = 73;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
