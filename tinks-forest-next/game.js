@@ -15362,10 +15362,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 551;
+const BUILD = 552;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 119;
+const LOOKV = 120;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -19716,6 +19716,17 @@ P.vel.y -= g * dt;
 if(P.floatDown){
 P.floatT =(P.floatT || 0)+ dt;
 P.vel.y = Math.max(P.vel.y,-3.4);
+if(P.floatAim){
+const dx = P.floatAim.x - P.pos.x,
+dz = P.floatAim.z - P.pos.z,
+dd = Math.hypot(dx,dz);
+const tleft = Math.max(0.6,(P.pos.y - heightAt(P.pos.x,P.pos.z))/ 3.2);
+const vs = Math.min(2.4,dd / tleft);
+if(dd > 0.05){
+P.vel.x = damp(P.vel.x,(dx / dd)* vs,1.6,dt);
+P.vel.z = damp(P.vel.z,(dz / dd)* vs,1.6,dt);
+}
+}
 const hs = Math.hypot(P.vel.x,P.vel.z);
 if(P.floatT > 0.7 && hs > 2.4){
 P.vel.x *= 2.4 / hs;
@@ -21695,6 +21706,50 @@ P.pos.z += fz *(S.r || 0.6);
 P.pos.y += 0.15;
 P.mode = 'air';
 P.vel.set(fx * 1.1,1.2,fz * 1.1);
+P.floatAim = null;
+try{
+const mc = grassU.uMask.value.image,
+md = mc.getContext('2d').getImageData(0,0,mc.width,mc.height).data;
+const at =(x,z)=>{
+const px = Math.floor(((x + WORLD / 2)/ WORLD)* mc.width),
+pz = Math.floor(((z + WORLD / 2)/ WORLD)* mc.height);
+if(px < 0 || pz < 0 || px >= mc.width || pz >= mc.height)return 255;
+return md[(pz * mc.width + px)* 4];
+};
+const lans =[];
+scene.traverse(o =>{
+if(o.userData && o.userData.lantern)lans.push(o.getWorldPosition(new V3()));
+});
+let best = null,
+bs = 1e9;
+for(let r = 3.5;r <= 11;r += 0.5){
+const cx = tp.x + fx * r,
+cz = tp.z + fz * r;
+let sx = 0,
+sz = 0,
+n = 0;
+for(let w = -3;w <= 3;w += 0.25){
+const x = cx - fz * w,
+z = cz + fx * w;
+if(at(x,z)< 50){
+sx += x;
+sz += z;
+n++;
+}
+}
+if(n < 3)continue;
+const ax = sx / n,
+az = sz / n;
+let ln = 99;
+for(const L of lans)ln = Math.min(ln,Math.hypot(L.x - ax,L.z - az));
+const sc = Math.abs(r - 7)+(ln < 2 ?(2 - ln)* 6 : 0);
+if(sc < bs){
+bs = sc;
+best = new V3(ax,0,az);
+}
+}
+P.floatAim = best;
+}catch(e){}
 P.floatDown = true;
 P.floatT = 0;
 P.peakY = P.pos.y;
@@ -31284,6 +31339,7 @@ P.pos.z + Math.sin(a)* r
 }
 if(P.floatDown && P.mode !== 'air' &&(P.floatT || 0)> 0.3){
 P.floatDown = false;
+P.floatAim = null;
 try{
 const QA = window.__QAPI;
 if(QA && !QA.Q.p.leapt){
