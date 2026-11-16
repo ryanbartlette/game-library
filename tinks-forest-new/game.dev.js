@@ -15517,10 +15517,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 540;
+const BUILD = 541;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 108;
+const LOOKV = 109;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -30754,6 +30754,7 @@ if(!AUD.ctx || !AUD.on)return;
 const ctx = AUD.ctx;
 const MW = L.mw ||(L.mw ={}),
 MGT = L.mgt ||(L.mgt ={});
+const SCQ =()=> !!(L.scene && L.scene.cur &&['leap','farewell','credits'].includes(L.scene.cur.k));
 MW.melody = 0;
 let win = null,
 wp = 0;
@@ -30764,7 +30765,8 @@ win = k;
 }
 for(const k of['farm','house','scene','magic','season','melody']){
 const on = k === win ? 1 : 0;
-MGT[k]=(MGT[k]?? on)+(on -(MGT[k]?? on))* Math.min(1,dt *(on ? 2.5 : 0.9));
+const quick = win === 'farm' ||(win === 'scene' && SCQ());
+MGT[k]=(MGT[k]?? on)+(on -(MGT[k]?? on))* Math.min(1,dt *(quick ?(on ? 2.5 : 0.9): on ? 0.45 : 0.32));
 }
 const G = k => MGT[k]?? 0;
 L.musicWinner = win;
