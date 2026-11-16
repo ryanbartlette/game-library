@@ -15517,10 +15517,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 554;
+const BUILD = 555;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 122;
+const LOOKV = 123;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -48496,6 +48496,7 @@ return[t,'',null,id];
 LAST =[['You found them all.',''],...gl,...LAST_TAIL];
 }
 corny();
+S.starLandAt = 0;
 const F =(S.fin ={t: 0,G,cam: null,lines: -1,solid: 0.5});
 Qs().p.fin = 1;
 saveQ();
@@ -49100,7 +49101,29 @@ try{
 sfx('sparkle',{vol: 0.25,rate: 1 + k * 0.5});
 }catch(e){}
 }
-if(k >= 1)shoot.visible = false;
+if(k >= 1){
+shoot.visible = false;
+if(!SH.landed){
+SH.landed = 1;
+try{
+const G2 = geom();
+if(G2){
+const dir = b.clone().sub(camera.position).normalize();
+const at = camera.position.clone().addScaledVector(dir,165).sub(G2.S0);
+const qq = Qs();
+if(qq.p){
+qq.p.starOff =[+at.x.toFixed(2),+at.y.toFixed(2),+at.z.toFixed(2)];
+saveQ();
+}
+}
+}catch(e){}
+S.starLandAt = performance.now();
+try{
+sfx('shimmer',{vol: 0.45,rate: 1.35});
+sfx('sparkle',{vol: 0.35,rate: 1.5});
+}catch(e){}
+}
+}
 }
 if(F.sunBloom){
 F.sunBloom = 0;
@@ -49513,16 +49536,21 @@ if(q.p && q.p.toyGot && !S.homeT && window.__worldBuilt && window.__YARNS && win
 S.homeToy();
 }
 if(S.starOn){
-const k = NIGHTISH()? 1 : weather === 'dusk' ? 0.5 : 0;
+const lsec = S.starLandAt ?(performance.now()- S.starLandAt)/ 1000 : 1e9;
+const k =(NIGHTISH()? 1 : weather === 'dusk' ? 0.5 : 0)*(S.fin && !S.starLandAt ? 0 : smooth(0,2.4,lsec));
 star.visible = k > 0.01;
 if(star.visible){
 const G = geom();
 if(G){
+const so = Qs().p && Qs().p.starOff;
+if(so)star.position.copy(G.S0).add(new V3(so[0],so[1],so[2]));
+else
 star.position
 .copy(G.S0)
 .addScaledVector(G.face,150)
 .add(new V3(0,70,0));
 star.scale.setScalar(7 + 0.6 * Math.sin(time * 1.3));
+if(lsec < 8)star.scale.multiplyScalar(1 + Math.exp(-lsec / 1.4)*(0.9 + 0.5 * Math.sin(lsec * 17)));
 }
 star.material.opacity = k *(0.85 + 0.15 * Math.sin(time * 2.1));
 const bo = window.__jackDuskMsg ? 1 - smooth(6,14,(performance.now()- window.__jackDuskMsg)/ 1000): 0;
