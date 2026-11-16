@@ -15434,10 +15434,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 531;
+const BUILD = 532;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 99;
+const LOOKV = 100;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -36840,19 +36840,32 @@ window.__digT = performance.now()+ 3600;
 const F =(window.__FCS ={lock: true,dir: null,cam: null,entry: true});
 F.cam = c =>{
 const k = 1 / ul;
-const pos = new V3(P.pos.x - ux * k * 1.6,P.pos.y + 0.45,P.pos.z - uz * k * 1.6);
-const look = new V3(EN.top.x + ux * k * 1.2,EN.top.y + 0.9,EN.top.z + uz * k * 1.2);
+const T0 = window.__CAMST && window.__CAMST.T;
+const dist =(T0 ? T0.camDist : 2.4)* 0.7,
+ch =(T0 ? T0.camHeight : 0.5)- 0.24,
+pit = 0.1;
+const bx = -ux * k,
+bz = -uz * k;
+const tgt = new V3(P.pos.x,(P.visY ?? P.pos.y)+ ch,P.pos.z);
+const crouchP = tgt.clone().add(new V3(bx * Math.cos(pit)* dist,Math.sin(pit)* dist,bz * Math.cos(pit)* dist));
+const crouchL = tgt.clone();
+const upP = new V3(P.pos.x - ux * k * 1.6,P.pos.y + 0.45,P.pos.z - uz * k * 1.6);
+const upL = new V3(EN.top.x + ux * k * 1.2,EN.top.y + 0.9,EN.top.z + uz * k * 1.2);
 if(!EN.cp){
 EN.cp = c.position.clone();
 EN.cl = c.position.clone().add(c.getWorldDirection(new V3()).multiplyScalar(4));
 EN.p0 = EN.cp.clone();
 EN.l0 = EN.cl.clone();
 }
-const gk = smooth(0.4,3.2,EN.t);
-EN.cp.lerpVectors(EN.p0,pos,gk);
-EN.cl.lerpVectors(EN.l0,look,gk);
+const a1 = smooth(0,1.2,EN.t),
+a2 = smooth(1.4,3.2,EN.t)*(1 - smooth(3.8,5.0,EN.t));
+const pA = EN.p0.clone().lerp(crouchP,a1),
+lA = EN.l0.clone().lerp(crouchL,a1);
+EN.cp.copy(pA.lerp(upP,a2));
+EN.cl.copy(lA.lerp(upL,a2));
 c.position.copy(EN.cp);
 c.lookAt(EN.cl);
+EN.endYaw = Math.atan2(bx,bz);
 };
 window.__camOverride = c =>{
 if(F.cam)F.cam(c);
@@ -36870,11 +36883,12 @@ EN.crawl = true;
 window.__farmLookK = false;
 window.__slowK = 1;
 if(window.__FCS && window.__FCS.entry){
-window.__camEase ={p: camera.position.clone(),q: camera.quaternion.clone(),t: 0,dur: 2};
+window.__camEase ={p: camera.position.clone(),q: camera.quaternion.clone(),t: 0,dur: 1.2};
 window.__FCS = null;
 window.__camOverride = null;
-cam.yaw = Math.atan2(-ux,-uz);
-cam.pitch = 0.28;
+cam.yaw = EN.endYaw ?? Math.atan2(-ux,-uz);
+cam.pitch = 0.1;
+window.__camKeepOnce = true;
 }
 }
 }
@@ -37107,8 +37121,8 @@ const fw = new V3(Math.sin(P.yaw),0,Math.cos(P.yaw)),
 sd = new V3(fw.z,0,-fw.x);
 const pos = P.pos
 .clone()
-.addScaledVector(fw,-1.55)
-.add(new V3(0,1.05,0));
+.addScaledVector(fw,-1.35)
+.add(new V3(0,0.62,0));
 const look = P.pos
 .clone()
 .addScaledVector(fw,2.2)
@@ -52025,11 +52039,13 @@ try{
 if(id === 'house'){
 if(si === 0 || si === 1){
 const p = A.place('house');
-if(
-P.pos.z > -11 &&
-P.pos.x > -10
-)
-D.via = new V3(3.1,0,-13.8);
+{
+const V0 = new V3(3.1,0,-13.8);
+if(Math.hypot(P.pos.x - V0.x,P.pos.z - V0.z)< 5)D.viaDone = id + si;
+const gd = p ? Math.hypot(P.pos.x - p.x,P.pos.z - p.z): 0,
+vd = p ? Math.hypot(V0.x - p.x,V0.z - p.z): 0;
+if(P.pos.z > -11 && P.pos.x > -10 && D.viaDone !== id + si && gd > vd + 3)D.via = V0;
+}
 return p ? new V3(p.x,0,p.z): null;
 }
 if(si === 2){
