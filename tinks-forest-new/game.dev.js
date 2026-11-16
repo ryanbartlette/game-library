@@ -45342,15 +45342,19 @@ const ctr = o =>{
 const w = new THREE.Group();
 w.add(o);
 w.updateMatrixWorld(true);
-const bb = new THREE.Box3().setFromObject(o);
+const bb = new THREE.Box3();
+o.traverse(q =>{
+if(q.isMesh && q.visible && !/shadow/i.test((q.material && q.material.name)|| ''))bb.expandByObject(q,true);
+});
+if(bb.isEmpty())bb.setFromObject(o);
 const c = bb.getCenter(new V3());
 o.position.sub(new V3(c.x,bb.min.y,c.z));
-return[w,bb.max.x - bb.min.x];
+return[w,Math.min(bb.max.x - bb.min.x,bb.max.z - bb.min.z,0.6)];
 };
 const[A,wa]= ctr(a),
 [B,wb]= ctr(b);
-A.position.set(-wa * 0.42,0,0);
-B.position.set(wb * 0.42,0,0.01);
+A.position.set(-wa * 0.5,0,0);
+B.position.set(wb * 0.5,0,0.01);
 B.rotation.y = -0.35;
 g.add(A,B);
 return g;
@@ -45527,6 +45531,18 @@ rock.traverse(o =>{
 if(o.isMesh)o.material = tintMat(o.material,'shrinerock');
 });
 G.add(rock);
+try{
+G.updateMatrixWorld(true);
+const sb = new THREE.Box3().setFromObject(rock);
+const sc = sb.getCenter(new V3());
+const sr = Math.max(0.3,Math.min(sb.max.x - sb.min.x,sb.max.z - sb.min.z)* 0.42);
+const gy0 = groundAt(sc.x,sc.z,sb.max.y);
+const sf ={t: 'trunk',x: sc.x,z: sc.z,r: sr,tree:{x: sc.x,z: sc.z,r: sr,g: gy0,gl: gy0,h: sb.max.y - gy0,branches:[],climbTop: -1e9}};
+addSurf(sf,sc.x - 2,sc.z - 2,sc.x + 2,sc.z + 2);
+J.shrineSurf = sf;
+}catch(e){
+console.warn('shrine solid',e);
+}
 G.updateMatrixWorld(true);
 const tris =[];
 const A = new V3(),
@@ -45966,12 +45982,13 @@ gMean(G)+
 ? 'Drag to turn it around &middot; ' +(opt.i + 1)+ ' of ' + opt.n
 : opt.note || 'Drag to turn it around')+
 '</div>' +
-(VIEW && opt.n > 1 ? '<button id="gprev">&lsaquo;</button> ' : '')+
+'<div style="display:flex;align-items:center;justify-content:center;gap:12px">' +
+(VIEW && opt.n > 1 ? '<button id="gprev">&lsaquo;</button>' : '')+
 '<button id="gok">' +
 (opt.btn ||(VIEW ? 'Close' : 'Carry it'))+
 '</button>' +
-(VIEW && opt.n > 1 ? ' <button id="gnext">&rsaquo;</button>' : '')+
-'</div>';
+(VIEW && opt.n > 1 ? '<button id="gnext">&rsaquo;</button>' : '')+
+'</div></div>';
 document.body.appendChild(ov);
 requestAnimationFrame(()=>(ov.style.opacity = 1));
 const box = ov.querySelector('#gsc');
@@ -47913,6 +47930,42 @@ fog: false
 );
 starAura.visible = false;
 scene.add(starAura);
+const rayTex =(()=>{
+const N = 512,
+cv = document.createElement('canvas');
+cv.width = cv.height = N;
+const x = cv.getContext('2d');
+x.translate(N / 2,N / 2);
+x.globalCompositeOperation = 'lighter';
+let sd = 7;
+const rr =()=>((sd =(sd * 16807)% 2147483647)/ 2147483647);
+const ray =(a,len,w,al)=>{
+x.save();
+x.rotate(a);
+const g = x.createLinearGradient(0,0,len,0);
+g.addColorStop(0,'rgba(200,225,255,' + al + ')');
+g.addColorStop(0.25,'rgba(110,160,255,' + al * 0.6 + ')');
+g.addColorStop(1,'rgba(60,100,255,0)');
+x.fillStyle = g;
+x.beginPath();
+x.moveTo(0,-w);
+x.lineTo(len,0);
+x.lineTo(0,w);
+x.closePath();
+x.fill();
+x.restore();
+};
+for(let i = 0;i < 6;i++)ray((i / 6)* Math.PI * 2 + 0.26,N * 0.48,5,0.95);
+for(let i = 0;i < 40;i++)ray(rr()* Math.PI * 2,N *(0.18 + rr()* 0.3),1 + rr()* 2.2,0.25 + rr()* 0.35);
+const t = new THREE.CanvasTexture(cv);
+t.colorSpace = THREE.SRGBColorSpace;
+return t;
+})();
+const starRays = new THREE.Sprite(
+new THREE.SpriteMaterial({map: rayTex,transparent: true,depthWrite: false,blending: THREE.AdditiveBlending,opacity: 0,fog: false})
+);
+starRays.visible = false;
+scene.add(starRays);
 const geom =()=>{
 const sh = J.shelf;
 if(!sh)return null;
@@ -49103,7 +49156,6 @@ roll: 0,
 portable: true,
 id: 'corny',
 name: 'Corny',
-label: "Pick up Jack's favorite toys",
 carry:{f: 0.1,u: -0.075,yaw: Math.PI / 2,ms: -0.025}
 };
 window.__YARNS.push(Y);
@@ -49130,7 +49182,6 @@ roll: 0,
 portable: true,
 id: 'chickum',
 name: 'Chickum',
-label: "Pick up Jack's favorite toys",
 carry:{f: 0.1,u: -0.06,yaw: Math.PI / 2,ms: 0.035}
 };
 window.__YARNS.push(YC);
@@ -49227,6 +49278,7 @@ Math.hypot(P.pos.x - S.toy.position.x,P.pos.z - S.toy.position.z)< 0.8
 window.__pickNear = nearC
 ?{
 name: 'Corny',
+label: "Pick up Jack's favorite toys",
 go:()=>{
 window.__cornyPick = true;
 }
@@ -49291,7 +49343,14 @@ starAura.scale.setScalar(star.scale.x *(4.2 + 0.4 * Math.sin(time * 0.9)));
 starAura.material.opacity = k *(0.75 + 0.25 * bo)*(0.85 + 0.15 * Math.sin(time * 1.1));
 }
 starAura.visible = star.visible;
-}else starAura.visible = false;
+starRays.visible = star.visible;
+if(starRays.visible){
+starRays.position.copy(star.position);
+starRays.scale.setScalar(star.scale.x *(5.5 + 0.3 * Math.sin(time * 0.7)));
+starRays.material.rotation = time * 0.02;
+starRays.material.opacity = starAura.material.opacity * 0.9;
+}
+}else starAura.visible = starRays.visible = false;
 pT -= dt;
 if(J.viewP && pT <= 0){
 pT = 0.25;
@@ -54796,9 +54855,13 @@ if(window.__worldBuilt && H.paintBed())clearInterval(iv);
 },1000);
 }
 {
-const sf ={t: 'disk',x: c.x,z: c.z,r: 0.5,top: c.y + bedY};
+g.updateMatrixWorld(true);
+const nb = new THREE.Box3().setFromObject(g);
+const RN = Math.max(0.55,Math.min(1.4,Math.max(nb.max.x - nb.min.x,nb.max.z - nb.min.z)* 0.5));
+H.nestR = RN;
+const sf ={t: 'ell',x: c.x,z: c.z,r: RN,y: c.y - 0.02,ry: bedY + 0.02};
 sf.own = g;
-addSurf(sf,c.x - 0.6,c.z - 0.6,c.x + 0.6,c.z + 0.6);
+addSurf(sf,c.x - RN - 0.1,c.z - RN - 0.1,c.x + RN + 0.1,c.z + RN + 0.1);
 H.sf = sf;
 }
 g.userData.onEdit =()=>{
@@ -54814,8 +54877,10 @@ if(H.sf)H.sf.dead = true;
 const r = 0.5 * k;
 H.bedR = r;
 H.paintBed && H.paintBed();
-const sf ={t: 'disk',x: p.x,z: p.z,r,top: p.y,own: g};
-addSurf(sf,p.x - r - 0.1,p.z - r - 0.1,p.x + r + 0.1,p.z + r + 0.1);
+const RN =(H.nestR || 0.9)* k;
+const gy0 = groundAt(p.x,p.z,p.y + 0.5);
+const sf ={t: 'ell',x: p.x,z: p.z,r: RN,y: gy0 - 0.02,ry: Math.max(0.05,p.y - gy0 + 0.02),own: g};
+addSurf(sf,p.x - RN - 0.1,p.z - RN - 0.1,p.x + RN + 0.1,p.z + RN + 0.1);
 H.sf = sf;
 };
 {
@@ -55023,7 +55088,7 @@ Y.heldKind = cat.kind;
 Y.rest = false;
 Y.v.set(0,0,0);
 window.__carryAdd && window.__carryAdd(Y.m,{...Y.carry,who: 'p'});
-if(/^(corny|chickum)$/.test(Y.id || ''))
+if(quiet && /^(corny|chickum)$/.test(Y.id || ''))
 for(const Z of window.__YARNS ||[])
 if(Z !== Y && /^(corny|chickum)$/.test(Z.id || '')&& !Z.held && Z.m.position.distanceTo(Y.m.position)< 1.4){
 Z.held = 'p';
@@ -55248,7 +55313,7 @@ document.body.classList.contains('cut')||
 const h = holder();
 hintT = Math.max(0,hintT - dt);
 if(busy)say(null);
-else if(h && hintT > 0)say(K + 'Drop ' +(/^(corny|chickum)$/.test(h.id || '')? "Jack's favorite toys" : h.name));
+else if(h && hintT > 0)say(K + 'Drop ' +((window.__YARNS ||[]).filter(Z => Z.held === 'p' && /^(corny|chickum)$/.test(Z.id || '')).length > 1 ? "Jack's favorite toys" : h.name));
 else if(!h){
 const SN = window.__pickNear;
 const n = SN || T.near();
