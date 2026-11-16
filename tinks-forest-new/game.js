@@ -1087,7 +1087,7 @@ if(pr && pr.uniforms && pr.uniforms.uShineK)pr.uniforms.uShineK.value = v;
 };
 const FOG = new THREE.Color(0xd2b48a);
 scene.fog = new THREE.FogExp2(FOG,0.017);
-const TUNDARK_C = new THREE.Color(0.012,0.014,0.045);
+const TUNDARK_C = new THREE.Color(0.022,0.027,0.065);
 const TUNFOG_C = new THREE.Color(),
 TUNFOG_M = new THREE.Color(0x6f6a9a);
 const camera = new THREE.PerspectiveCamera(T.fov,innerWidth / innerHeight,0.03,900);
@@ -15237,10 +15237,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 522;
+const BUILD = 524;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 90;
+const LOOKV = 92;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -17410,7 +17410,7 @@ fade = 0.3;
 if(P.scared && P.mode === 'ground'){
 want = act('crawl');
 ts = 0;
-fade = 0.25;
+fade = window.__farmLookK ? 1.3 : 0.25;
 c.life = '';
 }else if(P.pounceCharge >= 0 ||(AP.ready || 0)> 0.3 || P.crouchOn){
 const ws = act('crouchWaitStart'),
@@ -25303,13 +25303,13 @@ scene.fog.density = W.fogD *(inRoom(P.pos)? 0.15 : 1)*(1 - 0.65 * hi);
 {
 const td = window.__tunDark || 0;
 if(td > 0.002){
-scene.fog.density +=(0.42 - scene.fog.density)* td;
+scene.fog.density +=(0.2 - scene.fog.density)* td;
 scene.fog.color.lerp(TUNDARK_C,td);
 }
 }
 {
 const tf = window.__tunFog;
-if(tf && tf.k > 0.002){
+if(tf && tf.k > 0.002 &&(window.__tunDark || 0)< 0.3){
 if(time - tf.t > 0.4)tf.k = Math.max(0,tf.k - dt * 0.6);
 const dd = 2.1 / Math.max(3,tf.D);
 scene.fog.density +=(dd - scene.fog.density)* tf.k;
@@ -25321,6 +25321,11 @@ TUNFOG_C.copy(scene.fog.color)
 );
 }
 }
+}
+if(scene.fog &&(window.__tunDark || 0)> 0.002){
+const td = window.__tunDark;
+scene.fog.color.lerp(TUNDARK_C,td);
+scene.fog.density = Math.max(scene.fog.density,0.2 * td);
 }
 {
 const ins = inRoom(P.pos);
@@ -36213,9 +36218,12 @@ const look = new V3(EN.top.x + ux * k * 1.2,EN.top.y + 0.9,EN.top.z + uz * k * 1
 if(!EN.cp){
 EN.cp = c.position.clone();
 EN.cl = c.position.clone().add(c.getWorldDirection(new V3()).multiplyScalar(4));
+EN.p0 = EN.cp.clone();
+EN.l0 = EN.cl.clone();
 }
-EN.cp.lerp(pos,1 - Math.exp(-dt * 1.6));
-EN.cl.lerp(look,1 - Math.exp(-dt * 1.9));
+const gk = smooth(0,1.6,EN.t);
+EN.cp.lerpVectors(EN.p0,pos,gk);
+EN.cl.lerpVectors(EN.l0,look,gk);
 c.position.copy(EN.cp);
 c.lookAt(EN.cl);
 };
@@ -36226,11 +36234,16 @@ if(F.cam)F.cam(c);
 if(EN.st === 'look'){
 EN.t += dt;
 P.vel.x = P.vel.z = 0;
+window.__farmLookK = true;
+window.__slowK = lerp(1,0.45,smooth(0,0.8,EN.t))+(1 - 0.45)* smooth(2.7,3.4,EN.t)* smooth(0,0.8,EN.t);
 P.yaw += angDiff(P.yaw,Math.atan2(ux,uz))* Math.min(1,dt * 3);
 if(EN.t > 3.4){
 EN.st = 'idle';
 EN.crawl = true;
+window.__farmLookK = false;
+window.__slowK = 1;
 if(window.__FCS && window.__FCS.entry){
+window.__camEase ={p: camera.position.clone(),q: camera.quaternion.clone(),t: 0,dur: 2};
 window.__FCS = null;
 window.__camOverride = null;
 cam.yaw = Math.atan2(-ux,-uz);
@@ -36548,7 +36561,7 @@ M.faceL.intensity =
 smooth(0,0.12,C.t)*
 (0.85 + 0.15 * Math.sin(C.t * 31));
 }
-if(!C.meow && C.t > 0.02){
+if(!C.meow && C.t > 0.3){
 C.meow = true;
 try{
 window.__catVoice && window.__catVoice('meow');
@@ -41136,9 +41149,9 @@ T3.prog = T3.gone
 const pr = T3.gone ? 0 : T3.prog || 0;
 const inside = smooth(0,0.07,pr)*(1 - smooth(0.86,1,pr));
 const endK = T3.hes || T3.wonder || T3.cs ? 1 : smooth(0.8,0.97,pr);
-const darkK = T3.gone ? 0 : smooth(0.06,0.3,pr)*(1 - endK);
+const darkK = T3.gone ? 0 : smooth(0.06,0.3,pr)*(1 - endK)*(1 - 0.35 * smooth(0.45,0.8,pr));
 window.__tunDark = damp(window.__tunDark || 0,darkK,darkK >(window.__tunDark || 0)? 0.6 : 1.2,dt);
-window.__tunExp = T3.gone ? 1 : damp(window.__tunExp ?? 1,1 - 0.3 * inside *(1 - endK),0.8,dt);
+window.__tunExp = T3.gone ? 1 : damp(window.__tunExp ?? 1,1 - 0.5 * inside *(1 - endK),0.8,dt);
 }
 {
 const pr = T3.gone ? 0 : Math.max(T3.prog || 0,T3.hes ? 0.15 : 0);
@@ -41330,7 +41343,7 @@ b.m.visible = true;
 if(b.sf)b.sf.dead = false;
 }
 };
-if(window.__INTROWORLD && !T3.linked && grassU.uMask.value && grassU.uMask.value.image && grassU.uMask.value.image.getContext){
+if(!T3.linked && grassU.uMask.value && grassU.uMask.value.image && grassU.uMask.value.image.getContext){
 T3.linked = true;
 try{
 const mc = grassU.uMask.value.image,
@@ -41728,14 +41741,14 @@ for(const[vi,m]of czArch){
 const g = czV[vi].g,
 pa = g.attributes.position;
 const rings = Math.floor(pa.count / RS);
-for(let n = 0;n < 46;n++){
+for(let n = 0;n < 90;n++){
 const j = Math.floor(Math.pow(mr(),0.85)*(rings - 2)),
 i = Math.floor(mr()*(RS - 1));
 v3.fromBufferAttribute(pa,j * RS + i).applyMatrix4(m);
 const c = PAL[(mr()* PAL.length)| 0];
 P0.push(v3.x,v3.y,v3.z);
 C0.push(c[0],c[1],c[2]);
-A0.push(kOf(v3.x,v3.z),mr(),0.5 + mr()* 1.1,0);
+A0.push(kOf(v3.x,v3.z),mr(),0.35 + Math.pow(mr(),2.2)* 1.2,0);
 }
 if(mr()< 0.6){
 const c = PAL[(mr()* PAL.length)| 0];
@@ -41774,7 +41787,24 @@ C0.push(c[0],c[1],c[2]);
 A0.push(i / Math.max(1,dense.length - 1),mr(),0.45 + mr()* 0.5,1);
 }
 }
-const U ={uT:{value: 0},uK:{value: 0},uPr:{value: 0},uS:{value: innerHeight}};
+for(let i = 0;i < dense.length;i += 1){
+const q = dense[i];
+for(let n = 0;n < 7;n++){
+const a = mr()* 6.283,
+r = 0.6 + mr()* 3.2;
+const x = q.x + Math.cos(a)* r,
+z = q.z + Math.sin(a)* r;
+let y = q.y;
+try{
+y = heightAt(q.x,q.z);
+}catch(e){}
+const c = PAL[(mr()* PAL.length)| 0];
+P0.push(x,y + 0.2 + mr()* 3.6,z);
+C0.push(c[0]* 0.6 + 0.4,c[1]* 0.6 + 0.4,c[2]* 0.6 + 0.4);
+A0.push(i / Math.max(1,dense.length - 1),mr(),0.12 + mr()* 0.22,2);
+}
+}
+const U ={uT:{value: 0},uK:{value: 0},uPr:{value: 0},uS:{value: innerHeight},uW:{value: 0}};
 const g = new THREE.BufferGeometry();
 g.setAttribute('position',new THREE.Float32BufferAttribute(P0,3));
 g.setAttribute('color',new THREE.Float32BufferAttribute(C0,3));
@@ -41786,16 +41816,16 @@ depthWrite: false,
 blending: THREE.AdditiveBlending,
 vertexColors: true,
 toneMapped: false,
-vertexShader: `attribute vec4 aA;uniform float uT,uK,uPr,uS;varying vec3 vC;varying float vA;
+vertexShader: `attribute vec4 aA;uniform float uT,uK,uPr,uS,uW;varying vec3 vC;varying float vA;
 void main(){vec4 mv=modelViewMatrix*vec4(position,1.);mv.xyz+=normalize(-mv.xyz)*.08;/* (sat just off the bark, so the trunk never hides half of each light) */gl_Position=projectionMatrix*mv;
 /* the whole tunnel breathes together; each light glints a little on its own */
 float br=.72+.28*sin(uT*1.9);/* FOREST 89 (Ryan): breathing, but never going dark */float tw=.75+.25*sin(uT*3.1+aA.y*40.);
 /* lights ahead of her wake first as she nears them; the whole tunnel is alight near the end */
-float near=smoothstep(uPr+.6,uPr+.05,aA.x);float lit=uK*mix(.4,1.,max(near,smoothstep(.3,.6,uPr)));
-float lane=aA.w>.5?pow(.5+.5*sin(aA.x*90.-uT*2.4),3.)*.7+.45:1.;
+/* FOREST 90 (Ryan): they wake one by one, each in its own moment, the nearest a little sooner, until all are awake and breathing */float near=smoothstep(uPr+.5,uPr,aA.x);float th=aA.y*.92;float wk=smoothstep(th,th+.1,uW*1.08+near*.12);float lit=uK*wk;
+float lane=aA.w>1.5?.5+.5*sin(uT*(2.+aA.y*3.)+aA.y*60.):aA.w>.5?pow(.5+.5*sin(aA.x*90.-uT*2.4),3.)*.7+.45:1.;
 vA=lit*br*tw*lane;vC=color;
-gl_PointSize=clamp(aA.z*.2*uS/-mv.z,2.,48.)*(.75+.35*br);}`,
-fragmentShader: `varying vec3 vC;varying float vA;void main(){vec2 d=gl_PointCoord-.5;float r=length(d);if(r>.5)discard;float a=smoothstep(.5,.0,r);a=a*a*(.6+.4*smoothstep(.18,.0,r));gl_FragColor=vec4(mix(vC,vec3(1.),smoothstep(.12,.0,r)*.7)*a*vA*2.6,a*vA);}`
+gl_PointSize=clamp(aA.z*.16*uS/-mv.z,1.5,34.)*(.8+.3*br);}`,
+fragmentShader: `varying vec3 vC;varying float vA;void main(){vec2 d=gl_PointCoord-.5;float r=length(d);if(r>.5)discard;float a=smoothstep(.5,.0,r);a=a*a*(.6+.4*smoothstep(.18,.0,r));gl_FragColor=vec4(mix(vC,vec3(1.),smoothstep(.12,.0,r)*.55)*a*vA*1.5,a*vA);}`
 });
 const pts = new THREE.Points(g,mat);
 pts.frustumCulled = false;
@@ -41815,7 +41845,16 @@ grp.add(lines);
 }
 const lt = new THREE.PointLight(0x8f86ff,0,7,1.4);
 scene.add(lt);
-return{U,pts,lines,k: 0,lt};
+const veil = new THREE.Mesh(
+new THREE.SphereGeometry(12,24,16),
+new THREE.MeshBasicMaterial({color: 0x070a18,side: THREE.BackSide,transparent: true,opacity: 0,depthWrite: false,fog: false,toneMapped: false})
+);
+veil.frustumCulled = false;
+veil.renderOrder = 4;
+veil.visible = false;
+veil.userData.noEdit = true;
+scene.add(veil);
+return{U,pts,lines,k: 0,lt,veil};
 };
 BTUN.build =()=>{
 const T3 = window.__TRAIL;
@@ -42814,21 +42853,29 @@ if(o.count !== n)o.count = n;
 if(BTUN.magic){
 const MG = BTUN.magic;
 const pr = T3.gone ? 0 : T3.prog || 0;
-const want = T3.gone ? 0 : smooth(0.14,0.24,pr)*(0.55 + 0.45 * smooth(0.2,0.55,pr));
+const want = T3.gone ? 0 : smooth(0.14,0.2,pr);
 if(pr > 0.24)MG.on = true;
-const want2 = MG.on && !T3.gone ? Math.max(want,0.55 + 0.45 * smooth(0.2,0.55,pr)): want;
+const want2 = MG.on && !T3.gone ? 1 : want;
 MG.k +=(want2 - MG.k)* Math.min(1,dt *(want2 > MG.k ? 0.9 : 1.5));
 MG.U.uT.value = time;
 MG.U.uK.value = MG.k;
 MG.U.uPr.value = pr;
+MG.w = T3.gone ? 0 : MG.on || pr > 0.14 ? Math.min(1,(MG.w || 0)+ dt / 20): 0;
+MG.U.uW.value = MG.w;
 MG.U.uS.value = innerHeight;
 MG.pts.visible = MG.k > 0.003;
+{
+const dk = window.__tunDark || 0;
+MG.veil.position.copy(camera.position);
+MG.veil.material.opacity = Math.min(0.9,dk * 0.95);
+MG.veil.visible = dk > 0.004;
+}
 MG.lt.position.set(P.pos.x,P.pos.y + 1.6,P.pos.z);
-MG.lt.intensity = MG.k *(2 + 0.7 * Math.sin(time * 1.9));
+MG.lt.intensity = MG.k *(MG.w || 0)*(1.6 + 0.5 * Math.sin(time * 1.9));
 MG.lt.color.setHSL(0.7 + 0.06 * Math.sin(time * 0.37),0.85,0.66);
 if(MG.lines){
 MG.lines.visible = MG.pts.visible;
-MG.lines.material.opacity = MG.k * 0.36 *(0.72 + 0.28 * Math.sin(time * 1.9));
+MG.lines.material.opacity = MG.k * 0.26 * smooth(0.3,1,MG.w || 0)*(0.72 + 0.28 * Math.sin(time * 1.9));
 MG.lines.material.color.setHSL(0.68 + 0.08 * Math.sin(time * 0.21),0.9,0.62);
 }
 }
@@ -45874,7 +45921,7 @@ const LINES =
 spirit:[
 ["I sent my voice through every leaf and every star… I wasn't sure it would still find you…",''],
 [
-'Where the woods grow thin, an old house sleeps with its eyes closed… |n| Go softly. The dark is keeping something for you…',
+'Where the woods grow thin, an old house sleeps with its eyes closed… Go softly. || The dark is keeping something for you…',
 ''
 ]
 ],
@@ -57267,7 +57314,7 @@ updateCamera(dt);
 const CE = window.__camEase;
 if(CE){
 CE.t += dt;
-const k = smooth(0,1.1,CE.t);
+const k = smooth(0,CE.dur || 1.1,CE.t);
 if(k >= 1)window.__camEase = null;
 else{
 camera.position.lerpVectors(CE.p,camera.position,k);
