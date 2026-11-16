@@ -15517,10 +15517,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 550;
+const BUILD = 551;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 118;
+const LOOKV = 119;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -30538,6 +30538,31 @@ pz = cz;
 }
 for(let i = NB - 1;i >= 0;i--)if(!prof[i])prof[i]= prof[i + 1]|| null;
 for(let i = 0;i < NB;i++)if(!prof[i])prof[i]= prof[i - 1]||{x: 0,z: 0,r: 0.02};
+{
+const s0 = Math.floor(NB * 0.72);
+let qx = prof[s0].x,
+qz = prof[s0].z;
+for(let bi = s0 + 1;bi < NB;bi++){
+const l = bins[bi];
+if(!l || !l.length)continue;
+let c =[];
+for(const R of[0.04,0.07,0.12]){
+c = l.filter(p => Math.hypot(p[0]- qx,p[1]- qz)< R * ymax);
+if(c.length >= 4)break;
+}
+if(c.length < 2)continue;
+c.sort((p1,p2)=> Math.hypot(p1[0]- qx,p1[1]- qz)- Math.hypot(p2[0]- qx,p2[1]- qz));
+const near = c.slice(0,Math.max(2,Math.ceil(c.length * 0.45)));
+const xs = near.map(p => p[0]).sort((a,b)=> a - b),
+zs = near.map(p => p[1]).sort((a,b)=> a - b);
+const cx = xs[xs.length >> 1],
+cz = zs[zs.length >> 1];
+const ds = near.map(p => Math.hypot(p[0]- cx,p[1]- cz)).sort((a,b)=> a - b);
+prof[bi]={x: cx,z: cz,r: Math.max(prof[bi].r * 0.6,ds[Math.floor(ds.length * 0.9)]* 1.05)};
+qx = cx;
+qz = cz;
+}
+}
 }else for(let i = 0;i < NB;i++)prof.push({x: 0,z: 0,r: 0.02});
 const loc = new V3();
 const at = y =>{
@@ -51391,8 +51416,8 @@ hb.updateMatrixWorld(true);
 hm.copy(hb.matrixWorld);
 if(!e.L || e.kind !== kind){
 const nw = performance.now();
-if(PP.script && PP.script.clip === 'Drinking')e.bentT = nw;
-if(e.bentT && nw - e.bentT < 550){
+if(PP.script && /Drinking|Eat|Sniff|pick/i.test(PP.script.clip || ''))e.bentT = nw;
+if(e.bentT && nw - e.bentT < 1100){
 obj.visible = false;
 e.hid = 1;
 continue;
@@ -53663,7 +53688,7 @@ try{
 g = streamGap(P.pos.x,P.pos.z);
 }catch(e){}
 const onBr = !!P.onSurf || BRIDGES.some(b2 => Math.hypot(b2[0]- P.pos.x,b2[1]- P.pos.z)< 2.6);
-if((g < 1.3 || P.inWater)&& !onBr)act = 'fill';
+if((g < 0.45 || P.inWater)&& !onBr)act = 'fill';
 }else if(b.st >= 4 && !b.wet && b.leaf && dS < 0.9)act = 'pour';
 }
 D.beanAct = act;
