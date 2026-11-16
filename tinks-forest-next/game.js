@@ -15237,10 +15237,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 526;
+const BUILD = 527;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 94;
+const LOOKV = 95;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -42759,6 +42759,8 @@ sp.scale.setScalar(3.4);
 sp.material.opacity = 0.5;
 grp.add(sp);
 BTUN.mouthGlow = sp;
+sp.visible = false;
+BTUN.mouthGlow = null;
 }
 {
 const sp = cv.getSpacedPoints(260);
