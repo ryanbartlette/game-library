@@ -50413,7 +50413,7 @@ const cellOf =(x,z)=>[
 Math.max(0,Math.min(GN - 1,Math.floor(x + 85))),
 Math.max(0,Math.min(GN - 1,Math.floor(z + 85)))
 ];
-D.route =(from,to)=>{
+D.route =(from,to,flat)=>{
 const G = grid();
 if(!G)return[new V3(from.x,0,from.z),new V3(to.x,0,to.z)];
 const[si,sj]= cellOf(from.x,from.z),
@@ -50472,7 +50472,8 @@ jj = nj + dj;
 if(ii < 0 || jj < 0 || ii >= GN || jj >= GN)continue;
 const m = jj * GN + ii;
 if(done[m])continue;
-const step =(di && dj ? 1.414 : 1)* G.cost[m];
+const cm = G.cost[m];
+const step =(di && dj ? 1.414 : 1)*(flat ?(cm >= 400 ? 400 : cm > 1 ? 1.2 : 1): cm);
 const ng = g[n]+ step;
 if(ng < g[m]){
 g[m]= ng;
@@ -51642,19 +51643,29 @@ const bs = o.geometry.boundingSphere.clone().applyMatrix4(o.matrixWorld);
 if(bs.center.distanceTo(c)- bs.radius < R + 3)obs.push(o);
 }
 });
-const from = c.clone().add(up(0.25));
+const froms =[c.clone().add(up(0.25))];
+for(let j = 0;j < 4;j++)froms.push(c.clone().add(new V3(Math.sin(j * 1.571)* 0.9,0.2,Math.cos(j * 1.571)* 0.9)));
 let best = null,
 bs2 = -1;
 for(let k = 0;k < 16;k++){
 const a =(k / 16)* 6.283 + P.yaw;
 const p = c.clone().add(new V3(Math.sin(a)* R,0,Math.cos(a)* R));
 p.y = Math.max(gy(p.x,p.z)+ 0.5,c.y + H);
+let free = 1e9,
+L = 1;
+for(const from of froms){
 const d = p.clone().sub(from);
-const L = d.length();
+const L0 = d.length();
 rc.set(from,d.normalize());
-rc.far = L + 0.6;
+rc.far = L0 + 0.6;
 const h = rc.intersectObjects(obs,false)[0];
-const free = h ? h.distance : L + 1;
+const f0 =(h ? h.distance : L0 + 1)- L0;
+if(f0 < free){
+free = f0;
+L = L0;
+}
+}
+free += L;
 const sc = free +(k === 4 || k === 12 ? 0.3 : 0);
 if(sc > bs2){
 bs2 = sc;
@@ -52190,7 +52201,7 @@ return;
 }
 if(id === 'bean'){
 D.cut({
-dur: 13,
+dur: 9.6,
 shots:[{d: 9,f:(q,c)=>[lerpV(c.p0,hi,ss(q)),lerpV(c.l0,far,ss(q))]}],
 ev:[
 [
@@ -52418,7 +52429,7 @@ r2 = D.route(D.via,G);
 RT = r1.concat(r2.slice(1));
 const rd = D.route(P.pos,G);
 if(D.strayed && rd.cost != null && r1.cost != null && r2.cost != null && rd.cost * 1.15 < r1.cost + r2.cost)RT = rd;
-}else RT = D.route(P.pos,G);
+}else RT = D.route(P.pos,G,q.id === 'home');
 rtKey = k2;
 rtAt = P.pos.clone();
 const pts =[];
@@ -52582,7 +52593,7 @@ yv = P.yaw;
 const out = new V3(r[0].x - c0.x,0,r[0].z - c0.z);
 const outA = Math.atan2(out.x,out.z);
 D.hold ={pos: c0.clone(),yaw: P.yaw};
-const camP = D.clearCam(c0,2.1,1.15)|| c0.clone().addScaledVector(sdc,1.9).add(up(1.2)),
+const camP = D.clearCam(c0,2.5,1.3)|| c0.clone().addScaledVector(sdc,1.9).add(up(1.2)),
 camL = c0.clone().add(up(0.08));
 D.cut({
 dur: 16,
@@ -52611,7 +52622,7 @@ DU.pts.material.opacity = 0.45;
 DU.pts.visible = live > 0;
 }
 if(t < 10){
-w = 0.55 + 14 * Math.pow(smooth(0.4,9.6,t),2.6);
+w = 0.55 + 9 * Math.pow(smooth(0.4,9.6,t),2.6);
 ang += w * dt2;
 const Rc = 0.4 * smooth(0.6,3,t)*(1 - smooth(9.1,10,t));
 const ca = ang - 0.75;
