@@ -464,6 +464,22 @@ html body.pad-mode kbd[data-btn=MENU],html body.pad-mode .kc[data-btn=MENU],#pad
 #padMap .pm-l kbd{flex:none;font-size:clamp(13px,1.25vw,17px)!important}
 #padMap .p-big{margin-bottom:0!important;font-size:clamp(30px,4.2vw,54px)!important}#padMap .go{margin-top:6px!important}
 #padMap .pm-l b{display:block;font-weight:700;font-size:.82em;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,253,244,.55);margin-bottom:2px}
+/* Build 561 (Ryan): controller buttons in prompts a quarter bigger, the big triggers bigger still (in prompts and on the controls
+   page), and a thin light rim round A B X Y so they hold up on dark scenes */
+html body.pad-mode kbd[data-btn],html body.pad-mode .kc[data-btn]{font-size:1.12em!important;margin:0 .22em!important}
+html body.pad-mode kbd[data-btn=LT],html body.pad-mode kbd[data-btn=RT],html body.pad-mode .kc[data-btn=LT],html body.pad-mode .kc[data-btn=RT]{width:2.15em!important;min-width:2.15em!important;height:2.25em!important;top:-.25em!important}
+html body.pad-mode kbd[data-btn=LB],html body.pad-mode kbd[data-btn=RB]{width:3.05em!important;min-width:3.05em!important;height:1.8em!important}
+#padMap .pm-l kbd[data-btn=LT],#padMap .pm-l kbd[data-btn=RT]{width:2.3em!important;min-width:2.3em!important;height:2.4em!important}
+html body.pad-mode kbd[data-btn=A],html body.pad-mode kbd[data-btn=B],html body.pad-mode kbd[data-btn=X],html body.pad-mode kbd[data-btn=Y],#padMap kbd[data-btn=A],#padMap kbd[data-btn=B],#padMap kbd[data-btn=X],#padMap kbd[data-btn=Y]{filter:drop-shadow(0 0 .6px rgba(255,253,244,.95)) drop-shadow(0 0 .6px rgba(255,253,244,.6)) drop-shadow(0 1px 1.5px rgba(0,0,0,.45))!important}
+/* Build 561: Jack's night sight (through his eyes only) */
+#app canvas{transition:filter 1.2s ease}
+/* (everything washed in the green of his glowing eyes: the dark lifted, then the whole view tinted that green, with a vignette) */
+body.jackEyes #app canvas{filter:brightness(1.6) contrast(1.06) saturate(.3)}
+#jackEyesV{position:fixed;inset:0;pointer-events:none;z-index:3;opacity:0;transition:opacity 1.2s ease;background:radial-gradient(ellipse 75% 70% at 50% 50%,rgba(0,0,0,0) 55%,rgba(6,34,10,.55) 88%,rgba(3,18,6,.85) 100%)}
+#jackEyesT{position:fixed;inset:0;pointer-events:none;z-index:2;background:#8dff5a;mix-blend-mode:color;opacity:0;transition:opacity 1.2s ease}
+body.jackEyes #jackEyesT{opacity:.62}
+body.jackEyes #jackEyesV{opacity:1;animation:jkEyeShim 4.5s ease-in-out infinite}
+@keyframes jkEyeShim{0%,100%{filter:brightness(1)}50%{filter:brightness(1.15)}}
 </style>
 
 <div id="app"></div>
@@ -505,7 +521,7 @@ html body.pad-mode kbd[data-btn=MENU],html body.pad-mode .kc[data-btn=MENU],#pad
   <span class="k"><kbd>J</kbd></span><span>Quests</span>
   <span class="k"><kbd>Esc</kbd></span><span>Pause</span>
   <span class="k"><kbd>Enter</kbd></span><span>Skip a scene</span>
-  <span class="k"><kbd>I</kbd></span><span>See through Tink's eyes</span>
+  <span class="k"><kbd>I</kbd></span><span>Toggle view</span>
   <span class="k"><kbd>H</kbd></span><span>Show or hide these notes</span>
   <span class="k"><kbd>N</kbd></span><span>Time of day <small>(after the story)</small></span>
   <span class="k"><kbd>K</kbd></span><span>Season <small>(after the story)</small></span>
@@ -544,7 +560,7 @@ html body.pad-mode kbd[data-btn=MENU],html body.pad-mode .kc[data-btn=MENU],#pad
 <div id="gate">
   <div class="g-shade"></div>
   <div class="g-corner">In loving memory of<b>Jack</b></div>
-  <div class="g-build" id="gBuild">Build 560</div>
+  <div class="g-build" id="gBuild">Build 561</div>
   <div class="g-music" id="gMusic" aria-pressed="false"><i></i>Music</div>
   <header class="g-title">
     <div class="g-small">Tink's Magical</div>
@@ -595,8 +611,8 @@ window.__THEME=(()=>{let done=false;const M=window.__MUS.mk('audio/music/01-the-
  b.addEventListener('click',e=>{e.stopPropagation();if(on){want=false;stop(600)}else{want=true;start()}});
  const tk=setInterval(()=>{if(done||on){if(done)clearInterval(tk);return}start()},300);for(const ev of ['pointerdown','keydown'])addEventListener(ev,start,{capture:true});return {el:null,stop,play:()=>{done=false;want=true;start()},state:()=>({on,want,done,ready:ready()})}})();</script>
 <script type="importmap">{"imports":{"three":"./three.module.js","three/addons/":"./jsm/"}}</script>
-<script>(async()=>{if(/[?&]dev\b/.test(location.search)){location.replace(location.pathname.replace(/[^/]*$/,"")+"dev.html"+location.search+location.hash);return}const lay=fetch("./data/world-layout.9bf0ca4036.json").then(r=>r.ok?r.text():null).catch(()=>null);const u="/tinks-forest-next/game.js?v=1794871767";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
+<script>(async()=>{if(/[?&]dev\b/.test(location.search)){location.replace(location.pathname.replace(/[^/]*$/,"")+"dev.html"+location.search+location.hash);return}const lay=fetch("./data/world-layout.9bf0ca4036.json").then(r=>r.ok?r.text():null).catch(()=>null);const u="/tinks-forest-next/game.js?v=1794872387";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
  if(!txt){const g=document.getElementById("goTxt");if(g)g.textContent="Could not download the game. Please reload";return}
  try{const lt=await lay;if(lt)window.__LAYOUT=JSON.parse(lt)}catch(e){} const sc=document.createElement("script");sc.type="module";sc.src=URL.createObjectURL(new Blob([txt],{type:"text/javascript"}));document.body.appendChild(sc)})()</script>
 <div style="position:fixed;left:6px;top:4px;z-index:99999;font:600 10px system-ui;color:#fff;background:#c0392bcc;padding:1px 5px;border-radius:3px;pointer-events:none">STAGING</div>
-<script>if(/[?&]bench\b/.test(location.search)){const s=document.createElement("script");s.src="/tinks-forest-next/bench.js?v=1794871767";document.body.appendChild(s)}</script>
+<script>if(/[?&]bench\b/.test(location.search)){const s=document.createElement("script");s.src="/tinks-forest-next/bench.js?v=1794872387";document.body.appendChild(s)}</script>
