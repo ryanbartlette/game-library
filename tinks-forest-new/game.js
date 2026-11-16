@@ -4403,7 +4403,7 @@ dt = Math.min(0.1,(now - lastT)/ 1000);
 lastT = now;
 if(ws === 'auto'){
 const w =(grassU.uWind.value || 0)+(grassU.uGust.value || 0)* 0.6 +(grassU.uBus.value.w > 0 ? 0.5 : 0);
-const k = clamp((w - 0.3)/ 0.75,0,1);
+const k = clamp((w - 0.3)/ 0.75,0,1)*(window.__sceneOn || document.body.classList.contains('cut')? 0.3 : 1);
 if(k < 0.5)tgt.copy(G0).lerp(M0,k * 2);
 else tgt.copy(M0).lerp(H0,(k - 0.5)* 2);
 }else tgt.set(...WSTY[ws]);
@@ -27397,6 +27397,7 @@ grassU.uWDir.value.set(Math.cos(wa2),Math.sin(wa2));
 }
 const gRaw = Math.min(1,clamp(gust * 1.4,0,1)*(NIGHTISH()? 0.4 : 1)*(0.6 + 0.4 * Math.min(W.wind,1.2)));
 grassU.uGust.value = Math.max(window.__tunGust || 0,gRaw < 0.4 ? gRaw : 0.4 +(gRaw - 0.4)* 0.5);
+if(window.__sceneOn || document.body.classList.contains('cut'))grassU.uGust.value = Math.min(grassU.uGust.value,0.15);
 };
 return M;
 })();
@@ -58232,6 +58233,19 @@ console.warn('snow extra',e);
 };
 setTimeout(extra,6000);
 setTimeout(extra,20000);
+const ghost =()=>{
+try{
+for(const t of trees){
+if(t.gone || Math.hypot(t.x - 9.62,t.z + 3.28)> 1.8)continue;
+t.gone = true;
+for(const s2 of near(t.x,t.z))if(s2.tree === t)s2.dead = true;
+}
+}catch(e){
+console.warn('ghost tree',e);
+}
+};
+setTimeout(ghost,4000);
+setTimeout(ghost,20000);
 }
 window.__seasonVis = se =>{
 se = se || window.__curSeason;
