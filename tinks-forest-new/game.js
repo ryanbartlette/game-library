@@ -15362,10 +15362,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 543;
+const BUILD = 544;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 111;
+const LOOKV = 112;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -36345,7 +36345,7 @@ if(DR.back)DR.back.visible = !(nightOpen && DR.k > 0.5);
 const lp8 = g8.worldToLocal(new V3().copy(P.pos)),
 w = w8;
 const want =
-nightOpen ? 1 : ajar ? 0.1 : 0;
+nightOpen || inside ? 1 : ajar ? 0.1 : 0;
 if(!inside || want > DR.k)DR.k = damp(DR.k,want,want > DR.k ? 0.9 : 1.6,dt);
 if(Math.abs(DR.k - want)< 0.002)DR.k = want;
 if(DR.g){
@@ -36381,7 +36381,7 @@ lp8.z < w.z1 + 0.4 &&
 lp8.y > D8.deckY - 0.35 &&
 lp8.y < D8.deckY + 1.6
 ){
-lp8.z = w.z1 - 0.55;
+lp8.z = w.z1 + 0.6;
 P.pos.copy(g8.localToWorld(lp8.clone()));
 DR.prevZ = lp8.z;
 }
@@ -36554,7 +36554,12 @@ if(F.cam)F.cam(c);
 }
 }
 if(FE.st === 'out'){
-if(inside && FE.seen){
+FE.outT =(FE.outT || 0)+ dt;
+if(inside && FE.seen && FE.outT < 4){
+FE.st = 'in';
+FE.outT = 0;
+}else if(inside && FE.seen){
+FE.outT = 0;
 FE.st = 'soft';
 FE.t = 0;
 window.__sootSwarm = 2.2;
@@ -37017,7 +37022,7 @@ FE.st = 'out';
 }
 if(window.__housePend && cineOK && FE.seen){
 const lpX = FHI.g.worldToLocal(new V3().copy(P.pos));
-const atTop = Math.abs(lpX.x - ST7.cx)< ST7.sw * 0.6 + 0.5 && lpX.z > FHI.w.z1 - 1.3 && lpX.z < FHI.w.z1 + 0.8;
+const atTop = Math.abs(lpX.x - ST7.cx)< ST7.sw * 0.6 + 0.5 && lpX.z > FHI.w.z1 - 0.55 && lpX.z < FHI.w.z1 + 0.8;
 if(atTop ||(!inside && !window.__inFarm)){
 window.__housePend = false;
 window.__houseExitGo = true;
@@ -49829,7 +49834,7 @@ const J = JJ(),
 S2 = ST();
 if(J &&(J.showing || J.queued || J.tgPend ||(J.awardQ && J.awardQ.length)))return null;
 if(S2 &&((S2.busy && S2.busy())|| S2.fin))return null;
-if(P.summit || P.mode !== 'ground' ||(window.__inFarm && !window.__houseExitGo))return null;
+if(P.summit || P.mode !== 'ground' || window.__inFarm)return null;
 const Q = A.Q,
 ds = dirS();
 for(const id of ORDER){
@@ -52182,7 +52187,7 @@ started &&
 !(TR && TR.cv &&(TR.cs || TR.wonder ||(!TR.welcomed && !(window.__Q && window.__Q.done.spirit))))&&
 P.mode === 'ground' &&
 !P.summit &&
-(!window.__inFarm || window.__houseExitGo)&&
+!window.__inFarm &&
 !(ROOM && ROOM.active)
 );
 };
