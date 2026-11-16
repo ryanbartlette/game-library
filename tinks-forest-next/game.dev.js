@@ -4370,8 +4370,10 @@ m.onBeforeCompile = sh =>{
 Object.assign(sh.uniforms,grassU);
 sh.uniforms.uSnowG = grassU.uSnowG;
 sh.uniforms.uSnowT = grassU.uSnowT;
-sh.uniforms.uInner ={value: 0};
-sh.uniforms.uBig ={value: 1};
+sh.uniforms.uInner = m.userData.uInner ||{value: 0};
+sh.uniforms.uOut = m.userData.uOut ||{value: TILE * 0.5};
+sh.uniforms.uShift = m.userData.uShift ||{value: new THREE.Vector2()};
+sh.uniforms.uBig = m.userData.uBig ||{value: 1};
 sh.uniforms.uIntro = grassU.uIntro;
 sh.uniforms.uTile ={value: TILE};
 sh.uniforms.uWorld ={value: WORLD};
@@ -4379,17 +4381,17 @@ sh.vertexShader = sh.vertexShader
 .replace(
 '#include <common>',
 `#include <common>
-uniform float uTime,uTile,uWorld;uniform vec3 uCenter,uCat,uCat2;uniform sampler2D uHeight,uMask,uGTex;attribute vec4 aOff;attribute float aT;varying float vShade;uniform float uSnowG,uInner,uBig;uniform vec4 uIntro;uniform sampler2D uSnowT;uniform float uGust,uGF,uTrailW,uTrailM,uTrailA;uniform vec2 uWDir;varying float vGu;uniform vec4 uWS;uniform sampler2D uTrail;
+uniform float uTime,uTile,uWorld;uniform vec3 uCenter,uCat,uCat2;uniform sampler2D uHeight,uMask,uGTex;attribute vec4 aOff;attribute float aT;varying float vShade;uniform float uSnowG,uInner,uBig,uOut;uniform vec2 uShift;uniform vec4 uIntro;uniform sampler2D uSnowT;uniform float uGust,uGF,uTrailW,uTrailM,uTrailA;uniform vec2 uWDir;varying float vGu;uniform vec4 uWS;uniform sampler2D uTrail;
 float gvh(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}float gvn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(gvh(i),gvh(i+vec2(1,0)),f.x),mix(gvh(i+vec2(0,1)),gvh(i+vec2(1,1)),f.x),f.y);}`
 )
 .replace(
 '#include <begin_vertex>',
 `
-vec2 rel=mod(aOff.xy-uCenter.xz+uTile*.5,uTile)-uTile*.5;vec2 wp=uCenter.xz+rel;vec2 tuv=(wp+uWorld*.5)/uWorld;
-float msk=(texture2D(uMask,tuv).r*2.+texture2D(uMask,tuv+vec2(.3,0.)/uWorld).r+texture2D(uMask,tuv-vec2(.3,0.)/uWorld).r+texture2D(uMask,tuv+vec2(0.,.3)/uWorld).r+texture2D(uMask,tuv-vec2(0.,.3)/uWorld).r)/6.;/* FOREST: read softly, for smooth path edges */float dist=length(rel);float sc=aOff.z*smoothstep(.36,.6,msk)*(.55+.45*msk)*smoothstep(uTile*.5,uTile*.5-5.,dist);
-/* (Ryan) every tuft leans along the breeze, give or take about 15 degrees */float th=atan(-uWDir.x,uWDir.y)+(aOff.w/6.283-.5)*1.2;float cs=cos(th),sn=sin(th);float rk=fract(sin(dot(aOff.xy,vec2(41.3,17.9)))*24634.6);/* (Ryan) never sparse, like a painted meadow: the grass stays full everywhere and only gets shorter toward the paths, thinning just at a path's very edge *//* (Ryan's rule) paths are bare; the grass runs full and short right up to their edge (a crisp, slightly ragged border) */float keep=step(.11+rk*.05,msk);sc=aOff.z*keep*(.75+.25*msk)*smoothstep(uTile*.5,uTile*.5-5.,dist);float wsc=(0.6+sc*1.5)*keep;/* sparse ground keeps fewer whole clumps instead of squashed star shapes *//* short clumps shrink whole instead of lying flat as star shapes *//* drifts of long grass here and there (where the ferns used to grow) */float tallP=smoothstep(.35,.8,.5+.5*sin(wp.x*.19+sin(wp.y*.15)*2.1)*sin(wp.y*.17+sin(wp.x*.12)*2.3));float hsc=sc*(1.+1.6*tallP);
+vec2 rel=mod(aOff.xy-uCenter.xz+uTile*.5,uTile)-uTile*.5;rel+=uShift;vec2 wp=uCenter.xz+rel;vec2 tuv=(wp+uWorld*.5)/uWorld;
+float msk=(texture2D(uMask,tuv).r*2.+texture2D(uMask,tuv+vec2(.3,0.)/uWorld).r+texture2D(uMask,tuv-vec2(.3,0.)/uWorld).r+texture2D(uMask,tuv+vec2(0.,.3)/uWorld).r+texture2D(uMask,tuv-vec2(0.,.3)/uWorld).r)/6.;/* FOREST: read softly, for smooth path edges */float dist=length(rel);float sc=aOff.z*smoothstep(.36,.6,msk)*(.55+.45*msk)*smoothstep(uOut,uOut-5.,dist);
+/* (Ryan) every tuft leans along the breeze, give or take about 15 degrees */float th=atan(-uWDir.x,uWDir.y)+(aOff.w/6.283-.5)*1.2;float cs=cos(th),sn=sin(th);float rk=fract(sin(dot(aOff.xy,vec2(41.3,17.9)))*24634.6);/* (Ryan) never sparse, like a painted meadow: the grass stays full everywhere and only gets shorter toward the paths, thinning just at a path's very edge *//* (Ryan's rule) paths are bare; the grass runs full and short right up to their edge (a crisp, slightly ragged border) */float keep=step(.11+rk*.05,msk);sc=aOff.z*keep*(.75+.25*msk)*smoothstep(uOut,uOut-5.,dist);float wsc=(0.6+sc*1.5)*keep;/* sparse ground keeps fewer whole clumps instead of squashed star shapes *//* short clumps shrink whole instead of lying flat as star shapes *//* drifts of long grass here and there (where the ferns used to grow) */float tallP=smoothstep(.35,.8,.5+.5*sin(wp.x*.19+sin(wp.y*.15)*2.1)*sin(wp.y*.17+sin(wp.x*.12)*2.3));float hsc=sc*(1.+1.6*tallP);
 /* (Ryan) long and wild away from the paths, shorter where it's trodden: the grass shortens as the mask fades toward a path, and slow patches of taller and shorter grass drift across the fields */
-{float wild=smoothstep(.11,.32,msk);/* FOREST (Ryan: sparse bare patches): the whole meadow grows full; only a path's edge band is shorter */float pn=.5+.25*sin(wp.x*.07+sin(wp.y*.05)*2.3)+.25*sin(wp.y*.083+sin(wp.x*.061)*1.9);hsc*=mix(.3,1.,wild)*(.72+.6*pn)*(1.-.15*uIntro.w*(1.-smoothstep(uIntro.z,uIntro.z+4.,length(wp-uIntro.xy))));/* FOREST 84 (Ryan): a touch shorter in the intro meadow only */hsc*=mix(1.,.2,uSnowG);wsc*=mix(1.,3.2,uSnowG);/* FOREST 85 (Ryan): soft powder, and where the cats have walked it stays trodden down for the rest of the winter */{float sT=texture2D(uSnowT,tuv).r*uSnowG;hsc*=1.-sT;wsc*=1.-.85*sT;}/* FOREST 85 (Ryan: a square of flattened blades showed on the snow): the blades narrow away with the height, so the patch round you ends in a soft circle */wsc*=smoothstep(uTile*.5,uTile*.5-5.,dist);/* FOREST 84 (Ryan): in winter the tufts sink into low soft drifts of snow */}vec3 lp=vec3(position.x*wsc,position.y*hsc,position.z*wsc);/* FOREST 97: the far grass ring: fewer, bigger tufts, only beyond the near grass */lp.xz*=uBig;lp.y*=mix(1.,uBig,.55);if(uInner>.5)lp*=smoothstep(uInner-1.,uInner+3.,dist);lp=vec3(lp.x*cs-lp.z*sn,lp.y,lp.x*sn+lp.z*cs);
+{float wild=smoothstep(.11,.32,msk);/* FOREST (Ryan: sparse bare patches): the whole meadow grows full; only a path's edge band is shorter */float pn=.5+.25*sin(wp.x*.07+sin(wp.y*.05)*2.3)+.25*sin(wp.y*.083+sin(wp.x*.061)*1.9);hsc*=mix(.3,1.,wild)*(.72+.6*pn)*(1.-.15*uIntro.w*(1.-smoothstep(uIntro.z,uIntro.z+4.,length(wp-uIntro.xy))));/* FOREST 84 (Ryan): a touch shorter in the intro meadow only */wsc*=mix(1.,2.6,uSnowG);/* FOREST 85 (Ryan): soft powder, and where the cats have walked it stays trodden down for the rest of the winter */{float sT=texture2D(uSnowT,tuv).r*uSnowG;hsc*=1.-sT;wsc*=1.-.85*sT;}/* FOREST 85 (Ryan: a square of flattened blades showed on the snow): the blades narrow away with the height, so the patch round you ends in a soft circle */wsc*=smoothstep(uOut,uOut-5.,dist);/* FOREST 84 (Ryan): in winter the tufts sink into low soft drifts of snow */}vec3 lp=vec3(position.x*wsc,position.y*hsc,position.z*wsc);/* FOREST 97: the far grass ring: fewer, bigger tufts, only beyond the near grass */lp.xz*=uBig;lp.y*=mix(1.,uBig,.55);if(uInner>.5)lp*=smoothstep(uInner-1.,uInner+3.,dist);lp=vec3(lp.x*cs-lp.z*sn,lp.y,lp.x*sn+lp.z*cs);
 /* (Ryan) the wind as flowing currents, like the middle of the ocean: a soft noise field drifts across the meadow along the breeze, warped
    by a slower noise so it swirls and eddies. Each blade reads it at its root: how hard to bow, and which way (the current turns the
    breeze a little here and there). Then each blade is ROTATED about its root (never pushed), so it keeps its length, never dips into
@@ -4411,6 +4413,15 @@ float dr=wq.x*2.4+wq.y*.6;vec2 wd=vec2(uWDir.x*cos(dr)-uWDir.y*sin(dr),uWDir.x*s
 /* (Ryan: like ocean currents) darker and lighter patches drift slowly across the whole meadow, so the field seems to flow */{vec2 cq2=wp*.06-uWDir*uTime*.18*uWS.x+vec2(sin(uTime*.05)*2.,0.);float cn=gvn(cq2+wq*1.4)*.6+gvn(cq2*2.1-wq)*.4;vColor.rgb*=mix(1.-.2*uWS.z,1.+.16*uWS.z,smoothstep(.2,.8,cn));}
 float gH=texture2D(uHeight,tuv).r;/* LOOK: the blades part round both cats and lie down under them, so the cats are never lost in the grass */for(int ci=0;ci<2;ci++){vec3 cP=ci==0?uCat:uCat2;vec2 dc=wp-cP.xz;float dd=length(dc);float pk=smoothstep(.62,.08,dd)*step(abs(cP.y-gH),.5);float push=pk*aT*(sc*1.6+.08);lp.xz+=normalize(dc+1e-4)*push;lp.y-=pk*aT*hsc*.75;}
 {vec3 pt=texture2D(uGTex,wp*.065).rgb;vColor.rgb*=mix(vec3(1.),pt/vec3(.33,.52,.3),.6);}
+/* FOREST 101 (Ryan: the snow looked like flattened grass with sharp edges): in winter each tuft becomes a soft, rounded drift of
+   powder about half the grass's height: the blades are folded into a smooth dome whose edges meet the ground, painted white on top
+   and shadow blue in the hollows, so the snow reads as one soft, deep layer the cats wade through, with their prints and trenches
+   left as blue dips */
+if(uSnowG>.01){float R=max(.05,.42*wsc*uBig);float r=length(lp.xz);float Hs=.62*hsc*(.8+.4*fract(rk*5.3));
+ float dome=Hs*sqrt(max(0.,1.-(r*r)/(R*R)));vec3 sn=vec3(lp.x*1.15,dome+.004,lp.z*1.15);
+ lp=mix(lp,sn,uSnowG);float hk=clamp(dome/max(Hs,.001),0.,1.);
+ vec3 top=vec3(.97,.985,1.),low=vec3(.66,.73,.9);vec3 sc2=mix(low,top,smoothstep(0.,.85,hk))*(.97+.06*fract(rk*11.7));
+ vColor.rgb=mix(vColor.rgb,sc2,uSnowG);}
 vec3 transformed=vec3(wp.x,texture2D(uHeight,tuv).r,wp.y)+lp;vGW=vec3(wp.x,aT,wp.y);vShade=.8+.4*fract(sin(dot(aOff.xy,vec2(12.9898,78.233)))*43758.5);`
 )
 .replace(
@@ -4459,42 +4470,34 @@ mesh.receiveShadow = true;
 scene.add(mesh);
 window.__grass = mesh;
 if(!LOW){
-const FT = 120,
-FN = 18000,
-fr = mulberry32(51199),
-fo = new Float32Array(FN * 4);
-for(let i = 0;i < FN;i++){
-fo[i * 4]=(fr()- 0.5)* FT;
-fo[i * 4 + 1]=(fr()- 0.5)* FT;
-fo[i * 4 + 2]= 0.1 + fr()* 0.12 + fr()* fr()* 0.12;
-fo[i * 4 + 3]= fr()* 6.283;
-}
+const rings =[];
+for(const[sx,sz]of[[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]]){
 const fg = new THREE.InstancedBufferGeometry();
 fg.setIndex(g.index);
-for(const k of['position','aT','color','normal'])fg.setAttribute(k,g.attributes[k]);
-fg.setAttribute('aOff',new THREE.InstancedBufferAttribute(fo,4));
-fg.instanceCount = FN;
+for(const k of['position','aT','color','normal','aOff'])fg.setAttribute(k,g.attributes[k]);
+fg.instanceCount = Math.floor(LCOUNT * 0.55);
 const fm = m.clone();
+fm.userData.uShift ={value: new THREE.Vector2(sx * TILE,sz * TILE)};
+fm.userData.uInner ={value: TILE * 0.5 - 3};
+fm.userData.uOut ={value: TILE * 1.4};
+fm.userData.uBig ={value: 1.3};
 fm.onBeforeCompile =(sh,r)=>{
 m.onBeforeCompile(sh,r);
-sh.uniforms.uTile ={value: FT};
-sh.uniforms.uInner ={value: TILE * 0.5 - 4};
-sh.uniforms.uBig ={value: 2.4};
+Object.assign(sh.uniforms,{uShift: fm.userData.uShift,uInner: fm.userData.uInner,uOut: fm.userData.uOut,uBig: fm.userData.uBig});
 };
-fm.customProgramCacheKey =()=> 'grassFar';
+fm.customProgramCacheKey =()=> 'grassWide';
 const far = new THREE.Mesh(fg,fm);
 far.frustumCulled = false;
 far.receiveShadow = false;
-scene.add(far);
-window.__grassFar = far;
 far.visible = false;
+scene.add(far);
+rings.push(far);
+}
+window.__grassWide = rings;
 const fl =()=>{
 requestAnimationFrame(fl);
-let hi = false;
-try{
-hi = camera.position.y - heightAt(camera.position.x,camera.position.z)> 4.5;
-}catch(e){}
-far.visible = !!window.__sceneOn || document.body.classList.contains('cut')|| hi;
+const on = !!window.__sceneOn || document.body.classList.contains('cut');
+for(const r of rings)if(r.visible !== on)r.visible = on;
 };
 requestAnimationFrame(fl);
 }
@@ -4536,7 +4539,7 @@ tt.magFilter = tt.minFilter = THREE.LinearFilter;
 tt.generateMipmaps = false;
 grassU.uTrail ={value: tt};
 grassU.uTrailW ={value: TW};
-const SN = 1024,
+const SN = 2048,
 sc0 = document.createElement('canvas');
 sc0.width = sc0.height = SN;
 const sx0 = sc0.getContext('2d');
@@ -4586,22 +4589,51 @@ tx.fillRect(0,0,TN,TN);
 fadeT = 0;
 }
 for(const Q of[P,typeof comp !== 'undefined' && comp && comp.P]){
+if(Q && Q.pos && Q.mode === 'air')(Q.__snow ||(Q.__snow ={lx: Q.pos.x,lz: Q.pos.z,side: 1,air: false})).air = true;
 if(!Q || !Q.pos || Q.mode === 'air' || Q.inWater)continue;
 const sp = Q.speed || 0;
 const fx = Math.sin(Q.yaw || 0),
 fz = Math.cos(Q.yaw || 0);
 stamp(Q.pos.x,Q.pos.z,fx,fz,sp > 0.15 ? 0.55 : 0.12);
-if(grassU.uSnowG.value > 0.5 && sp > 0.05 && !Q.onSurf){
+if(grassU.uSnowG.value > 0.5 && !Q.onSurf){
 const W2P = SN / WORLD;
-const g = sx0.createRadialGradient((Q.pos.x + WORLD / 2)* W2P,(Q.pos.z + WORLD / 2)* W2P,0,(Q.pos.x + WORLD / 2)* W2P,(Q.pos.z + WORLD / 2)* W2P,0.42 * W2P);
-g.addColorStop(0,'rgba(255,255,255,.5)');
-g.addColorStop(0.6,'rgba(255,255,255,.35)');
+const dab =(x,z,r,a)=>{
+const X =(x + WORLD / 2)* W2P,
+Z =(z + WORLD / 2)* W2P,
+R = Math.max(1.2,r * W2P);
+const g = sx0.createRadialGradient(X,Z,0,X,Z,R);
+g.addColorStop(0,'rgba(255,255,255,' + a + ')');
+g.addColorStop(0.65,'rgba(255,255,255,' + a * 0.8 + ')');
 g.addColorStop(1,'rgba(255,255,255,0)');
 sx0.fillStyle = g;
 sx0.beginPath();
-sx0.arc((Q.pos.x + WORLD / 2)* W2P,(Q.pos.z + WORLD / 2)* W2P,0.42 * W2P,0,7);
+sx0.arc(X,Z,R,0,7);
 sx0.fill();
 snowDirty++;
+};
+const S = Q.__snow ||(Q.__snow ={lx: Q.pos.x,lz: Q.pos.z,side: 1,air: false});
+if(Q.mode === 'air')S.air = true;
+else{
+if(S.air){
+dab(Q.pos.x,Q.pos.z,0.34,0.95);
+dab(Q.pos.x + fx * 0.18,Q.pos.z + fz * 0.18,0.26,0.7);
+S.lx = Q.pos.x;
+S.lz = Q.pos.z;
+}
+S.air = false;
+if(sp > 1.5){
+dab(Q.pos.x,Q.pos.z,0.3,0.75);
+S.lx = Q.pos.x;
+S.lz = Q.pos.z;
+}else if(sp > 0.05 && Math.hypot(Q.pos.x - S.lx,Q.pos.z - S.lz)> 0.24){
+S.side = -S.side;
+const px = Q.pos.x + fz * 0.06 * S.side,
+pz = Q.pos.z - fx * 0.06 * S.side;
+dab(px,pz,0.11,0.95);
+S.lx = Q.pos.x;
+S.lz = Q.pos.z;
+}
+}
 }
 }
 tt.needsUpdate = true;
@@ -5251,7 +5283,7 @@ ${leaf ? 'transformed+=vec3(sin(uTime*1.6+position.x*2.1+ph),sin(uTime*1.9+posit
 ${grassy ? `/* (Ryan) the tall grass and ferns part round the cats as they push through, like the meadow grass */
 #ifdef USE_INSTANCING
 {vec3 wq=(instanceMatrix*vec4(transformed,1.)).xyz;vec2 pw=vec2(0.);
-for(int ci=0;ci<2;ci++){vec3 cp=ci==0?uCat:uCat2;vec2 d=wq.xz-cp.xz;float dl=length(d);float k=(1.-smoothstep(.2,.8,dl))*step(abs(wq.y-cp.y),1.5);pw+=d/max(dl,.05)*k*.5;}
+for(int ci=0;ci<2;ci++){vec3 cp=ci==0?uCat:uCat2;vec2 d=wq.xz-cp.xz;float dl=length(d);float k=(1.-smoothstep(.2,.9,dl))*step(abs(wq.y-cp.y),1.8);pw+=d/max(dl,.05)*k*.5;pw+=vec2(sin(uTime*13.+wq.x*7.),cos(uTime*11.+wq.z*6.))*k*.06;}
 float s2=max(dot(instanceMatrix[0].xyz,instanceMatrix[0].xyz),1e-4);
 transformed+=(transpose(mat3(instanceMatrix))*vec3(pw.x,-length(pw)*.45,pw.y))/s2*hk;}
 #endif
@@ -5285,7 +5317,7 @@ const k = texKey(file,nm);
 const sway = !/Rock|Bridge|Lantern|Sculpt/.test(file);
 if(k && MASKC[k]){
 const m = new THREE.MeshStandardMaterial({color: MASKC[k],alphaMap: tex(k,true),alphaTest: 0.4,side: THREE.DoubleSide,roughness: 1});
-return tintMat(sway ? windify(m,true,swU,/^(grass0|grass1|weed)$/.test(k),/^(leaf|leafbirch|grass0|grass1|weed)$/.test(k)): m,'czleaf');
+return tintMat(sway ? windify(m,true,swU,/^(grass0|grass1|weed|bush)$/.test(k),/^(leaf|leafbirch|grass0|grass1|weed)$/.test(k)): m,'czleaf');
 }
 if(k === 'ivy'){
 const m = new THREE.MeshStandardMaterial({map: tex('ivy',false),alphaTest: 0.45,side: THREE.DoubleSide,roughness: 1});
@@ -15434,10 +15466,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 532;
+const BUILD = 534;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 100;
+const LOOKV = 102;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -21654,7 +21686,44 @@ P.jumpCharge = -1;
 P.pounceCharge = -1;
 const GT0 = typeof LIFE !== 'undefined' && LIFE && LIFE.tree;
 if(GT0){
-P.yaw = Math.atan2(GT0.x - tp.x,GT0.z - tp.z);
+let yw = Math.atan2(GT0.x - tp.x,GT0.z - tp.z);
+try{
+const mc = grassU.uMask.value.image,
+md = mc.getContext('2d').getImageData(0,0,mc.width,mc.height).data;
+const at =(x,z)=>{
+const px = Math.floor(((x + WORLD / 2)/ WORLD)* mc.width),
+pz = Math.floor(((z + WORLD / 2)/ WORLD)* mc.height);
+if(px < 0 || pz < 0 || px >= mc.width || pz >= mc.height)return 255;
+return md[(pz * mc.width + px)* 4];
+};
+let best = null,
+bs = 1e9;
+for(let r = 4;r <= 12;r += 0.5)
+for(let a2 = 0;a2 < 6.283;a2 += 0.08){
+const x = tp.x + Math.sin(a2)* r,
+z = tp.z + Math.cos(a2)* r;
+if(at(x,z)> 50)continue;
+let da = Math.abs(angDiff(a2,yw));
+const sc = da * 6 + Math.abs(r - 7);
+if(sc < bs){
+bs = sc;
+best = a2;
+}
+}
+if(best != null)yw = best;
+let sgB = null,
+sgD = 22;
+for(const sg of window.__SIGNS ||[]){
+const gp = sg.grp ? sg.grp.position : sg;
+const d = Math.hypot(gp.x - tp.x,gp.z - tp.z);
+if(d < sgD){
+sgD = d;
+sgB = gp;
+}
+}
+if(sgB)yw = Math.atan2(sgB.x - tp.x,sgB.z - tp.z);
+}catch(e){}
+P.yaw = yw;
 P.summit.gtYaw = P.yaw;
 }else{
 const yawOut = Math.atan2(P.pos.x - tp.x,P.pos.z - tp.z);
