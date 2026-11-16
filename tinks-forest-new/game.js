@@ -15237,10 +15237,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 520;
+const BUILD = 521;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 88;
+const LOOKV = 89;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -25300,7 +25300,7 @@ scene.fog.density = W.fogD *(inRoom(P.pos)? 0.15 : 1)*(1 - 0.65 * hi);
 {
 const td = window.__tunDark || 0;
 if(td > 0.002){
-scene.fog.density +=(0.24 - scene.fog.density)* td;
+scene.fog.density +=(0.42 - scene.fog.density)* td;
 scene.fog.color.lerp(TUNDARK_C,td);
 }
 }
@@ -41119,7 +41119,7 @@ T3.prog = T3.gone
 const pr = T3.gone ? 0 : T3.prog || 0;
 const inside = smooth(0,0.07,pr)*(1 - smooth(0.86,1,pr));
 const endK = T3.hes || T3.wonder || T3.cs ? 1 : smooth(0.8,0.97,pr);
-const darkK = T3.gone ? 0 : smooth(0.02,0.35,pr)*(1 - endK);
+const darkK = T3.gone ? 0 : smooth(0.06,0.3,pr)*(1 - endK);
 window.__tunDark = damp(window.__tunDark || 0,darkK,darkK >(window.__tunDark || 0)? 0.6 : 1.2,dt);
 window.__tunExp = T3.gone ? 1 : damp(window.__tunExp ?? 1,1 - 0.3 * inside *(1 - endK),0.8,dt);
 }
@@ -41772,7 +41772,7 @@ toneMapped: false,
 vertexShader: `attribute vec4 aA;uniform float uT,uK,uPr,uS;varying vec3 vC;varying float vA;
 void main(){vec4 mv=modelViewMatrix*vec4(position,1.);mv.xyz+=normalize(-mv.xyz)*.08;/* (sat just off the bark, so the trunk never hides half of each light) */gl_Position=projectionMatrix*mv;
 /* the whole tunnel breathes together; each light glints a little on its own */
-float br=.5+.5*sin(uT*1.9);float tw=.75+.25*sin(uT*3.1+aA.y*40.);
+float br=.72+.28*sin(uT*1.9);/* FOREST 89 (Ryan): breathing, but never going dark */float tw=.75+.25*sin(uT*3.1+aA.y*40.);
 /* lights ahead of her wake first as she nears them; the whole tunnel is alight near the end */
 float near=smoothstep(uPr+.6,uPr+.05,aA.x);float lit=uK*mix(.4,1.,max(near,smoothstep(.3,.6,uPr)));
 float lane=aA.w>.5?pow(.5+.5*sin(aA.x*90.-uT*2.4),3.)*.7+.45:1.;
@@ -41796,7 +41796,9 @@ lines.renderOrder = 5;
 lines.userData.noEdit = true;
 grp.add(lines);
 }
-return{U,pts,lines,k: 0};
+const lt = new THREE.PointLight(0x8f86ff,0,7,1.4);
+scene.add(lt);
+return{U,pts,lines,k: 0,lt};
 };
 BTUN.build =()=>{
 const T3 = window.__TRAIL;
@@ -42795,24 +42797,21 @@ if(o.count !== n)o.count = n;
 if(BTUN.magic){
 const MG = BTUN.magic;
 const pr = T3.gone ? 0 : T3.prog || 0;
-const want = T3.gone ? 0 : pr > 0.001 || T3.hes ? 0.5 + 0.5 * smooth(0,0.55,pr): 0;
-MG.k +=(want - MG.k)* Math.min(1,dt * 1.5);
+const want = T3.gone ? 0 : smooth(0.14,0.24,pr)*(0.55 + 0.45 * smooth(0.2,0.55,pr));
+if(pr > 0.24)MG.on = true;
+const want2 = MG.on && !T3.gone ? Math.max(want,0.55 + 0.45 * smooth(0.2,0.55,pr)): want;
+MG.k +=(want2 - MG.k)* Math.min(1,dt *(want2 > MG.k ? 0.9 : 1.5));
 MG.U.uT.value = time;
 MG.U.uK.value = MG.k;
 MG.U.uPr.value = pr;
 MG.U.uS.value = innerHeight;
 MG.pts.visible = MG.k > 0.003;
-if(!MG.lt){
-MG.lt = new THREE.PointLight(0x8f86ff,0,7,1.4);
-scene.add(MG.lt);
-}
 MG.lt.position.set(P.pos.x,P.pos.y + 1.6,P.pos.z);
-MG.lt.intensity = MG.k *(1.6 + 1.1 * Math.sin(time * 1.9));
+MG.lt.intensity = MG.k *(2 + 0.7 * Math.sin(time * 1.9));
 MG.lt.color.setHSL(0.7 + 0.06 * Math.sin(time * 0.37),0.85,0.66);
-MG.lt.visible = MG.k > 0.003;
 if(MG.lines){
 MG.lines.visible = MG.pts.visible;
-MG.lines.material.opacity = MG.k * 0.36 *(0.5 + 0.5 * Math.sin(time * 1.9));
+MG.lines.material.opacity = MG.k * 0.36 *(0.72 + 0.28 * Math.sin(time * 1.9));
 MG.lines.material.color.setHSL(0.68 + 0.08 * Math.sin(time * 0.21),0.9,0.62);
 }
 }
