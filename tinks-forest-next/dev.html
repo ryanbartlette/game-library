@@ -407,7 +407,7 @@ body.adv #cutSkip kbd,body.adv #viewP kbd{font-family:Montserrat,sans-serif!impo
 #gate .g-pop .credit{color:var(--m-dim)!important}
 
 /* a controller's highlight in menus */
-.pad-on{outline:2px solid rgba(255,236,170,.9)!important;outline-offset:5px;border-radius:8px}
+/* Build 557 (Ryan): the controller's highlight looks like the mouse hover, not a box drawn round the choice */.pad-on{outline:none!important;color:#fff!important;text-shadow:0 0 12px rgba(255,236,170,.95),0 0 3px rgba(255,236,170,.75)!important}.pad-on:not(.go):not(input):not(#gok):not(#gprev):not(#gnext){text-decoration:underline 1px rgba(255,236,170,.85)!important;text-underline-offset:6px}#gate .go.pad-on{letter-spacing:.3em;text-shadow:0 0 18px rgba(190,255,200,.55),0 2px 14px rgba(8,22,18,.6)!important}#gate .go.pad-on::before,#gate .go.pad-on::after{width:64px}#gok.pad-on,#gprev.pad-on,#gnext.pad-on{background:rgba(255,255,255,.2);border-color:#fff;transform:translateY(-1px)}input[type=range].pad-on{filter:drop-shadow(0 0 6px rgba(255,236,170,.9))}
 /* Game options > Controller, and the controller layout */
 #pause #padOpts{display:flex;flex-direction:column;gap:16px}#pause #padOpts[hidden]{display:none}
 #pause .o-sub{margin-top:10px;padding-top:16px;border-top:1px solid rgba(255,253,244,.22)}#pause .o-sub .o-l{color:#fffdf4}
@@ -534,7 +534,7 @@ body.noPrompt .actP:not(.skipH):not(#jackgo){opacity:0!important;transition:none
 <div id="gate">
   <div class="g-shade"></div>
   <div class="g-corner">In loving memory of<b>Jack</b></div>
-  <div class="g-build" id="gBuild">Build 556</div>
+  <div class="g-build" id="gBuild">Build 557</div>
   <div class="g-music" id="gMusic" aria-pressed="false"><i></i>Music</div>
   <header class="g-title">
     <div class="g-small">Tink's Magical</div>
@@ -585,8 +585,8 @@ window.__THEME=(()=>{let done=false;const M=window.__MUS.mk('audio/music/01-the-
  b.addEventListener('click',e=>{e.stopPropagation();if(on){want=false;stop(600)}else{want=true;start()}});
  const tk=setInterval(()=>{if(done||on){if(done)clearInterval(tk);return}start()},300);for(const ev of ['pointerdown','keydown'])addEventListener(ev,start,{capture:true});return {el:null,stop,play:()=>{done=false;want=true;start()},state:()=>({on,want,done,ready:ready()})}})();</script>
 <script type="importmap">{"imports":{"three":"./three.module.js","three/addons/":"./jsm/"}}</script>
-<script>(async()=>{const lay=fetch("./data/world-layout.9bf0ca4036.json").then(r=>r.ok?r.text():null).catch(()=>null);const u="/tinks-forest-next/game.dev.js?v=1794866976";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
+<script>(async()=>{const lay=fetch("./data/world-layout.9bf0ca4036.json").then(r=>r.ok?r.text():null).catch(()=>null);const u="/tinks-forest-next/game.dev.js?v=1794869790";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
  if(!txt){const g=document.getElementById("goTxt");if(g)g.textContent="Could not download the game. Please reload";return}
  try{const lt=await lay;if(lt)window.__LAYOUT=JSON.parse(lt)}catch(e){} const sc=document.createElement("script");sc.type="module";sc.src=URL.createObjectURL(new Blob([txt],{type:"text/javascript"}));document.body.appendChild(sc)})()</script>
 <div style="position:fixed;left:6px;top:4px;z-index:99999;font:600 10px system-ui;color:#fff;background:#c0392bcc;padding:1px 5px;border-radius:3px;pointer-events:none">STAGING</div>
-<script>if(/[?&]bench\b/.test(location.search)){const s=document.createElement("script");s.src="/tinks-forest-next/bench.js?v=1794866976";document.body.appendChild(s)}</script>
+<script>if(/[?&]bench\b/.test(location.search)){const s=document.createElement("script");s.src="/tinks-forest-next/bench.js?v=1794869790";document.body.appendChild(s)}</script>
