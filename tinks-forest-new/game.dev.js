@@ -15517,10 +15517,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 553;
+const BUILD = 554;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 121;
+const LOOKV = 122;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -45525,9 +45525,16 @@ return[w,Math.min(bb.max.x - bb.min.x,bb.max.z - bb.min.z,0.6)];
 };
 const[A,wa]= ctr(a),
 [B,wb]= ctr(b);
-A.position.set(-wa * 0.5,0,0);
-B.position.set(wb * 0.5,0,0.01);
-B.rotation.y = -0.35;
+const TC =(window.__toyCfg ? window.__toyCfg(): null)||{card:{corny:{x: -0.5},chickum:{x: 0.5,ry: -20}}};
+const u = Math.max(wa,wb,0.01),
+D2R = Math.PI / 180;
+const lay =(W2,c)=>{
+c = c ||{};
+W2.position.set((c.x || 0)* u,(c.y || 0)* u,(c.z || 0)* u);
+W2.rotation.set((c.rx || 0)* D2R,(c.ry || 0)* D2R,(c.rz || 0)* D2R);
+};
+lay(A,TC.card.corny);
+lay(B,TC.card.chickum);
 g.add(A,B);
 return g;
 }
@@ -46191,13 +46198,19 @@ if(gm)spin.remove(gm);
 gm = giftMesh(G2.id);
 if(gm.userData.glow)gm.remove(gm.userData.glow);
 gm.updateMatrixWorld(true);
-const bb = new THREE.Box3().setFromObject(gm);
+const bb = new THREE.Box3();
+gm.traverse(q =>{
+if(q.isMesh && q.visible && !/shadow/i.test((q.material && q.material.name)|| ''))bb.expandByObject(q,true);
+});
+if(bb.isEmpty())bb.setFromObject(gm);
 const k = 1.5 / Math.max(...bb.getSize(new V3()).toArray());
 gm.scale.setScalar(k);
 gm.position.copy(bb.getCenter(new V3()).multiplyScalar(-k));
 spin.add(gm);
 };
 put(G);
+const isToys = G.id === 'toys';
+window.__toyCardRebuild = isToys ?()=> put(G): null;
 const N = 70,
 pg = new THREE.BufferGeometry(),
 pp = new Float32Array(N * 3);
@@ -46220,7 +46233,7 @@ blending: THREE.AdditiveBlending
 );
 sc2.add(sp2);
 let yaw = 0,
-pit = 0.15,
+pit = isToys && window.__toyCfg ?(window.__toyCfg().card.tilt ?? 8.6)*(Math.PI / 180): 0.15,
 drag = null,
 auto = 1,
 alive = true,
@@ -46247,7 +46260,9 @@ addEventListener('pointerup',up);
 const loop =()=>{
 if(!alive)return;
 const tt =(performance.now()- t0)/ 1000;
-if(auto)yaw += 0.012;
+const TCs = isToys && window.__toyCfg ? window.__toyCfg().card : null;
+if(TCs && !drag && window.__toyBuilderOn)pit =(TCs.tilt || 0)*(Math.PI / 180);
+if(auto)yaw += TCs ?(TCs.spin ?? 0.012): 0.012;
 spin.rotation.set(pit,yaw,0);
 spin.scale.setScalar(Math.min(1,tt * 2.2)*(1 + 0.03 * Math.sin(tt * 2)));
 sp2.rotation.y = tt * 0.25;
@@ -46258,6 +46273,7 @@ loop();
 const close =()=>{
 if(!alive)return;
 alive = false;
+if(isToys)window.__toyCardRebuild = null;
 ov.style.opacity = 0;
 removeEventListener('pointermove',mv);
 removeEventListener('pointerup',up);
@@ -48462,7 +48478,7 @@ const LAST_TAIL =[
 'tink'
 ],
 ["Loving someone doesn't stop when they go. It just learns a new way to find them.",''],
-["It's alright to let me go. I'm not going far.",'']
+["It's alright to let me go. I'll never be too far.",'']
 ];
 let LAST = LAST_TAIL;
 S.startFin =()=>{
@@ -49260,6 +49276,7 @@ true
 ded.addEventListener('click',()=>{
 if(S.fin && S.fin.canEnd)endFin();
 });
+window.__cornyLoad =()=> corny();
 window.__cornyMesh =()=>{
 const g = new THREE.Group();
 let t = null;
@@ -51517,7 +51534,8 @@ if(o.ms){
 pv.x += f.z * o.ms;
 pv.z -= f.x * o.ms;
 }
-qy.setFromAxisAngle(Y,PP.yaw +(o.yaw || 0));
+if(o.pitch || o.roll)qy.setFromEuler(new THREE.Euler(o.pitch || 0,PP.yaw +(o.yaw || 0),o.roll || 0,'YXZ'));
+else qy.setFromAxisAngle(Y,PP.yaw +(o.yaw || 0));
 sv.copy(obj.scale);
 om.compose(pv,qy,sv);
 e.L = im.copy(hm).invert().multiply(om).clone();
@@ -55263,6 +55281,19 @@ P.speed = 0;
 if(P.vel)P.vel.set(0,0,0);
 };
 T.bend = bend;
+const isJT = Y => /^(corny|chickum)$/.test((Y && Y.id)|| '');
+const carryFor =(Y,pair)=>{
+const C = window.__toyCfg && window.__toyCfg().carry;
+const c = C &&(pair ? C.pair && C.pair[Y.id]: C[Y.id]);
+if(!c)return Y.carry;
+const D2R = Math.PI / 180;
+return{...Y.carry,mf:(c.fwd || 0)/ 100,mu:(c.up || 0)/ 100,ms:(c.side || 0)/ 100,yaw:(c.yaw || 0)* D2R,pitch:(c.pitch || 0)* D2R,roll:(c.roll || 0)* D2R};
+};
+const carryRefresh =()=>{
+const H =(window.__YARNS ||[]).filter(Z => isJT(Z)&& Z.held === 'p');
+for(const Z of H)window.__carryAdd && window.__carryAdd(Z.m,{...carryFor(Z,H.length > 1),who: 'p'});
+};
+window.__toyCarryRefresh = carryRefresh;
 T.grab =(Y,quiet)=>{
 if(!Y)return;
 if(Y.held === 'c'){
@@ -55282,6 +55313,7 @@ Z.rest = false;
 Z.v.set(0,0,0);
 window.__carryAdd && window.__carryAdd(Z.m,{...Z.carry,who: 'p'});
 }
+if(isJT(Y))carryRefresh();
 if(!quiet){
 try{
 sfx('cat_trill',{vol: 0.35,rate: 1.25});
@@ -55290,7 +55322,7 @@ sfx('cat_trill',{vol: 0.35,rate: 1.25});
 hintT = 4;
 };
 window.__toyGrab = T.grab;
-const dropAt =(Y,who)=>{
+const dropAt =(Y,who,side)=>{
 window.__carryDel && window.__carryDel(Y.m);
 const PP = who === 'c' ? comp.P : P;
 const f = fwdOf(PP.yaw);
@@ -55301,6 +55333,10 @@ if(!isFinite(x)){
 x = PP.pos.x + f.x * 0.25;
 z = PP.pos.z + f.z * 0.25;
 }
+if(side){
+x += f.z * side;
+z -= f.x * side;
+}
 const gy = groundAt(x,z,PP.pos.y + 0.4);
 wp.set(x,gy +(Y.r || 0),z);
 if(Y.kind === 'corny')Y.m.rotation.set(0,PP.yaw,0);
@@ -55310,9 +55346,9 @@ if(waterLevelAt(x,z)< gy - 0.02)Y.home.copy(wp);
 };
 T.drop = Y =>{
 if(!Y)return;
-dropAt(Y,'p');
-if(/^(corny|chickum)$/.test(Y.id || ''))
-for(const Z of window.__YARNS ||[])if(Z !== Y && /^(corny|chickum)$/.test(Z.id || '')&& Z.held === 'p')dropAt(Z,'p');
+const others = isJT(Y)?(window.__YARNS ||[]).filter(Z => Z !== Y && isJT(Z)&& Z.held === 'p'):[];
+dropAt(Y,'p',others.length ?(Y.id === 'corny' ? -0.16 : 0.16): 0);
+for(const Z of others)dropAt(Z,'p',Z.id === 'corny' ? -0.16 : 0.16);
 try{
 sfx('thump',{vol: 0.15,rate: 1.6});
 }catch(e){}
@@ -55547,6 +55583,197 @@ if(el.style.visibility !== v)el.style.visibility = v;
 }catch(e){}
 };
 requestAnimationFrame(loop);
+}
+{
+const TOY_DEF ={
+card:{
+corny:{x: -0.5,y: 0,z: 0,rx: 0,ry: 0,rz: 0},
+chickum:{x: 0.5,y: 0,z: 0.02,rx: 0,ry: -20,rz: 0},
+tilt: 8.6,
+spin: 0.012
+},
+carry:{
+corny:{fwd: 0,up: 0,side: 0,yaw: 90,pitch: 0,roll: 0},
+chickum:{fwd: 0,up: 0,side: 0,yaw: 90,pitch: 0,roll: 0},
+pair:{
+corny:{fwd: 0,up: 0,side: -2.5,yaw: 90,pitch: 0,roll: 0},
+chickum:{fwd: 0,up: 0,side: 3.5,yaw: 90,pitch: 0,roll: 0}
+}
+}
+};
+const clone = o => JSON.parse(JSON.stringify(o));
+const merge =(a,b)=>{
+if(!b || typeof b !== 'object')return a;
+for(const k in a)if(k in b)a[k]= a[k]&& typeof a[k]=== 'object' ? merge(a[k],b[k]): typeof b[k]=== 'number' && isFinite(b[k])? b[k]: a[k];
+return a;
+};
+const ON =(()=>{
+try{
+return new URLSearchParams(location.search).has('toybuilder');
+}catch(e){
+return false;
+}
+})();
+let CFG = clone(TOY_DEF);
+if(ON){
+try{
+CFG = merge(clone(TOY_DEF),JSON.parse(localStorage.getItem('toybuilder')|| 'null'));
+}catch(e){}
+}
+window.__toyCfg =()=> CFG;
+window.__toyBuilderOn = ON;
+if(ON){
+const save =()=>{
+try{
+localStorage.setItem('toybuilder',JSON.stringify(CFG));
+}catch(e){}
+};
+const st = document.createElement('style');
+st.textContent =
+'#tbP{position:fixed;right:10px;top:10px;bottom:10px;width:300px;z-index:9999;overflow:auto;background:rgba(24,22,30,.94);color:#f1ece4;font:12px/1.35 system-ui,-apple-system,sans-serif;border:1px solid #3a3540;border-radius:10px;padding:10px 12px;box-shadow:0 8px 30px rgba(0,0,0,.4)}' +
+'#tbP h1{font-size:15px;margin:0 0 2px}#tbP .sub{color:#a79f95;margin-bottom:8px}' +
+'#tbP details{border-top:1px solid #3a3540;padding:6px 0}#tbP summary{cursor:pointer;color:#e7a24a;font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-size:11px}' +
+'#tbP .r{display:grid;grid-template-columns:92px 1fr 44px;gap:6px;align-items:center;margin:3px 0}#tbP .r label{color:#a79f95}#tbP input[type=range]{width:100%;accent-color:#e7a24a}#tbP output{text-align:right;font-variant-numeric:tabular-nums}' +
+'#tbP .b{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}#tbP button{background:#3a3540;color:#f1ece4;border:1px solid #4a4450;border-radius:6px;padding:6px 9px;cursor:pointer;font:inherit}#tbP button.p{background:#e7a24a;color:#1d1b22;border-color:#e7a24a;font-weight:600}' +
+'#tbP textarea{width:100%;height:70px;background:#1d1b22;color:#f1ece4;border:1px solid #3a3540;border-radius:6px;font:10px ui-monospace,monospace}#tbP .hd{color:#cfc6ba;margin:6px 0 2px;font-weight:600}';
+document.head.appendChild(st);
+const pn = document.createElement('div');
+pn.id = 'tbP';
+for(const ev of['pointerdown','pointerup','click','keydown','keyup','wheel','mousedown'])
+pn.addEventListener(ev,e =>{
+if(!(ev === 'keydown' && e.code === 'KeyE' && e.target.tagName !== 'TEXTAREA'))e.stopPropagation();
+});
+pn.innerHTML =
+'<h1>Jack\'s toys builder</h1><div class="sub">Set how Corny and Chickum look in the gift card and sit in Tink\'s mouth. Changes show live. When it looks right, press <b>Copy for Claude</b> and paste it in the chat.</div>' +
+'<div class="b"><button id="tbGive">Give Tink both toys</button><button id="tbE">Drop / pick up (E)</button><button id="tbCard">Show gift card</button></div><div id="tbC"></div>' +
+'<div class="b"><button class="p" id="tbCopy">Copy for Claude</button><button id="tbReset">Reset all</button></div><textarea id="tbOut" readonly></textarea>';
+const C = pn.querySelector('#tbC');
+const rowsOf ={
+pos:[
+['x','Left / right',-1.5,1.5,0.01],
+['y','Down / up',-1.5,1.5,0.01],
+['z','Back / front',-1.5,1.5,0.01],
+['rx','Tip forward',-180,180,1],
+['ry','Turn',-180,180,1],
+['rz','Roll',-180,180,1]
+],
+carry:[
+['fwd','Forward (cm)',-10,10,0.1],
+['up','Up (cm)',-10,10,0.1],
+['side','Side (cm)',-10,10,0.1],
+['yaw','Turn',-180,180,1],
+['pitch','Tip forward',-180,180,1],
+['roll','Roll',-180,180,1]
+]
+};
+let cardT = 0,
+carryT = 0;
+const apply = kind =>{
+save();
+if(kind === 'card'){
+clearTimeout(cardT);
+cardT = setTimeout(()=> window.__toyCardRebuild && window.__toyCardRebuild(),60);
+}else if(kind === 'carry'){
+clearTimeout(carryT);
+carryT = setTimeout(()=> window.__toyCarryRefresh && window.__toyCarryRefresh(),40);
+}
+};
+const slider =(host,obj,key,label,mn,mx,stp,kind)=>{
+const r = document.createElement('div');
+r.className = 'r';
+r.innerHTML = '<label>' + label + '</label><input type="range" min="' + mn + '" max="' + mx + '" step="' + stp + '"><output></output>';
+const inp = r.querySelector('input'),
+out = r.querySelector('output');
+const show =()=>(out.textContent =(+obj[key]).toFixed(stp < 0.01 ? 3 : stp < 1 ? 2 : 0).replace(/\.?0+$/,'')|| '0');
+inp.value = obj[key];
+show();
+inp.oninput =()=>{
+obj[key]= +inp.value;
+show();
+apply(kind);
+};
+host.appendChild(r);
+};
+const sec =(title,open)=>{
+const d = document.createElement('details');
+if(open)d.open = true;
+d.innerHTML = '<summary>' + title + '</summary>';
+C.appendChild(d);
+return d;
+};
+const head =(host,t)=>{
+const h = document.createElement('div');
+h.className = 'hd';
+h.textContent = t;
+host.appendChild(h);
+};
+{
+const d = sec('Gift card',true);
+for(const[id,nm]of[
+['corny','Corny'],
+['chickum','Chickum']
+]){
+head(d,nm);
+for(const[k,l,a,b,s]of rowsOf.pos)slider(d,CFG.card[id],k,l,a,b,s,'card');
+}
+head(d,'The pair');
+slider(d,CFG.card,'tilt','Tilt to camera',-60,60,0.5,'card');
+slider(d,CFG.card,'spin','Spin speed',0,0.05,0.001,'card');
+}
+for(const[title,obj]of[
+['In her mouth: Corny alone',CFG.carry.corny],
+['In her mouth: Chickum alone',CFG.carry.chickum],
+['In her mouth: both (Corny)',CFG.carry.pair.corny],
+['In her mouth: both (Chickum)',CFG.carry.pair.chickum]
+]){
+const d = sec(title,false);
+for(const[k,l,a,b,s]of rowsOf.carry)slider(d,obj,k,l,a,b,s,'carry');
+}
+const out = pn.querySelector('#tbOut');
+const dump =()=>(out.value = 'TOY BUILDER ' + JSON.stringify(CFG));
+pn.querySelector('#tbCopy').onclick = async()=>{
+dump();
+try{
+await navigator.clipboard.writeText(out.value);
+pn.querySelector('#tbCopy').textContent = 'Copied';
+}catch(e){
+out.select();
+document.execCommand && document.execCommand('copy');
+pn.querySelector('#tbCopy').textContent = 'Copied (or copy the box)';
+}
+setTimeout(()=>(pn.querySelector('#tbCopy').textContent = 'Copy for Claude'),1600);
+};
+pn.querySelector('#tbReset').onclick =()=>{
+try{
+localStorage.removeItem('toybuilder');
+}catch(e){}
+location.reload();
+};
+pn.querySelector('#tbGive').onclick =()=>{
+const Ys =(window.__YARNS ||[]).filter(Y => /^(corny|chickum)$/.test(Y.id || ''));
+if(Ys.length){
+for(const Y of Ys){
+if(Y.held === 'p')continue;
+Y.m.position.set(P.pos.x,P.pos.y,P.pos.z);
+window.__toyGrab && window.__toyGrab(Y,true);
+}
+}else if(window.__STORY && window.__STORY.homeToy){
+window.__STORY.homeT = 0;
+window.__STORY.homeToy(P.pos.clone(),true);
+}
+};
+pn.querySelector('#tbE').onclick =()=> dispatchEvent(new KeyboardEvent('keydown',{code: 'KeyE',key: 'e'}));
+pn.querySelector('#tbCard').onclick =()=>{
+const J = window.__JACK;
+if(!J || !J.showcase || J.showing)return;
+const go =()=> J.showcase({id: 'toys',name: 'Corny & Chickum'},{view: true,i: 0,n: 1,title: 'His favorite toys',btn: 'Close'});
+(window.__cornyLoad ? window.__cornyLoad(): Promise.resolve()).then(go,go);
+};
+dump();
+const add =()=> document.body.appendChild(pn);
+if(document.body)add();
+else addEventListener('DOMContentLoaded',add);
+}
 }
 const OCC =(()=>{
 const U =
