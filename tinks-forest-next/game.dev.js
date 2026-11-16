@@ -15392,10 +15392,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 521;
+const BUILD = 522;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 89;
+const LOOKV = 90;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -21912,7 +21912,10 @@ if(P.mode === 'ground' && P.speed > T.walk + 0.2 && performance.now()- lastMouse
 const want = P.yaw + Math.PI;
 cam.yaw += angDiff(cam.yaw,want)*(1 - Math.exp(-dt * 0.9 * clamp(P.speed / T.run,0.4,1.6)));
 }
-const low = AP.stalk * 0.12 + AP.crouch * 0.05;
+P.scaredCam = damp(P.scaredCam || 0,P.scared && P.mode === 'ground' ? 1 : 0,1.6,dt);
+const SKc = P.scaredCam;
+if(SKc > 0.05 && performance.now()- lastMouse > 1500)cam.pitch = damp(cam.pitch,0.1,1.2 * SKc,dt);
+const low = AP.stalk * 0.12 + AP.crouch * 0.05 + 0.24 * SKc;
 const tgt = new V3(P.pos.x,P.visY + T.camHeight - low,P.pos.z);
 if(P.mode === 'climb')tgt.y += 0.1;
 cam.tgt.lerp(tgt,1 - Math.exp(-(P.mode === 'air' ? 9 : 14)* dt));
@@ -21936,7 +21939,7 @@ cam.yaw += dt *(0.09 + 0.13 *(P.beanZoom || 0))* P.spinK;
 cam.pitch = damp(cam.pitch,0.18 + 0.22 *(P.beanZoom || 0),0.8,dt);
 }else P.spinK = 0;
 }
-const d0 = T.camDist *(P.mode === 'climb' ? 1.35 : 1)*(1 + smooth(T.run,T.sprint,P.speed)* 0.25);
+const d0 = T.camDist *(P.mode === 'climb' ? 1.35 : 1)*(1 + smooth(T.run,T.sprint,P.speed)* 0.25)*(1 - 0.3 *(P.scaredCam || 0));
 const dist = lerp(d0,10,P.beanZoom || 0);
 const off = new V3(
 Math.sin(cam.yaw)* Math.cos(cam.pitch),
@@ -41602,12 +41605,26 @@ play(acts.up,true,0.25);
 if(M2.t > 0.9){
 M2.st = 'turn';
 M2.t = 0;
+try{
+const GT = LIFE && LIFE.tree;
+if(GT){
+const hp = holder.position;
+const fx = GT.x - hp.x,
+fz = GT.z - hp.z,
+fl = Math.hypot(fx,fz)|| 1;
+const lx = fz / fl,
+lz = -fx / fl;
+const tx = GT.x + lx *((GT.R || 6)+ 7),
+tz = GT.z + lz *((GT.R || 6)+ 7);
+M2.dir.set(tx - hp.x,0,tz - hp.z).normalize();
+}
+}catch(e){}
 play(acts.walk,false,0.3);
 M2.y0 = holder.rotation.y;
 }
 }else if(M2.st === 'turn'){
 const k = Math.min(1,M2.t / 0.9);
-holder.rotation.y = M2.y0 + Math.PI *(k * k *(3 - 2 * k));
+holder.rotation.y = M2.y0 + angDiff(M2.y0,Math.atan2(M2.dir.x,M2.dir.z))*(k * k *(3 - 2 * k));
 holder.position.addScaledVector(M2.dir,dt * 0.15);
 if(k >= 1){
 M2.st = 'walk';
@@ -42058,7 +42075,7 @@ T3.bz = damp(T3.bz || 0,tw,tw >(T3.bz || 0)? 0.9 : 0.35,dt);
 const wk2 = T3.wonder || T3.gone ? 0 : 1;
 window.__tunGust = Math.min(1,T3.bz * 0.3)* wk2;
 window.__tunWind = T3.bz * 0.8 * wk2;
-window.__tunSwirl = T3.wonder ? T3.bz : 0;
+window.__tunSwirl = 0;
 window.__tunWindSnd = T3.bz *(T3.wonder ? 0.6 : 0.3);
 if(false && T3.wonder){
 T3.spT =
@@ -44628,23 +44645,26 @@ J.got = J.got.filter(id => GIFTS.some(g => g.id === id));
 const GMOD ={
 pebble:{
 get scene(){
-const r = mulberry32(71521);
-const g0 = new THREE.DodecahedronGeometry(1,1);
-const pa = g0.attributes.position;
-const seen = new Map();
+const g0 = new THREE.IcosahedronGeometry(1,4);
+const pa = g0.attributes.position,
+v = new V3();
 for(let i = 0;i < pa.count;i++){
-const k = pa.getX(i).toFixed(3)+ ',' + pa.getY(i).toFixed(3)+ ',' + pa.getZ(i).toFixed(3);
-if(!seen.has(k))seen.set(k,0.78 + r()* 0.36);
-const f = seen.get(k);
-pa.setXYZ(i,pa.getX(i)* f * 1.15,pa.getY(i)* f * 0.85,pa.getZ(i)* f);
+v.fromBufferAttribute(pa,i);
+const n =
+0.13 * Math.sin(v.x * 2.1 + 1.3)* Math.sin(v.y * 2.6 + 0.4)+
+0.09 * Math.sin(v.z * 3.3 + v.x * 1.7)+
+0.05 * Math.sin(v.y * 5.1 + v.z * 4.3);
+v.multiplyScalar(1 + n);
+pa.setXYZ(i,v.x * 1.15,v.y * 0.82,v.z);
 }
 g0.computeVertexNormals();
-const m = new THREE.MeshStandardMaterial({color: 0x1c1a19,roughness: 0.55,metalness: 0.2,flatShading: true,emissive: 0xff5a14,emissiveIntensity: 1});
+const m = new THREE.MeshStandardMaterial({color: 0x2a2523,roughness: 0.95,metalness: 0,emissive: 0xff6a24,emissiveIntensity: 1});
 m.onBeforeCompile = sh =>{
 sh.vertexShader = sh.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vCP;').replace('#include <begin_vertex>','#include <begin_vertex>\nvCP=position;');
 sh.fragmentShader = sh.fragmentShader
-.replace('#include <common>','#include <common>\nvarying vec3 vCP;float ch(vec3 p){return fract(sin(dot(p,vec3(12.9,78.2,37.7)))*43758.5);}')
-.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\n{vec3 q=vCP*5.;vec3 i=floor(q);float n=ch(i)*.6+ch(floor(q*2.3))*.4;float crack=smoothstep(.72,.9,n);totalEmissiveRadiance*=crack*.9+.04;}');
+.replace('#include <common>','#include <common>\nvarying vec3 vCP;float cn(vec3 p){return sin(p.x*3.1+sin(p.y*2.3))*sin(p.y*2.7+sin(p.z*3.7))*sin(p.z*2.9+sin(p.x*1.9));}')
+.replace('#include <map_fragment>','#include <map_fragment>\n{float b=cn(vCP*1.4)*.5+.5;diffuseColor.rgb*=.8+.45*b;/* soft painted mottling */}')
+.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\n{float e=smoothstep(.35,.8,cn(vCP*2.2+1.7)*.5+.5);totalEmissiveRadiance*=e*.55+.03;}');
 };
 const o = new THREE.Group();
 const mesh = new THREE.Mesh(g0,m);
@@ -46781,7 +46801,7 @@ const LINES =
 spirit:[
 ["I sent my voice through every leaf and every star… I wasn't sure it would still find you…",''],
 [
-'Where the woods grow thin, an old house sleeps with its eyes closed… || Go softly. The dark is keeping something for you…',
+'Where the woods grow thin, an old house sleeps with its eyes closed… |n| Go softly. The dark is keeping something for you…',
 ''
 ]
 ],
@@ -46877,7 +46897,7 @@ st2.textContent =
 document.head.appendChild(st2);
 }
 const QBEAT = 1.9;
-const qClean = t => String(t).replace(/\*\*/g,'').replace(/\s*\|\/?\|\s*/g,' ');
+const qClean = t => String(t).replace(/\*\*/g,'').replace(/\s*\|(\/|n)?\|\s*/g,' ');
 const qBeats = t =>(String(t).match(/\|\/?\|/g)||[]).length * QBEAT;
 const qRead = t =>{
 const n = qClean(t).split(' ').length;
@@ -46944,11 +46964,12 @@ txt =
 String(txt)
 .replace(/\s+$/,'')
 .replace(/\.+$|…$/,'')+(/[?!]$/.test(String(txt).trim())? '' : '…');
-const words = txt.replace(/\s*\|\/\|\s*/g,' |/| ').replace(/\s*\|\|\s*/g,' || ').split(' ').filter(Boolean);
+const words = txt.replace(/\s*\|n\|\s*/g,' |n| ').replace(/\s*\|\/\|\s*/g,' |/| ').replace(/\s*\|\|\s*/g,' || ').split(' ').filter(Boolean);
 let beat = 0,
 kw = 0;
 const w = words
 .map(t =>{
+if(t === '|n|')return '<br>';
 if(t === '|/|'){
 beat += QBEAT;
 return '<span style="display:block;height:.24em"></span>';
