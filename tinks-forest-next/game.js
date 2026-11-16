@@ -15362,10 +15362,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 552;
+const BUILD = 553;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 120;
+const LOOKV = 121;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -47518,14 +47518,14 @@ const GIFTLINE =
 flower: '**Love.** Which guided you here.',
 pebble: '**Courage.** For the dark.',
 bell: '**Tears.** Because you needed them to grow.',
-leaf: '**Hope.** To remind you the sun always finds its way back.',
-boat: "**Joy.** So you'd always remember us, and how happy we were together."
+leaf: '**Hope.** To remind you the sun always finds its way home.',
+boat: "**Joy.** So you'll always remember us, and how happy we were together."
 };
 const LAST_TAIL =[
 ["I'm not lost. I'm in the lanterns, and the rain, and the top of the tallest tree.",''],
-["When you find a warm patch of sun, that's me, lying beside you.",''],
+["When you find a warm patch of sun, I'll be laying beside you.",''],
 [
-'Luca… I picked you special. I knew she would need someone to run with… someone to fill her sorrow with joy.',
+'Luca… I picked you special. I knew she would need someone to run with… someone to bring back her joy.',
 '',
 'luca'
 ],
