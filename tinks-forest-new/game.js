@@ -14619,6 +14619,7 @@ mode: 'idle'
 };
 s.y = heightAt(s.x,s.z);
 scene.add(s.g);
+(window.__CRITTERS ||=[]).push(s.g);
 squirrels.push(s);
 }
 }
@@ -14649,6 +14650,7 @@ g.add(body);
 const{m,mx: rmx}= critter(ROBIN,0.093,false);
 body.add(m);
 scene.add(g);
+(window.__CRITTERS ||=[]).push(g);
 const a = rng()* 6.28,
 r = 4 + rng()* 14;
 const x = Math.cos(a)* r,
@@ -14786,6 +14788,7 @@ fl = critter(CROWF,0.011,true);
 g.add(st.m,fl.m);
 fl.m.visible = false;
 scene.add(g);
+(window.__CRITTERS ||=[]).push(g);
 const a = rng()* 6.28,
 r = 8 + rng()* 12;
 crows.push({
@@ -14949,6 +14952,7 @@ const{m}= critter(FINCH,0.012,false);
 const g = new THREE.Group();
 g.add(m);
 scene.add(g);
+(window.__CRITTERS ||=[]).push(g);
 const a = rng()* 6.28;
 finches.push({g,p: new V3(Math.cos(a)* 15,6,Math.sin(a)* 15),v: new V3(),wp: new V3(),t: 0});
 }
@@ -15050,6 +15054,7 @@ const s = 0.3 / Math.max(WPK_T.sz.x,WPK_T.sz.y,WPK_T.sz.z);
 inner.scale.setScalar(s);
 g.userData.inner = inner;
 scene.add(g);
+(window.__CRITTERS ||=[]).push(g);
 const w ={g,inner,p: new V3(),v: new V3(),state: 'perch',timer: 0,peck: 0,peckT: 2};
 perchWoodpecker(w,new V3(0,0,6));
 woodpeckers.push(w);
@@ -15134,6 +15139,7 @@ m.traverse(o =>{
 if(o.isMesh)o.castShadow = false;
 });
 scene.add(g);
+(window.__CRITTERS ||=[]).push(g);
 flocks.push({g,r: 34 + i * 14,h: 30 + i * 9,w: 0.07 + i * 0.03,a: i * 2.5});
 }
 function updateFlocks(dt,time){
@@ -15362,10 +15368,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 560;
+const BUILD = 561;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 128;
+const LOOKV = 129;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -15752,10 +15758,11 @@ window.__trotHint = null;
 }
 if(c === 'KeyI'){
 P.povUser = !P.povUser;
+jackEyes();
 try{
 localStorage.setItem('tink.pov',P.povUser ? '1' : '0');
 }catch(e){}
-toast(P.povUser ? "Through Tink's eyes" : 'Normal view',1000);
+toast(P.povUser ? 'Through ' +(window.__asJack ? 'Jack' : cat.kind === 'luca' ? 'Luca' : 'Tink')+ "'s eyes" : 'Normal view',1000);
 }
 if(c === 'KeyG' && !P.deep){
 P.groom = !P.groom;
@@ -15836,6 +15843,31 @@ toastEl.style.opacity = 1;
 clearTimeout(toastT);
 toastT = setTimeout(()=>(toastEl.style.opacity = 0),ms);
 }
+function jackEyes(){
+try{
+const on = !!(P.povUser && window.__asJack);
+document.body.classList.toggle('jackEyes',on);
+const GM =(jackEyes.gm ||= new THREE.MeshBasicMaterial({color: 0xb6ff5c}));
+for(const g of window.__CRITTERS ||[])
+g.traverse(o =>{
+if(!o.isMesh)return;
+if(on && !o.userData.jeMat){
+o.userData.jeMat = o.material;
+o.material = Array.isArray(o.material)? o.material.map(()=> GM): GM;
+}else if(!on && o.userData.jeMat){
+o.material = o.userData.jeMat;
+delete o.userData.jeMat;
+}
+});
+for(const id of['jackEyesT','jackEyesV'])
+if(!document.getElementById(id)){
+const v = document.createElement('div');
+v.id = id;
+document.body.appendChild(v);
+}
+}catch(e){}
+}
+setInterval(jackEyes,400);
 const cats ={luca: makeCat('luca'),tink: makeCat('tink')};
 for(const k in cats)setupRig(cats[k]);
 const NB_SRC = REFW;
@@ -50343,7 +50375,7 @@ id === 'house' &&
 dirS().runTip = 1;
 saveQ();
 try{
-window.__actPrompt('run',window.__PAD && window.__PAD.mode ? '<span data-nopad>Tilt the stick a little to walk, all the way to trot &nbsp;·&nbsp; press it in to run</span>' : 'Tap <kbd>Shift</kbd> to trot or walk &nbsp;·&nbsp; hold <kbd>Shift</kbd> to run');
+window.__actPrompt('run',window.__PAD && window.__PAD.mode ? '<span data-nopad>Tilt the stick a little to walk, all the way to trot &nbsp;·&nbsp; press <kbd data-btn="L3">L3</kbd> to run</span>' : 'Tap <kbd>Shift</kbd> to trot or walk &nbsp;·&nbsp; hold <kbd>Shift</kbd> to run');
 let shown = 0;
 const iv = setInterval(()=>{
 if(!document.body.classList.contains('cut'))shown += 250;
@@ -55930,9 +55962,10 @@ T2.st = 'run';
 T2.t = 0;
 ran = 0;
 show('Into the forest',[
-'Hold <kbd>Shift</kbd>&nbsp; run',
-'tap <kbd>Shift</kbd>&nbsp; stroll or trot',
-"<kbd>I</kbd>&nbsp; see through Tink's eyes"
+...(window.__PAD && window.__PAD.mode
+?['<span data-nopad>Tilt the stick to walk or trot &nbsp;·&nbsp; press <kbd data-btn="L3">L3</kbd> to run</span>']
+:['Hold <kbd>Shift</kbd>&nbsp; run','tap <kbd>Shift</kbd>&nbsp; stroll or trot']),
+'<kbd>I</kbd>&nbsp; toggle view'
 ]);
 }
 break;
@@ -55947,7 +55980,9 @@ case 'pounceSet':{
 T2.trail = buildTrail();
 T2.caught = 0;
 show('Follow the glowing path into the forest',[
-'catch the puffs: hold <kbd>Click</kbd> or <kbd>F</kbd>, let go to pounce',
+window.__PAD && window.__PAD.mode
+? '<span data-nopad>catch the puffs: hold <kbd data-btn="RT">RT</kbd>, let go to pounce</span>'
+: 'catch the puffs: hold <kbd>Click</kbd> or <kbd>F</kbd>, let go to pounce',
 '<b id="tutN">0 / ' + T2.trail.puffs.length + '</b>'
 ]);
 T2.st = 'trail';
@@ -59587,7 +59622,9 @@ else hide = true;
 }else if(t === 'W A S D')b = 'LS';
 else{
 const prev = el.previousSibling && el.previousSibling.nodeType === 3 ? el.previousSibling.data : '';
+const next = el.nextSibling && el.nextSibling.nodeType === 3 ? el.nextSibling.data : '';
 b = btnFor(t,prev.slice(-6));
+if(t === 'X' && /sit and watch/i.test(next))b = 'Y';
 }
 if(!b && !hide)return;
 const txt = hide ? '' : nm(b);
@@ -59797,7 +59834,7 @@ const row =(b,what)=> '<div class="pm-r"><kbd data-btn="' + b + '" data-pb="' + 
 const draw =()=>{
 const PT ={LT:[372,128],LB:[398,140],VIEW:[481,201],LS:[400,205],L3:[400,205],DP:[447,272],RT:[652,128],RB:[626,140],MENU:[543,201],Y:[622,174],X:[594,202],B:[651,202],A:[622,231],RS:[568,267],R3:[568,267]};
 const L =[['LT','Aim a leap · pull further to leap further, let go to leap'],['LB','Swat with her left paw'],['VIEW','Quests · skip a scene'],['LS','Move · tilt further to go faster'],['L3','Run (press the stick)'],['UP','Meow','DP'],['DOWN','Groom','DP'],['LEFT','Hiss','DP'],['RIGHT','Yowl','DP']];
-const R =[['RT','Stalk · squeeze deeper to sink lower, let go to pounce'],['RB','Swat with her right paw'],['MENU','Pause'],['Y','Sit and watch'],['B','Crouch · back'],['X','Pick up, plant, give, curl up'],['A','Jump and climb · read on'],['RS','Look around'],['R3',"Through Tink's eyes (press the stick)"]];
+const R =[['RT','Stalk · squeeze deeper to sink lower, let go to pounce'],['RB','Swat with her right paw'],['MENU','Pause'],['Y','Sit and watch'],['B','Crouch · back'],['X','Pick up, plant, give, curl up'],['A','Jump and climb · read on'],['RS','Look around'],['R3','Toggle view (press the stick)']];
 const BN ={"LT": "Left Trigger","LB": "Left Bumper","VIEW": "View Button","LS": "Left Stick","L3": "Left Stick Button","UP": "D-Pad Up","DOWN": "D-Pad Down","LEFT": "D-Pad Left","RIGHT": "D-Pad Right","RT": "Right Trigger","RB": "Right Bumper","MENU": "Menu Button","Y": "Y Button","B": "B Button","X": "X Button","A": "A Button","RS": "Right Stick","R3": "Right Stick Button"};
 const y0 = 62,dy = 50.5;
 let lines = '',labs = '';
