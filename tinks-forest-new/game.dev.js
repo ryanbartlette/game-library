@@ -2118,7 +2118,7 @@ WC_GLSL
      paths get a light, patchy painted dusting; it whitens bit by bit with the season, and trodden snow shows a cool blue */
   if(uSnowGG>.001){float gm=gmSoft(p);float bare=1.-smoothstep(.07,.14,gm);/* FOREST 116 (Ryan: the ground went white all at once): flakes settle first as scattered specks, then gather into patches that join up as the season turns */float thrG=wcN(p*4.1)*.55+wcN(p*.9)*.35+.05;float sgk=smoothstep(thrG-.05,thrG+.18,uSnowGG*1.1)*mix(.55,1.,smoothstep(.3,1.,uSnowGG));
    vec3 sc=mix(vec3(.83,.87,.97),vec3(.965,.975,1.),smoothstep(.3,.7,wcF(p*.35)));sc*=.97+.06*gran;
-   float dust=smoothstep(.38,.62,wcF(p*.7+3.))*.72+.12;float cov=sgk*mix(.97,dust,bare);/* (FOREST 105, Ryan: the Great Tree's hollow stays warm and dry) */if(uGTreeG.z>0.)cov*=smoothstep(uGTreeG.z,uGTreeG.z+.8,length(p-uGTreeG.xy));
+   float dust=smoothstep(.38,.62,wcF(p*.7+3.))*.55+.1;float cov=sgk*mix(.97,dust,bare);/* FOREST 117 (Ryan liked the worn, shadowed trail): every path is the same well-travelled track: a thin patchy dusting in cool shadow */sc=mix(sc,vec3(.5,.56,.75),bare*.5);/* (FOREST 105, Ryan: the Great Tree's hollow stays warm and dry) */if(uGTreeG.z>0.)cov*=smoothstep(uGTreeG.z,uGTreeG.z+.8,length(p-uGTreeG.xy));
    float tr=texture2D(uSnowTG,(p+uWorldG*.5)/uWorldG).r;sc=mix(sc,vec3(.46,.53,.76),smoothstep(.06,.8,tr)*.75*(1.-bare));
    c=mix(c,sc,cov);}
   diffuseColor.rgb=c;}`
@@ -15517,10 +15517,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 549;
+const BUILD = 550;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 117;
+const LOOKV = 118;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -55715,9 +55715,10 @@ scene.traverse(o =>{
 if(!o.isMesh)return;
 const g = o.geometry;
 const src =(g && g.userData && g.userData.src)|| o.userData.src || '';
-if(!/bushes\.glb/.test(src))return;
 const ms0 = Array.isArray(o.material)? o.material[0]: o.material;
-if(!/^bush/.test((ms0 && ms0.userData && ms0.userData.tag)|| ''))return;
+const tg =(ms0 && ms0.userData && ms0.userData.tag)|| '';
+const czB = /bush/i.test(src)|| /bush/i.test(o.name || '')||(o.parent && /bush/i.test(o.parent.name || ''));
+if(!((/bushes\.glb/.test(src)&& /^bush/.test(tg))||(czB && /^bush/.test(tg))||(czB && !/^(leaf|bark|birch)/.test(tg))))return;
 for(let q = o;q;q = q.parent)
 if(q.userData && q.userData.gone)return;
 if(!g.boundingSphere)g.computeBoundingSphere();
@@ -55753,7 +55754,8 @@ a.push(e);
 };
 B.tick = dt =>{
 if(!started || !window.__worldBuilt)return;
-if(!B.list){
+if(!B.list ||(window.__czPlanted && !B.cz)){
+B.cz = !!window.__czPlanted;
 build();
 }
 B.t -= dt;
@@ -61176,6 +61178,13 @@ try{
 const BS = window.__BUSSTOP;
 scene.traverse(o =>{
 if(!o.isMesh || o.isPoints)return;
+if(/Bridge_Bridge/.test(srcOf(o)+ ' ' +(o.name || '')+ ' ' +((o.parent && o.parent.name)|| ''))&& o.geometry){
+const g = o.geometry;
+if(!g.boundingBox)g.computeBoundingBox();
+const bb = g.boundingBox;
+for(const m of mats(o))snowify(m,bb.max.y - 0.14 *(bb.max.y - bb.min.y));
+return;
+}
 if(lan(o)|| /(^|[^a-z])logs?([^a-z]|$)|fallen|Log_|_log/i.test((o.name || '')+ ' ' +(o.parent && o.parent.name || '')+ ' ' + srcOf(o))|| mats(o).some(m => /^(wellm|lantern|logb)/.test(tagOf(m))))for(const m of mats(o))snowify(m,-1e9);
 else if(BS && under(o,BS)){
 const bb = new THREE.Box3().setFromObject(BS);
