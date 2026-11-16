@@ -15237,10 +15237,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 525;
+const BUILD = 526;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 93;
+const LOOKV = 94;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -25303,7 +25303,7 @@ scene.fog.density = W.fogD *(inRoom(P.pos)? 0.15 : 1)*(1 - 0.65 * hi);
 {
 const td = window.__tunDark || 0;
 if(td > 0.002){
-scene.fog.density +=(0.2 - scene.fog.density)* td;
+scene.fog.density +=(1.5 / Math.max(3,window.__tunR || 8)- scene.fog.density)* td;
 scene.fog.color.lerp(TUNDARK_C,td);
 }
 }
@@ -25325,7 +25325,7 @@ TUNFOG_C.copy(scene.fog.color)
 if(scene.fog &&(window.__tunDark || 0)> 0.002){
 const td = window.__tunDark;
 scene.fog.color.lerp(TUNDARK_C,td);
-scene.fog.density = Math.max(scene.fog.density,0.2 * td);
+scene.fog.density = Math.max(scene.fog.density,(1.5 / Math.max(3,window.__tunR || 8))* td);
 }
 {
 const ins = inRoom(P.pos);
@@ -38609,7 +38609,7 @@ case 'guide':{
 {
 const TT =
 window.__TRAIL;
-if(TT && TT.cv && !TT.gone){
+if(false && TT && TT.cv && !TT.gone){
 const E1 = TT.cv.getPointAt(1);
 const dEnd = Math.hypot(P.pos.x - E1.x,P.pos.z - E1.z);
 const kin =(TT.hesDone && !TT.hes &&(TT.prog || 0)> 0.05 ? 1 : 0)*(TT.inside || 0)* clamp((dEnd - 7)/ 9,0,1);
@@ -41148,10 +41148,12 @@ T3.prog = T3.gone
 {
 const pr = T3.gone ? 0 : T3.prog || 0;
 const inside = smooth(0,0.07,pr)*(1 - smooth(0.86,1,pr));
-const endK = T3.hes || T3.wonder || T3.cs ? 1 : smooth(0.8,0.97,pr);
-const darkK = T3.gone || !T3.hesDone || T3.hes ? 0 : smooth(0.06,0.3,pr)*(1 - endK)*(1 - 0.35 * smooth(0.45,0.8,pr));
-window.__tunDark = damp(window.__tunDark || 0,darkK,darkK >(window.__tunDark || 0)? 0.6 : 1.2,dt);
-window.__tunExp = T3.gone || !T3.hesDone || T3.hes ? damp(window.__tunExp ?? 1,1,0.8,dt): damp(window.__tunExp ?? 1,1 - 0.5 * inside *(1 - endK),0.8,dt);
+if(!T3.liftT && T3.hesDone &&(pr > 0.9 || T3.wonder || T3.cs || T3.gone))T3.liftT = time;
+const liftK = T3.liftT ? smooth(0,7,time - T3.liftT): 0;
+const darkK = !T3.hesDone || T3.hes ? 0 :(T3.liftT ? 1 : smooth(0.06,0.3,pr))*(1 - liftK);
+window.__tunDark = T3.liftT ? darkK : damp(window.__tunDark || 0,darkK,0.6,dt);
+window.__tunR = 4.5 + 15 * smooth(0.15,0.9,pr)+ 12 * liftK;
+window.__tunExp = !T3.hesDone || T3.hes ? damp(window.__tunExp ?? 1,1,0.8,dt): T3.liftT ? 1 -(1 -(T3.expL ??(T3.expL = window.__tunExp ?? 1)))*(1 - liftK): damp(window.__tunExp ?? 1,1 - 0.5 * inside,0.8,dt);
 }
 {
 const pr = T3.gone ? 0 : Math.max(T3.prog || 0,T3.hes ? 0.15 : 0);
@@ -41343,6 +41345,41 @@ b.m.visible = true;
 if(b.sf)b.sf.dead = false;
 }
 };
+if(T3.link && window.__czPlanted && !(T3.clearN >= 2)&& time -(T3.clearT || -99)> 8){
+T3.clearT = time;
+T3.clearN =(T3.clearN || 0)+ 1;
+try{
+const[ax,az]= T3.link.from,
+[bx,bz]= T3.link.to;
+const nearL =(x,z)=>{
+if(Math.hypot(x - ax,z - az)< 3)return true;
+const dx = bx - ax,
+dz = bz - az,
+l2 = dx * dx + dz * dz || 1;
+const u = clamp(((x - ax)* dx +(z - az)* dz)/ l2,0,1);
+return Math.hypot(x -(ax + dx * u),z -(az + dz * u))< 1.3;
+};
+const m4 = new THREE.Matrix4(),
+pv = new V3(),
+z0 = new THREE.Matrix4().makeScale(0,0,0);
+scene.traverse(o =>{
+if(!o.isInstancedMesh || o.parent === grp ||(BTUN && o.parent === BTUN.grp))return;
+if(!o.geometry.boundingSphere)o.geometry.computeBoundingSphere();
+let ch = false;
+for(let i = 0;i < o.count;i++){
+o.getMatrixAt(i,m4);
+const sx = Math.hypot(m4.elements[0],m4.elements[1],m4.elements[2]);
+if(o.geometry.boundingSphere.radius * sx > 1.6 || sx < 1e-6)continue;
+pv.setFromMatrixPosition(m4).applyMatrix4(o.matrixWorld);
+if(nearL(pv.x,pv.z)){
+o.setMatrixAt(i,z0);
+ch = true;
+}
+}
+if(ch)o.instanceMatrix.needsUpdate = true;
+});
+}catch(e){}
+}
 if(!T3.linked && grassU.uMask.value && grassU.uMask.value.image && grassU.uMask.value.image.getContext){
 T3.linked = true;
 try{
@@ -41387,6 +41424,10 @@ mx.quadraticCurveTo((c1[0]+ WORLD / 2)* W2P,(c1[1]+ WORLD / 2)* W2P,(best[0]+ WO
 mx.stroke();
 grassU.uMask.value.needsUpdate = true;
 T3.link ={from:[E.x,E.z],to: best};
+mx.fillStyle = '#000';
+mx.beginPath();
+mx.arc((E.x + WORLD / 2)* W2P,(E.z + WORLD / 2)* W2P,2.6 * W2P,0,7);
+mx.fill();
 }
 }catch(e){
 console.warn('intro link',e);
@@ -42811,6 +42852,14 @@ console.log('branch tunnel built',rings,'rings');
 BTUN.update = dt =>{
 const T3 = window.__TRAIL;
 if(!BTUN.grp || !T3)return;
+if(BTUN.magic && BTUN.magic.veil){
+const MG = BTUN.magic,
+dk = window.__tunDark || 0;
+MG.veil.position.copy(camera.position);
+MG.veil.scale.setScalar((window.__tunR || 12)/ 12 + 0.25);
+MG.veil.material.opacity = Math.min(0.9,dk * 0.95);
+MG.veil.visible = dk > 0.004;
+}
 if(T3.gone){
 if(grassU.uIntro)grassU.uIntro.value.w = 0;
 if(BTUN.grp.visible)BTUN.grp.visible = false;
@@ -42864,12 +42913,6 @@ MG.w = T3.gone ? 0 : MG.on ||(T3.hesDone && pr > 0.14)? Math.min(1,(MG.w || 0)+ 
 MG.U.uW.value = MG.w;
 MG.U.uS.value = innerHeight;
 MG.pts.visible = MG.k > 0.003;
-{
-const dk = window.__tunDark || 0;
-MG.veil.position.copy(camera.position);
-MG.veil.material.opacity = Math.min(0.9,dk * 0.95);
-MG.veil.visible = dk > 0.004;
-}
 MG.lt.position.set(P.pos.x,P.pos.y + 1.6,P.pos.z);
 MG.lt.intensity = MG.k *(MG.w || 0)*(1.6 + 0.5 * Math.sin(time * 1.9));
 MG.lt.color.setHSL(0.7 + 0.06 * Math.sin(time * 0.37),0.85,0.66);
