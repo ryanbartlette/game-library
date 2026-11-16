@@ -15497,10 +15497,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 536;
+const BUILD = 537;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 104;
+const LOOKV = 105;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -17438,7 +17438,7 @@ if(!ch)continue;
 if(!ch.userData.p0)ch.userData.p0 = ch.position.clone();
 ch.position.copy(ch.userData.p0).multiplyScalar(tl);
 }
-const walking = /^(Walk|Trot)_/.test(c.curName || '');
+const walking = /^(Walk|Trot)_/.test(c.curName || '')&& !(t &&(P.scared || window.__farmLookK ||(window.__farmCrawl && !window.__asJack)));
 c.tailUp = damp(c.tailUp || 0,walking ? 1 : 0,3,1 / 60);
 const up = c.tailUp *(1 +(T[q + 'tailUp']?? 0));
 if(up > 0.01){
@@ -22234,47 +22234,58 @@ camera.quaternion.copy(B.q.clone().slerp(camera.quaternion,k));
 }
 {
 const rc = new THREE.Raycaster();
-let k = 0,
-n = 0,
-hit = false,
-mats = null;
+let n = 0;
+const TG =[];
+const get =()=>{
+const M = window.__MORE ||{};
+return[window.__BUSSTOP,M.houseMesh,M.houseIn && M.houseIn.g,M.door && M.door.g];
+};
 const loop =()=>{
 requestAnimationFrame(loop);
-const g = window.__BUSSTOP;
-if(!g || !window.__worldBuilt)return;
+if(!window.__worldBuilt)return;
 try{
-if(!mats){
-mats =[];
+const objs = get();
+for(let i = 0;i < objs.length;i++){
+const g = objs[i];
+if(!g)continue;
+let t = TG[i];
+if(!t || t.g !== g){
+t = TG[i]={g,k: 0,hit: false,mats:[]};
 g.traverse(o =>{
-if(o.isMesh)for(const m of Array.isArray(o.material)? o.material :[o.material])if(m && !mats.includes(m))mats.push(m);
+if(o.isMesh)for(const m of Array.isArray(o.material)? o.material :[o.material])if(m && !t.mats.includes(m))t.mats.push(m);
 });
-for(const m of mats){
-m.userData.op0 = m.opacity;
-m.userData.wasTr = m.transparent;
+for(const m of t.mats){
+if(m.userData.op0 == null)m.userData.op0 = m.opacity;
+if(m.userData.wasTr == null)m.userData.wasTr = m.transparent;
+}
 }
 }
 if(++n % 6 === 0){
 const head = new V3(P.pos.x,(P.visY ?? P.pos.y)+ 0.25,P.pos.z);
 const d = camera.position.distanceTo(head);
-hit = false;
-if(d < 30 && head.distanceTo(g.getWorldPosition(new V3()))< 8){
 rc.set(camera.position,head.clone().sub(camera.position).normalize());
 rc.far = Math.max(0,d - 0.3);
-hit = rc.intersectObject(g,true).length > 0;
+for(const t of TG){
+if(!t)continue;
+t.hit = false;
+if(!window.__sceneOn && d < 30 && t.g.visible !== false && head.distanceTo(t.g.getWorldPosition(new V3()))< 14)t.hit = rc.intersectObject(t.g,true).length > 0;
 }
 }
-const want = hit ? 1 : 0;
-const nk = k +(want - k)* 0.12;
-if(Math.abs(nk - k)< 1e-4 &&(nk === 0 || nk === 1))return;
-k = Math.abs(want - nk)< 0.01 ? want : nk;
-for(const m of mats){
-const tr = k > 0.001;
+for(const t of TG){
+if(!t)continue;
+const want = t.hit ? 1 : 0;
+const nk = t.k +(want - t.k)* 0.12;
+if(Math.abs(nk - t.k)< 1e-4 &&(nk === 0 || nk === 1))continue;
+t.k = Math.abs(want - nk)< 0.01 ? want : nk;
+for(const m of t.mats){
+const tr = t.k > 0.001;
 if(m.transparent !== tr && !m.userData.wasTr){
 m.transparent = tr;
 m.needsUpdate = true;
 }
-m.opacity =(m.userData.op0 ?? 1)*(1 - 0.72 * k);
-m.depthWrite = k < 0.5;
+m.opacity =(m.userData.op0 ?? 1)*(1 - 0.72 * t.k);
+m.depthWrite = t.k < 0.5;
+}
 }
 }catch(e){}
 };
@@ -36957,8 +36968,8 @@ EN.cl = c.position.clone().add(c.getWorldDirection(new V3()).multiplyScalar(4));
 EN.p0 = EN.cp.clone();
 EN.l0 = EN.cl.clone();
 }
-const a1 = smooth(0,1.2,EN.t),
-a2 = smooth(1.4,3.2,EN.t)*(1 - smooth(3.8,5.0,EN.t));
+const a1 = smooth(0,1.6,EN.t),
+a2 = 0;
 const pA = EN.p0.clone().lerp(crouchP,a1),
 lA = EN.l0.clone().lerp(crouchL,a1);
 EN.cp.copy(pA.lerp(upP,a2));
@@ -36974,6 +36985,7 @@ if(F.cam)F.cam(c);
 if(EN.st === 'look'){
 EN.t += dt;
 P.vel.x = P.vel.z = 0;
+P.speed = 0;
 window.__farmLookK = true;
 window.__slowK = lerp(1,0.45,smooth(0,0.8,EN.t))+(1 - 0.45)* smooth(4.4,5.2,EN.t)* smooth(0,0.8,EN.t);
 P.yaw += angDiff(P.yaw,Math.atan2(ux,uz))* Math.min(1,dt * 3);
@@ -37406,9 +37418,28 @@ if(Math.abs(e.movementX || 0)+ Math.abs(e.movementY || 0)> 4)moved = true;
 };
 addEventListener('mousemove',onMM);
 window.__camKeepOnce = true;
+const SW = 6.5,
+t0s = performance.now(),
+LK =(window.__FCS ={lock: true,dir: null,cam: null});
+setTimeout(()=>{
+if(window.__FCS === LK)window.__FCS = null;
+moved = false;
+},SW * 1000);
 window.__camOverride =
 hp && hl
 ? c =>{
+const el =(performance.now()- t0s)/ 1000;
+if(el < SW && window.__camOverride === hold){
+const k = smooth(0.4,2.2,el)*(1 - smooth(SW - 2,SW - 0.1,el));
+const tk = new V3(P.pos.x,(P.visY ?? P.pos.y)+ 0.12,P.pos.z);
+const dv = hp.clone().sub(tk).setY(0);
+if(dv.lengthSq()< 1e-4)dv.set(Math.sin(cam.yaw),0,Math.cos(cam.yaw));
+dv.normalize();
+const oP = tk.clone().addScaledVector(dv,2.3).add(new V3(0,1.35,0));
+c.position.copy(hp).lerp(oP,k);
+c.lookAt(hl.clone().lerp(tk,k));
+return;
+}
 if(moved || P.speed > 0.05 ||(P.vel && Math.hypot(P.vel.x,P.vel.z)> 0.05)|| window.__camOverride !== hold){
 removeEventListener('mousemove',onMM);
 if(window.__camOverride === hold){
@@ -37423,12 +37454,13 @@ c.lookAt(hl);
 }
 : null;
 var hold = window.__camOverride;
+window.__camHoldSoft = hold;
 }
 window.__slowK = 1;
 P.walkMode = true;
 setTimeout(()=>{
 P.walkMode = false;
-},2600);
+},2600 + 6500);
 window.__sootSwarm = 6.5;
 FE.st = 'in';
 FE.seen = true;
@@ -37480,6 +37512,19 @@ if(k > 2.5)FE.st = 'in';
 }
 if(FE.st === 'in' && !inside){
 FE.st = 'out';
+}
+if(window.__housePend && cineOK && FE.seen){
+const lpX = FHI.g.worldToLocal(new V3().copy(P.pos));
+const atTop = Math.abs(lpX.x - ST7.cx)< ST7.sw * 0.6 + 0.5 && lpX.z > FHI.w.z1 - 1.3 && lpX.z < FHI.w.z1 + 0.8;
+if(atTop ||(!inside && !window.__inFarm)){
+window.__housePend = false;
+window.__houseExitGo = true;
+P.vel.x = P.vel.z = 0;
+P.speed = 0;
+try{
+window.__STORY && window.__STORY.release && window.__STORY.release('house');
+}catch(e){}
+}
 }
 FE.clock += dt *(1 - frz);
 window.__stokClock = FE.clock;
@@ -46278,7 +46323,7 @@ J.awardQ.length &&
 !J.showing &&
 !J.queued &&
 !(window.__FCS && window.__FCS.lock && !window.__FCS.story)&&
-!window.__camOverride &&
+(!window.__camOverride ||(window.__camHoldSoft && window.__camOverride === window.__camHoldSoft))&&
 !window.__qOn
 ){
 J.awT =(J.awT || 0)+ dt;
@@ -47504,8 +47549,21 @@ cards =[];
 let say = null,
 freeT = 0,
 cardCool = 0;
+const held ={};
 S.done = id =>{
-if(LINES[id])queue.push({id,lines: LINES[id]});
+if(!LINES[id])return;
+if(id === 'house' && window.__inFarm){
+held[id]= 1;
+window.__housePend = true;
+return;
+}
+queue.push({id,lines: LINES[id]});
+};
+S.release = id =>{
+if(held[id]){
+held[id]= 0;
+queue.push({id,lines: LINES[id]});
+}
 };
 S.busy =()=>
 !!say || queue.length > 0 || !!S.fin;
@@ -50542,11 +50600,15 @@ const J = JJ(),
 S2 = ST();
 if(J &&(J.showing || J.queued || J.tgPend ||(J.awardQ && J.awardQ.length)))return null;
 if(S2 &&((S2.busy && S2.busy())|| S2.fin))return null;
-if(P.summit || P.mode !== 'ground' || window.__inFarm)return null;
+if(P.summit || P.mode !== 'ground' ||(window.__inFarm && !window.__houseExitGo))return null;
 const Q = A.Q,
 ds = dirS();
 for(const id of ORDER){
-if(Q.done[id]&& TURNS[id]&& !ds.tu[id])return()=> D.turn(id);
+if(Q.done[id]&& TURNS[id]&& !ds.tu[id])
+return()=>{
+if(id === 'house')window.__houseExitGo = false;
+D.turn(id);
+};
 }
 const q = A.curMain();
 if(q && q.id !== 'spirit' && !ds.op[q.id])return()=> D.opening(q.id);
@@ -50760,13 +50822,22 @@ bS.lerp(bp,0.04);
 return bS.clone().sub(T0).setY(0);
 };
 const lookAt =()=> look.clone().add(bDrift());
+let flyCv = null;
 D.cut({
 dur: DUR,
 live: id === 'boat',
 shots:[
 {d: 3,f:(k,c)=>[lerpV(c.p0,A,ss(k)),lerpV(c.l0,lookAt(),ss(Math.min(1,k * 1.3)))]},
-{d: 4,f: k =>{const dv = bDrift();return[lerpV(B0,B1,ss(k)).add(dv),look.clone().add(dv)];}},
-{d: DUR - 7,f: k =>{const dv = bDrift();const p = lerpV(CL0,CL1,ss(k)).add(dv);p.y = Math.max(p.y,gy(p.x,p.z)+ 1.2);return[p,look.clone().add(dv)];}}
+{
+d: DUR - 3,
+f: k =>{
+const dv = bDrift();
+const cv = flyCv ||(flyCv = new THREE.CatmullRomCurve3([B0,B1,CL0,CL1],false,'centripetal'));
+const p = cv.getPointAt(1 - Math.pow(1 - k,3)).add(dv);
+p.y = Math.max(p.y,gy(p.x,p.z)+ 1.2);
+return[p,look.clone().add(dv)];
+}
+}
 ],
 ev:[
 [
@@ -52853,7 +52924,7 @@ started &&
 !(TR && TR.cv &&(TR.cs || TR.wonder ||(!TR.welcomed && !(window.__Q && window.__Q.done.spirit))))&&
 P.mode === 'ground' &&
 !P.summit &&
-!window.__inFarm &&
+(!window.__inFarm || window.__houseExitGo)&&
 !(ROOM && ROOM.active)
 );
 };
@@ -53211,8 +53282,9 @@ if(C.seasonRate === 0.07)C.seasonRate = 0;
 }
 if(freeNow()){
 waitT += dt;
-if(waitT > 2.2){
+if(waitT >(id === 'house' && window.__houseExitGo ? 0.5 : 2.2)){
 waitT = 0;
+if(id === 'house')window.__houseExitGo = false;
 D.turn(id);
 }
 }else waitT = 0;
