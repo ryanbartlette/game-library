@@ -15517,10 +15517,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 555;
+const BUILD = 556;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 123;
+const LOOKV = 124;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -48233,21 +48233,63 @@ document.body.appendChild(prompt);
 const ded = document.createElement('div');
 ded.style.cssText =
 'position:fixed;inset:0;z-index:47;display:grid;place-items:center;text-align:center;background:#000;color:#f4f1ff;opacity:0;pointer-events:none;transition:opacity 2.4s ease;padding:24px';
-const JPHOTO =
-'<svg width="0" height="0" style="position:absolute"><filter id="jpPaint"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="3" seed="7"/><feDisplacementMap in="SourceGraphic" scale="9"/></filter></svg>' +
-'<div style="position:relative;transform:rotate(-3.5deg);margin:10px">' +
-'<div style="position:absolute;inset:-14px -14px -40px -14px;background:radial-gradient(120% 90% at 40% 30%,#f7efdc 0%,#eadcbf 70%,#d9c7a3 100%);filter:url(#jpPaint);box-shadow:0 18px 40px rgba(0,0,0,.55);border-radius:6px"></div>' +
-'<img src="textures/jack-photo.webp" alt="Jack with his chicken wing" style="position:relative;display:block;height:clamp(200px,46vh,440px);width:auto;border-radius:3px;-webkit-mask-image:radial-gradient(125% 115% at 50% 48%,#000 72%,transparent 100%);mask-image:radial-gradient(125% 115% at 50% 48%,#000 72%,transparent 100%)">' +
+if(!document.getElementById('dedHand')){
+const fl = document.createElement('link');
+fl.id = 'dedHand';
+fl.rel = 'stylesheet';
+fl.href = 'https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap';
+document.head.appendChild(fl);
+}
+const PHOTO =(src,alt,h,rot,name,nameSz,nameAt,pad = 0)=>
+'<div style="position:relative;transform:rotate(' +
+rot +
+'deg);margin:10px">' +
+'<div style="position:absolute;inset:-14px -14px ' +
+(name ? '-' +(nameSz * 1.25 + pad)+ 'px' : '-40px')+
+' -14px;background:radial-gradient(120% 90% at 40% 30%,#f7efdc 0%,#eadcbf 70%,#d9c7a3 100%);filter:url(#jpPaint);box-shadow:0 18px 40px rgba(0,0,0,.55);border-radius:6px"></div>' +
+'<img src="' +
+src +
+'" alt="' +
+alt +
+'" style="position:relative;display:block;height:' +
+h +
+';width:auto;border-radius:3px;-webkit-mask-image:radial-gradient(125% 115% at 50% 48%,#000 72%,transparent 100%);mask-image:radial-gradient(125% 115% at 50% 48%,#000 72%,transparent 100%)">' +
+(name
+? '<div style="position:absolute;' +
+(nameAt || 'left:0;right:0;text-align:center')+
+';bottom:-' +
+(nameSz * 1.02 + pad * 0.3)+
+'px;font-family:Caveat,\'Klee One\',cursive;font-weight:700;font-size:' +
+nameSz +
+'px;line-height:1;color:#3b2a1c;opacity:.9">' +
+name +
+'</div>'
+: '')+
 '<div style="position:absolute;left:50%;top:-22px;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ff8a7a,#c0392b 60%,#7a1d14);box-shadow:2px 5px 6px rgba(0,0,0,.5)"></div>' +
 '</div>';
+const JPHOTO =
+'<svg width="0" height="0" style="position:absolute"><filter id="jpPaint"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="3" seed="7"/><feDisplacementMap in="SourceGraphic" scale="9"/></filter></svg>' +
+PHOTO('textures/jack-photo.webp','Jack with his chicken wing','clamp(200px,46vh,440px)',-3.5,'Jack &amp; Chickum',33,null,16);
+const KIDS =
+'<div style="display:flex;flex-direction:column;align-items:center">' +
+'<div style="transform:translate(-30%,0);position:relative;z-index:2">' +
+PHOTO('textures/tink-photo.webp','Tink','clamp(150px,30vh,290px)',-5,'Tink',38)+
+'</div><div style="transform:translate(44%,0);margin-top:calc(-1 * clamp(36px,8vh,80px));position:relative;z-index:1">' +
+PHOTO('textures/luca-photo.webp','Luca','clamp(150px,30vh,290px)',4,'Luca',38)+
+'</div></div>';
 ded.innerHTML =
-'<div style="display:flex;align-items:center;justify-content:center;gap:clamp(28px,6vw,90px);flex-wrap:wrap">' +
+'<div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:clamp(28px,6vw,90px);width:100%">' +
+'<div style="justify-self:end">' +
 JPHOTO +
+'</div>' +
 '<div><div style="font-family:Montserrat,sans-serif;text-transform:uppercase;letter-spacing:.32em;font-size:clamp(11px,1.2vw,14px);opacity:.75">IN LOVING MEMORY OF</div><div style="font-family:Fraunces,Georgia,serif;font-variation-settings:\'SOFT\' 40,\'WONK\' 1,\'opsz\' 144;font-weight:600;font-size:clamp(48px,8vw,110px);line-height:1;margin:30px 0 12px;text-shadow:0 0 40px rgba(140,180,255,.45)"><span style="display:block;font-size:.36em;font-style:italic;font-weight:400;opacity:.85;line-height:1;margin-bottom:-.06em">“Maester”</span>Jack</div>' +
 '<img src="' +
 JPAW +
 '" alt="" style="display:block;height:clamp(40px,4.6vw,64px);width:auto;margin:6px auto 18px;opacity:.92;filter:drop-shadow(0 0 14px rgba(140,180,255,.35))">' +
-'<div style="font-family:Fraunces,Georgia,serif;font-style:italic;font-size:clamp(17px,2vw,24px);opacity:.9">who watches over Tink and Luca, always</div><div class="cr" style="margin-top:46px;font-family:Montserrat,sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;opacity:0;transition:opacity 2s ease;line-height:2.1">Tink\'s Magical Forest<br><span style="opacity:.7">for Tink, Luca and Jack</span></div><div class="ky" style="margin-top:34px;font-family:Montserrat,sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:0;transition:opacity 1.6s ease">Press any key to keep exploring</div></div></div>';
+'<div style="font-family:Fraunces,Georgia,serif;font-style:italic;font-size:clamp(17px,2vw,24px);opacity:.9">who watches over Tink and Luca, always</div><div class="cr" style="margin-top:46px;font-family:Montserrat,sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;opacity:0;transition:opacity 2s ease;line-height:2.1">Tink\'s Magical Forest<br><span style="opacity:.7">for Tink, Luca and Jack</span></div><div class="ky" style="margin-top:34px;font-family:Montserrat,sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:0;transition:opacity 1.6s ease">Press any key to keep exploring</div></div>' +
+'<div style="justify-self:start">' +
+KIDS +
+'</div></div>';
 document.body.appendChild(ded);
 const css = document.createElement('style');
 css.textContent =
