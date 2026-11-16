@@ -15311,10 +15311,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 534;
+const BUILD = 535;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 102;
+const LOOKV = 103;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -19295,7 +19295,7 @@ if(
 P.speed >
 T.sprint * 0.85
 )
-P.dashT = Math.min(3,(P.dashT || 0)+ dt);
+P.dashT = window.__ROAM ? Math.min(3,(P.dashT || 0)+ dt): 0;
 P.dashing = P.dashT >= 3;
 target = P.dashing ? Math.max(T.sprint,T.dash ?? 6.5): T.sprint;
 label = P.dashing ? 'Zoomies!' : 'Run';
@@ -51623,6 +51623,24 @@ return new V3(r[i - 1].x +(r[i].x - r[i - 1].x)* k,0,r[i - 1].z +(r[i].z - r[i -
 let p = at(DOT.s);
 const d = Math.hypot(p.x - P.pos.x,p.z - P.pos.z);
 const total = DOT.L[DOT.L.length - 1];
+DOT.lost = d > 9 ?(DOT.lost || 0)+ dt : 0;
+if(DOT.lost > 1.2){
+DOT.lost = 0;
+try{
+const B2 = window.__BOAT;
+const bp2 = B2 && B2.g ? B2.g.getWorldPosition(new V3()): at(total);
+const f2 = new V3(Math.sin(P.yaw),0,Math.cos(P.yaw));
+const s2 = P.pos.clone().addScaledVector(f2,1.6);
+const r2 = D.route(s2,bp2);
+const L2 =[0];
+for(let i = 1;i < r2.length;i++)L2.push(L2[i - 1]+ Math.hypot(r2[i].x - r2[i - 1].x,r2[i].z - r2[i - 1].z));
+DOT.r = r2;
+DOT.L = L2;
+DOT.s = 0;
+DOT.zig = null;
+}catch(e){}
+return;
+}
 if(d < 2.6)DOT.s = Math.min(total,DOT.s + dt *(3.6 +(2.6 - d)* 1.6));
 else if(d > 7)DOT.s = Math.max(0,DOT.s - dt * 1.2);
 p = at(DOT.s);
@@ -51688,6 +51706,7 @@ A.Q.p.dotDone = 1;
 A.saveQ();
 dot.visible = false;
 DOT = null;
+if(window.__SL)window.__SL.free = 0;
 try{
 window.__storyLine &&
 window.__storyLine(
