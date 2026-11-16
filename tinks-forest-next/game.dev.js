@@ -15392,10 +15392,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 519;
+const BUILD = 520;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 87;
+const LOOKV = 88;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -19463,7 +19463,6 @@ P.dashT = 0;
 }
 if(
 window.__farmCrawl &&
-!(window.__FCS && window.__FCS.lock && window.__FCS.entry)&&
 !window.__asJack
 ){
 P.scared = true;
@@ -36783,6 +36782,8 @@ dF < 1.5 &&
 EN.st = 'look';
 EN.t = 0;
 EN.cp = null;
+EN.crawl = true;
+window.__farmCrawl = true;
 P.vel.set(0,0,0);
 P.walkMode = true;
 window.__digT = performance.now()+ 3600;
@@ -44589,7 +44590,7 @@ line: 'It drifted all this way on the wind, just to find you. Love always knows 
 },
 {
 id: 'pebble',
-name: PEBG ? 'a pebble, still warm' : 'a little stone',
+name: 'a warm lump of coal',
 mean: 'courage',
 line: 'Still warm from the fire below. Carry it with you… even the smallest flame is enough.'
 },
@@ -44626,7 +44627,34 @@ J.GFOR = GFOR;
 J.GIFTS = GIFTS;
 J.got = J.got.filter(id => GIFTS.some(g => g.id === id));
 const GMOD ={
-pebble: PEBG
+pebble:{
+get scene(){
+const r = mulberry32(71521);
+const g0 = new THREE.DodecahedronGeometry(1,1);
+const pa = g0.attributes.position;
+const seen = new Map();
+for(let i = 0;i < pa.count;i++){
+const k = pa.getX(i).toFixed(3)+ ',' + pa.getY(i).toFixed(3)+ ',' + pa.getZ(i).toFixed(3);
+if(!seen.has(k))seen.set(k,0.78 + r()* 0.36);
+const f = seen.get(k);
+pa.setXYZ(i,pa.getX(i)* f * 1.15,pa.getY(i)* f * 0.85,pa.getZ(i)* f);
+}
+g0.computeVertexNormals();
+const m = new THREE.MeshStandardMaterial({color: 0x1c1a19,roughness: 0.55,metalness: 0.2,flatShading: true,emissive: 0xff5a14,emissiveIntensity: 1});
+m.onBeforeCompile = sh =>{
+sh.vertexShader = sh.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vCP;').replace('#include <begin_vertex>','#include <begin_vertex>\nvCP=position;');
+sh.fragmentShader = sh.fragmentShader
+.replace('#include <common>','#include <common>\nvarying vec3 vCP;float ch(vec3 p){return fract(sin(dot(p,vec3(12.9,78.2,37.7)))*43758.5);}')
+.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\n{vec3 q=vCP*5.;vec3 i=floor(q);float n=ch(i)*.6+ch(floor(q*2.3))*.4;float crack=smoothstep(.72,.9,n);totalEmissiveRadiance*=crack*.9+.04;}');
+};
+const o = new THREE.Group();
+const mesh = new THREE.Mesh(g0,m);
+mesh.scale.setScalar(0.5);
+o.add(mesh);
+return o;
+}
+},
+pebbleOld: PEBG
 ?{
 get scene(){
 const o = PEBG.scene.clone(true);
@@ -45019,9 +45047,9 @@ l.rotation.x = -Math.PI / 2;
 l.position.y = 0.01;
 g.add(l);
 }else if(id === 'pebble'){
-const pb = new THREE.Mesh(new THREE.SphereGeometry(0.035,14,10),M(0x8fb4cc,0.15));
-pb.scale.set(1.3,0.6,1);
-pb.position.y = 0.02;
+const pb = new THREE.Mesh(new THREE.DodecahedronGeometry(0.035,0),new THREE.MeshStandardMaterial({color: 0x1c1a19,roughness: 0.6,flatShading: true,emissive: 0xff5a14,emissiveIntensity: 0.25}));
+pb.scale.set(1.2,0.85,1);
+pb.position.y = 0.03;
 g.add(pb);
 }else{
 const b = new THREE.Mesh(
