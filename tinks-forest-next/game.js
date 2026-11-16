@@ -15362,10 +15362,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 545;
+const BUILD = 546;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 113;
+const LOOKV = 114;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -17526,6 +17526,7 @@ if(Math.abs(tr)> 0.9 && base !== 'swim')slot = base +(tr > 0 ? 'L' : 'R');
 want = act(slot);
 ts = clamp(sp /(C3_SPEED[C3_DEF[base]]|| 0.8)/(T.stride || 1),0.35,2.6);
 fade = Math.abs(tr)> 0.9 ? 0.3 : 0.22;
+if(base === 'crawl' && window.__farmCrawl && !/Crouch/.test(c.curName || ''))fade = 0.95;
 }else if(P.inWater && waterLevelAt(P.pos.x,P.pos.z)- heightAt(P.pos.x,P.pos.z)> 0.3 && P.mode === 'ground'){
 want =
 act('swimIdle');
@@ -17535,7 +17536,7 @@ fade = 0.3;
 if((P.scared || window.__farmLookK ||(window.__farmCrawl && !window.__asJack))&& P.mode === 'ground'){
 want = act('crawl');
 ts = 0;
-fade = window.__farmLookK ? 1.3 : 0.25;
+fade = window.__farmLookK || !/Crouch/.test(c.curName || '')? 1.1 : 0.25;
 c.life = '';
 }else if(P.pounceCharge >= 0 ||(AP.ready || 0)> 0.3 || P.crouchOn){
 const ws = act('crouchWaitStart'),
@@ -19405,7 +19406,7 @@ P.crouchOn = false;
 P.dashing = false;
 P.dashT = 0;
 if(dir && P.sit < 0.5){
-target = T.stalk;
+target = T.stalk * 0.72;
 label = 'Creep';
 }
 }else P.scared = false;
@@ -25221,7 +25222,7 @@ pill.innerHTML =
 '<span style="display:inline-block;border:1px solid #fff;border-radius:5px;padding:1px 7px;margin-right:10px">E</span>Read the signpost';
 const card = document.createElement('div');
 card.style.cssText =
-'position:fixed;left:50%;bottom:13vh;transform:translateX(-50%) translateY(8px);min-width:260px;max-width:min(440px,86vw);padding:16px 24px 14px;border-radius:14px;background:rgba(14,24,30,.5);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.35);color:#fffbe9;text-shadow:0 1px 6px rgba(0,0,0,.5);z-index:33;pointer-events:none;opacity:0;transition:opacity .5s,transform .5s;text-align:center';
+'position:fixed;left:50%;bottom:15.5vh;transform:translateX(-50%) translateY(8px);min-width:260px;max-width:min(440px,86vw);padding:16px 24px 14px;border-radius:14px;background:rgba(14,24,30,.5);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.35);color:#fffbe9;text-shadow:0 1px 6px rgba(0,0,0,.5);z-index:33;pointer-events:none;opacity:0;transition:opacity .5s,transform .5s;text-align:center';
 const add =()=>{
 if(!pill.parentNode){
 document.body.appendChild(pill);
@@ -30161,12 +30162,25 @@ src.connect(g).connect(out);
 g.gain.setValueAtTime(0,t);
 g.gain.linearRampToValueAtTime(1,t + Math.max(0.02,fin));
 src.start(t);
-const c ={k,src,g,ended: false};
+const c ={k,src,g,ended: false,t0: t,LP};
 src.onended =()=>{
 c.ended = true;
 };
 return c;
 };
+const songPos =(ctx,c)=>{
+const e = ctx.currentTime - c.t0,
+LP = c.LP;
+if(!LP || e < LP[1])return e;
+return LP[0]+((e - LP[0])%(LP[1]- LP[0]));
+};
+const songNoLoop =(ctx,c)=>{
+if(!c || c.offAt != null)return;
+c.pos0 = songPos(ctx,c);
+c.offAt = ctx.currentTime;
+c.src.loop = false;
+};
+const songLeft =(ctx,c)=>(c && c.offAt != null && c.src.buffer ? c.src.buffer.duration -(c.pos0 + ctx.currentTime - c.offAt): 1e9);
 const songFade =(ctx,c,sec,keep)=>{
 const t = ctx.currentTime;
 c.g.gain.cancelScheduledValues(t);
@@ -30380,9 +30394,10 @@ if(TR.cs)SC.sawCs = true;
 if(TR.welcomed && SC.sawCs && !SC.done.reveal){
 SC.done.reveal = 1;
 SC.jackOut = true;
-if(SC.cur && SC.cur.k === 'jack')SC.cur.src.loop = false;
+if(SC.cur && SC.cur.k === 'jack')songNoLoop(ctx,SC.cur);
 }
 if(SC.jackOut && SC.cur && SC.cur.k === 'jack' && SC.cur.ended)SC.jackOut = false;
+if(SC.jackOut && SC.cur && SC.cur.k === 'jack' && songLeft(ctx,SC.cur)< 7.5)SC.jackOut = false;
 if(P.floatDown && !SC.wasFloat)SC.shot = 'leap';
 SC.wasFloat = !!P.floatDown;
 if(ST && ST.fin && !SC.done.farewell){
@@ -30450,13 +30465,13 @@ if(W2 && !(SC.cur && SC.cur.k === W2)){
 const b = L.songBuf(W2);
 if(b){
 const was = SC.cur;
-if(was)songFade(ctx,was,was.ended ? 0.05 : W2 === 'leap' ? 1.5 : 7,()=> !!(SC.cur && SC.cur.k === was.k));
+if(was)songFade(ctx,was,was.ended ? 0.05 : W2 === 'leap' ? 1.5 : Math.max(0.3,Math.min(7,songLeft(ctx,was)- 0.2)),()=> !!(SC.cur && SC.cur.k === was.k));
 SC.cur = songStart(ctx,W2,b,songOut(ctx,SC,W2),W2 === 'leap' ? 0.03 : was && !was.ended ? 6 : 2.5);
-if(W2 === 'jack' && SC.jackOut)SC.cur.src.loop = false;
+if(W2 === 'jack' && SC.jackOut)songNoLoop(ctx,SC.cur);
 }
 }else if(!W2 && SC.cur){
 const was = SC.cur;
-songFade(ctx,was,was.ended ? 0.05 : 6,()=> !!(SC.cur && SC.cur.k === was.k));
+songFade(ctx,was,was.ended ? 0.05 : Math.max(0.3,Math.min(6,songLeft(ctx,was)- 0.2)),()=> !!(SC.cur && SC.cur.k === was.k));
 SC.cur = null;
 }
 const playing = !!(SC.cur && !SC.cur.ended);
@@ -46370,7 +46385,7 @@ qhint.classList.add('actP');
 qhint.innerHTML =
 '<kbd style="font:600 11px Montserrat,sans-serif;border:1px solid rgba(236,255,248,.6);border-radius:5px;padding:2px 8px;margin-right:9px">Enter</kbd>to continue';
 qhint.style.cssText =
-'position:fixed;left:50%;bottom:7vh;transform:translateX(-50%);z-index:48;color:rgba(236,255,248,.78);font:600 11px Montserrat,sans-serif;letter-spacing:.18em;text-transform:uppercase;text-shadow:0 1px 8px rgba(4,14,24,.9);opacity:0;transition:opacity .8s ease;pointer-events:auto;cursor:pointer;white-space:nowrap';
+'position:fixed;left:50%;bottom:calc(var(--barH,12.8vh) * 0.7);transform:translateX(-50%);z-index:48;color:rgba(236,255,248,.78);font:600 11px Montserrat,sans-serif;letter-spacing:.18em;text-transform:uppercase;text-shadow:0 1px 8px rgba(4,14,24,.9);opacity:0;transition:opacity .8s ease;pointer-events:auto;cursor:pointer;white-space:nowrap';
 qhint.onclick = e =>{
 e.stopPropagation();
 if(window.__qGo)window.__qGo();
@@ -46448,7 +46463,7 @@ let QS = 'bar';
 const st = document.createElement('style');
 st.textContent =
 'html.qs-small #jackbg{opacity:0!important}' +
-'html.qs-bar.qs-small #jackq,html.qs-mix.qs-small #jackq{inset:auto 0 0 0!important;top:auto!important;height:10vh!important;justify-content:center!important;padding:0 7vw!important}' +
+'html.qs-bar.qs-small #jackq,html.qs-mix.qs-small #jackq{inset:auto 0 0 0!important;top:auto!important;height:var(--barH,12.8vh)!important;justify-content:center!important;padding:0 7vw!important}' +
 'html.qs-bar.qs-small #jackq .jl,html.qs-mix.qs-small #jackq .jl{font-size:clamp(17px,1.9vw,34px)!important;line-height:1.14!important;max-width:min(1500px,86vw)!important;animation:none!important}' +
 'html.qs-top.qs-small #jackq{justify-content:flex-start!important;padding-top:12vh!important}' +
 'html.qs-top.qs-small #jackq .jl{font-size:clamp(20px,2.7vw,48px)!important;max-width:min(1300px,80vw)!important}' +
@@ -49712,7 +49727,7 @@ document.head.appendChild(css);
 const bars =[0,1].map(i =>{
 const b = document.createElement('div');
 b.style.cssText =
-'position:fixed;left:0;right:0;height:10vh;background:#000;z-index:44;pointer-events:none;transition:transform 1.3s ease;' +
+'position:fixed;left:0;right:0;height:var(--barH,12.8vh);background:#000;z-index:44;pointer-events:none;transition:transform 1.3s ease;' +
 (i ? 'bottom:0;transform:translateY(100%)' : 'top:0;transform:translateY(-100%)');
 document.body.appendChild(b);
 return b;
@@ -49728,7 +49743,7 @@ document.body.appendChild(tt);
 const skipH = document.createElement('div');
 skipH.classList.add('actP','skipH');
 skipH.style.cssText =
-'position:fixed;right:28px;bottom:calc(10vh + 16px);color:rgba(255,255,255,.55);font-family:Montserrat,sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;pointer-events:none;opacity:0;transition:opacity 1s;z-index:46';
+'position:fixed;right:28px;bottom:calc(var(--barH,12.8vh) + 16px);color:rgba(255,255,255,.55);font-family:Montserrat,sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;pointer-events:none;opacity:0;transition:opacity 1s;z-index:46';
 skipH.innerHTML = '<kbd>Tab</kbd>to skip';
 document.body.appendChild(skipH);
 const title = id =>{
@@ -52322,6 +52337,11 @@ document.body.classList.add('cut');
 D.liftAt = performance.now()+ 700;
 if(!D.storyLock && !CS)document.body.classList.remove('cut');
 }
+}
+{
+const cutNow = !!CS || !!window.__camEase;
+if(cutNow)D.cutEndT = performance.now();
+document.body.classList.toggle('noPrompt',cutNow || performance.now()-(D.cutEndT || 0)< 1500);
 }
 {
 const hb = !!window.__barsHold && !auto && !D.storyLock && !CS;
