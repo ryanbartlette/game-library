@@ -15517,10 +15517,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 546;
+const BUILD = 547;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 114;
+const LOOKV = 115;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -25002,6 +25002,26 @@ pl = purrs[k]={src,g};
 pl.g.gain.setTargetAtTime(on ? 0.55 * clamp(1.4 - d / 5,0.3,1): 0,AUD.ctx.currentTime,on ? 0.8 : 0.4);
 }
 }
+const wetCover = p =>{
+try{
+if(inRoom(p)|| window.__inFarm)return true;
+}catch(e){}
+try{
+const T = LIFE.tree;
+if(T && T.giant && T.door){
+const Dd = Math.hypot(T.door.x - T.x,T.door.z - T.z);
+if(Math.hypot(p.x - T.x,p.z - T.z)< Dd * 0.55)return true;
+}
+}catch(e){}
+try{
+const B = window.__BUSSTOP;
+if(B){
+const bb = B.__wbb ||(B.__wbb = new THREE.Box3().setFromObject(B));
+if(p.x > bb.min.x - 0.1 && p.x < bb.max.x + 0.1 && p.z > bb.min.z - 0.1 && p.z < bb.max.z + 0.1)return true;
+}
+}catch(e){}
+return false;
+};
 function updateWet(dt){
 const W = window.__wetU;
 if(!W)return;
@@ -25018,6 +25038,12 @@ deep = clamp((waterLevelAt(PP.pos.x,PP.pos.z)- heightAt(PP.pos.x,PP.pos.z))/ 0.3
 deep = 1;
 }
 const u = W[k];
+try{
+if(!deep && window.__isRaining && window.__isRaining()&& !wetCover(PP.pos)){
+if(u.value < 0.42)u.value = Math.min(0.42,u.value + dt * 0.035);
+continue;
+}
+}catch(e){}
 if(deep > u.value)u.value = Math.min(deep,u.value + dt * 1.4);
 else u.value = Math.max(0,u.value - dt *(0.028 + 0.02 * u.value));
 }
@@ -37436,7 +37462,7 @@ c.updateProjectionMatrix();
 C.fp = pos.clone();
 C.fl = lk.clone();
 };
-if(!C.said2 && C.t > 2.35){
+if(!C.said2 && C.t > 2.85){
 C.said2 = true;
 try{
 say('“…Hmph. Only a little cat.”',4200,2200);
@@ -37534,6 +37560,12 @@ const backK = outT == null ? 0 : smooth(outT,outT + 1.8,el);
 if(outT != null && backK >= 1 && window.__FCS === LK){
 window.__FCS = null;
 moved = false;
+}
+if(window.__FCS === LK){
+if(el > 0.6 && el < SW - 0.4){
+const a2 =(LK.a0 ??(LK.a0 = P.yaw))+(el - 0.6)* 0.75;
+LK.dir = new V3(Math.sin(a2),0,Math.cos(a2));
+}else LK.dir = null;
 }
 if((outT == null || backK < 1)&& window.__camOverride === hold){
 const k = smooth(0.4,2.2,el)*(1 - backK);
