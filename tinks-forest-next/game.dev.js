@@ -15392,10 +15392,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 524;
+const BUILD = 525;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 92;
+const LOOKV = 93;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -39429,7 +39429,7 @@ window.__TRAIL;
 if(TT && TT.cv && !TT.gone){
 const E1 = TT.cv.getPointAt(1);
 const dEnd = Math.hypot(P.pos.x - E1.x,P.pos.z - E1.z);
-const kin =(TT.inside || 0)* clamp((dEnd - 7)/ 9,0,1);
+const kin =(TT.hesDone && !TT.hes &&(TT.prog || 0)> 0.05 ? 1 : 0)*(TT.inside || 0)* clamp((dEnd - 7)/ 9,0,1);
 const D = camera.position.distanceTo(gp.p)+ 3.2;
 const tf = window.__tunFog ||(window.__tunFog ={k: 0,D: 12,t: 0});
 tf.k = damp(tf.k,kin,kin > tf.k ? 1.2 : 1.6,dt);
@@ -42076,9 +42076,9 @@ T3.prog = T3.gone
 const pr = T3.gone ? 0 : T3.prog || 0;
 const inside = smooth(0,0.07,pr)*(1 - smooth(0.86,1,pr));
 const endK = T3.hes || T3.wonder || T3.cs ? 1 : smooth(0.8,0.97,pr);
-const darkK = T3.gone ? 0 : smooth(0.06,0.3,pr)*(1 - endK)*(1 - 0.35 * smooth(0.45,0.8,pr));
+const darkK = T3.gone || !T3.hesDone || T3.hes ? 0 : smooth(0.06,0.3,pr)*(1 - endK)*(1 - 0.35 * smooth(0.45,0.8,pr));
 window.__tunDark = damp(window.__tunDark || 0,darkK,darkK >(window.__tunDark || 0)? 0.6 : 1.2,dt);
-window.__tunExp = T3.gone ? 1 : damp(window.__tunExp ?? 1,1 - 0.5 * inside *(1 - endK),0.8,dt);
+window.__tunExp = T3.gone || !T3.hesDone || T3.hes ? damp(window.__tunExp ?? 1,1,0.8,dt): damp(window.__tunExp ?? 1,1 - 0.5 * inside *(1 - endK),0.8,dt);
 }
 {
 const pr = T3.gone ? 0 : Math.max(T3.prog || 0,T3.hes ? 0.15 : 0);
@@ -43780,14 +43780,14 @@ if(o.count !== n)o.count = n;
 if(BTUN.magic){
 const MG = BTUN.magic;
 const pr = T3.gone ? 0 : T3.prog || 0;
-const want = T3.gone ? 0 : smooth(0.14,0.2,pr);
+const want = T3.gone || !T3.hesDone ? 0 : smooth(0.14,0.2,pr);
 if(pr > 0.24)MG.on = true;
 const want2 = MG.on && !T3.gone ? 1 : want;
 MG.k +=(want2 - MG.k)* Math.min(1,dt *(want2 > MG.k ? 0.9 : 1.5));
 MG.U.uT.value = time;
 MG.U.uK.value = MG.k;
 MG.U.uPr.value = pr;
-MG.w = T3.gone ? 0 : MG.on || pr > 0.14 ? Math.min(1,(MG.w || 0)+ dt / 20): 0;
+MG.w = T3.gone ? 0 : MG.on ||(T3.hesDone && pr > 0.14)? Math.min(1,(MG.w || 0)+ dt / 20): 0;
 MG.U.uW.value = MG.w;
 MG.U.uS.value = innerHeight;
 MG.pts.visible = MG.k > 0.003;
