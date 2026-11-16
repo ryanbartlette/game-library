@@ -15362,10 +15362,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 544;
+const BUILD = 545;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 112;
+const LOOKV = 113;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -42199,7 +42199,7 @@ toneMapped: false,
 vertexShader: `attribute vec4 aA;uniform float uT,uK,uPr,uS,uW;varying vec3 vC;varying float vA;
 void main(){vec4 mv=modelViewMatrix*vec4(position,1.);mv.xyz+=normalize(-mv.xyz)*.08;/* (sat just off the bark, so the trunk never hides half of each light) */gl_Position=projectionMatrix*mv;
 /* the whole tunnel breathes together; each light glints a little on its own */
-float br=.72+.28*sin(uT*1.9);/* FOREST 89 (Ryan): breathing, but never going dark */float tw=.75+.25*sin(uT*3.1+aA.y*40.);
+float wv=pow(.5+.5*sin(aA.x*13.8-uT*1.25),3.);float br=.7+.16*sin(uT*1.9)+.26*wv;/* FOREST 89 (Ryan): breathing, but never going dark; FOREST 113 (Ryan): and soft waves of light roll along the arches from the entrance toward the exit, leading her through */float tw=.75+.25*sin(uT*3.1+aA.y*40.);
 /* lights ahead of her wake first as she nears them; the whole tunnel is alight near the end */
 /* FOREST 90 (Ryan): they wake one by one, each in its own moment, the nearest a little sooner, until all are awake and breathing */float near=smoothstep(uPr+.5,uPr,aA.x);float th=aA.y*.92;float wk=smoothstep(th,th+.1,uW*1.08+near*.12);float lit=uK*wk;
 float lane=aA.w>1.5?.5+.5*sin(uT*(2.+aA.y*3.)+aA.y*60.):aA.w>.5?pow(.5+.5*sin(aA.x*90.-uT*2.4),3.)*.7+.45:1.;
