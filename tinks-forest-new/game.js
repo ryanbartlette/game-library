@@ -15362,10 +15362,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 556;
+const BUILD = 557;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 124;
+const LOOKV = 125;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -59445,6 +59445,21 @@ const along = vx * dx + vy * dy,
 across = Math.abs(vx * dy - vy * dx);
 if(along <= 2 || across > along * 1.2)continue;
 const s = along + across * 2.5;
+if(s < bs){
+bs = s;
+best = c;
+}
+}
+if(!best)
+for(const c of cs){
+if(c === PAD.sel)continue;
+const b = c.getBoundingClientRect(),
+vx = b.left + b.width / 2 - ax,
+vy = b.top + b.height / 2 - ay;
+const along = vx * dx + vy * dy,
+across = Math.abs(vx * dy - vy * dx);
+if(along <= 2)continue;
+const s = along + across * 0.6;
 if(s < bs){
 bs = s;
 best = c;
