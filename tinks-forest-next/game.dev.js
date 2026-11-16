@@ -15517,10 +15517,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 541;
+const BUILD = 542;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 109;
+const LOOKV = 110;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -37051,47 +37051,13 @@ P.mode === 'ground' &&
 dF < 1.5 &&
 (P.vel.x * ux + P.vel.z * uz)/ ul > 0.15
 ){
-EN.st = 'look';
+EN.st = 'idle';
+EN.crawl = true;
+window.__barsHold = true;
 EN.t = 0;
 EN.cp = null;
 EN.crawl = true;
 window.__farmCrawl = true;
-P.vel.set(0,0,0);
-P.walkMode = true;
-window.__digT = performance.now()+ 3600;
-const F =(window.__FCS ={lock: true,dir: null,cam: null,entry: true});
-F.cam = c =>{
-const k = 1 / ul;
-const T0 = window.__CAMST && window.__CAMST.T;
-const dist =(T0 ? T0.camDist : 2.4)* 0.7,
-ch =(T0 ? T0.camHeight : 0.5)- 0.24,
-pit = 0.1;
-const bx = -ux * k,
-bz = -uz * k;
-const tgt = new V3(P.pos.x,(P.visY ?? P.pos.y)+ ch,P.pos.z);
-const crouchP = tgt.clone().add(new V3(bx * Math.cos(pit)* dist,Math.sin(pit)* dist,bz * Math.cos(pit)* dist));
-const crouchL = tgt.clone();
-const upP = new V3(P.pos.x - ux * k * 1.6,P.pos.y + 0.45,P.pos.z - uz * k * 1.6);
-const upL = new V3(EN.top.x + ux * k * 1.2,EN.top.y + 0.9,EN.top.z + uz * k * 1.2);
-if(!EN.cp){
-EN.cp = c.position.clone();
-EN.cl = c.position.clone().add(c.getWorldDirection(new V3()).multiplyScalar(4));
-EN.p0 = EN.cp.clone();
-EN.l0 = EN.cl.clone();
-}
-const a1 = smooth(0,1.6,EN.t),
-a2 = 0;
-const pA = EN.p0.clone().lerp(crouchP,a1),
-lA = EN.l0.clone().lerp(crouchL,a1);
-EN.cp.copy(pA.lerp(upP,a2));
-EN.cl.copy(lA.lerp(upL,a2));
-c.position.copy(EN.cp);
-c.lookAt(EN.cl);
-EN.endYaw = Math.atan2(bx,bz);
-};
-window.__camOverride = c =>{
-if(F.cam)F.cam(c);
-};
 }
 if(EN.st === 'look'){
 EN.t += dt;
@@ -37129,6 +37095,7 @@ if(window.__farmAlive === false && EN.st !== 'look'){
 EN.crawl = false;
 if(window.__farmCrawlWas)P.crouchOn = false;
 }
+if(window.__barsHold &&(!EN.crawl || FE.st === 'cine' || inside || window.__farmAlive === false))window.__barsHold = false;
 window.__farmCrawlWas = !!EN.crawl;
 window.__farmCrawl = !!EN.crawl;
 {
@@ -53270,6 +53237,14 @@ document.body.classList.add('cut');
 D.liftAt = performance.now()+ 700;
 if(!D.storyLock && !CS)document.body.classList.remove('cut');
 }
+}
+{
+const hb = !!window.__barsHold && !auto && !D.storyLock && !CS;
+if(hb){
+bars[0].style.transform = bars[1].style.transform = 'translateY(0)';
+D.liftAt = 0;
+}else if(D.barsHeld && !auto && !D.storyLock && !CS)D.liftAt = performance.now();
+D.barsHeld = hb;
 }
 if(D.liftAt && !auto && performance.now()> D.liftAt){
 D.liftAt = 0;
