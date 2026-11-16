@@ -22942,7 +22942,7 @@ sfx('chime',{vol: 0.5});
 try{
 window.__TUT && window.__TUT.hide();
 }catch(e){}
-story('Tink tucks the bean into the soft earth…','and the glade settles down to sleep',5200);
+story('Tink tucks the bean into the soft dirt beneath the snow…','and the glade settles down to sleep',5200);
 window.__plantT = performance.now();
 setTimeout(()=>{
 try{
@@ -50751,9 +50751,12 @@ let fw = new V3(P.pos.x - c.x,0,P.pos.z - c.z);
 if(fw.lengthSq()< 0.01)fw.set(0,0,1);
 fw.normalize();
 const sd = new V3(fw.z,0,-fw.x);
-const pos = c.clone().addScaledVector(fw,0.62);
-pos.y = gy(pos.x,pos.z);
-const yaw = Math.atan2(c.x - pos.x,c.z - pos.z);
+const side = c.clone().addScaledVector(fw,0.62);
+side.y = gy(side.x,side.z);
+const pos = c.clone().addScaledVector(fw,0.06);
+pos.y = gy(pos.x,pos.z)+ 0.03;
+const yaw = Math.atan2(c.x - side.x,c.z - side.z)+ Math.PI * 0.5;
+D.sleepSide ={pos: side,yaw: Math.atan2(c.x - side.x,c.z - side.z)};
 P.pos.copy(pos);
 P.yaw = yaw;
 P.speed = 0;
@@ -50853,6 +50856,13 @@ t > 11 &&
 c2.snowOff = 1;
 if(C)C.story ={ev:{},rate: 3};
 }
+if(t > 14.2 && !c2.moved && D.sleepSide && D.hold){
+c2.moved = 1;
+D.hold.pos = D.sleepSide.pos.clone();
+D.hold.yaw = D.sleepSide.yaw;
+P.pos.copy(D.sleepSide.pos);
+P.yaw = D.sleepSide.yaw;
+}
 if(t > 14.6 && !c2.spr){
 c2.spr = 1;
 if(C){
@@ -50875,7 +50885,7 @@ sk =>{
 if(!sk)
 window.__storyLine &&
 window.__storyLine(
-'Tink curls up beside the little mound…',
+'Tink curls up over the bean to keep it warm…',
 'and the long winter slips by',
 4600
 );
@@ -52550,7 +52560,8 @@ let g = 9;
 try{
 g = streamGap(P.pos.x,P.pos.z);
 }catch(e){}
-if(g < 1.3 || P.inWater)act = 'fill';
+const onBr = !!P.onSurf || BRIDGES.some(b2 => Math.hypot(b2[0]- P.pos.x,b2[1]- P.pos.z)< 2.6);
+if((g < 1.3 || P.inWater)&& !onBr)act = 'fill';
 }else if(b.st >= 4 && !b.wet && b.leaf && dS < 0.9)act = 'pour';
 }
 D.beanAct = act;
