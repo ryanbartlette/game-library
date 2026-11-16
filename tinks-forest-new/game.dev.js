@@ -19326,6 +19326,7 @@ nap: true,
 next:()=>{
 P.bedSleep = false;
 P.idle = 0;
+P.bedLeft = false;
 }
 };
 }
@@ -19358,15 +19359,16 @@ P.mode === 'ground' &&
 !P.bedGo
 ){
 const HB = window.__HOME && window.__HOME.bed;
+if(HB && P.bedLeft === false && Math.hypot(P.pos.x - HB.x,P.pos.z - HB.z)> 1.0)P.bedLeft = true;
 const nearNest =
-HB && Math.hypot(P.pos.x - HB.x,P.pos.z - HB.z)< 0.5 && P.pos.y >(HB.y ?? P.pos.y)- 0.2;
+HB && P.bedLeft !== false && Math.hypot(P.pos.x - HB.x,P.pos.z - HB.z)< 0.5 && P.pos.y >(HB.y ?? P.pos.y)- 0.2;
 if(
 nearNest &&
 (P.idle || 0)> 0.8 &&
 !(window.__BOWL && Math.hypot(P.pos.x - window.__BOWL.x,P.pos.z - window.__BOWL.z)< 0.9)
 )
 P.bedGo = HB;
-else if((P.idle || 0)> 1){
+else if((P.idle || 0)> 1 && P.bedLeft !== false){
 const B = nearestBed(P.pos,0.5);
 if(B && !(waterLevelAt(B.x,B.z)> B.y - 0.05))P.bedGo = B;
 }
@@ -21015,6 +21017,41 @@ return;
 if(P.sit > 0.05 && v > 0){
 v = 0;
 }
+try{
+const T0 = LIFE.tree;
+if(tx != null && T0 && T0.giant && T0.door){
+const cx = T0.x,
+cz = T0.z;
+let fx = T0.door.x - cx,
+fz = T0.door.z - cz;
+const Dd = Math.hypot(fx,fz)|| 1;
+fx /= Dd;
+fz /= Dd;
+const Rh = Dd * 0.5;
+const inT = Math.hypot(tx - cx,tz - cz)< Rh,
+inL = Math.hypot(P.pos.x - cx,P.pos.z - cz)< Rh;
+if(inT !== inL){
+const lx = P.pos.x - cx,
+lz = P.pos.z - cz;
+const along = lx * fx + lz * fz,
+lat = Math.abs(lx * fz - lz * fx);
+const inCorr = lat < 1.1 && along > Rh * 0.6 && along < Dd + 2.2;
+if(!inL){
+if(!inCorr){
+tx = cx + fx *(Dd + 1.6);
+tz = cz + fz *(Dd + 1.6);
+}else{
+tx = cx + fx * Rh * 0.4;
+tz = cz + fz * Rh * 0.4;
+}
+}else{
+tx = cx + fx *(Dd + 1.8);
+tz = cz + fz *(Dd + 1.8);
+}
+if(v === 0 && Math.hypot(tx - P.pos.x,tz - P.pos.z)> 0.5)v = T.run;
+}
+}
+}catch(e){}
 let want = P.yaw;
 if(tx != null){
 const ddx = tx - P.pos.x,
