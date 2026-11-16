@@ -4332,6 +4332,16 @@ far.frustumCulled = false;
 far.receiveShadow = false;
 scene.add(far);
 window.__grassFar = far;
+far.visible = false;
+const fl =()=>{
+requestAnimationFrame(fl);
+let hi = false;
+try{
+hi = camera.position.y - heightAt(camera.position.x,camera.position.z)> 4.5;
+}catch(e){}
+far.visible = !!window.__sceneOn || document.body.classList.contains('cut')|| hi;
+};
+requestAnimationFrame(fl);
 }
 {
 const WSTY ={auto: null,gentle:[0.7,0.55,0.6,0.75],medium:[0.7,1,1,1],heavy:[0.7,1.35,1.3,1.15]};
@@ -15269,10 +15279,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 529;
+const BUILD = 530;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 97;
+const LOOKV = 98;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
