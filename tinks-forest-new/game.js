@@ -15362,10 +15362,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 539;
+const BUILD = 540;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 107;
+const LOOKV = 108;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -19276,7 +19276,9 @@ stepSfx('claws',0.3,0.95 + Math.random()* 0.15);
 if(P.swatReq){
 P.swatReq = false;
 if(P.mode === 'ground' && !P.script && !P.vault &&(P.swatT || 0)<= 0){
-P.swatSide = !P.swatSide;
+if(P.swatReq2 === 'L' || P.swatReq2 === 'R')P.swatSide = P.swatReq2 === 'R';
+else P.swatSide = !P.swatSide;
+P.swatReq2 = null;
 P.script ={clip: P.swatSide ? 'Attack_R' : 'Attack_L',fade: 0.1,ts: 1.25,next:()=>{}};
 setTimeout(()=> sfx('swat',{vol: 0.55,rate: 0.92 + Math.random()* 0.16}),110);
 P.swatT = 0.75;
@@ -59061,7 +59063,7 @@ switch:{A: 'B',B: 'A',X: 'Y',Y: 'X',LB: 'L',RB: 'R',LT: 'ZL',RT: 'ZR',L3: 'L-sti
 };
 const SHARED ={UP: 'D-pad ↑',DOWN: 'D-pad ↓',LEFT: 'D-pad ←',RIGHT: 'D-pad →',LS: 'Left stick',RS: 'Right stick'};
 const nm = b =>(NAMES[PAD.kind || 'xbox']|| NAMES.xbox)[b]|| SHARED[b]|| b;
-const KEYBTN ={Space: 'A',Enter: 'A',E: 'X',X: 'X',Q: 'LB',J: 'UP',G: 'DOWN',R: 'LEFT',Y: 'RIGHT',Esc: 'MENU',Tab: 'VIEW',Click: 'RT',F: 'RT',I: 'R3',Mouse: 'RS'};
+const KEYBTN ={Space: 'A',Enter: 'A',E: 'X',X: 'X',Q: 'UP',J: 'VIEW',G: 'DOWN',R: 'LEFT',Y: 'RIGHT',Esc: 'MENU',Tab: 'VIEW',Click: 'RT',F: 'RT',I: 'R3',Mouse: 'RS'};
 const btnFor =(k,verb)=>(k === 'Shift' ? 'L3' : KEYBTN[k]);
 PAD.kbT = performance.now();
 PAD.mode = false;
@@ -59329,15 +59331,15 @@ map.innerHTML =
 row('LS','Move · the further you tilt, the faster she goes')+
 row('L3','Run (press the stick; stops when she does)')+
 row('LT','Aim a leap (pull further to leap further), let go to leap')+
-row('LB','Meow')+
-row('UP','Quests')+
+row('LB','Swat with her left paw')+
+row('UP','Meow')+
 row('DOWN','Groom')+
 row('LEFT','Hiss')+
 row('RIGHT','Yowl')+
 row('VIEW','Quests · skip a scene')+
 '</div><div>' +
 row('RT','Stalk (squeeze deeper to sink lower), let go to pounce')+
-row('RB','Swat')+
+row('RB','Swat with her right paw')+
 row('A','Jump and climb · read on')+
 row('X','Pick up, plant, give, curl up')+
 row('B','Crouch · back')+
@@ -59493,8 +59495,14 @@ P.crouchOn = !P.crouchOn;
 if(P.crouchOn)PAD.run = false;
 }
 if(pr(BT.Y))tap('KeyX');
-if(pr(BT.LB))tap('KeyQ');
-if(pr(BT.RB)&& actOK())P.swatReq = true;
+if(pr(BT.LB)&& actOK()){
+P.swatReq = true;
+P.swatReq2 = 'L';
+}
+if(pr(BT.RB)&& actOK()){
+P.swatReq = true;
+P.swatReq2 = 'R';
+}
 if(pr(BT.RT)&& actOK()){
 PAD.rt = true;
 PAD.rtMax = 0;
@@ -59507,7 +59515,7 @@ mouseDown = false;
 setTimeout(()=>(PAD.rtMax = null),300);
 }
 if(pr(BT.R3))tap('KeyI');
-if(pr(BT.UP))tap('KeyJ');
+if(pr(BT.UP))tap('KeyQ');
 if(pr(BT.DOWN))tap('KeyG');
 if(pr(BT.LEFT))tap('KeyR');
 if(pr(BT.RIGHT))tap('KeyY');
