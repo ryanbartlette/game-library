@@ -4370,6 +4370,8 @@ m.onBeforeCompile = sh =>{
 Object.assign(sh.uniforms,grassU);
 sh.uniforms.uSnowG = grassU.uSnowG;
 sh.uniforms.uSnowT = grassU.uSnowT;
+sh.uniforms.uInner ={value: 0};
+sh.uniforms.uBig ={value: 1};
 sh.uniforms.uIntro = grassU.uIntro;
 sh.uniforms.uTile ={value: TILE};
 sh.uniforms.uWorld ={value: WORLD};
@@ -4377,7 +4379,7 @@ sh.vertexShader = sh.vertexShader
 .replace(
 '#include <common>',
 `#include <common>
-uniform float uTime,uTile,uWorld;uniform vec3 uCenter,uCat,uCat2;uniform sampler2D uHeight,uMask,uGTex;attribute vec4 aOff;attribute float aT;varying float vShade;uniform float uSnowG;uniform vec4 uIntro;uniform sampler2D uSnowT;uniform float uGust,uGF,uTrailW,uTrailM,uTrailA;uniform vec2 uWDir;varying float vGu;uniform vec4 uWS;uniform sampler2D uTrail;
+uniform float uTime,uTile,uWorld;uniform vec3 uCenter,uCat,uCat2;uniform sampler2D uHeight,uMask,uGTex;attribute vec4 aOff;attribute float aT;varying float vShade;uniform float uSnowG,uInner,uBig;uniform vec4 uIntro;uniform sampler2D uSnowT;uniform float uGust,uGF,uTrailW,uTrailM,uTrailA;uniform vec2 uWDir;varying float vGu;uniform vec4 uWS;uniform sampler2D uTrail;
 float gvh(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}float gvn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(gvh(i),gvh(i+vec2(1,0)),f.x),mix(gvh(i+vec2(0,1)),gvh(i+vec2(1,1)),f.x),f.y);}`
 )
 .replace(
@@ -4387,7 +4389,7 @@ vec2 rel=mod(aOff.xy-uCenter.xz+uTile*.5,uTile)-uTile*.5;vec2 wp=uCenter.xz+rel;
 float msk=(texture2D(uMask,tuv).r*2.+texture2D(uMask,tuv+vec2(.3,0.)/uWorld).r+texture2D(uMask,tuv-vec2(.3,0.)/uWorld).r+texture2D(uMask,tuv+vec2(0.,.3)/uWorld).r+texture2D(uMask,tuv-vec2(0.,.3)/uWorld).r)/6.;/* FOREST: read softly, for smooth path edges */float dist=length(rel);float sc=aOff.z*smoothstep(.36,.6,msk)*(.55+.45*msk)*smoothstep(uTile*.5,uTile*.5-5.,dist);
 /* (Ryan) every tuft leans along the breeze, give or take about 15 degrees */float th=atan(-uWDir.x,uWDir.y)+(aOff.w/6.283-.5)*1.2;float cs=cos(th),sn=sin(th);float rk=fract(sin(dot(aOff.xy,vec2(41.3,17.9)))*24634.6);/* (Ryan) never sparse, like a painted meadow: the grass stays full everywhere and only gets shorter toward the paths, thinning just at a path's very edge *//* (Ryan's rule) paths are bare; the grass runs full and short right up to their edge (a crisp, slightly ragged border) */float keep=step(.11+rk*.05,msk);sc=aOff.z*keep*(.75+.25*msk)*smoothstep(uTile*.5,uTile*.5-5.,dist);float wsc=(0.6+sc*1.5)*keep;/* sparse ground keeps fewer whole clumps instead of squashed star shapes *//* short clumps shrink whole instead of lying flat as star shapes *//* drifts of long grass here and there (where the ferns used to grow) */float tallP=smoothstep(.35,.8,.5+.5*sin(wp.x*.19+sin(wp.y*.15)*2.1)*sin(wp.y*.17+sin(wp.x*.12)*2.3));float hsc=sc*(1.+1.6*tallP);
 /* (Ryan) long and wild away from the paths, shorter where it's trodden: the grass shortens as the mask fades toward a path, and slow patches of taller and shorter grass drift across the fields */
-{float wild=smoothstep(.11,.32,msk);/* FOREST (Ryan: sparse bare patches): the whole meadow grows full; only a path's edge band is shorter */float pn=.5+.25*sin(wp.x*.07+sin(wp.y*.05)*2.3)+.25*sin(wp.y*.083+sin(wp.x*.061)*1.9);hsc*=mix(.3,1.,wild)*(.72+.6*pn)*(1.-.15*uIntro.w*(1.-smoothstep(uIntro.z,uIntro.z+4.,length(wp-uIntro.xy))));/* FOREST 84 (Ryan): a touch shorter in the intro meadow only */hsc*=mix(1.,.2,uSnowG);wsc*=mix(1.,3.2,uSnowG);/* FOREST 85 (Ryan): soft powder, and where the cats have walked it stays trodden down for the rest of the winter */{float sT=texture2D(uSnowT,tuv).r*uSnowG;hsc*=1.-sT;wsc*=1.-.85*sT;}/* FOREST 85 (Ryan: a square of flattened blades showed on the snow): the blades narrow away with the height, so the patch round you ends in a soft circle */wsc*=smoothstep(uTile*.5,uTile*.5-5.,dist);/* FOREST 84 (Ryan): in winter the tufts sink into low soft drifts of snow */}vec3 lp=vec3(position.x*wsc,position.y*hsc,position.z*wsc);lp=vec3(lp.x*cs-lp.z*sn,lp.y,lp.x*sn+lp.z*cs);
+{float wild=smoothstep(.11,.32,msk);/* FOREST (Ryan: sparse bare patches): the whole meadow grows full; only a path's edge band is shorter */float pn=.5+.25*sin(wp.x*.07+sin(wp.y*.05)*2.3)+.25*sin(wp.y*.083+sin(wp.x*.061)*1.9);hsc*=mix(.3,1.,wild)*(.72+.6*pn)*(1.-.15*uIntro.w*(1.-smoothstep(uIntro.z,uIntro.z+4.,length(wp-uIntro.xy))));/* FOREST 84 (Ryan): a touch shorter in the intro meadow only */hsc*=mix(1.,.2,uSnowG);wsc*=mix(1.,3.2,uSnowG);/* FOREST 85 (Ryan): soft powder, and where the cats have walked it stays trodden down for the rest of the winter */{float sT=texture2D(uSnowT,tuv).r*uSnowG;hsc*=1.-sT;wsc*=1.-.85*sT;}/* FOREST 85 (Ryan: a square of flattened blades showed on the snow): the blades narrow away with the height, so the patch round you ends in a soft circle */wsc*=smoothstep(uTile*.5,uTile*.5-5.,dist);/* FOREST 84 (Ryan): in winter the tufts sink into low soft drifts of snow */}vec3 lp=vec3(position.x*wsc,position.y*hsc,position.z*wsc);/* FOREST 97: the far grass ring: fewer, bigger tufts, only beyond the near grass */lp.xz*=uBig;lp.y*=mix(1.,uBig,.55);if(uInner>.5)lp*=smoothstep(uInner-1.,uInner+3.,dist);lp=vec3(lp.x*cs-lp.z*sn,lp.y,lp.x*sn+lp.z*cs);
 /* (Ryan) the wind as flowing currents, like the middle of the ocean: a soft noise field drifts across the meadow along the breeze, warped
    by a slower noise so it swirls and eddies. Each blade reads it at its root: how hard to bow, and which way (the current turns the
    breeze a little here and there). Then each blade is ROTATED about its root (never pushed), so it keeps its length, never dips into
@@ -4456,6 +4458,36 @@ mesh.frustumCulled = false;
 mesh.receiveShadow = true;
 scene.add(mesh);
 window.__grass = mesh;
+if(!LOW){
+const FT = 120,
+FN = 18000,
+fr = mulberry32(51199),
+fo = new Float32Array(FN * 4);
+for(let i = 0;i < FN;i++){
+fo[i * 4]=(fr()- 0.5)* FT;
+fo[i * 4 + 1]=(fr()- 0.5)* FT;
+fo[i * 4 + 2]= 0.1 + fr()* 0.12 + fr()* fr()* 0.12;
+fo[i * 4 + 3]= fr()* 6.283;
+}
+const fg = new THREE.InstancedBufferGeometry();
+fg.setIndex(g.index);
+for(const k of['position','aT','color','normal'])fg.setAttribute(k,g.attributes[k]);
+fg.setAttribute('aOff',new THREE.InstancedBufferAttribute(fo,4));
+fg.instanceCount = FN;
+const fm = m.clone();
+fm.onBeforeCompile =(sh,r)=>{
+m.onBeforeCompile(sh,r);
+sh.uniforms.uTile ={value: FT};
+sh.uniforms.uInner ={value: TILE * 0.5 - 4};
+sh.uniforms.uBig ={value: 2.4};
+};
+fm.customProgramCacheKey =()=> 'grassFar';
+const far = new THREE.Mesh(fg,fm);
+far.frustumCulled = false;
+far.receiveShadow = false;
+scene.add(far);
+window.__grassFar = far;
+}
 {
 const WSTY ={auto: null,gentle:[0.7,0.55,0.6,0.75],medium:[0.7,1,1,1],heavy:[0.7,1.35,1.3,1.15]};
 const ws = 'auto';
@@ -15392,10 +15424,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 528;
+const BUILD = 529;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 96;
+const LOOKV = 97;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -21912,7 +21944,7 @@ if(P.mode === 'ground' && P.speed > T.walk + 0.2 && performance.now()- lastMouse
 const want = P.yaw + Math.PI;
 cam.yaw += angDiff(cam.yaw,want)*(1 - Math.exp(-dt * 0.9 * clamp(P.speed / T.run,0.4,1.6)));
 }
-P.scaredCam = damp(P.scaredCam || 0,P.scared && P.mode === 'ground' ? 1 : 0,1.6,dt);
+P.scaredCam = damp(P.scaredCam || 0,(P.scared || P.crouchOn ||(AP.stalk || 0)> 0.4)&& P.mode === 'ground' ? 1 : 0,1.6,dt);
 const SKc = P.scaredCam;
 if(SKc > 0.05 && performance.now()- lastMouse > 1500)cam.pitch = damp(cam.pitch,0.1,1.2 * SKc,dt);
 const low = AP.stalk * 0.12 + AP.crouch * 0.05 + 0.24 * SKc;
@@ -36806,7 +36838,7 @@ EN.cl = c.position.clone().add(c.getWorldDirection(new V3()).multiplyScalar(4));
 EN.p0 = EN.cp.clone();
 EN.l0 = EN.cl.clone();
 }
-const gk = smooth(0,1.6,EN.t);
+const gk = smooth(0.4,3.2,EN.t);
 EN.cp.lerpVectors(EN.p0,pos,gk);
 EN.cl.lerpVectors(EN.l0,look,gk);
 c.position.copy(EN.cp);
@@ -36820,9 +36852,9 @@ if(EN.st === 'look'){
 EN.t += dt;
 P.vel.x = P.vel.z = 0;
 window.__farmLookK = true;
-window.__slowK = lerp(1,0.45,smooth(0,0.8,EN.t))+(1 - 0.45)* smooth(2.7,3.4,EN.t)* smooth(0,0.8,EN.t);
+window.__slowK = lerp(1,0.45,smooth(0,0.8,EN.t))+(1 - 0.45)* smooth(4.4,5.2,EN.t)* smooth(0,0.8,EN.t);
 P.yaw += angDiff(P.yaw,Math.atan2(ux,uz))* Math.min(1,dt * 3);
-if(EN.t > 3.4){
+if(EN.t > 5.2){
 EN.st = 'idle';
 EN.crawl = true;
 window.__farmLookK = false;
@@ -46893,7 +46925,7 @@ const LINES =
 spirit:[
 ["I sent my voice through every leaf and every star… I wasn't sure it would still find you…",''],
 [
-'Where the woods grow thin, an old house sleeps with its eyes closed… Go softly. || The dark is keeping something for you…',
+'Where the woods grow thin, an old house sleeps with its eyes closed… Go softly. |/| The dark is keeping something for you…',
 ''
 ]
 ],
