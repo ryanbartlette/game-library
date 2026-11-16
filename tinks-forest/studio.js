@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import{GLTFLoader}from 'three/addons/loaders/GLTFLoader.js';
 import{MeshoptDecoder}from 'three/addons/libs/meshopt_decoder.module.js';
 import{clone as skClone}from 'three/addons/utils/SkeletonUtils.js';
-import{mergeGeometries}from 'three/addons/utils/BufferGeometryUtils.js';
+import{mergeGeometries,mergeVertices}from 'three/addons/utils/BufferGeometryUtils.js';
 import{EffectComposer}from 'three/addons/postprocessing/EffectComposer.js';
 import{RenderPass}from 'three/addons/postprocessing/RenderPass.js';
 import{ShaderPass}from 'three/addons/postprocessing/ShaderPass.js';
@@ -234,6 +234,7 @@ return((t ^(t >>> 14))>>> 0)/ 4294967296;
 };
 }
 const rng = mulberry32(20261102);
+window.__TRANS_RATE = 0.5;
 const __MR =
 Math.random;
 const __SR = mulberry32(4711);
@@ -448,9 +449,9 @@ Object.assign(DEF,{
 'ttr4': -0.3,
 'walk': 0.5,
 'run': 1.2,
-'sprint': 4.2,
+'sprint': 3.8,
 'stalk': 0.5,
-'accel': 9,
+'accel': 7,
 'turn': 5,
 'hop': 4,
 'jumpMax': 7.3,
@@ -464,7 +465,7 @@ Object.assign(DEF,{
 'crouchDepth': 4,
 'camDist': 1.2,
 'camHeight': 0.6,
-'fov': 80,
+'fov': 75,
 'sens': 0.7,
 'timeScale': 1,
 'music': 0.5,
@@ -553,12 +554,12 @@ Object.assign(DEF,{
 'lfaceFore': 0,
 'jfaceFore': -0.1,
 'jfaceFlat': 0,
-'jfaceNose': 0.22,
+'jfaceNose': 0.44,
 'jfaceChin': 0,
-'jtailLen': 0.1,
+'jtailLen': 0,
 'jtailThick': 0,
-'jheadSize': -0.04,
-'jearSize': 0,
+'jheadSize': 0,
+'jearSize': -0.15,
 'throatHigh': 1.5,
 'colEarIn': 1.4,
 'buttHigh': 0,
@@ -580,7 +581,7 @@ Object.assign(DEF,{
 'cheekBack': 1.1,
 'browUp': -1.5,
 'browBack': -1.5,
-'dash': 6.5,
+'dash': 5,
 'coatVer': 8,
 'faceFore': 0.46
 });
@@ -1008,6 +1009,16 @@ setTimeout(()=>(e.target.textContent = 'Copy values'),1400);
 };
 })();
 const app = document.getElementById('app');
+let SHINE_K = 0.3;
+try{
+const v = parseFloat(localStorage.getItem('tink.shine'));
+if(isFinite(v))SHINE_K = v;
+}catch(e){}
+THREE.ShaderLib.standard.uniforms.uShineK ={value: SHINE_K};
+THREE.ShaderLib.physical.uniforms.uShineK ={value: SHINE_K};
+THREE.ShaderChunk.common += '\n#ifdef STANDARD\nuniform float uShineK;\n#endif\n';
+THREE.ShaderChunk.lights_fragment_end +=
+'\n#ifdef STANDARD\nreflectedLight.directSpecular *= mix(1.0, uShineK, smoothstep(0.45, 0.8, roughnessFactor));\n#endif\n';
 const renderer = new THREE.WebGLRenderer({antialias: !LOW,powerPreference: 'high-performance'});
 renderer.setPixelRatio(Math.min(devicePixelRatio,LOW ? 1 : 1.6));
 renderer.setSize(innerWidth,innerHeight);
@@ -1017,8 +1028,59 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.08;
 app.appendChild(renderer.domElement);
 const scene = new THREE.Scene();
+window.__Rdev = renderer;
+window.__Sdev = scene;
+window.__setShine = v =>{
+SHINE_K = v;
+THREE.ShaderLib.standard.uniforms.uShineK.value = v;
+THREE.ShaderLib.physical.uniforms.uShineK.value = v;
+scene.traverse(o =>{
+const ms = o.material ?(Array.isArray(o.material)? o.material :[o.material]):[];
+for(const m of ms){
+const pr = renderer.properties.get(m);
+if(pr && pr.uniforms && pr.uniforms.uShineK)pr.uniforms.uShineK.value = v;
+}
+});
+};
+setTimeout(()=>{
+try{
+const d = document.createElement('div');
+d.style.cssText = 'position:fixed;left:12px;bottom:6px;z-index:60;font:11px Montserrat,sans-serif;color:#fff;background:rgba(20,24,30,.55);padding:4px 8px;border-radius:8px;display:flex;gap:6px;align-items:center';
+d.style.flexDirection = 'column';
+d.style.alignItems = 'stretch';
+const knob =(label,key,min,max,def,apply)=>{
+let v = def;
+try{
+const sv = parseFloat(localStorage.getItem(key));
+if(isFinite(sv))v = sv;
+}catch(e){}
+apply(v);
+const row = document.createElement('div');
+row.style.cssText = 'display:flex;gap:6px;align-items:center';
+row.innerHTML = '<span style="width:58px">' + label + '</span><input type="range" min="' + min + '" max="' + max + '" step="0.01" style="width:110px"><b style="width:30px"></b>';
+const r = row.querySelector('input'),
+b = row.querySelector('b');
+r.value = v;
+b.textContent = v.toFixed(2);
+r.oninput =()=>{
+const x = +r.value;
+b.textContent = x.toFixed(2);
+apply(x);
+try{
+localStorage.setItem(key,String(x));
+}catch(e){}
+};
+for(const ev of['keydown','keyup','mousedown','pointerdown','click'])r.addEventListener(ev,e => e.stopPropagation());
+d.appendChild(row);
+};
+knob('Shine','tink.shine',0,1,SHINE_K,v => window.__setShine(v));
+knob('Bloom','tink.bloomK',0,2,0.7,v =>(window.__glowK = v));
+document.body.appendChild(d);
+}catch(e){}
+},4000);
 const FOG = new THREE.Color(0xd2b48a);
 scene.fog = new THREE.FogExp2(FOG,0.017);
+const TUNDARK_C = new THREE.Color(0.022,0.027,0.065);
 const TUNFOG_C = new THREE.Color(),
 TUNFOG_M = new THREE.Color(0x6f6a9a);
 const camera = new THREE.PerspectiveCamera(T.fov,innerWidth / innerHeight,0.03,900);
@@ -1050,7 +1112,9 @@ fragmentShader: `uniform sampler2D tDiffuse;uniform sampler2D tDepth;uniform vec
    float n=float((R+1)*(R+1));float best=1e9;vec3 outc=texture2D(tDiffuse,vUv).rgb;
    for(int k=0;k<4;k++){vec3 mu=m[k]/n;vec3 v=abs(s[k]/n-mu*mu);float sv=v.r+v.g+v.b;if(sv<best){best=sv;outc=mu;}}
    /* a soft depth of field: the far woods melt gently, the cats stay sharp */
-   float coc=fr*uDof;if(coc>.02){float rad=coc*5.*(uRes.y/1300.);vec3 b=outc;float w=1.;for(int k=0;k<10;k++){float a=float(k)*2.39996;float r=sqrt((float(k)+.5)/10.)*rad;vec2 o=vec2(cos(a),sin(a))*r*px;vec2 uv2=vUv+o;/* don't let sharp near things bleed into the blur */float zs=uHasD>.5?zAt(uv2):z;float ok=smoothstep(uFocus*1.1,uFocus*1.25+2.5,zs);b+=texture2D(tDiffuse,uv2).rgb*ok;w+=ok;}outc=mix(outc,b/w,min(1.,coc*1.1));}
+   /* FOREST 78: only a star's own bright point skips the brush and the blur (whose ten spread samples drew each star as a spiky asterisk), and round a star the blur takes in only a little of its light; the hills and the far forest blur softly as before */bool skyPx=uHasD>.5&&texture2D(tDepth,vUv).x>.99999;vec3 orig=texture2D(tDiffuse,vUv).rgb;float lN=dot(texture2D(tDiffuse,vUv+vec2(px.x*2.,0.)).rgb+texture2D(tDiffuse,vUv-vec2(px.x*2.,0.)).rgb+texture2D(tDiffuse,vUv+vec2(0.,px.y*2.)).rgb+texture2D(tDiffuse,vUv-vec2(0.,px.y*2.)).rgb,vec3(.0833));bool starPx=skyPx&&dot(orig,vec3(.333))-lN>.06;if(starPx)outc=orig;float coc=starPx?0.:fr*uDof;if(coc>.02){float rad=coc*5.*(uRes.y/1300.);vec3 b=outc;float w=1.;for(int k=0;k<10;k++){float a=float(k)*2.39996;float r=sqrt((float(k)+.5)/10.)*rad;vec2 o=vec2(cos(a),sin(a))*r*px;vec2 uv2=vUv+o;/* don't let sharp near things bleed into the blur */float zs=uHasD>.5?zAt(uv2):z;float ok=smoothstep(uFocus*1.1,uFocus*1.25+2.5,zs);vec3 sc=texture2D(tDiffuse,uv2).rgb;if(skyPx)sc=min(sc,outc+.25);b+=sc*ok;w+=ok;}outc=mix(outc,b/w,min(1.,coc*1.1));}
+   /* (fix, Ryan's black squares: one broken pixel from the scene (not-a-number) was smeared into a growing black box by the glow; it's caught here so the glow never sees it) */
+   if(any(isnan(outc))||any(isinf(outc)))outc=vec3(0.);outc=clamp(outc,0.,64.);
    gl_FragColor=vec4(outc,1.);}`
 });
 PAINT.uniforms.tDepth ={value: null};
@@ -1320,10 +1384,13 @@ celMat(mm,key,rimK);
 }
 });
 }
-function furMaterial(base,{map,shell,len,inflate,vcol,dark,density}){
+const WETU =(window.__wetU = window.__wetU ||{tink:{value: 0},luca:{value: 0}});
+function furMaterial(base,{map,shell,len,inflate,vcol,dark,density,wet}){
 const m = new THREE.MeshStandardMaterial({map,roughness: 0.92,metalness: 0,vertexColors: !!vcol,color: base});
 m.userData.shell = shell;
+const wetU = wet ||{value: 0};
 m.onBeforeCompile = sh =>{
+sh.uniforms.uWet = wetU;
 sh.uniforms.uShell ={value: shell};
 sh.uniforms.uLen ={value: len};
 sh.uniforms.uInfl ={value: inflate};
@@ -1332,26 +1399,28 @@ sh.uniforms.uDark ={value: dark};
 sh.vertexShader = sh.vertexShader
 .replace(
 '#include <common>',
-'#include <common>\nattribute float aFluff,aBack;attribute vec3 aComb;uniform float uShell,uLen,uInfl;varying float vF;varying vec2 vFu;'
+'#include <common>\nattribute float aFluff,aBack;attribute vec3 aComb;uniform float uShell,uLen,uInfl,uWet;varying float vF;varying vec2 vFu;'
 )
 .replace(
 '#include <begin_vertex>',
-`vec3 transformed=vec3(position);float fl=aFluff*uLen;transformed+=normalize(normal)*fl*(uInfl+uShell*(1.-uInfl));transformed.y-=uShell*uShell*fl*.45;transformed.x-=aBack*fl*(uShell*.8+uInfl*.4);transformed+=aComb*fl*uShell;vF=aFluff;vFu=uv;`
+`vec3 transformed=vec3(position);float fl=aFluff*uLen*mix(1.,.3,uWet);transformed+=normalize(normal)*fl*(uInfl+uShell*(1.-uInfl));transformed.y-=uShell*uShell*fl*.45;transformed.x-=aBack*fl*(uShell*.8+uInfl*.4);transformed+=aComb*fl*uShell;vF=aFluff;vFu=uv;`
 );
 sh.fragmentShader = sh.fragmentShader
 .replace(
 '#include <common>',
-'#include <common>\nuniform float uShell,uDens,uDark;varying float vF;varying vec2 vFu;'
+'#include <common>\nuniform float uShell,uDens,uDark,uWet;varying float vF;varying vec2 vFu;'
 )
 .replace(
 '#include <map_fragment>',
 `#include <map_fragment>
 if(uShell>0.&&(vF<.002||diffuseColor.a<.5))discard;// no fur shells on bare or see-through parts (whisker and fringe cards, ear tips)
-if(uShell>0.){vec2 c=vFu*uDens+vec2(.35,.22)*uShell*uShell;vec2 id=floor(c);vec2 f=fract(c)-.5;float h=fract(sin(dot(id,vec2(127.1,311.7)))*43758.5453);float L=mix(.45,1.,h);if(uShell>L)discard;float rad=.5*pow(1.-uShell/L,1.25)+.03;if(length(f)>rad)discard;}
-diffuseColor.rgb*=mix(1.-uDark,1.,uShell);`
-);
+if(uShell>0.){vec2 c=vFu*uDens+vec2(.35,.22)*uShell*uShell;vec2 id=floor(c);vec2 f=fract(c)-.5;float h=fract(sin(dot(id,vec2(127.1,311.7)))*43758.5453);float L=mix(.45,1.,h);if(uShell>L)discard;float rad=(.5*pow(1.-uShell/L,1.25)+.03)*mix(1.,.72,uWet);if(length(f)>rad)discard;}
+diffuseColor.rgb*=mix(1.-uDark,1.,uShell);
+diffuseColor.rgb*=mix(1.,.58,uWet);`
+)
+.replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor=mix(roughnessFactor,.5,uWet*.8);');
 };
-m.customProgramCacheKey =()=> 'fur' +(vcol ? 1 : 0)+(map ? 1 : 0);
+m.customProgramCacheKey =()=> 'furw' +(vcol ? 1 : 0)+(map ? 1 : 0);
 return m;
 }
 function weldNormals(geo){
@@ -1775,6 +1844,7 @@ shell: 0,
 len: 1,
 inflate: kind === 'tink' ? 0.42 : 0,
 vcol: true,
+wet: WETU[kind === 'luca' ? 'luca' : 'tink'],
 dark: 0,
 density: 260
 });
@@ -1789,6 +1859,7 @@ shell: k / NS,
 len: 1,
 inflate: kind === 'tink' ? 0.42 : 0,
 vcol: true,
+wet: WETU[kind === 'luca' ? 'luca' : 'tink'],
 dark: kind === 'luca' ? 0.35 : 0.3,
 density: kind === 'luca' ? 380 : 340
 });
@@ -2267,7 +2338,7 @@ if(!ch)continue;
 if(!ch.userData.p0)ch.userData.p0 = ch.position.clone();
 ch.position.copy(ch.userData.p0).multiplyScalar(tl);
 }
-const walking = /^(Walk|Trot)_/.test(c.curName || '');
+const walking = /^(Walk|Trot)_/.test(c.curName || '')&& !(t &&(P.scared || window.__farmLookK ||(window.__farmCrawl && !window.__asJack)));
 c.tailUp = damp(c.tailUp || 0,walking ? 1 : 0,3,1 / 60);
 const up = c.tailUp *(1 +(T[q + 'tailUp']?? 0));
 if(up > 0.01){
@@ -2829,6 +2900,24 @@ u.uJK.value = sm && sm.opacity != null ? sm.opacity : 1;
 JLU.uJT.value = performance.now()/ 1000;
 };
 o.parent.add(s2);
+{
+const dm = new THREE.MeshBasicMaterial({colorWrite: false,depthWrite: true,transparent: true,alphaTest: 0.4,map: o.material && o.material.map ? o.material.map : null});
+const d2 = new THREE.SkinnedMesh(o.geometry,dm);
+d2.bind(o.skeleton,o.bindMatrix);
+d2.userData.shell = true;
+d2.frustumCulled = false;
+d2.castShadow = false;
+d2.position.copy(o.position);
+d2.quaternion.copy(o.quaternion);
+d2.scale.copy(o.scale);
+d2.renderOrder =(o.renderOrder || 0)- 0.5;
+d2.onBeforeRender =()=>{
+const sm = o.material;
+d2.renderOrder =(o.renderOrder || 0)- 0.5;
+dm.depthWrite = !sm || sm.opacity == null || sm.opacity > 0.25;
+};
+o.parent.add(d2);
+}
 }
 };
 const JACK_SZ = 1.14;
