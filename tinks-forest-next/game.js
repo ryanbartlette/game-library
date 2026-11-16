@@ -1087,6 +1087,7 @@ if(pr && pr.uniforms && pr.uniforms.uShineK)pr.uniforms.uShineK.value = v;
 };
 const FOG = new THREE.Color(0xd2b48a);
 scene.fog = new THREE.FogExp2(FOG,0.017);
+const TUNDARK_C = new THREE.Color(0.012,0.014,0.045);
 const TUNFOG_C = new THREE.Color(),
 TUNFOG_M = new THREE.Color(0x6f6a9a);
 const camera = new THREE.PerspectiveCamera(T.fov,innerWidth / innerHeight,0.03,900);
@@ -15236,10 +15237,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 518;
+const BUILD = 519;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 86;
+const LOOKV = 87;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -19291,7 +19292,7 @@ target = TR.cs.ph === 'chase' ? Math.min(T.sprint,1.9): Math.min(T.sprint,1.3);
 label = TR.cs.ph === 'chase' ? 'Run' : 'Trot';
 }
 const cap =
-TR.cs && TR.csChase ? T.sprint : P.walkMode || TR.hes || TR.wonder || TR.cs ||(TR.prog > 0.01 && !TR.gone)? T.walk : T.run;
+TR.cs && TR.csChase ? T.sprint : T.walk;
 if(target > cap){
 target = cap;
 label = cap === T.run ? 'Trot' : 'Walk';
@@ -25297,6 +25298,13 @@ if(scene.fog){
 scene.fog.color.setRGB(...W.fog);
 const hi = clamp((camera.position.y - heightAt(camera.position.x,camera.position.z)- 6)/ 14,0,1);
 scene.fog.density = W.fogD *(inRoom(P.pos)? 0.15 : 1)*(1 - 0.65 * hi);
+{
+const td = window.__tunDark || 0;
+if(td > 0.002){
+scene.fog.density +=(0.24 - scene.fog.density)* td;
+scene.fog.color.lerp(TUNDARK_C,td);
+}
+}
 {
 const tf = window.__tunFog;
 if(tf && tf.k > 0.002){
@@ -38552,7 +38560,7 @@ const cum =[0];
 for(let i = 1;i < pts.length;i++)cum.push(cum[i - 1]+ pts[i].distanceTo(pts[i - 1]));
 guide ={pts,cum,L: cum[cum.length - 1],s: 0,v: 0};
 try{
-window.__actPrompt && window.__actPrompt('trot','Tap <kbd>Shift</kbd> to toggle trot / walk');
+if(false)window.__actPrompt && window.__actPrompt('trot','Tap <kbd>Shift</kbd> to toggle trot / walk');
 let shown = 0;
 const w0 = P.walkMode;
 const iv = setInterval(()=>{
@@ -41109,15 +41117,19 @@ T3.prog = T3.gone
 {
 const pr = T3.gone ? 0 : T3.prog || 0;
 const inside = smooth(0,0.07,pr)*(1 - smooth(0.86,1,pr));
-window.__tunExp = T3.gone ? 1 : damp(window.__tunExp ?? 1,1 - 0.82 * inside,0.8,dt);
+const endK = T3.hes || T3.wonder || T3.cs ? 1 : smooth(0.8,0.97,pr);
+const darkK = T3.gone ? 0 : smooth(0.02,0.35,pr)*(1 - endK);
+window.__tunDark = damp(window.__tunDark || 0,darkK,darkK >(window.__tunDark || 0)? 0.6 : 1.2,dt);
+window.__tunExp = T3.gone ? 1 : damp(window.__tunExp ?? 1,1 - 0.3 * inside *(1 - endK),0.8,dt);
 }
 {
 const pr = T3.gone ? 0 : Math.max(T3.prog || 0,T3.hes ? 0.15 : 0);
 const tw =
 T3.wonder ? 0.45 : pr > 0 ? 0.3 + pr * 0.25 : 0;
 T3.bz = damp(T3.bz || 0,tw,tw >(T3.bz || 0)? 0.9 : 0.35,dt);
-window.__tunGust = Math.min(1,T3.bz * 0.3);
-window.__tunWind = T3.bz * 0.8;
+const wk2 = T3.wonder || T3.gone ? 0 : 1;
+window.__tunGust = Math.min(1,T3.bz * 0.3)* wk2;
+window.__tunWind = T3.bz * 0.8 * wk2;
 window.__tunSwirl = T3.wonder ? T3.bz : 0;
 window.__tunWindSnd = T3.bz *(T3.wonder ? 0.6 : 0.3);
 if(false && T3.wonder){
@@ -41759,10 +41771,10 @@ toneMapped: false,
 vertexShader: `attribute vec4 aA;uniform float uT,uK,uPr,uS;varying vec3 vC;varying float vA;
 void main(){vec4 mv=modelViewMatrix*vec4(position,1.);mv.xyz+=normalize(-mv.xyz)*.08;/* (sat just off the bark, so the trunk never hides half of each light) */gl_Position=projectionMatrix*mv;
 /* the whole tunnel breathes together; each light glints a little on its own */
-float br=.55+.45*sin(uT*1.15);float tw=.75+.25*sin(uT*3.1+aA.y*40.);
+float br=.5+.5*sin(uT*1.9);float tw=.75+.25*sin(uT*3.1+aA.y*40.);
 /* lights ahead of her wake first as she nears them; the whole tunnel is alight near the end */
-float near=smoothstep(uPr+.45,uPr-.05,aA.x);float lit=uK*mix(.25,1.,max(near,smoothstep(.55,.95,uPr)));
-float lane=aA.w>.5?pow(.5+.5*sin(aA.x*90.-uT*2.4),3.)*.9+.1:1.;
+float near=smoothstep(uPr+.6,uPr+.05,aA.x);float lit=uK*mix(.4,1.,max(near,smoothstep(.3,.6,uPr)));
+float lane=aA.w>.5?pow(.5+.5*sin(aA.x*90.-uT*2.4),3.)*.7+.45:1.;
 vA=lit*br*tw*lane;vC=color;
 gl_PointSize=clamp(aA.z*.2*uS/-mv.z,2.,48.)*(.75+.35*br);}`,
 fragmentShader: `varying vec3 vC;varying float vA;void main(){vec2 d=gl_PointCoord-.5;float r=length(d);if(r>.5)discard;float a=smoothstep(.5,.0,r);a=a*a*(.6+.4*smoothstep(.18,.0,r));gl_FragColor=vec4(mix(vC,vec3(1.),smoothstep(.12,.0,r)*.7)*a*vA*2.6,a*vA);}`
@@ -42782,16 +42794,24 @@ if(o.count !== n)o.count = n;
 if(BTUN.magic){
 const MG = BTUN.magic;
 const pr = T3.gone ? 0 : T3.prog || 0;
-const want = T3.gone ? 0 : pr > 0.001 ? 0.3 + 0.7 * smooth(0,0.85,pr): 0;
-MG.k +=(want - MG.k)* Math.min(1,dt * 0.8);
+const want = T3.gone ? 0 : pr > 0.001 || T3.hes ? 0.5 + 0.5 * smooth(0,0.55,pr): 0;
+MG.k +=(want - MG.k)* Math.min(1,dt * 1.5);
 MG.U.uT.value = time;
 MG.U.uK.value = MG.k;
 MG.U.uPr.value = pr;
 MG.U.uS.value = innerHeight;
 MG.pts.visible = MG.k > 0.003;
+if(!MG.lt){
+MG.lt = new THREE.PointLight(0x8f86ff,0,7,1.4);
+scene.add(MG.lt);
+}
+MG.lt.position.set(P.pos.x,P.pos.y + 1.6,P.pos.z);
+MG.lt.intensity = MG.k *(1.6 + 1.1 * Math.sin(time * 1.9));
+MG.lt.color.setHSL(0.7 + 0.06 * Math.sin(time * 0.37),0.85,0.66);
+MG.lt.visible = MG.k > 0.003;
 if(MG.lines){
 MG.lines.visible = MG.pts.visible;
-MG.lines.material.opacity = MG.k * 0.32 *(0.55 + 0.45 * Math.sin(time * 1.15));
+MG.lines.material.opacity = MG.k * 0.36 *(0.5 + 0.5 * Math.sin(time * 1.9));
 MG.lines.material.color.setHSL(0.68 + 0.08 * Math.sin(time * 0.21),0.9,0.62);
 }
 }
@@ -45807,7 +45827,7 @@ const LINES =
 spirit:[
 ["I sent my voice through every leaf and every star… I wasn't sure it would still find you…",''],
 [
-'Where the woods grow thin, an old house sleeps with its eyes closed… Go softly. The dark is keeping something for you…',
+'Where the woods grow thin, an old house sleeps with its eyes closed… || Go softly. The dark is keeping something for you…',
 ''
 ]
 ],
@@ -49510,11 +49530,11 @@ id === 'house' &&
 dirS().runTip = 1;
 saveQ();
 try{
-window.__actPrompt('run','Hold <kbd>Shift</kbd> to run');
+window.__actPrompt('run','Tap <kbd>Shift</kbd> to trot or walk &nbsp;·&nbsp; hold <kbd>Shift</kbd> to run');
 let shown = 0;
 const iv = setInterval(()=>{
 if(!document.body.classList.contains('cut'))shown += 250;
-if(shown > 10000 ||((P.lastMove === 'Run' || P.lastMove === 'Zoomies!')&& shown > 800)){
+if(shown > 14000 ||((P.lastMove === 'Run' || P.lastMove === 'Zoomies!')&& shown > 4000)){
 clearInterval(iv);
 window.__actPrompt('run',null);
 }
