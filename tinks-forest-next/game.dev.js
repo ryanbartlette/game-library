@@ -15434,10 +15434,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 530;
+const BUILD = 531;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 98;
+const LOOKV = 99;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -22066,7 +22066,7 @@ TR.wonder.t,
 d = TR.wonDir;
 const base = Math.atan2(-d.x,-d.z);
 const u =
-smooth(0.3,7.2,h);
+smooth(0.3,10.8,h);
 const off = 0.8 * Math.sin(u * Math.PI * 2);
 const up = -1.0 * Math.pow(Math.sin(u * Math.PI),2);
 cam.yaw += angDiff(cam.yaw,base + off)* Math.min(1,dt * 1.4);
@@ -37299,6 +37299,7 @@ removeEventListener('mousemove',onMM);
 if(window.__camOverride === hold){
 window.__camKeepOnce = true;
 window.__camOverride = null;
+window.__camEase ={p: camera.position.clone(),q: camera.quaternion.clone(),t: 0,dur: 1.6};
 }
 return;
 }
@@ -42321,12 +42322,11 @@ try{
 const[ax,az]= T3.link.from,
 [bx,bz]= T3.link.to;
 const nearL =(x,z)=>{
-if(Math.hypot(x - ax,z - az)< 3)return true;
 const dx = bx - ax,
 dz = bz - az,
 l2 = dx * dx + dz * dz || 1;
 const u = clamp(((x - ax)* dx +(z - az)* dz)/ l2,0,1);
-return Math.hypot(x -(ax + dx * u),z -(az + dz * u))< 1.3;
+return u > 0.08 && Math.hypot(x -(ax + dx * u),z -(az + dz * u))< 0.8;
 };
 const m4 = new THREE.Matrix4(),
 pv = new V3(),
@@ -42393,10 +42393,6 @@ mx.quadraticCurveTo((c1[0]+ WORLD / 2)* W2P,(c1[1]+ WORLD / 2)* W2P,(best[0]+ WO
 mx.stroke();
 grassU.uMask.value.needsUpdate = true;
 T3.link ={from:[E.x,E.z],to: best};
-mx.fillStyle = '#000';
-mx.beginPath();
-mx.arc((E.x + WORLD / 2)* W2P,(E.z + WORLD / 2)* W2P,2.6 * W2P,0,7);
-mx.fill();
 }
 }catch(e){
 console.warn('intro link',e);
@@ -42603,8 +42599,8 @@ P.idle = Math.max(P.idle || 0,10);
 }
 if(T3.wonder){
 T3.wonder.t += dt;
-if(T3.wonder.t > 3.3 && !T3.welcomed)T3.welcome();
-if(T3.wonder.t > 8.4){
+if(T3.wonder.t > 4.6 && !T3.welcomed)T3.welcome();
+if(T3.wonder.t > 12.2){
 try{
 const JJ = window.__JACK;
 if(JJ){
