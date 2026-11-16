@@ -15517,10 +15517,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 542;
+const BUILD = 543;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 110;
+const LOOKV = 111;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -37416,12 +37416,15 @@ c.updateProjectionMatrix();
 C.fp = pos.clone();
 C.fl = lk.clone();
 };
-if(C.t > 3.1){
-C.ph = 'calm';
-C.t = 0;
+if(!C.said2 && C.t > 2.35){
+C.said2 = true;
 try{
 say('“…Hmph. Only a little cat.”',4200,2200);
 }catch(e){}
+}
+if(C.t > 3.1){
+C.ph = 'calm';
+C.t = 0;
 P.speed = 0;
 if(P.vel)P.vel.set(0,0,0);
 P.script ={
@@ -37499,22 +37502,26 @@ addEventListener('mousemove',onMM);
 window.__camKeepOnce = true;
 const SW = 6.5,
 t0s = performance.now(),
-LK =(window.__FCS ={lock: true,dir: null,cam: null});
-setTimeout(()=>{
-if(window.__FCS === LK)window.__FCS = null;
-moved = false;
-},SW * 1000);
+LK =(window.__FCS ={lock: true,story: true,dir: null,cam: null});
+const gotGift =()=> !!document.querySelector('#gifts img.got[data-g="pebble"]')&& !(window.__JACK && window.__JACK.showing);
+let outT = null;
 window.__camOverride =
 hp && hl
 ? c =>{
 const el =(performance.now()- t0s)/ 1000;
-if(el < SW && window.__camOverride === hold){
-const k = smooth(0.4,2.2,el)*(1 - smooth(SW - 2,SW - 0.1,el));
+if(outT == null && el > SW &&(gotGift()|| el > 40))outT = el;
+const backK = outT == null ? 0 : smooth(outT,outT + 1.8,el);
+if(outT != null && backK >= 1 && window.__FCS === LK){
+window.__FCS = null;
+moved = false;
+}
+if((outT == null || backK < 1)&& window.__camOverride === hold){
+const k = smooth(0.4,2.2,el)*(1 - backK);
 const tk = new V3(P.pos.x,(P.visY ?? P.pos.y)+ 0.12,P.pos.z);
 const dv = hp.clone().sub(tk).setY(0);
 if(dv.lengthSq()< 1e-4)dv.set(Math.sin(cam.yaw),0,Math.cos(cam.yaw));
 dv.normalize();
-const oP = tk.clone().addScaledVector(dv,2.3).add(new V3(0,1.35,0));
+const oP = tk.clone().addScaledVector(dv,1.35).add(new V3(0,0.55,0));
 c.position.copy(hp).lerp(oP,k);
 c.lookAt(hl.clone().lerp(tk,k));
 return;
