@@ -15517,10 +15517,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 538;
+const BUILD = 539;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 106;
+const LOOKV = 107;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -18795,7 +18795,7 @@ fx /= fl;
 fz /= fl;
 const maxH =(T.jumpMax * T.jumpMax)/(2 * T.gravity)- 0.15,
 maxD = Math.min(4.2,T.jumpMax * 0.6);
-const D = lerp(maxD,0.6,smooth(-0.1,0.75,cam.pitch));
+const D = window.__PAD && window.__PAD.mode && window.__PAD.ltDown ? lerp(0.6,maxD,smooth(0.2,0.95,window.__PAD.ltP || 0)): lerp(maxD,0.6,smooth(-0.1,0.75,cam.pitch));
 let best = null;
 for(let k = 0;k <= 6;k++){
 const dd = D *(1 - k * 0.06);
@@ -19555,9 +19555,18 @@ P.dashT = window.__ROAM ? Math.min(3,(P.dashT || 0)+ dt): 0;
 P.dashing = P.dashT >= 3;
 target = P.dashing ? Math.max(T.sprint,T.dash ?? 6.5): T.sprint;
 label = P.dashing ? 'Zoomies!' : 'Run';
-}else if(P.walkMode ||(window.__PAD && window.__PAD.mode && window.__PAD.mag > 0 && window.__PAD.mag < 0.62)){
+}else if(P.walkMode){
 target = T.walk;
 label = 'Walk';
+}else if(window.__PAD && window.__PAD.mode && window.__PAD.mag > 0){
+const m = window.__PAD.mag;
+if(m < 0.62){
+target = T.walk * lerp(0.3,1,smooth(0.2,0.62,m));
+label = 'Walk';
+}else{
+target = lerp(T.walk,T.run,smooth(0.62,0.97,m));
+label = target >(T.walk + T.run)* 0.5 ? 'Trot' : 'Walk';
+}
 }else{
 target = T.run;
 label = 'Trot';
@@ -19650,7 +19659,8 @@ label = target > T.run * 0.8 ? 'Splash' : 'Wade';
 }
 if(P.pin > 0.05 || P.hissT > 0 || P.perchT > 0)target = 0;
 if(charging && !P.chargeRun){
-target = P.pounceCharge >= 0 && dir && P.sit < 0.5 ? T.stalk * 0.65 : 0;
+const rtd = window.__PAD && window.__PAD.mode && window.__PAD.rt ? window.__PAD.rtP || 0 : -1;
+target = P.pounceCharge >= 0 && dir && P.sit < 0.5 ? T.stalk *(rtd >= 0 ? lerp(0.95,0.12,smooth(0.15,0.9,rtd)): 0.65): 0;
 }
 P.stamina = 1;
 P.sprintLock = false;
@@ -19869,6 +19879,12 @@ v = pounceVel(ch,G);
 }
 if(P.inWater){
 sfx('water_jump',{vol: 0.8});
+}
+if(window.__PAD && window.__PAD.mode && window.__PAD.rtMax != null && !G.sq){
+const kk = lerp(0.5,1.12,smooth(0.15,1,window.__PAD.rtMax));
+v.x *= kk;
+v.z *= kk;
+v.y *= lerp(0.75,1.06,smooth(0.15,1,window.__PAD.rtMax));
 }
 P.pTarget = G.sq;
 P.vel.copy(v);
@@ -62109,9 +62125,9 @@ const row =(b,what)=> '<div class="pm-r"><kbd data-btn="' + b + '" data-pb="' + 
 const draw =()=>{
 map.innerHTML =
 '<div class="pm-in"><div class="p-big">Controller</div><div class="pm-cols"><div>' +
-row('LS','Move · tilt a little to walk, all the way to trot')+
+row('LS','Move · the further you tilt, the faster she goes')+
 row('L3','Run (press the stick; stops when she does)')+
-row('LT','Hold to aim a leap, let go to leap')+
+row('LT','Aim a leap (pull further to leap further), let go to leap')+
 row('LB','Meow')+
 row('UP','Quests')+
 row('DOWN','Groom')+
@@ -62119,7 +62135,7 @@ row('LEFT','Hiss')+
 row('RIGHT','Yowl')+
 row('VIEW','Quests · skip a scene')+
 '</div><div>' +
-row('RT','Hold to stalk, let go to pounce')+
+row('RT','Stalk (squeeze deeper to sink lower), let go to pounce')+
 row('RB','Swat')+
 row('A','Jump and climb · read on')+
 row('X','Pick up, plant, give, curl up')+
@@ -62179,7 +62195,9 @@ return;
 PAD.on = true;
 PAD.gp = gp;
 PAD.kind = padKind(gp.id);
-const btn = gp.buttons.map((b,i)=>(i === BT.LT || i === BT.RT ? b.value > 0.4 : b.pressed));
+const btn = gp.buttons.map((b,i)=>(i === BT.LT || i === BT.RT ? b.value > 0.15 : b.pressed));
+PAD.rtP =(gp.buttons[BT.RT]&& gp.buttons[BT.RT].value)|| 0;
+PAD.ltP =(gp.buttons[BT.LT]&& gp.buttons[BT.LT].value)|| 0;
 const pr = i => btn[i]&& !prevB[i],
 up = i => !btn[i]&& prevB[i];
 const ax = gp.axes.map(v =>(Math.abs(v)< 0.15 ? 0 : v));
@@ -62278,11 +62296,14 @@ if(pr(BT.LB))tap('KeyQ');
 if(pr(BT.RB)&& actOK())P.swatReq = true;
 if(pr(BT.RT)&& actOK()){
 PAD.rt = true;
+PAD.rtMax = 0;
 mouseDown = true;
 }
+if(PAD.rt)PAD.rtMax = Math.max(PAD.rtMax || 0,PAD.rtP);
 if(up(BT.RT)&& PAD.rt){
 PAD.rt = false;
 mouseDown = false;
+setTimeout(()=>(PAD.rtMax = null),300);
 }
 if(pr(BT.R3))tap('KeyI');
 if(pr(BT.UP))tap('KeyJ');
@@ -62297,7 +62318,8 @@ if((rx || ry)&& lookOK()){
 const cv = v => Math.sign(v)* Math.pow(Math.abs(v),1.6);
 const sens = OPT.padSens ?? 1,
 inv = OPT.padInv ? -1 : 1;
-if(!window.__sceneOn)cam.yaw -= cv(rx)* 2.6 * sens * dt;
+const boost = 1 + 0.6 * Math.max(0,Math.abs(rx)- 0.9)/ 0.1;
+if(!window.__sceneOn)cam.yaw -= cv(rx)* 2.6 * sens * boost * dt;
 if((P.povK || 0)> 0.5){
 const fwd = P.yaw + Math.PI;
 let rel = cam.yaw - fwd;
