@@ -15517,10 +15517,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 559;
+const BUILD = 560;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 127;
+const LOOKV = 128;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -62588,33 +62588,32 @@ OPT.padSens = +e.target.value;
 saveOpt();
 paint();
 };
+const PADPIC = "data:image/svg+xml,%3Csvg%20id%3D%22Layer_1%22%20data-name%3D%22Layer%201%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%204096%202160%22%3E%3Cdefs%3E%3Cstyle%3E.cls-1%2C.cls-3%7Bfill%3Anone%3Bstroke%3A%23fff%3Bstroke-miterlimit%3A10%3B%7D.cls-1%7Bstroke-width%3A7px%3B%7D.cls-2%7Bfill%3A%23fff%3B%7D.cls-3%7Bstroke-width%3A5px%3B%7D%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cpath%20class%3D%22cls-1%22%20d%3D%22M2662%2C630.58c-136.49-129.36-351.3-108-351.3-108L2049%2C515.49v0l-.51%2C0-.5%2C0v0l-261.66%2C7.09s-214.81-21.36-351.3%2C108c0%2C0-265.38%2C583.77-246%2C815.34%2C0%2C0-9.13%2C188.61%2C171.26%2C231.58%2C0%2C0%2C95.74-55.93%2C242.11-252.94%2C0%2C0%2C68-93.36%2C177.23-84.66l268.39.79h1l268.39-.79c109.18-8.7%2C177.23%2C84.66%2C177.23%2C84.66%2C146.37%2C197%2C242.11%2C252.94%2C242.11%2C252.94%2C180.39-43%2C171.26-231.58%2C171.26-231.58C2927.35%2C1214.35%2C2662%2C630.58%2C2662%2C630.58Z%22%2F%3E%3Cpath%20class%3D%22cls-2%22%20style%3D%22fill%3A%234f9cff%22%20d%3D%22M2359.31%2C775.54%2C2376%2C801.32l16.63-25.78h14.08l-23.91%2C35.16L2406%2C844.88h-14.08L2376%2C820.07l-16%2C24.81h-14.18l23.16-34.18-23.91-35.16Z%22%2F%3E%3Cpath%20class%3D%22cls-2%22%20style%3D%22fill%3A%23ffcf3a%22%20d%3D%22M2474.15%2C663.7l16.54%2C33.4%2C16.82-33.4h14.08l-24.38%2C45.12V733h-12.95V708.62L2460%2C663.7Z%22%2F%3E%3Cpath%20class%3D%22cls-2%22%20style%3D%22fill%3A%237ccf4f%22%20d%3D%22M2485%2C888.07h12.09l26.76%2C72.73h-14.07l-6.54-18.13h-24.59l-6.44%2C18.13h-14.08Zm15.76%2C44.67-9.72-28.58L2481%2C932.74Z%22%2F%3E%3Cpath%20class%3D%22cls-2%22%20style%3D%22fill%3A%23ff5c50%22%20d%3D%22M2635.92%2C828.14a18.7%2C18.7%2C0%2C0%2C1-1.65%2C8.09%2C16.52%2C16.52%2C0%2C0%2C1-4.56%2C5.84%2C20.31%2C20.31%2C0%2C0%2C1-6.71%2C3.59%2C26.31%2C26.31%2C0%2C0%2C1-8.13%2C1.23h-31.53V774.16h34.93a11.85%2C11.85%2C0%2C0%2C1%2C6.16%2C1.63%2C15.88%2C15.88%2C0%2C0%2C1%2C4.69%2C4.26%2C20.46%2C20.46%2C0%2C0%2C1%2C3%2C5.94%2C22.16%2C22.16%2C0%2C0%2C1%2C1%2C6.71%2C21.45%2C21.45%2C0%2C0%2C1-2.39%2C10%2C15.19%2C15.19%2C0%2C0%2C1-7%2C6.92%2C16.85%2C16.85%2C0%2C0%2C1%2C8.87%2C6.61A20.65%2C20.65%2C0%2C0%2C1%2C2635.92%2C828.14ZM2596%2C786.24v18.34h16.91a7.15%2C7.15%2C0%2C0%2C0%2C5.47-2.46%2C9.63%2C9.63%2C0%2C0%2C0%2C2.25-6.76%2C10%2C10%2C0%2C0%2C0-2.07-6.66%2C6.42%2C6.42%2C0%2C0%2C0-5.1-2.46Zm27.11%2C39.24a11.67%2C11.67%2C0%2C0%2C0-.6-3.74%2C10.61%2C10.61%2C0%2C0%2C0-1.6-3.13%2C8%2C8%2C0%2C0%2C0-2.39-2.1%2C6.15%2C6.15%2C0%2C0%2C0-3-.76H2596V834.9h18.84a7.51%2C7.51%2C0%2C0%2C0%2C3.26-.72%2C7.73%2C7.73%2C0%2C0%2C0%2C2.62-2%2C9.71%2C9.71%2C0%2C0%2C0%2C1.75-3A10.47%2C10.47%2C0%2C0%2C0%2C2623.14%2C825.48Z%22%2F%3E%3Ccircle%20class%3D%22cls-1%22%20cx%3D%222375.95%22%20cy%3D%22810.21%22%20r%3D%2257.76%22%2F%3E%3Ccircle%20class%3D%22cls-1%22%20cx%3D%222605.63%22%20cy%3D%22810.52%22%20r%3D%2257.76%22%2F%3E%3Ccircle%20class%3D%22cls-1%22%20cx%3D%222490.79%22%20cy%3D%22925.05%22%20r%3D%2257.76%22%2F%3E%3Ccircle%20class%3D%22cls-1%22%20cx%3D%222490.79%22%20cy%3D%22695.37%22%20r%3D%2257.76%22%2F%3E%3Ccircle%20class%3D%22cls-1%22%20cx%3D%222275.88%22%20cy%3D%221073%22%20r%3D%2263.82%22%2F%3E%3Ccircle%20class%3D%22cls-1%22%20cx%3D%222275.88%22%20cy%3D%221073%22%20r%3D%2294.87%22%2F%3E%3Ccircle%20class%3D%22cls-1%22%20cx%3D%221816.41%22%20cy%3D%221091.48%22%20r%3D%22140.02%22%2F%3E%3Ccircle%20class%3D%22cls-1%22%20cx%3D%221602.26%22%20cy%3D%22815.86%22%20r%3D%2263.82%22%2F%3E%3Ccircle%20class%3D%22cls-1%22%20cx%3D%221921.91%22%20cy%3D%22808.15%22%20r%3D%2240.03%22%2F%3E%3Ccircle%20class%3D%22cls-1%22%20cx%3D%222173.03%22%20cy%3D%22808.15%22%20r%3D%2240.03%22%2F%3E%3Cpath%20class%3D%22cls-1%22%20d%3D%22M2069.1%2C879.86h-45.2a24.92%2C24.92%2C0%2C0%2C0%2C0%2C49.84h45.2a24.92%2C24.92%2C0%2C1%2C0%2C0-49.84Z%22%2F%3E%3Ccircle%20class%3D%22cls-1%22%20cx%3D%221602.26%22%20cy%3D%22815.86%22%20r%3D%2294.87%22%2F%3E%3Cpath%20class%3D%22cls-1%22%20d%3D%22M1940.49%2C1053.79s-3-7.32-12.85-7.91h-65v-65c-.6-9.89-7.91-12.86-7.91-12.86-7.12-4.15-37-4.15-37-4.15s-31.85%2C0-39%2C4.15c0%2C0-7.32%2C3-7.91%2C12.86v65h-65c-9.89.59-12.86%2C7.91-12.86%2C7.91-4.15%2C7.12-4.15%2C37-4.15%2C37s0%2C31.85%2C4.15%2C39c0%2C0%2C3%2C7.31%2C12.86%2C7.91h65v65c.59%2C9.89%2C7.91%2C12.85%2C7.91%2C12.85%2C7.12%2C4.16%2C37%2C4.16%2C37%2C4.16s31.85%2C0%2C39-4.16c0%2C0%2C7.31-3%2C7.91-12.85v-65h65c9.89-.6%2C12.85-7.91%2C12.85-7.91%2C4.16-7.12%2C4.16-37%2C4.16-37S1944.65%2C1060.91%2C1940.49%2C1053.79Z%22%2F%3E%3Ccircle%20class%3D%22cls-1%22%20cx%3D%222048.5%22%20cy%3D%22636.52%22%20r%3D%2265.67%22%2F%3E%3Cpath%20class%3D%22cls-1%22%20d%3D%22M1443%2C623.26s43.32-137.59%2C277-140.76c0%2C0%2C17.41%2C2.5%2C22.55%2C6.65%2C0%2C0%2C30.3%2C30.18%2C49.07%2C33.29C1791.65%2C522.44%2C1582.23%2C499.75%2C1443%2C623.26Z%22%2F%3E%3Cpath%20class%3D%22cls-1%22%20d%3D%22M2653.21%2C623.26s-43.32-137.59-277-140.76c0%2C0-17.4%2C2.5-22.55%2C6.65%2C0%2C0-30.29%2C30.18-49.07%2C33.29C2304.6%2C522.44%2C2514%2C499.75%2C2653.21%2C623.26Z%22%2F%3E%3Cpath%20class%3D%22cls-1%22%20d%3D%22M2096.56%2C659.87c-3.72-11.58-16.16-33.12-27.58-47.77l-3.59-4.61%2C3.89-3.65a82.63%2C82.63%2C0%2C0%2C1%2C12.41-10%2C26.55%2C26.55%2C0%2C0%2C1%2C8.4-3.53%2C61.89%2C61.89%2C0%2C0%2C0-12.12-9l-.55%2C0c-6-.31-14.78%2C2.17-24.19%2C6.85a50.13%2C50.13%2C0%2C0%2C1-5.49%2C2.5c-.18%2C0-2.49-1.18-5.14-2.56-5.27-2.73-13.4-5.66-17.89-6.45a32.56%2C32.56%2C0%2C0%2C0-6-.34l-1.07%2C0a62.14%2C62.14%2C0%2C0%2C0-12.12%2C9%2C10.16%2C10.16%2C0%2C0%2C1%2C3.28.8c4.67%2C1.6%2C9.66%2C5.12%2C17.39%2C12.25l4.52%2C4.17-2.47%2C3.09c-11.44%2C14.34-23.52%2C34.66-28.07%2C47.24-2.26%2C6.26-3.29%2C12.54-2.63%2C15.75a63%2C63%2C0%2C0%2C0%2C7.84%2C9.08%2C8%2C8%2C0%2C0%2C1-.43-2.78c0-7.75%2C8.35-21.31%2C22.63-36.78%2C8.11-8.78%2C19.41-19.07%2C20.63-18.8%2C2.37.55%2C21.36%2C19.44%2C28.47%2C28.34%2C10.31%2C12.9%2C15.51%2C23.66%2C14.27%2C29.31a62.65%2C62.65%2C0%2C0%2C0%2C7.52-9C2099%2C670.06%2C2098.21%2C665%2C2096.56%2C659.87Z%22%2F%3E%3Cline%20class%3D%22cls-3%22%20x1%3D%222151.97%22%20y1%3D%22807.76%22%20x2%3D%222194.09%22%20y2%3D%22807.76%22%2F%3E%3Cline%20class%3D%22cls-3%22%20x1%3D%222151.97%22%20y1%3D%22796.43%22%20x2%3D%222194.09%22%20y2%3D%22796.43%22%2F%3E%3Cline%20class%3D%22cls-3%22%20x1%3D%222151.97%22%20y1%3D%22819.09%22%20x2%3D%222194.09%22%20y2%3D%22819.09%22%2F%3E%3Crect%20class%3D%22cls-3%22%20x%3D%221917.97%22%20y%3D%22805.21%22%20width%3D%2221.22%22%20height%3D%2216.29%22%2F%3E%3Cpolyline%20class%3D%22cls-3%22%20points%3D%221910.96%20807.76%201904.33%20807.76%201904.33%20790.43%201925.93%20790.43%201925.93%20796.55%22%2F%3E%3Cpolyline%20class%3D%22cls-3%22%20points%3D%222025.55%20898.43%202025.55%20914.16%202070.45%20914.16%202070.45%20898.43%22%2F%3E%3Cline%20class%3D%22cls-3%22%20x1%3D%222048%22%20y1%3D%22906.29%22%20x2%3D%222048%22%20y2%3D%22889.91%22%2F%3E%3Cpolyline%20class%3D%22cls-3%22%20points%3D%222038.78%20900.02%202048%20890.81%202057.22%20900.02%22%2F%3E%3C%2Fsvg%3E";
 const map = document.createElement('div');
 map.id = 'padMap';
 map.hidden = true;
 const row =(b,what)=> '<div class="pm-r"><kbd data-btn="' + b + '" data-pb="' + b + '"></kbd><span>' + what + '</span></div>';
 const draw =()=>{
+const PT ={LT:[372,128],LB:[398,140],VIEW:[481,201],LS:[400,205],L3:[400,205],DP:[447,272],RT:[652,128],RB:[626,140],MENU:[543,201],Y:[622,174],X:[594,202],B:[651,202],A:[622,231],RS:[568,267],R3:[568,267]};
+const L =[['LT','Aim a leap · pull further to leap further, let go to leap'],['LB','Swat with her left paw'],['VIEW','Quests · skip a scene'],['LS','Move · tilt further to go faster'],['L3','Run (press the stick)'],['UP','Meow','DP'],['DOWN','Groom','DP'],['LEFT','Hiss','DP'],['RIGHT','Yowl','DP']];
+const R =[['RT','Stalk · squeeze deeper to sink lower, let go to pounce'],['RB','Swat with her right paw'],['MENU','Pause'],['Y','Sit and watch'],['B','Crouch · back'],['X','Pick up, plant, give, curl up'],['A','Jump and climb · read on'],['RS','Look around'],['R3',"Through Tink's eyes (press the stick)"]];
+const BN ={"LT": "Left Trigger","LB": "Left Bumper","VIEW": "View Button","LS": "Left Stick","L3": "Left Stick Button","UP": "D-Pad Up","DOWN": "D-Pad Down","LEFT": "D-Pad Left","RIGHT": "D-Pad Right","RT": "Right Trigger","RB": "Right Bumper","MENU": "Menu Button","Y": "Y Button","B": "B Button","X": "X Button","A": "A Button","RS": "Right Stick","R3": "Right Stick Button"};
+const y0 = 62,dy = 50.5;
+let lines = '',labs = '';
+const side =(list,left)=>
+list.forEach(([b,what,at],i)=>{
+const y = y0 + i * dy,
+p = PT[at || b],
+x0 = left ? 262 : 762,
+xm = left ? 300 : 724;
+lines += '<polyline points="' + x0 + ',' + y + ' ' + xm + ',' + y + ' ' + p[0]+ ',' + p[1]+ '"/><circle cx="' + p[0]+ '" cy="' + p[1]+ '" r="2.6"/>';
+labs +=
+'<div class="pm-l ' +(left ? 'pm-left' : 'pm-right')+ '" style="top:' +((y / 540)* 100).toFixed(2)+ '%"><kbd data-btn="' + b + '" data-pb="' + b + '"></kbd><span><b>' + BN[b]+ '</b>' + what + '</span></div>';
+});
+side(L,true);
+side(R,false);
 map.innerHTML =
-'<div class="pm-in"><div class="p-big">Controller</div><div class="pm-cols"><div>' +
-row('LS','Move · the further you tilt, the faster she goes')+
-row('L3','Run (press the stick; stops when she does)')+
-row('LT','Aim a leap (pull further to leap further), let go to leap')+
-row('LB','Swat with her left paw')+
-row('UP','Meow')+
-row('DOWN','Groom')+
-row('LEFT','Hiss')+
-row('RIGHT','Yowl')+
-row('VIEW','Quests · skip a scene')+
-'</div><div>' +
-row('RT','Stalk (squeeze deeper to sink lower), let go to pounce')+
-row('RB','Swat with her right paw')+
-row('A','Jump and climb · read on')+
-row('X','Pick up, plant, give, curl up')+
-row('B','Crouch · back')+
-row('Y','Sit and watch')+
-row('RS','Look around')+
-row('R3',"Through Tink's eyes (press the stick)")+
-row('MENU','Pause')+
-'</div></div><div class="go" id="padMapBack">Back</div></div>';
+'<div class="pm-in"><div class="p-big">Controller</div><div class="pm-pic"><img src="' + PADPIC + '" alt=""><svg viewBox="0 0 1024 540" preserveAspectRatio="none">' + lines + '</svg>' + labs + '</div><div class="go" id="padMapBack">Back</div></div>';
 for(const k of map.querySelectorAll('kbd[data-pb]'))k.textContent = nm(k.dataset.pb);
 map.className = PAD.kind || 'xbox';
 };
