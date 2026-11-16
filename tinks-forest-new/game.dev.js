@@ -15392,10 +15392,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 527;
+const BUILD = 528;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 95;
+const LOOKV = 96;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -42632,7 +42632,7 @@ T3.inside = damp(T3.inside || 0,inside,2.5,dt);
 T3.along =
 along;
 if(T3.motesU)T3.motesU.uV.value = smooth(0.45,0.95,T3.inside)* smooth(0.16,0.3,along);
-window.__tunDim = T3.inside;
+window.__tunDim = Math.min(T3.inside,window.__tunDark || 0);
 if(T3.spot){
 T3.spot.intensity =(night ? 9 : 14)*(0.35 + 0.65 * T3.inside);
 T3.spot.shadow.autoUpdate = best < 5;
