@@ -1897,6 +1897,9 @@ function groundPaint(m){
 m.onBeforeCompile = sh =>{
 sh.uniforms.uTime = grassU.uTime;
 sh.uniforms.uMaskG = grassU.uMask;
+sh.uniforms.uSnowGG = grassU.uSnowG;
+sh.uniforms.uSnowTG = grassU.uSnowT;
+sh.uniforms.uGTreeG = grassU.uGTree;
 sh.uniforms.uWorldG ={value: WORLD};
 sh.uniforms.uDap = grassU.uDap;
 sh.uniforms.uCanopyG = grassU.uCanopy;
@@ -1925,7 +1928,7 @@ sh.vertexShader = sh.vertexShader
 sh.fragmentShader = sh.fragmentShader
 .replace(
 '#include <common>',
-'#include <common>\nvarying vec3 vWg;uniform vec3 uGLight,uGBase,uGTip;uniform float uTime,uDap,uWorldG,uGustG,uCloudK;uniform vec2 uCloudOff;uniform sampler2D uMaskG,uCanopyG,uGTexG,uDirtG;'+
+'#include <common>\nvarying vec3 vWg;uniform vec3 uGLight,uGBase,uGTip;uniform float uTime,uDap,uWorldG,uGustG,uCloudK;uniform vec2 uCloudOff;uniform sampler2D uMaskG,uCanopyG,uGTexG,uDirtG,uSnowTG;uniform float uSnowGG;uniform vec3 uGTreeG;'+
 'float gmSoft(vec2 p){/* FOREST (Ryan: path edges were jagged): the mask is read softly (nine taps, a third of a metre apart) along a gently wandering edge, so paths have smooth, painted borders */vec2 j=vec2(sin(p.y*1.7+sin(p.x*.9)),cos(p.x*1.5+sin(p.y*1.1)))*.18;vec2 q=p+j;float s=0.;for(int a=-1;a<=1;a++)for(int b=-1;b<=1;b++)s+=texture2D(uMaskG,(q+vec2(float(a),float(b))*.34+uWorldG*.5)/uWorldG).r;return s/9.;}' +
 CLOUD_GLSL +
 WC_GLSL
@@ -1960,6 +1963,13 @@ WC_GLSL
     float litter=step(.78,e3)*step(.4,e2);soil=mix(soil,mix(vec3(.45,.32,.18),vec3(.36,.4,.22),e2),litter*.6);float root=smoothstep(.47,.5,wcN(vec2(p.x*.9+p.y*.4,p.y*2.6)))*(1.-smoothstep(.5,.53,wcN(vec2(p.x*.9+p.y*.4,p.y*2.6))));soil*=1.-root*.35;
     /* LOOK: cizzy7's warm cracked dirt with its little blue-grey stones */{vec3 dtx=texture2D(uDirtG,p*.21).rgb;soil=mix(soil,dtx*vec3(.82,.78,.74),.78);}
     float lum0=dot(c,vec3(.3,.59,.11));soil*=.75+.6*smoothstep(.05,.4,lum0);c=mix(c,soil*(.9+.2*gran),bare*.85);}}
+  /* FOREST 105 (Ryan: the trails showed snowflake-shaped cut-outs): in winter the ground itself turns white under the drifts, and the
+     paths get a light, patchy painted dusting; it whitens bit by bit with the season, and trodden snow shows a cool blue */
+  if(uSnowGG>.001){float gm=gmSoft(p);float bare=1.-smoothstep(.07,.14,gm);float thrG=wcN(p*1.3)*.8+.1;float sgk=smoothstep(thrG-.1,thrG+.1,uSnowGG*1.2-.1);
+   vec3 sc=mix(vec3(.83,.87,.97),vec3(.965,.975,1.),smoothstep(.3,.7,wcF(p*.35)));sc*=.97+.06*gran;
+   float dust=smoothstep(.38,.62,wcF(p*.7+3.))*.72+.12;float cov=sgk*mix(.97,dust,bare);/* (FOREST 105, Ryan: the Great Tree's hollow stays warm and dry) */if(uGTreeG.z>0.)cov*=smoothstep(uGTreeG.z,uGTreeG.z+.8,length(p-uGTreeG.xy));
+   float tr=texture2D(uSnowTG,(p+uWorldG*.5)/uWorldG).r;sc=mix(sc,vec3(.62,.7,.9),smoothstep(.1,.8,tr)*.55*(1.-bare));
+   c=mix(c,sc,cov);}
   diffuseColor.rgb=c;}`
 );
 };
@@ -4024,6 +4034,7 @@ uWS:{value: new THREE.Vector4(1,1,1,1)},
 uHeight:{value: null},
 uMask:{value: null},
 uSnowG:{value: 0},
+uGTree:{value: new THREE.Vector3(0,0,0)},
 uSnowT:{value: null},
 uIntro:{value: new THREE.Vector4(0,0,0,0)}
 });
@@ -4233,7 +4244,7 @@ sh.vertexShader = sh.vertexShader
 .replace(
 '#include <common>',
 `#include <common>
-uniform float uTime,uTile,uWorld;uniform vec3 uCenter,uCat,uCat2;uniform sampler2D uHeight,uMask,uGTex;attribute vec4 aOff;attribute float aT;attribute vec3 aSn;varying vec2 vSW;varying float vSnH;uniform float uScene,uNC;varying float vShade;uniform float uSnowG,uInner,uBig,uOut;uniform vec2 uShift;uniform vec4 uIntro;uniform sampler2D uSnowT;uniform float uGust,uGF,uTrailW,uTrailM,uTrailA;uniform vec2 uWDir;varying float vGu;uniform vec4 uWS;uniform sampler2D uTrail;
+uniform float uTime,uTile,uWorld;uniform vec3 uCenter,uCat,uCat2;uniform sampler2D uHeight,uMask,uGTex;attribute vec4 aOff;attribute float aT;attribute vec3 aSn;varying vec2 vSW;varying float vSnH,vSG;uniform float uScene,uNC;uniform vec3 uGTree;varying float vShade;uniform float uSnowG,uInner,uBig,uOut;uniform vec2 uShift;uniform vec4 uIntro;uniform sampler2D uSnowT;uniform float uGust,uGF,uTrailW,uTrailM,uTrailA;uniform vec2 uWDir;varying float vGu;uniform vec4 uWS;uniform sampler2D uTrail;
 float gvh(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}float gvn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(gvh(i),gvh(i+vec2(1,0)),f.x),mix(gvh(i+vec2(0,1)),gvh(i+vec2(1,1)),f.x),f.y);}`
 )
 .replace(
@@ -4269,18 +4280,21 @@ float gH=texture2D(uHeight,tuv).r;/* LOOK: the blades part round both cats and l
    powder about half the grass's height: the blades are folded into a smooth dome whose edges meet the ground, painted white on top
    and shadow blue in the hollows, so the snow reads as one soft, deep layer the cats wade through, with their prints and trenches
    left as blue dips */
-/* FOREST 104 (Ryan: still sharp blades, prints hidden under blades): each blade of the tuft becomes one wedge of a round dome of powder,
-   its root on the rim and its tip at the crown, the wedges overlapping so the dome is closed and smooth; footprints are drawn on its
-   surface (below) as soft round blue dips */
-vSW=wp;vSnH=1.;
-if(uSnowG>.01){float R=max(.08,.5*wsc*uBig);float Hs=.5*hsc*(.85+.3*fract(rk*5.3));
- float th2=aSn.x+aOff.w+aSn.y*(3.14159/7.)*1.35*(1.-aSn.z);float rr2=R*(1.-aSn.z)*(.92+.08*fract(rk*3.1+aSn.x));
- vec2 q=vec2(cos(th2),sin(th2))*rr2;float dome=Hs*sqrt(max(0.,1.-(rr2*rr2)/(R*R)));
- vec3 sn=vec3(q.x,dome+.003,q.y);
- lp=mix(lp,sn,uSnowG);float hk=clamp(dome/max(Hs,.001),0.,1.);vSnH=hk;
- vec3 top=vec3(.97,.985,1.),low=vec3(.72,.78,.93);vec3 sc2=mix(low,top,smoothstep(0.,.7,hk))*(.98+.04*fract(rk*11.7));
- vColor.rgb=mix(vColor.rgb,sc2,uSnowG);vSW=wp+lp.xz;}
-vec3 transformed=vec3(wp.x,texture2D(uHeight,tuv).r,wp.y)+lp;vGW=vec3(wp.x,aT,wp.y);vShade=.8+.4*fract(sin(dot(aOff.xy,vec2(12.9898,78.233)))*43758.5);`
+/* FOREST 105 (Ryan: the snow came in all at once; trails only darkened its top; it looked sharp-angled): the snow is laid one small
+   tuft at a time, each at its own moment as winter comes in (like the leaves dropping one by one); every tuft is a small soft
+   mound and the many mounds overlap into one deep, gently rolling blanket about half the grass's height, its depth drifting in
+   long soft swells. Where the cats have trodden, the mounds there are pressed right down, so trails, paw prints and landing
+   holes are real dips in the snow with its untouched walls standing either side */
+vSW=wp;vSnH=1.;vSG=0.;
+if(uSnowG>.01){float thr=.8*rk+.2*gvn(wp*.23);float sG=smoothstep(thr-.06,thr+.06,uSnowG*1.14-.07);if(uGTree.z>0.&&length(wp-uGTree.xy)<uGTree.z+.4)sG=0.;vSG=sG;
+ if(sG>.001){float sT=texture2D(uSnowT,tuv).r;
+ float pe=smoothstep(.16,.4,msk);/* (the drifts thin away to nothing at a path's edge, where the ground's own dusting takes over) */float R=.19*uBig*(.9+.2*fract(rk*3.1))*(.5+.5*pe);float Hs=.21*(.72+.56*gvn(wp*.21))*(1.-.86*sT)*pe*smoothstep(uOut,uOut-5.,dist);
+ float th2=aSn.x+aOff.w+aSn.y*(3.14159/7.)*1.35*(1.-aSn.z);float rr2=R*(1.-aSn.z);
+ vec2 q=vec2(cos(th2),sin(th2))*rr2;float u2=clamp(rr2/R,0.,1.);float dome=Hs*(1.-u2*u2)*(1.-.35*u2*u2);
+ vec3 sn=vec3(q.x,dome+.004,q.y);
+ lp=mix(lp,sn,sG);vSnH=clamp(1.-u2*u2,0.,1.);
+ vColor.rgb=mix(vColor.rgb,vec3(.96,.975,1.),sG);vSW=wp+lp.xz;}}
+vec3 transformed=vec3(wp.x,texture2D(uHeight,tuv).r,wp.y)+lp;/* FOREST 105 (Ryan: on slopes the snow stacked in flat plates): each point of a mound sits on the ground right beneath it, so the drifts follow the slope */if(vSG>.001)transformed.y=mix(transformed.y,texture2D(uHeight,(wp+lp.xz+uWorld*.5)/uWorld).r+lp.y,vSG);vGW=vec3(wp.x,aT,wp.y);vShade=.8+.4*fract(sin(dot(aOff.xy,vec2(12.9898,78.233)))*43758.5);`
 )
 .replace(
 '#include <color_vertex>',
@@ -4294,11 +4308,11 @@ sh.fragmentShader = sh.fragmentShader
 .replace('#include <normal_fragment_begin>','#include <normal_fragment_begin>\n#ifdef DOUBLE_SIDED\nif(uSnowG>.5)normal*=faceDirection;/* (snow: no dark undersides) */\n#endif')
 .replace(
 '#include <color_fragment>',
-'#include <color_fragment>\nif(uSnowG>.01){/* FOREST 104 (Ryan): paw prints, trenches and landing holes are soft round blue dips in the powder, drawn right on its surface */float sF=texture2D(uSnowT,(vSW+uWorld*.5)/uWorld).r*uSnowG;float dk=smoothstep(.12,.75,sF);diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.5,.6,.86)*mix(.82,1.,vSnH),dk*.8);}'
+'#include <color_fragment>\nif(vSG>.01){/* FOREST 105 (Ryan): soft, pillowy, painterly powder: broad washes of white and pale lavender-blue rather than each mound’s own edge; trodden snow is a cool blue-grey, deeper in the middle of a print */float sF=texture2D(uSnowT,(vSW+uWorld*.5)/uWorld).r;float w1=fn(vSW*.45)*.6+fn(vSW*1.7)*.4;vec3 sc=mix(vec3(.84,.88,.98),vec3(.985,.99,1.),smoothstep(.25,.75,w1));sc*=.94+.06*vSnH;float dk=smoothstep(.1,.8,sF);sc=mix(sc,vec3(.62,.7,.9),dk*.7);diffuseColor.rgb=mix(diffuseColor.rgb,sc,vSG);}'
 )
 .replace(
 '#include <common>',
-'#include <common>\nuniform vec3 uGLight;uniform float uGEmis,uTime,uDap,uGust,uCloudK,uSnowG,uWorld;uniform vec2 uCloudOff;varying vec3 vGW;varying float vGu;uniform sampler2D uCanopy,uSnowT;varying vec2 vSW;varying float vSnH;\n' +
+'#include <common>\nuniform vec3 uGLight;uniform float uGEmis,uTime,uDap,uGust,uCloudK,uSnowG,uWorld;uniform vec2 uCloudOff;varying vec3 vGW;varying float vGu;uniform sampler2D uCanopy,uSnowT;varying vec2 vSW;varying float vSnH,vSG;\n' +
 CLOUD_GLSL +
 '\nfloat fh(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}float fn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(fh(i),fh(i+vec2(1,0)),f.x),mix(fh(i+vec2(0,1)),fh(i+vec2(1,1)),f.x),f.y);}'
 )
@@ -4389,7 +4403,7 @@ dt = Math.min(0.1,(now - lastT)/ 1000);
 lastT = now;
 if(ws === 'auto'){
 const w =(grassU.uWind.value || 0)+(grassU.uGust.value || 0)* 0.6 +(grassU.uBus.value.w > 0 ? 0.5 : 0);
-const k = clamp((w - 0.3)/ 0.75,0,1);
+const k = clamp((w - 0.3)/ 0.75,0,1)*(window.__sceneOn || document.body.classList.contains('cut')? 0.3 : 1);
 if(k < 0.5)tgt.copy(G0).lerp(M0,k * 2);
 else tgt.copy(M0).lerp(H0,(k - 0.5)* 2);
 }else tgt.set(...WSTY[ws]);
@@ -4498,7 +4512,14 @@ if(sp > 1.5){
 dab(Q.pos.x,Q.pos.z,0.3,0.75);
 S.lx = Q.pos.x;
 S.lz = Q.pos.z;
-}else if(sp > 0.05 && Math.hypot(Q.pos.x - S.lx,Q.pos.z - S.lz)> 0.24){
+}else if(sp > 0.05){
+if(Math.hypot(Q.pos.x -(S.wx ?? 1e9),Q.pos.z -(S.wz ?? 1e9))> 0.1){
+dab(Q.pos.x,Q.pos.z,0.15,0.55);
+S.wx = Q.pos.x;
+S.wz = Q.pos.z;
+}
+}
+if(sp > 0.05 && sp <= 1.5 && Math.hypot(Q.pos.x - S.lx,Q.pos.z - S.lz)> 0.24){
 S.side = -S.side;
 const px = Q.pos.x + fz * 0.06 * S.side,
 pz = Q.pos.z - fx * 0.06 * S.side;
@@ -6118,8 +6139,7 @@ const leafK = sea === 'winter' ?(prevSea === 'winter' ? 0 : 1 - fp): prevSea ===
 if(window.__leafFadeU)window.__leafFadeU.value = leafK;
 window.__bdBare = 1 - leafK;
 {
-const sk = 1 - leafK;
-grassU.uSnowG.value = sk * sk *(0.6 + 0.4 * sk);
+grassU.uSnowG.value = 1 - leafK;
 }
 if(window.__ivyAutU)window.__ivyAutU.value = sea === 'autumn' ?(prevSea === 'autumn' ? 1 : fp): prevSea === 'autumn' ? 1 - fp : 0;
 for(const[cl,m]of window.__czSeaMats ||[]){
@@ -15342,10 +15362,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 536;
+const BUILD = 537;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 104;
+const LOOKV = 105;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -17236,7 +17256,7 @@ if(!ch)continue;
 if(!ch.userData.p0)ch.userData.p0 = ch.position.clone();
 ch.position.copy(ch.userData.p0).multiplyScalar(tl);
 }
-const walking = /^(Walk|Trot)_/.test(c.curName || '');
+const walking = /^(Walk|Trot)_/.test(c.curName || '')&& !(t &&(P.scared || window.__farmLookK ||(window.__farmCrawl && !window.__asJack)));
 c.tailUp = damp(c.tailUp || 0,walking ? 1 : 0,3,1 / 60);
 const up = c.tailUp *(1 +(T[q + 'tailUp']?? 0));
 if(up > 0.01){
@@ -19103,6 +19123,7 @@ nap: true,
 next:()=>{
 P.bedSleep = false;
 P.idle = 0;
+P.bedLeft = false;
 }
 };
 }
@@ -19135,15 +19156,16 @@ P.mode === 'ground' &&
 !P.bedGo
 ){
 const HB = window.__HOME && window.__HOME.bed;
+if(HB && P.bedLeft === false && Math.hypot(P.pos.x - HB.x,P.pos.z - HB.z)> 1.0)P.bedLeft = true;
 const nearNest =
-HB && Math.hypot(P.pos.x - HB.x,P.pos.z - HB.z)< 0.5 && P.pos.y >(HB.y ?? P.pos.y)- 0.2;
+HB && P.bedLeft !== false && Math.hypot(P.pos.x - HB.x,P.pos.z - HB.z)< 0.5 && P.pos.y >(HB.y ?? P.pos.y)- 0.2;
 if(
 nearNest &&
 (P.idle || 0)> 0.8 &&
 !(window.__BOWL && Math.hypot(P.pos.x - window.__BOWL.x,P.pos.z - window.__BOWL.z)< 0.9)
 )
 P.bedGo = HB;
-else if((P.idle || 0)> 1){
+else if((P.idle || 0)> 1 && P.bedLeft !== false){
 const B = nearestBed(P.pos,0.5);
 if(B && !(waterLevelAt(B.x,B.z)> B.y - 0.05))P.bedGo = B;
 }
@@ -20792,6 +20814,41 @@ return;
 if(P.sit > 0.05 && v > 0){
 v = 0;
 }
+try{
+const T0 = LIFE.tree;
+if(tx != null && T0 && T0.giant && T0.door){
+const cx = T0.x,
+cz = T0.z;
+let fx = T0.door.x - cx,
+fz = T0.door.z - cz;
+const Dd = Math.hypot(fx,fz)|| 1;
+fx /= Dd;
+fz /= Dd;
+const Rh = Dd * 0.5;
+const inT = Math.hypot(tx - cx,tz - cz)< Rh,
+inL = Math.hypot(P.pos.x - cx,P.pos.z - cz)< Rh;
+if(inT !== inL){
+const lx = P.pos.x - cx,
+lz = P.pos.z - cz;
+const along = lx * fx + lz * fz,
+lat = Math.abs(lx * fz - lz * fx);
+const inCorr = lat < 1.1 && along > Rh * 0.6 && along < Dd + 2.2;
+if(!inL){
+if(!inCorr){
+tx = cx + fx *(Dd + 1.6);
+tz = cz + fz *(Dd + 1.6);
+}else{
+tx = cx + fx * Rh * 0.4;
+tz = cz + fz * Rh * 0.4;
+}
+}else{
+tx = cx + fx *(Dd + 1.8);
+tz = cz + fz *(Dd + 1.8);
+}
+if(v === 0 && Math.hypot(tx - P.pos.x,tz - P.pos.z)> 0.5)v = T.run;
+}
+}
+}catch(e){}
 let want = P.yaw;
 if(tx != null){
 const ddx = tx - P.pos.x,
@@ -22031,47 +22088,79 @@ camera.quaternion.copy(B.q.clone().slerp(camera.quaternion,k));
 }
 {
 const rc = new THREE.Raycaster();
-let k = 0,
-n = 0,
-hit = false,
-mats = null;
+let n = 0;
+const TG =[];
+const get =()=>{
+const M = window.__MORE ||{};
+return[window.__BUSSTOP,M.houseMesh,M.houseIn && M.houseIn.g,M.door && M.door.g];
+};
 const loop =()=>{
 requestAnimationFrame(loop);
-const g = window.__BUSSTOP;
-if(!g || !window.__worldBuilt)return;
+if(!window.__worldBuilt)return;
 try{
-if(!mats){
-mats =[];
+const objs = get();
+for(let i = 0;i < objs.length;i++){
+const g = objs[i];
+if(!g)continue;
+let t = TG[i];
+if(!t || t.g !== g){
+t = TG[i]={g,k: 0,hit: false,mats:[]};
+const low = new Set();
+if(i === 0){
+const bb = new THREE.Box3();
+g.updateMatrixWorld(true);
+const gy0 = new THREE.Box3().setFromObject(g).min.y;
 g.traverse(o =>{
-if(o.isMesh)for(const m of Array.isArray(o.material)? o.material :[o.material])if(m && !mats.includes(m))mats.push(m);
+if(!o.isMesh)return;
+bb.setFromObject(o);
+if(bb.max.y - gy0 < 0.95){
+low.add(o);
+const cl = m =>{
+if(!m)return m;
+const c = m.clone();
+c.onBeforeCompile = m.onBeforeCompile;
+if(m.customProgramCacheKey)c.customProgramCacheKey = m.customProgramCacheKey;
+return c;
+};
+o.material = Array.isArray(o.material)? o.material.map(cl): cl(o.material);
+}
 });
-for(const m of mats){
-m.userData.op0 = m.opacity;
-m.userData.wasTr = m.transparent;
+}
+g.traverse(o =>{
+if(o.isMesh && !low.has(o))for(const m of Array.isArray(o.material)? o.material :[o.material])if(m && !t.mats.includes(m))t.mats.push(m);
+});
+for(const m of t.mats){
+if(m.userData.op0 == null)m.userData.op0 = m.opacity;
+if(m.userData.wasTr == null)m.userData.wasTr = m.transparent;
+}
 }
 }
 if(++n % 6 === 0){
 const head = new V3(P.pos.x,(P.visY ?? P.pos.y)+ 0.25,P.pos.z);
 const d = camera.position.distanceTo(head);
-hit = false;
-if(d < 30 && head.distanceTo(g.getWorldPosition(new V3()))< 8){
 rc.set(camera.position,head.clone().sub(camera.position).normalize());
 rc.far = Math.max(0,d - 0.3);
-hit = rc.intersectObject(g,true).length > 0;
+for(const t of TG){
+if(!t)continue;
+t.hit = false;
+if(!window.__sceneOn && d < 30 && t.g.visible !== false && head.distanceTo(t.g.getWorldPosition(new V3()))< 14)t.hit = rc.intersectObject(t.g,true).length > 0;
 }
 }
-const want = hit ? 1 : 0;
-const nk = k +(want - k)* 0.12;
-if(Math.abs(nk - k)< 1e-4 &&(nk === 0 || nk === 1))return;
-k = Math.abs(want - nk)< 0.01 ? want : nk;
-for(const m of mats){
-const tr = k > 0.001;
+for(const t of TG){
+if(!t)continue;
+const want = t.hit ? 1 : 0;
+const nk = t.k +(want - t.k)* 0.12;
+if(Math.abs(nk - t.k)< 1e-4 &&(nk === 0 || nk === 1))continue;
+t.k = Math.abs(want - nk)< 0.01 ? want : nk;
+for(const m of t.mats){
+const tr = t.k > 0.001;
 if(m.transparent !== tr && !m.userData.wasTr){
 m.transparent = tr;
 m.needsUpdate = true;
 }
-m.opacity =(m.userData.op0 ?? 1)*(1 - 0.72 * k);
-m.depthWrite = k < 0.5;
+m.opacity =(m.userData.op0 ?? 1)*(1 - 0.72 * t.k);
+m.depthWrite = t.k < 0.5;
+}
 }
 }catch(e){}
 };
@@ -22890,7 +22979,7 @@ sfx('chime',{vol: 0.5});
 try{
 window.__TUT && window.__TUT.hide();
 }catch(e){}
-story('Tink tucks the bean into the soft earth…','and the glade settles down to sleep',5200);
+story('Tink tucks the bean into the soft dirt beneath the snow…','and the glade settles down to sleep',5200);
 window.__plantT = performance.now();
 setTimeout(()=>{
 try{
@@ -27345,6 +27434,7 @@ grassU.uWDir.value.set(Math.cos(wa2),Math.sin(wa2));
 }
 const gRaw = Math.min(1,clamp(gust * 1.4,0,1)*(NIGHTISH()? 0.4 : 1)*(0.6 + 0.4 * Math.min(W.wind,1.2)));
 grassU.uGust.value = Math.max(window.__tunGust || 0,gRaw < 0.4 ? gRaw : 0.4 +(gRaw - 0.4)* 0.5);
+if(window.__sceneOn || document.body.classList.contains('cut'))grassU.uGust.value = Math.min(grassU.uGust.value,0.15);
 };
 return M;
 })();
@@ -27646,6 +27736,13 @@ st.count = cp.count = n;
 st.castShadow = cp.castShadow = false;
 st.receiveShadow = cp.receiveShadow = true;
 grp.add(st,cp);
+const wTick =()=>{
+if(G.grp !== grp)return;
+const w = !!(window.__CYCLE && window.__CYCLE.season === 'winter');
+st.visible = cp.visible = !w;
+setTimeout(wTick,500);
+};
+wTick();
 }
 G.lan =[];
 if(window.__mkLantern){
@@ -28325,6 +28422,9 @@ grassU.uMask.value.needsUpdate = true;
 }
 }
 L.tree ={x,z,gy,grp,R: 12 * TS,ha,inner,door,giant: true};
+try{
+grassU.uGTree.value.set(x,z,6.5 * TS);
+}catch(e){}
 }else{
 {
 let best = null;
@@ -35387,6 +35487,7 @@ if(o.isMesh){
 o.castShadow = true;
 const m = o.material.clone();
 if(/Cloth/.test(m.name)){
+(M.clothMeshes ||(M.clothMeshes =[])).push(o);
 o.geometry.computeBoundingBox();
 const bb = o.geometry.boundingBox;
 const top = bb.max.y,
@@ -36372,8 +36473,8 @@ EN.cl = c.position.clone().add(c.getWorldDirection(new V3()).multiplyScalar(4));
 EN.p0 = EN.cp.clone();
 EN.l0 = EN.cl.clone();
 }
-const a1 = smooth(0,1.2,EN.t),
-a2 = smooth(1.4,3.2,EN.t)*(1 - smooth(3.8,5.0,EN.t));
+const a1 = smooth(0,1.6,EN.t),
+a2 = 0;
 const pA = EN.p0.clone().lerp(crouchP,a1),
 lA = EN.l0.clone().lerp(crouchL,a1);
 EN.cp.copy(pA.lerp(upP,a2));
@@ -36389,6 +36490,7 @@ if(F.cam)F.cam(c);
 if(EN.st === 'look'){
 EN.t += dt;
 P.vel.x = P.vel.z = 0;
+P.speed = 0;
 window.__farmLookK = true;
 window.__slowK = lerp(1,0.45,smooth(0,0.8,EN.t))+(1 - 0.45)* smooth(4.4,5.2,EN.t)* smooth(0,0.8,EN.t);
 P.yaw += angDiff(P.yaw,Math.atan2(ux,uz))* Math.min(1,dt * 3);
@@ -36821,9 +36923,28 @@ if(Math.abs(e.movementX || 0)+ Math.abs(e.movementY || 0)> 4)moved = true;
 };
 addEventListener('mousemove',onMM);
 window.__camKeepOnce = true;
+const SW = 6.5,
+t0s = performance.now(),
+LK =(window.__FCS ={lock: true,dir: null,cam: null});
+setTimeout(()=>{
+if(window.__FCS === LK)window.__FCS = null;
+moved = false;
+},SW * 1000);
 window.__camOverride =
 hp && hl
 ? c =>{
+const el =(performance.now()- t0s)/ 1000;
+if(el < SW && window.__camOverride === hold){
+const k = smooth(0.4,2.2,el)*(1 - smooth(SW - 2,SW - 0.1,el));
+const tk = new V3(P.pos.x,(P.visY ?? P.pos.y)+ 0.12,P.pos.z);
+const dv = hp.clone().sub(tk).setY(0);
+if(dv.lengthSq()< 1e-4)dv.set(Math.sin(cam.yaw),0,Math.cos(cam.yaw));
+dv.normalize();
+const oP = tk.clone().addScaledVector(dv,2.3).add(new V3(0,1.35,0));
+c.position.copy(hp).lerp(oP,k);
+c.lookAt(hl.clone().lerp(tk,k));
+return;
+}
 if(moved || P.speed > 0.05 ||(P.vel && Math.hypot(P.vel.x,P.vel.z)> 0.05)|| window.__camOverride !== hold){
 removeEventListener('mousemove',onMM);
 if(window.__camOverride === hold){
@@ -36838,12 +36959,13 @@ c.lookAt(hl);
 }
 : null;
 var hold = window.__camOverride;
+window.__camHoldSoft = hold;
 }
 window.__slowK = 1;
 P.walkMode = true;
 setTimeout(()=>{
 P.walkMode = false;
-},2600);
+},2600 + 6500);
 window.__sootSwarm = 6.5;
 FE.st = 'in';
 FE.seen = true;
@@ -36895,6 +37017,19 @@ if(k > 2.5)FE.st = 'in';
 }
 if(FE.st === 'in' && !inside){
 FE.st = 'out';
+}
+if(window.__housePend && cineOK && FE.seen){
+const lpX = FHI.g.worldToLocal(new V3().copy(P.pos));
+const atTop = Math.abs(lpX.x - ST7.cx)< ST7.sw * 0.6 + 0.5 && lpX.z > FHI.w.z1 - 1.3 && lpX.z < FHI.w.z1 + 0.8;
+if(atTop ||(!inside && !window.__inFarm)){
+window.__housePend = false;
+window.__houseExitGo = true;
+P.vel.x = P.vel.z = 0;
+P.speed = 0;
+try{
+window.__STORY && window.__STORY.release && window.__STORY.release('house');
+}catch(e){}
+}
 }
 FE.clock += dt *(1 - frz);
 window.__stokClock = FE.clock;
@@ -37053,6 +37188,15 @@ o.stop(t0 + k * 0.18 + 2.1);
 }
 }
 };
+{
+const ct =()=>{
+const off = !!((window.__CYCLE && window.__CYCLE.season === 'winter')||(window.__isRaining && window.__isRaining()));
+for(const o of M.clothMeshes ||[])o.visible = !off;
+for(const c of M.cloths ||[])if(c && c.m)c.m.visible = !off;
+setTimeout(ct,700);
+};
+setTimeout(ct,2000);
+}
 window.__MORE = M;
 return M;
 })();
@@ -44308,15 +44452,19 @@ const ctr = o =>{
 const w = new THREE.Group();
 w.add(o);
 w.updateMatrixWorld(true);
-const bb = new THREE.Box3().setFromObject(o);
+const bb = new THREE.Box3();
+o.traverse(q =>{
+if(q.isMesh && q.visible && !/shadow/i.test((q.material && q.material.name)|| ''))bb.expandByObject(q,true);
+});
+if(bb.isEmpty())bb.setFromObject(o);
 const c = bb.getCenter(new V3());
 o.position.sub(new V3(c.x,bb.min.y,c.z));
-return[w,bb.max.x - bb.min.x];
+return[w,Math.min(bb.max.x - bb.min.x,bb.max.z - bb.min.z,0.6)];
 };
 const[A,wa]= ctr(a),
 [B,wb]= ctr(b);
-A.position.set(-wa * 0.42,0,0);
-B.position.set(wb * 0.42,0,0.01);
+A.position.set(-wa * 0.5,0,0);
+B.position.set(wb * 0.5,0,0.01);
 B.rotation.y = -0.35;
 g.add(A,B);
 return g;
@@ -44493,6 +44641,18 @@ rock.traverse(o =>{
 if(o.isMesh)o.material = tintMat(o.material,'shrinerock');
 });
 G.add(rock);
+try{
+G.updateMatrixWorld(true);
+const sb = new THREE.Box3().setFromObject(rock);
+const sc = sb.getCenter(new V3());
+const sr = Math.max(0.3,Math.min(sb.max.x - sb.min.x,sb.max.z - sb.min.z)* 0.42);
+const gy0 = groundAt(sc.x,sc.z,sb.max.y);
+const sf ={t: 'trunk',x: sc.x,z: sc.z,r: sr,tree:{x: sc.x,z: sc.z,r: sr,g: gy0,gl: gy0,h: sb.max.y - gy0,branches:[],climbTop: -1e9}};
+addSurf(sf,sc.x - 2,sc.z - 2,sc.x + 2,sc.z + 2);
+J.shrineSurf = sf;
+}catch(e){
+console.warn('shrine solid',e);
+}
 G.updateMatrixWorld(true);
 const tris =[];
 const A = new V3(),
@@ -44932,12 +45092,13 @@ gMean(G)+
 ? 'Drag to turn it around &middot; ' +(opt.i + 1)+ ' of ' + opt.n
 : opt.note || 'Drag to turn it around')+
 '</div>' +
-(VIEW && opt.n > 1 ? '<button id="gprev">&lsaquo;</button> ' : '')+
+'<div style="display:flex;align-items:center;justify-content:center;gap:12px">' +
+(VIEW && opt.n > 1 ? '<button id="gprev">&lsaquo;</button>' : '')+
 '<button id="gok">' +
 (opt.btn ||(VIEW ? 'Close' : 'Carry it'))+
 '</button>' +
-(VIEW && opt.n > 1 ? ' <button id="gnext">&rsaquo;</button>' : '')+
-'</div>';
+(VIEW && opt.n > 1 ? '<button id="gnext">&rsaquo;</button>' : '')+
+'</div></div>';
 document.body.appendChild(ov);
 requestAnimationFrame(()=>(ov.style.opacity = 1));
 const box = ov.querySelector('#gsc');
@@ -45351,7 +45512,7 @@ J.awardQ.length &&
 !J.showing &&
 !J.queued &&
 !(window.__FCS && window.__FCS.lock && !window.__FCS.story)&&
-!window.__camOverride &&
+(!window.__camOverride ||(window.__camHoldSoft && window.__camOverride === window.__camHoldSoft))&&
 !window.__qOn
 ){
 J.awT =(J.awT || 0)+ dt;
@@ -46577,8 +46738,21 @@ cards =[];
 let say = null,
 freeT = 0,
 cardCool = 0;
+const held ={};
 S.done = id =>{
-if(LINES[id])queue.push({id,lines: LINES[id]});
+if(!LINES[id])return;
+if(id === 'house' && window.__inFarm){
+held[id]= 1;
+window.__housePend = true;
+return;
+}
+queue.push({id,lines: LINES[id]});
+};
+S.release = id =>{
+if(held[id]){
+held[id]= 0;
+queue.push({id,lines: LINES[id]});
+}
 };
 S.busy =()=>
 !!say || queue.length > 0 || !!S.fin;
@@ -46866,6 +47040,42 @@ fog: false
 );
 starAura.visible = false;
 scene.add(starAura);
+const rayTex =(()=>{
+const N = 512,
+cv = document.createElement('canvas');
+cv.width = cv.height = N;
+const x = cv.getContext('2d');
+x.translate(N / 2,N / 2);
+x.globalCompositeOperation = 'lighter';
+let sd = 7;
+const rr =()=>((sd =(sd * 16807)% 2147483647)/ 2147483647);
+const ray =(a,len,w,al)=>{
+x.save();
+x.rotate(a);
+const g = x.createLinearGradient(0,0,len,0);
+g.addColorStop(0,'rgba(200,225,255,' + al + ')');
+g.addColorStop(0.25,'rgba(110,160,255,' + al * 0.6 + ')');
+g.addColorStop(1,'rgba(60,100,255,0)');
+x.fillStyle = g;
+x.beginPath();
+x.moveTo(0,-w);
+x.lineTo(len,0);
+x.lineTo(0,w);
+x.closePath();
+x.fill();
+x.restore();
+};
+for(let i = 0;i < 6;i++)ray((i / 6)* Math.PI * 2 + 0.26,N * 0.48,5,0.95);
+for(let i = 0;i < 40;i++)ray(rr()* Math.PI * 2,N *(0.18 + rr()* 0.3),1 + rr()* 2.2,0.25 + rr()* 0.35);
+const t = new THREE.CanvasTexture(cv);
+t.colorSpace = THREE.SRGBColorSpace;
+return t;
+})();
+const starRays = new THREE.Sprite(
+new THREE.SpriteMaterial({map: rayTex,transparent: true,depthWrite: false,blending: THREE.AdditiveBlending,opacity: 0,fog: false})
+);
+starRays.visible = false;
+scene.add(starRays);
 const geom =()=>{
 const sh = J.shelf;
 if(!sh)return null;
@@ -48056,7 +48266,6 @@ roll: 0,
 portable: true,
 id: 'corny',
 name: 'Corny',
-label: "Pick up Jack's favorite toys",
 carry:{f: 0.1,u: -0.075,yaw: Math.PI / 2,ms: -0.025}
 };
 window.__YARNS.push(Y);
@@ -48083,7 +48292,6 @@ roll: 0,
 portable: true,
 id: 'chickum',
 name: 'Chickum',
-label: "Pick up Jack's favorite toys",
 carry:{f: 0.1,u: -0.06,yaw: Math.PI / 2,ms: 0.035}
 };
 window.__YARNS.push(YC);
@@ -48180,6 +48388,7 @@ Math.hypot(P.pos.x - S.toy.position.x,P.pos.z - S.toy.position.z)< 0.8
 window.__pickNear = nearC
 ?{
 name: 'Corny',
+label: "Pick up Jack's favorite toys",
 go:()=>{
 window.__cornyPick = true;
 }
@@ -48244,7 +48453,14 @@ starAura.scale.setScalar(star.scale.x *(4.2 + 0.4 * Math.sin(time * 0.9)));
 starAura.material.opacity = k *(0.75 + 0.25 * bo)*(0.85 + 0.15 * Math.sin(time * 1.1));
 }
 starAura.visible = star.visible;
-}else starAura.visible = false;
+starRays.visible = star.visible;
+if(starRays.visible){
+starRays.position.copy(star.position);
+starRays.scale.setScalar(star.scale.x *(5.5 + 0.3 * Math.sin(time * 0.7)));
+starRays.material.rotation = time * 0.02;
+starRays.material.opacity = starAura.material.opacity * 0.9;
+}
+}else starAura.visible = starRays.visible = false;
 pT -= dt;
 if(J.viewP && pT <= 0){
 pT = 0.25;
@@ -49367,7 +49583,7 @@ const cellOf =(x,z)=>[
 Math.max(0,Math.min(GN - 1,Math.floor(x + 85))),
 Math.max(0,Math.min(GN - 1,Math.floor(z + 85)))
 ];
-D.route =(from,to)=>{
+D.route =(from,to,flat)=>{
 const G = grid();
 if(!G)return[new V3(from.x,0,from.z),new V3(to.x,0,to.z)];
 const[si,sj]= cellOf(from.x,from.z),
@@ -49426,7 +49642,8 @@ jj = nj + dj;
 if(ii < 0 || jj < 0 || ii >= GN || jj >= GN)continue;
 const m = jj * GN + ii;
 if(done[m])continue;
-const step =(di && dj ? 1.414 : 1)* G.cost[m];
+const cm = G.cost[m];
+const step =(di && dj ? 1.414 : 1)*(flat ?(cm >= 400 ? 400 : cm > 1 ? 1.2 : 1): cm);
 const ng = g[n]+ step;
 if(ng < g[m]){
 g[m]= ng;
@@ -49615,11 +49832,15 @@ const J = JJ(),
 S2 = ST();
 if(J &&(J.showing || J.queued || J.tgPend ||(J.awardQ && J.awardQ.length)))return null;
 if(S2 &&((S2.busy && S2.busy())|| S2.fin))return null;
-if(P.summit || P.mode !== 'ground' || window.__inFarm)return null;
+if(P.summit || P.mode !== 'ground' ||(window.__inFarm && !window.__houseExitGo))return null;
 const Q = A.Q,
 ds = dirS();
 for(const id of ORDER){
-if(Q.done[id]&& TURNS[id]&& !ds.tu[id])return()=> D.turn(id);
+if(Q.done[id]&& TURNS[id]&& !ds.tu[id])
+return()=>{
+if(id === 'house')window.__houseExitGo = false;
+D.turn(id);
+};
 }
 const q = A.curMain();
 if(q && q.id !== 'spirit' && !ds.op[q.id])return()=> D.opening(q.id);
@@ -49833,13 +50054,22 @@ bS.lerp(bp,0.04);
 return bS.clone().sub(T0).setY(0);
 };
 const lookAt =()=> look.clone().add(bDrift());
+let flyCv = null;
 D.cut({
 dur: DUR,
 live: id === 'boat',
 shots:[
 {d: 3,f:(k,c)=>[lerpV(c.p0,A,ss(k)),lerpV(c.l0,lookAt(),ss(Math.min(1,k * 1.3)))]},
-{d: 4,f: k =>{const dv = bDrift();return[lerpV(B0,B1,ss(k)).add(dv),look.clone().add(dv)];}},
-{d: DUR - 7,f: k =>{const dv = bDrift();const p = lerpV(CL0,CL1,ss(k)).add(dv);p.y = Math.max(p.y,gy(p.x,p.z)+ 1.2);return[p,look.clone().add(dv)];}}
+{
+d: DUR - 3,
+f: k =>{
+const dv = bDrift();
+const cv = flyCv ||(flyCv = new THREE.CatmullRomCurve3([B0,B1,CL0,CL1],false,'centripetal'));
+const p = cv.getPointAt(1 - Math.pow(1 - k,3)).add(dv);
+p.y = Math.max(p.y,gy(p.x,p.z)+ 1.2);
+return[p,look.clone().add(dv)];
+}
+}
 ],
 ev:[
 [
@@ -50583,19 +50813,29 @@ const bs = o.geometry.boundingSphere.clone().applyMatrix4(o.matrixWorld);
 if(bs.center.distanceTo(c)- bs.radius < R + 3)obs.push(o);
 }
 });
-const from = c.clone().add(up(0.25));
+const froms =[c.clone().add(up(0.25))];
+for(let j = 0;j < 4;j++)froms.push(c.clone().add(new V3(Math.sin(j * 1.571)* 0.9,0.2,Math.cos(j * 1.571)* 0.9)));
 let best = null,
 bs2 = -1;
 for(let k = 0;k < 16;k++){
 const a =(k / 16)* 6.283 + P.yaw;
 const p = c.clone().add(new V3(Math.sin(a)* R,0,Math.cos(a)* R));
 p.y = Math.max(gy(p.x,p.z)+ 0.5,c.y + H);
+let free = 1e9,
+L = 1;
+for(const from of froms){
 const d = p.clone().sub(from);
-const L = d.length();
+const L0 = d.length();
 rc.set(from,d.normalize());
-rc.far = L + 0.6;
+rc.far = L0 + 0.6;
 const h = rc.intersectObjects(obs,false)[0];
-const free = h ? h.distance : L + 1;
+const f0 =(h ? h.distance : L0 + 1)- L0;
+if(f0 < free){
+free = f0;
+L = L0;
+}
+}
+free += L;
 const sc = free +(k === 4 || k === 12 ? 0.3 : 0);
 if(sc > bs2){
 bs2 = sc;
@@ -50619,9 +50859,12 @@ let fw = new V3(P.pos.x - c.x,0,P.pos.z - c.z);
 if(fw.lengthSq()< 0.01)fw.set(0,0,1);
 fw.normalize();
 const sd = new V3(fw.z,0,-fw.x);
-const pos = c.clone().addScaledVector(fw,0.62);
-pos.y = gy(pos.x,pos.z);
-const yaw = Math.atan2(c.x - pos.x,c.z - pos.z);
+const side = c.clone().addScaledVector(fw,0.62);
+side.y = gy(side.x,side.z);
+const pos = c.clone().addScaledVector(fw,0.06);
+pos.y = gy(pos.x,pos.z)+ 0.03;
+const yaw = Math.atan2(c.x - side.x,c.z - side.z)+ Math.PI * 0.5;
+D.sleepSide ={pos: side,yaw: Math.atan2(c.x - side.x,c.z - side.z)};
 P.pos.copy(pos);
 P.yaw = yaw;
 P.speed = 0;
@@ -50721,6 +50964,13 @@ t > 11 &&
 c2.snowOff = 1;
 if(C)C.story ={ev:{},rate: 3};
 }
+if(t > 14.2 && !c2.moved && D.sleepSide && D.hold){
+c2.moved = 1;
+D.hold.pos = D.sleepSide.pos.clone();
+D.hold.yaw = D.sleepSide.yaw;
+P.pos.copy(D.sleepSide.pos);
+P.yaw = D.sleepSide.yaw;
+}
 if(t > 14.6 && !c2.spr){
 c2.spr = 1;
 if(C){
@@ -50743,7 +50993,7 @@ sk =>{
 if(!sk)
 window.__storyLine &&
 window.__storyLine(
-'Tink curls up beside the little mound…',
+'Tink curls up over the bean to keep it warm…',
 'and the long winter slips by',
 4600
 );
@@ -51121,7 +51371,7 @@ return;
 }
 if(id === 'bean'){
 D.cut({
-dur: 13,
+dur: 9.6,
 shots:[{d: 9,f:(q,c)=>[lerpV(c.p0,hi,ss(q)),lerpV(c.l0,far,ss(q))]}],
 ev:[
 [
@@ -51349,7 +51599,7 @@ r2 = D.route(D.via,G);
 RT = r1.concat(r2.slice(1));
 const rd = D.route(P.pos,G);
 if(D.strayed && rd.cost != null && r1.cost != null && r2.cost != null && rd.cost * 1.15 < r1.cost + r2.cost)RT = rd;
-}else RT = D.route(P.pos,G);
+}else RT = D.route(P.pos,G,q.id === 'home');
 rtKey = k2;
 rtAt = P.pos.clone();
 const pts =[];
@@ -51409,7 +51659,16 @@ oz = -Math.sin(a)* 0.05 * s;
 const px = x + ox,
 pz = z + oz;
 qy.setFromAxisAngle(new V3(0,1,0),a + Math.PI);
-m4.compose(new V3(px,gy(px,pz)+ 0.06,pz),qy,new V3(1,1,1));
+let snowUp = 0;
+try{
+const sg = grassU.uSnowG.value || 0;
+if(sg > 0.01){
+const G2 = grid();
+const[ci,cj]= cellOf(px,pz);
+snowUp = G2 && G2.path[cj * GN + ci]? 0.01 : 0.28 * sg;
+}
+}catch(e){}
+m4.compose(new V3(px,gy(px,pz)+ 0.06 + snowUp,pz),qy,new V3(1,1,1));
 pws.setMatrixAt(n,m4);
 const wave = 0.5 + 0.5 * Math.sin(tm * 2.2 - n * 0.7);
 pwOp[n]= Math.min(1,(n + 1)/ 2)*(1 - n /(NPW + 1))*(0.45 + 0.4 * wave)* bright;
@@ -51504,7 +51763,7 @@ yv = P.yaw;
 const out = new V3(r[0].x - c0.x,0,r[0].z - c0.z);
 const outA = Math.atan2(out.x,out.z);
 D.hold ={pos: c0.clone(),yaw: P.yaw};
-const camP = D.clearCam(c0,2.1,1.15)|| c0.clone().addScaledVector(sdc,1.9).add(up(1.2)),
+const camP = D.clearCam(c0,2.5,1.3)|| c0.clone().addScaledVector(sdc,1.9).add(up(1.2)),
 camL = c0.clone().add(up(0.08));
 D.cut({
 dur: 16,
@@ -51533,7 +51792,7 @@ DU.pts.material.opacity = 0.45;
 DU.pts.visible = live > 0;
 }
 if(t < 10){
-w = 0.55 + 14 * Math.pow(smooth(0.4,9.6,t),2.6);
+w = 0.55 + 9 * Math.pow(smooth(0.4,9.6,t),2.6);
 ang += w * dt2;
 const Rc = 0.4 * smooth(0.6,3,t)*(1 - smooth(9.1,10,t));
 const ca = ang - 0.75;
@@ -51926,7 +52185,7 @@ started &&
 !(TR && TR.cv &&(TR.cs || TR.wonder ||(!TR.welcomed && !(window.__Q && window.__Q.done.spirit))))&&
 P.mode === 'ground' &&
 !P.summit &&
-!window.__inFarm &&
+(!window.__inFarm || window.__houseExitGo)&&
 !(ROOM && ROOM.active)
 );
 };
@@ -52284,8 +52543,9 @@ if(C.seasonRate === 0.07)C.seasonRate = 0;
 }
 if(freeNow()){
 waitT += dt;
-if(waitT > 2.2){
+if(waitT >(id === 'house' && window.__houseExitGo ? 0.5 : 2.2)){
 waitT = 0;
+if(id === 'house')window.__houseExitGo = false;
 D.turn(id);
 }
 }else waitT = 0;
@@ -52408,7 +52668,8 @@ let g = 9;
 try{
 g = streamGap(P.pos.x,P.pos.z);
 }catch(e){}
-if(g < 1.3 || P.inWater)act = 'fill';
+const onBr = !!P.onSurf || BRIDGES.some(b2 => Math.hypot(b2[0]- P.pos.x,b2[1]- P.pos.z)< 2.6);
+if((g < 1.3 || P.inWater)&& !onBr)act = 'fill';
 }else if(b.st >= 4 && !b.wet && b.leaf && dS < 0.9)act = 'pour';
 }
 D.beanAct = act;
@@ -53704,9 +53965,13 @@ if(window.__worldBuilt && H.paintBed())clearInterval(iv);
 },1000);
 }
 {
-const sf ={t: 'disk',x: c.x,z: c.z,r: 0.5,top: c.y + bedY};
+g.updateMatrixWorld(true);
+const nb = new THREE.Box3().setFromObject(g);
+const RN = Math.max(0.55,Math.min(1.4,Math.max(nb.max.x - nb.min.x,nb.max.z - nb.min.z)* 0.5));
+H.nestR = RN;
+const sf ={t: 'ell',x: c.x,z: c.z,r: RN,y: c.y - 0.02,ry: bedY + 0.02};
 sf.own = g;
-addSurf(sf,c.x - 0.6,c.z - 0.6,c.x + 0.6,c.z + 0.6);
+addSurf(sf,c.x - RN - 0.1,c.z - RN - 0.1,c.x + RN + 0.1,c.z + RN + 0.1);
 H.sf = sf;
 }
 g.userData.onEdit =()=>{
@@ -53722,8 +53987,10 @@ if(H.sf)H.sf.dead = true;
 const r = 0.5 * k;
 H.bedR = r;
 H.paintBed && H.paintBed();
-const sf ={t: 'disk',x: p.x,z: p.z,r,top: p.y,own: g};
-addSurf(sf,p.x - r - 0.1,p.z - r - 0.1,p.x + r + 0.1,p.z + r + 0.1);
+const RN =(H.nestR || 0.9)* k;
+const gy0 = groundAt(p.x,p.z,p.y + 0.5);
+const sf ={t: 'ell',x: p.x,z: p.z,r: RN,y: gy0 - 0.02,ry: Math.max(0.05,p.y - gy0 + 0.02),own: g};
+addSurf(sf,p.x - RN - 0.1,p.z - RN - 0.1,p.x + RN + 0.1,p.z + RN + 0.1);
 H.sf = sf;
 };
 {
@@ -53931,7 +54198,7 @@ Y.heldKind = cat.kind;
 Y.rest = false;
 Y.v.set(0,0,0);
 window.__carryAdd && window.__carryAdd(Y.m,{...Y.carry,who: 'p'});
-if(/^(corny|chickum)$/.test(Y.id || ''))
+if(quiet && /^(corny|chickum)$/.test(Y.id || ''))
 for(const Z of window.__YARNS ||[])
 if(Z !== Y && /^(corny|chickum)$/.test(Z.id || '')&& !Z.held && Z.m.position.distanceTo(Y.m.position)< 1.4){
 Z.held = 'p';
@@ -54156,7 +54423,7 @@ document.body.classList.contains('cut')||
 const h = holder();
 hintT = Math.max(0,hintT - dt);
 if(busy)say(null);
-else if(h && hintT > 0)say(K + 'Drop ' +(/^(corny|chickum)$/.test(h.id || '')? "Jack's favorite toys" : h.name));
+else if(h && hintT > 0)say(K + 'Drop ' +((window.__YARNS ||[]).filter(Z => Z.held === 'p' && /^(corny|chickum)$/.test(Z.id || '')).length > 1 ? "Jack's favorite toys" : h.name));
 else if(!h){
 const SN = window.__pickNear;
 const n = SN || T.near();
@@ -58041,6 +58308,47 @@ HM.geometry.computeBoundingBox();
 const b = HM.geometry.boundingBox;
 for(const m of mats(HM))snowify(m,b.min.y +(b.max.y - b.min.y)* 0.46);
 }
+{
+const under =(o,g)=>{
+for(let p = o;p;p = p.parent)if(p === g)return true;
+return false;
+};
+const lan = o =>{
+for(let p = o;p;p = p.parent)if((p.userData && p.userData.lantern)|| /lantern/i.test(p.name || '')||(p.userData && p.userData.batch && /lantern/i.test(p.userData.batch.pack || '')))return true;
+return /lantern/i.test(srcOf(o));
+};
+const extra =()=>{
+try{
+const BS = window.__BUSSTOP;
+scene.traverse(o =>{
+if(!o.isMesh || o.isPoints)return;
+if(lan(o)|| mats(o).some(m => /^(wellm|lantern)/.test(tagOf(m))))for(const m of mats(o))snowify(m,-1e9);
+else if(BS && under(o,BS)){
+const bb = new THREE.Box3().setFromObject(BS);
+const ob = new THREE.Box3().setFromObject(o);
+if(ob.max.y > bb.min.y +(bb.max.y - bb.min.y)* 0.75)for(const m of mats(o))snowify(m,-1e9);
+}
+});
+}catch(e){
+console.warn('snow extra',e);
+}
+};
+setTimeout(extra,6000);
+setTimeout(extra,20000);
+const ghost =()=>{
+try{
+for(const t of trees){
+if(t.gone || Math.hypot(t.x - 9.62,t.z + 3.28)> 1.8)continue;
+t.gone = true;
+for(const s2 of near(t.x,t.z))if(s2.tree === t)s2.dead = true;
+}
+}catch(e){
+console.warn('ghost tree',e);
+}
+};
+setTimeout(ghost,4000);
+setTimeout(ghost,20000);
+}
 window.__seasonVis = se =>{
 se = se || window.__curSeason;
 if(!se)return;
@@ -58188,6 +58496,7 @@ const grp = new THREE.Group();
 grp.position.set(x,gy,z);
 grp.rotation.y = yaw || 0;
 grp.userData.noEdit = true;
+grp.userData.lantern = 1;
 if(kind === 'stone' && STONE.length){
 const L2 = STONE[si++ % STONE.length];
 const m = new THREE.Mesh(L2.g,L2.mat.clone());
