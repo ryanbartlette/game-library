@@ -15517,10 +15517,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 557;
+const BUILD = 559;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 125;
+const LOOKV = 127;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -25521,7 +25521,7 @@ pill.classList.add('actP');
 pill.style.cssText =
 'position:fixed;left:50%;bottom:15vh;transform:translateX(-50%);padding:11px 22px;border-radius:999px;border:1px solid rgba(255,255,255,.75);background:rgba(10,20,30,.28);backdrop-filter:blur(6px);color:#fff;font-family:Montserrat,sans-serif;font-weight:600;font-size:13px;letter-spacing:.18em;text-transform:uppercase;text-shadow:0 1px 4px rgba(0,0,0,.6);z-index:32;pointer-events:none;opacity:0;transition:opacity .4s';
 pill.innerHTML =
-'<span style="display:inline-block;border:1px solid #fff;border-radius:5px;padding:1px 7px;margin-right:10px">E</span>Read the signpost';
+'<kbd style="display:inline-block;border:1px solid #fff;border-radius:5px;padding:1px 7px;margin-right:10px">E</kbd>Read the signpost';
 const card = document.createElement('div');
 card.style.cssText =
 'position:fixed;left:50%;bottom:15.5vh;transform:translateX(-50%) translateY(8px);min-width:260px;max-width:min(440px,86vw);padding:16px 24px 14px;border-radius:14px;background:rgba(14,24,30,.5);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.35);color:#fffbe9;text-shadow:0 1px 6px rgba(0,0,0,.5);z-index:33;pointer-events:none;opacity:0;transition:opacity .5s,transform .5s;text-align:center';
@@ -39040,7 +39040,7 @@ el.classList.add('actP');
 el.style.cssText =
 'position:fixed;left:50%;bottom:16vh;transform:translateX(-50%);padding:12px 24px;border-radius:999px;border:1px solid rgba(255,255,255,.8);background:rgba(10,20,30,.3);backdrop-filter:blur(6px);color:#fff;font-family:Montserrat,sans-serif;font-weight:600;font-size:14px;letter-spacing:.16em;text-transform:uppercase;text-shadow:0 1px 4px rgba(0,0,0,.6);z-index:40;pointer-events:none;opacity:0;transition:opacity .6s';
 el.innerHTML =
-'Press <span style="display:inline-block;border:1px solid #fff;border-radius:5px;padding:1px 8px;margin:0 6px">E</span> to wake up';
+'Press <kbd style="display:inline-block;border:1px solid #fff;border-radius:5px;padding:1px 8px;margin:0 6px">E</kbd> to wake up';
 document.body.appendChild(el);
 }
 requestAnimationFrame(()=>(el.style.opacity = on ? 1 : 0));
@@ -39851,7 +39851,7 @@ if(!P.walkMode)return;
 const h =
 window.__bigHint &&
 window.__bigHint(
-'Tap <span style="display:inline-block;padding:2px 12px;margin:0 6px;border:2px solid rgba(255,251,233,.85);border-radius:8px;font-size:.85em">Shift</span> to trot',
+'Tap <kbd style="display:inline-block;padding:2px 12px;margin:0 6px;border:2px solid rgba(255,251,233,.85);border-radius:8px;font-size:.85em">Shift</kbd> to trot',
 5600
 );
 window.__trotHint = h;
@@ -48221,6 +48221,7 @@ const b = document.createElement('div');
 b.style.cssText =
 'position:fixed;left:0;right:0;height:9vh;background:#000;z-index:44;pointer-events:none;transition:transform 1.4s ease;' +
 (i ? 'bottom:0;transform:translateY(100%)' : 'top:0;transform:translateY(-100%)');
+if(i)b.classList.add('cineBarB');
 document.body.appendChild(b);
 return b;
 });
@@ -50861,9 +50862,28 @@ const b = document.createElement('div');
 b.style.cssText =
 'position:fixed;left:0;right:0;height:var(--barH,12.8vh);background:#000;z-index:44;pointer-events:none;transition:transform 1.3s ease;' +
 (i ? 'bottom:0;transform:translateY(100%)' : 'top:0;transform:translateY(-100%)');
+if(i)b.classList.add('cineBarB');
 document.body.appendChild(b);
 return b;
 });
+{
+let lastV = -1;
+const barLift =()=>{
+let v = 0;
+for(const b of document.querySelectorAll('.cineBarB')){
+const r = b.getBoundingClientRect();
+if(r.height > 0)v = Math.max(v,innerHeight - r.top);
+}
+v = Math.max(0,Math.round(v));
+if(v !== lastV){
+lastV = v;
+document.documentElement.style.setProperty('--barVis',v + 'px');
+document.body.classList.toggle('barLift',v > innerHeight * 0.02);
+}
+requestAnimationFrame(barLift);
+};
+requestAnimationFrame(barLift);
+}
 const fade = document.createElement('div');
 fade.style.cssText =
 'position:fixed;inset:0;background:#05080c;opacity:0;pointer-events:none;transition:opacity .8s ease;z-index:43';
@@ -53806,7 +53826,7 @@ ready = true;
 D.benchReady = ready;
 if(!D.hopReady && !D.hopDown)D.prompt(
 ready
-? '<span style="display:inline-block;border:1px solid #fff;border-radius:5px;padding:1px 7px;margin-right:10px">X</span>Sit on the bench'
+? '<kbd style="display:inline-block;border:1px solid #fff;border-radius:5px;padding:1px 7px;margin-right:10px">X</kbd>Sit on the bench'
 : null
 );
 }
