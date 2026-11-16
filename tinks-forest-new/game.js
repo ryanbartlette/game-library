@@ -15362,10 +15362,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 537;
+const BUILD = 538;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 105;
+const LOOKV = 106;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -19352,7 +19352,7 @@ P.dashT = window.__ROAM ? Math.min(3,(P.dashT || 0)+ dt): 0;
 P.dashing = P.dashT >= 3;
 target = P.dashing ? Math.max(T.sprint,T.dash ?? 6.5): T.sprint;
 label = P.dashing ? 'Zoomies!' : 'Run';
-}else if(P.walkMode){
+}else if(P.walkMode ||(window.__PAD && window.__PAD.mode && window.__PAD.mag > 0 && window.__PAD.mag < 0.62)){
 target = T.walk;
 label = 'Walk';
 }else{
@@ -27314,6 +27314,7 @@ TH.rumble = 2.5 + Math.random()* 3.5;
 }
 if(TH.rumble > 0){
 TH.rumble -= dt;
+if(TH.rumble <= 0)window.__thunderAt = performance.now();
 if(TH.rumble <= 0 && AUD.ctx && AUD.on && AUD.buf.thunder){
 const ctx = AUD.ctx,
 src = ctx.createBufferSource();
@@ -36788,6 +36789,7 @@ C.A = clamp(A + 0.45,-2.2,2.2);
 }
 try{
 sfx('furnace_lever',{vol: 1});
+window.__furnaceRoar = performance.now();
 sfx('thump',{vol: 1,rate: 0.42});
 setTimeout(()=>{
 try{
@@ -36993,6 +36995,7 @@ FE.st = 'roar';
 FE.t = 0;
 try{
 sfx('furnace_lever',{vol: 0.9});
+window.__furnaceRoar = performance.now();
 sfx('thump',{vol: 0.5,rate: 0.55});
 }catch(e){}
 }
@@ -50101,7 +50104,7 @@ id === 'house' &&
 dirS().runTip = 1;
 saveQ();
 try{
-window.__actPrompt('run','Tap <kbd>Shift</kbd> to trot or walk &nbsp;·&nbsp; hold <kbd>Shift</kbd> to run');
+window.__actPrompt('run',window.__PAD && window.__PAD.mode ? '<span data-nopad>Tilt the stick a little to walk, all the way to trot &nbsp;·&nbsp; press it in to run</span>' : 'Tap <kbd>Shift</kbd> to trot or walk &nbsp;·&nbsp; hold <kbd>Shift</kbd> to run');
 let shown = 0;
 const iv = setInterval(()=>{
 if(!document.body.classList.contains('cut'))shown += 250;
@@ -58915,6 +58918,10 @@ if(PAD.xDown){
 PAD.xDown = false;
 send('keyup','KeyE');
 }
+if(PAD.ltDown){
+PAD.ltDown = false;
+send('keyup','Space');
+}
 };
 const actOK =()=>
 started &&
@@ -59038,8 +59045,8 @@ switch:{A: 'B',B: 'A',X: 'Y',Y: 'X',LB: 'L',RB: 'R',LT: 'ZL',RT: 'ZR',L3: 'L-sti
 };
 const SHARED ={UP: 'D-pad ↑',DOWN: 'D-pad ↓',LEFT: 'D-pad ←',RIGHT: 'D-pad →',LS: 'Left stick',RS: 'Right stick'};
 const nm = b =>(NAMES[PAD.kind || 'xbox']|| NAMES.xbox)[b]|| SHARED[b]|| b;
-const KEYBTN ={Space: 'A',Enter: 'A',E: 'X',X: 'B',Q: 'LB',J: 'UP',G: 'DOWN',R: 'LEFT',Y: 'RIGHT',Esc: 'MENU',Tab: 'VIEW',Click: 'RT',F: 'RT',I: 'R3',Mouse: 'RS'};
-const btnFor =(k,verb)=>(k === 'Shift' ?(/tap/i.test(verb || '')? 'L3' : 'LT'): KEYBTN[k]);
+const KEYBTN ={Space: 'A',Enter: 'A',E: 'X',X: 'X',Q: 'LB',J: 'UP',G: 'DOWN',R: 'LEFT',Y: 'RIGHT',Esc: 'MENU',Tab: 'VIEW',Click: 'RT',F: 'RT',I: 'R3',Mouse: 'RS'};
+const btnFor =(k,verb)=>(k === 'Shift' ? 'L3' : KEYBTN[k]);
 PAD.kbT = performance.now();
 PAD.mode = false;
 for(const ev of['keydown','mousedown','wheel'])
@@ -59161,10 +59168,73 @@ const va = PAD.gp && PAD.gp.vibrationActuator;
 if(va && va.playEffect)va.playEffect('dual-rumble',{duration: ms,strongMagnitude: strong,weakMagnitude: weak}).catch(()=>{});
 }catch(e){}
 };
-const FEEL ={pounce: false,mode: '',gifts: -1,tk: 0};
+const FEEL ={pounce: false,mode: '',gifts: -1,tk: 0,t:{},last: performance.now()};
+const every =(k,ms)=>{
+const n = performance.now();
+if(n -(FEEL.t[k]|| 0)< ms)return false;
+FEEL.t[k]= n;
+return true;
+};
+const edge =(k,on)=>{
+const was = !!FEEL.t['e' + k];
+FEEL.t['e' + k]= !!on;
+return !!on && !was;
+};
+const richFeel =()=>{
+if(!started || menuRoot())return;
+const now = performance.now();
+if(window.__furnaceRoar && now - window.__furnaceRoar < 200 && every('roar',3000))rumble(1,0.85,650);
+if((window.__farmLookK ||(window.__farmCrawl && !window.__inFarm && !window.__asJack))&& every('heart',window.__farmLookK ? 900 : 1150)){
+rumble(0.22,0,55);
+setTimeout(()=> rumble(0.13,0,55),190);
+}
+try{
+const CB = window.__CATBUS;
+if(CB && CB.root && CB.root.visible !== false){
+const p = CB.root.getWorldPosition(new THREE.Vector3());
+const mv = FEEL.cb ? p.distanceTo(FEEL.cb): 0;
+FEEL.cb = p;
+const d = Math.hypot(p.x - P.pos.x,p.z - P.pos.z);
+if(mv > 0.01 && d < 30 && every('bus',300)){
+const k = Math.pow(1 - d / 30,1.5);
+rumble(0.35 * k,0.2 * k,320);
+}
+}
+}catch(e){}
+try{
+const SP = LIFE.sprout;
+if(SP){
+const g = SP.grow || 0,
+dg = g -(FEEL.bean ?? g);
+FEEL.bean = g;
+if(dg > 0.0015 && g < 0.99 && every('bean',280))rumble(0.15 + 0.45 * g,0.2 + 0.2 * g,300);
+}
+}catch(e){}
+if(edge('float',P.floatDown))rumble(0.1,0.35,420);
+if(window.__thunderAt && now - window.__thunderAt < 200 && every('thunder',4000))rumble(0.18,0.12,1100);
+try{
+const K = window.__JACK && window.__JACK.k;
+if(edge('jack',K && K.op > 0.08 && K.holder && K.holder.visible))rumble(0,0.28,650);
+}catch(e){}
+if(window.__sootSwarm > 0 && window.__inFarm && every('soot',170))rumble(0,0.14,45);
+if(edge('swat',(P.swatAtT || 0)> 0.3))rumble(0.08,0.28,55);
+if(edge('water',P.inWater))rumble(0.04,0.2,140);
+if(window.__jackDuskMsg && edge('star',now - window.__jackDuskMsg < 2000))rumble(0,0.12,700);
+const purr = !!(P.bedSleep ||(P.script && P.script.nap && /sleep/i.test(P.script.clip || ''))||(typeof comp !== "undefined" && comp && comp.ai && comp.ai.state === "buddy" && comp.ai.arrived));
+if(purr && every('purr',1500)){
+rumble(0,0.07,380);
+setTimeout(()=> rumble(0,0.05,300),650);
+}
+try{
+if(grassU.uSnowG.value > 0.6 && P.mode === 'ground' && P.speed > 1.2 && !P.onSurf && every('snow',330))rumble(0,0.06,40);
+}catch(e){}
+};
 const feel =()=>{
 setMode(PAD.on && PAD.used > PAD.kbT);
 if(!started)return;
+try{
+richFeel();
+}catch(e){}
 if(P.pouncing && !FEEL.pounce)rumble(0.25,0.55,140);
 FEEL.pounce = !!P.pouncing;
 if(FEEL.mode === 'air' && P.mode !== 'air' && !P.floatDown){
@@ -59240,21 +59310,22 @@ const row =(b,what)=> '<div class="pm-r"><kbd data-btn="' + b + '" data-pb="' + 
 const draw =()=>{
 map.innerHTML =
 '<div class="pm-in"><div class="p-big">Controller</div><div class="pm-cols"><div>' +
-row('LT','Hold to run')+
+row('LS','Move · tilt a little to walk, all the way to trot')+
+row('L3','Run (press the stick; stops when she does)')+
+row('LT','Hold to aim a leap, let go to leap')+
 row('LB','Meow')+
-row('LS','Move')+
-row('L3','Walk / trot (press the stick)')+
 row('UP','Quests')+
 row('DOWN','Groom')+
 row('LEFT','Hiss')+
 row('RIGHT','Yowl')+
-row('VIEW','Skip a scene')+
+row('VIEW','Quests · skip a scene')+
 '</div><div>' +
 row('RT','Hold to stalk, let go to pounce')+
 row('RB','Swat')+
 row('A','Jump and climb · read on')+
-row('X','Pick up, plant, give')+
-row('B','Sit and watch · back')+
+row('X','Pick up, plant, give, curl up')+
+row('B','Crouch · back')+
+row('Y','Sit and watch')+
 row('RS','Look around')+
 row('R3',"Through Tink's eyes (press the stick)")+
 row('MENU','Pause')+
@@ -59368,7 +59439,18 @@ hold('KeyW',ly < -0.5);
 hold('KeyS',ly > 0.5);
 hold('KeyA',lx < -0.5);
 hold('KeyD',lx > 0.5);
-hold('ShiftLeft',btn[BT.LT]);
+if(pr(BT.L3))PAD.run = !PAD.run;
+if(PAD.mag > 0.3)PAD.stillT = 0;
+else if((PAD.stillT =(PAD.stillT || 0)+ dt)> 0.35)PAD.run = false;
+hold('ShiftLeft',!!PAD.run && PAD.mag > 0.3);
+if(pr(BT.LT)&& actOK()){
+PAD.ltDown = true;
+send('keydown','Space');
+}
+if(up(BT.LT)&& PAD.ltDown){
+PAD.ltDown = false;
+send('keyup','Space');
+}
 if(pr(BT.A)){
 PAD.aDown = true;
 send('keydown','Space');
@@ -59377,7 +59459,10 @@ if(up(BT.A)&& PAD.aDown){
 PAD.aDown = false;
 send('keyup','Space');
 }
-if(pr(BT.X)){
+const D0 = window.__DIR;
+const xStory = !!(D0 &&(D0.beanAct === 'sleep' || D0.benchReady === true ||(D0.hopReady && !D0.hopDown)));
+if(pr(BT.X)&& xStory)tap('KeyX');
+else if(pr(BT.X)){
 PAD.xDown = true;
 send('keydown','KeyE');
 }
@@ -59385,7 +59470,11 @@ if(up(BT.X)&& PAD.xDown){
 PAD.xDown = false;
 send('keyup','KeyE');
 }
-if(pr(BT.B))tap('KeyX');
+if(pr(BT.B)&& actOK()&& P.mode === 'ground' && !window.__farmCrawl){
+P.crouchOn = !P.crouchOn;
+if(P.crouchOn)PAD.run = false;
+}
+if(pr(BT.Y))tap('KeyX');
 if(pr(BT.LB))tap('KeyQ');
 if(pr(BT.RB)&& actOK())P.swatReq = true;
 if(pr(BT.RT)&& actOK()){
@@ -59396,13 +59485,12 @@ if(up(BT.RT)&& PAD.rt){
 PAD.rt = false;
 mouseDown = false;
 }
-if(pr(BT.L3))tap('ShiftRight');
 if(pr(BT.R3))tap('KeyI');
 if(pr(BT.UP))tap('KeyJ');
 if(pr(BT.DOWN))tap('KeyG');
 if(pr(BT.LEFT))tap('KeyR');
 if(pr(BT.RIGHT))tap('KeyY');
-if(pr(BT.VIEW))tap('Tab');
+if(pr(BT.VIEW))tap(inCut()|| document.body.classList.contains('cut')? 'Tab' : 'KeyJ');
 if(pr(BT.MENU))tap('Escape');
 const rx = ax[2]|| 0,
 ry = ax[3]|| 0;
