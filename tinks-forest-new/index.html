@@ -481,6 +481,24 @@ body.jackEyes #app canvas{filter:brightness(1.6) contrast(1.06) saturate(.3)}
 body.jackEyes #jackEyesT{opacity:.62}
 body.jackEyes #jackEyesV{opacity:1;animation:jkEyeShim 4.5s ease-in-out infinite}
 @keyframes jkEyeShim{0%,100%{filter:brightness(1)}50%{filter:brightness(1.15)}}
+/* Build 563 (Ryan): one soft shade over the day bar, clear around the marker and fading out gently either side */
+.ad-dimAll{fill:#0c1230;opacity:.45}
+/* Build 563 (Ryan): the counters float on the scene like the quest text: no pills, icon and number with a small-caps caption,
+   faint until a count changes, when that one brightens for a few seconds */
+#ad-cnt{gap:26px!important;top:22px!important;right:30px!important}
+.ad-pill{height:auto!important;padding:0!important;border:none!important;background:none!important;box-shadow:none!important;display:grid!important;grid-template-columns:auto auto;grid-template-areas:"i n" "c c";align-items:center;column-gap:7px;row-gap:3px;text-shadow:0 1px 3px rgba(0,0,0,.7),0 0 14px rgba(0,0,0,.45);opacity:.42;transition:opacity .9s ease,transform .3s}
+.ad-pill.lit{opacity:1}
+.ad-pill svg{grid-area:i;width:24px!important;height:24px!important}
+.ad-pill span{grid-area:n;font-size:21px}
+.ad-pill em{grid-area:c;justify-self:center;font-style:normal;font-family:Montserrat,sans-serif;font-weight:600;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.75);font-variation-settings:normal}
+/* Build 563 (Ryan, from the mockup): the top of the screen as one row: quest, day bar and counters all start on the same line,
+   the same distance in from the edges, labels in the same small caps */
+#ad-q{top:24px!important;left:34px!important}
+#ad-day{top:12px!important}
+#ad-cnt{top:24px!important;right:34px!important}
+#ad-segs span{font-size:9px!important;font-weight:600;letter-spacing:.2em!important;color:rgba(255,255,255,.62)}
+#ad-segs span.on{color:#fff;font-weight:800}
+#ad-dayl{margin-top:5px!important;letter-spacing:.2em!important;font-size:9px!important;opacity:.85!important}
 </style>
 
 <div id="app"></div>
@@ -561,7 +579,7 @@ body.jackEyes #jackEyesV{opacity:1;animation:jkEyeShim 4.5s ease-in-out infinite
 <div id="gate">
   <div class="g-shade"></div>
   <div class="g-corner">In loving memory of<b>Jack</b></div>
-  <div class="g-build" id="gBuild">Build 562</div>
+  <div class="g-build" id="gBuild">Build 563</div>
   <div class="g-music" id="gMusic" aria-pressed="false"><i></i>Music</div>
   <header class="g-title">
     <div class="g-small">Tink's Magical</div>
@@ -612,8 +630,8 @@ window.__THEME=(()=>{let done=false;const M=window.__MUS.mk('audio/music/01-the-
  b.addEventListener('click',e=>{e.stopPropagation();if(on){want=false;stop(600)}else{want=true;start()}});
  const tk=setInterval(()=>{if(done||on){if(done)clearInterval(tk);return}start()},300);for(const ev of ['pointerdown','keydown'])addEventListener(ev,start,{capture:true});return {el:null,stop,play:()=>{done=false;want=true;start()},state:()=>({on,want,done,ready:ready()})}})();</script>
 <script type="importmap">{"imports":{"three":"./three.module.js","three/addons/":"./jsm/"}}</script>
-<script>(async()=>{if(/[?&]dev\b/.test(location.search)){location.replace(location.pathname.replace(/[^/]*$/,"")+"dev.html"+location.search+location.hash);return}const lay=fetch("./data/world-layout.9bf0ca4036.json").then(r=>r.ok?r.text():null).catch(()=>null);const u="/tinks-forest-new/game.js?v=1794872953";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
+<script>(async()=>{if(/[?&]dev\b/.test(location.search)){location.replace(location.pathname.replace(/[^/]*$/,"")+"dev.html"+location.search+location.hash);return}const lay=fetch("./data/world-layout.9bf0ca4036.json").then(r=>r.ok?r.text():null).catch(()=>null);const u="/tinks-forest-new/game.js?v=1794874256";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
  if(!txt){const g=document.getElementById("goTxt");if(g)g.textContent="Could not download the game. Please reload";return}
  try{const lt=await lay;if(lt)window.__LAYOUT=JSON.parse(lt)}catch(e){} const sc=document.createElement("script");sc.type="module";sc.src=URL.createObjectURL(new Blob([txt],{type:"text/javascript"}));document.body.appendChild(sc)})()</script>
-<div style="position:fixed;left:6px;top:4px;z-index:99999;font:600 10px system-ui;color:#fff;background:#2e7d32cc;padding:1px 5px;border-radius:3px;pointer-events:none">STAGING · NEW FOREST 130</div>
-<script>if(/[?&]bench\b/.test(location.search)){const s=document.createElement("script");s.src="/tinks-forest-new/bench.js?v=1794872953";document.body.appendChild(s)}</script>
+<div style="position:fixed;left:6px;top:4px;z-index:99999;font:600 10px system-ui;color:#fff;background:#2e7d32cc;padding:1px 5px;border-radius:3px;pointer-events:none">STAGING · NEW FOREST 131</div>
+<script>if(/[?&]bench\b/.test(location.search)){const s=document.createElement("script");s.src="/tinks-forest-new/bench.js?v=1794874256";document.body.appendChild(s)}</script>

@@ -15368,10 +15368,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 562;
+const BUILD = 563;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 130;
+const LOOKV = 131;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -23139,11 +23139,11 @@ const DAYB =
 [0,0.16,0.312,0.464,0.617,0.769,1],
 DAYK =['dawn','day','golden','sunset','dusk','night'];
 const SKY =
-'<svg width="520" height="28" viewBox="0 0 520 28" role="img" aria-label="Time of day"><defs><filter id="adSoft" x="-200%" y="-20%" width="500%" height="140%"><feGaussianBlur stdDeviation="1.6"/></filter><clipPath id="adPill"><rect x="20" y="6" width="480" height="16" rx="8"/></clipPath></defs>' +
+'<svg width="520" height="28" viewBox="0 0 520 28" role="img" aria-label="Time of day"><defs><filter id="adSoft" x="-200%" y="-20%" width="500%" height="140%"><feGaussianBlur stdDeviation="1.6"/></filter><clipPath id="adPill"><rect x="20" y="10" width="480" height="8" rx="4"/></clipPath><filter id="adSpotB" x="-100%" y="-200%" width="300%" height="500%"><feGaussianBlur stdDeviation="16"/></filter><mask id="adSpotM" maskUnits="userSpaceOnUse" x="0" y="-20" width="520" height="68"><rect x="0" y="-20" width="520" height="68" fill="#fff"/><g id="adSpotG"><ellipse cx="0" cy="14" rx="46" ry="30" fill="#000" filter="url(#adSpotB)"/></g></mask></defs>' +
 '<image href="' +
 DAYART +
-'" x="20" y="6" width="480" height="16" preserveAspectRatio="none" style="filter:drop-shadow(0 2px 6px rgba(10,20,30,.35))"/>' +
-'<g clip-path="url(#adPill)"><rect class="ad-dim" data-k="dawn" x="20.0" y="6" width="76.8" height="16"/><rect class="ad-dim" data-k="day" x="96.8" y="6" width="73.0" height="16"/><rect class="ad-dim" data-k="golden" x="169.8" y="6" width="73.0" height="16"/><rect class="ad-dim" data-k="sunset" x="242.7" y="6" width="73.4" height="16"/><rect class="ad-dim" data-k="dusk" x="316.2" y="6" width="73.0" height="16"/><rect class="ad-dim" data-k="night" x="389.1" y="6" width="110.9" height="16"/></g>' +
+'" x="20" y="10" width="480" height="8" preserveAspectRatio="none" style="filter:drop-shadow(0 2px 6px rgba(10,20,30,.35))"/>' +
+'<g clip-path="url(#adPill)"><rect class="ad-dimAll" x="20" y="10" width="480" height="8" mask="url(#adSpotM)"/></g>' +
 '<g id="ad-mk"><rect x="-2.5" y="0" width="5" height="28" rx="2.5" fill="#fff" opacity=".55" filter="url(#adSoft)"/><rect x="-1" y="1" width="2" height="26" rx="1" fill="#fff"/><circle cx="0" cy="14" r="4.5" fill="#fff" stroke="rgba(30,40,60,.35)" stroke-width="1"/></g></svg>';
 const SEGS =
 '<div id="ad-segs">' +
@@ -23178,7 +23178,7 @@ MOON +
 {tink: '1',luca: '2',jack: '3'}[k]+
 '</span></div><div class="ad-bar"><i></i></div><div class="ad-nm"></div></div>';
 const PILL =(id,title,svg)=>
-'<div class="ad-pill" id="' + id + '" title="' + title + '">' + svg + '<span></span></div>';
+'<div class="ad-pill" id="' + id + '" title="' + title + '">' + svg + '<em>' +{'ad-pg': 'Gifts','ad-psq': 'Squirrels','ad-ppf': 'Moss puffs'}[id]+ '</em><span></span></div>';
 const GIFT =
 '<svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true" style="filter:drop-shadow(0 0 5px rgba(200,140,255,.6))"><defs><linearGradient id="adGB" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#c79bff"/><stop offset="1" stop-color="#6b3fc0"/></linearGradient><linearGradient id="adGRb" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#fff0b8"/><stop offset="1" stop-color="#d9a032"/></linearGradient></defs><rect x="6" y="14" width="20" height="14" rx="2" fill="url(#adGB)"/><rect x="4.5" y="10.5" width="23" height="5.5" rx="1.5" fill="#a978f0"/><rect x="14" y="10.5" width="4" height="17.5" fill="url(#adGRb)"/><path d="M16 10.5 C13 5 7.5 5.5 9 8.6 C10 10.4 13.5 10.5 16 10.5 Z" fill="url(#adGRb)"/><path d="M16 10.5 C19 5 24.5 5.5 23 8.6 C22 10.4 18.5 10.5 16 10.5 Z" fill="url(#adGRb)"/><path d="M27 4 L27.8 6 L29.8 6.8 L27.8 7.6 L27 9.6 L26.2 7.6 L24.2 6.8 L26.2 6 Z" fill="#fff6d0"/></svg>';
 const SQ =
@@ -23203,7 +23203,7 @@ catH('luca')+
 catH('jack')+
 '</div>' +
 '<div id="ad-q" class="none"><div id="ad-ql">' +
-LEAF('adLf1')+
+'<img id="ad-paw" alt="" style="display:block;width:28px;height:28px;object-fit:contain;filter:drop-shadow(0 0 6px rgba(140,255,215,.45)) drop-shadow(0 1px 2px rgba(0,0,0,.5))">' +
 '<div class="ln"></div></div><div><div id="ad-qt"></div><div id="ad-steps"></div><div id="ad-side" hidden><b id="ad-sdt"></b><span id="ad-sds"></span></div></div></div>' +
 '<div id="ad-cnt">' +
 PILL('ad-pg','Gifts found',GIFT)+
@@ -23216,7 +23216,7 @@ LEAF('adLf2')+
 '<div id="ad-map"><canvas id="ad-mc" width="480" height="480"></canvas>' +
 MAPRING +
 '</div>' +
-'<div id="ad-br"><div class="ad-pr" id="ad-pe" hidden><span class="kc">E</span>Plant the magic bean</div><div class="ad-pr"><span class="kc">J</span>Quests</div><div class="ad-pr"><span class="kc">Esc</span>Pause</div></div>';
+'<div id="ad-br"><div class="ad-pr" id="ad-pe" hidden><span class="kc">E</span>Plant the magic bean</div></div>';
 document.body.appendChild(adv);
 const qm = document.createElement('div');
 qm.id = 'qmenu';
@@ -24576,6 +24576,10 @@ const fresh = DS.title !== title;
 DS.title = title;
 DS.key = key;
 put('ad-qt',title);
+{
+const pw = $('ad-paw');
+if(pw && !pw.getAttribute('src')&& window.__JPAW)pw.src = window.__JPAW;
+}
 const seen = DS.seen;
 const html =
 rows
@@ -24658,6 +24662,8 @@ adv.querySelectorAll('#ad-segs span').forEach(r => r.classList.toggle('on',r.dat
 }
 const mk = $('ad-mk');
 if(mk)mk.setAttribute('transform','translate(' +(20 + xp * 480).toFixed(1)+ ' 0)');
+const spG = $('adSpotG');
+if(spG)spG.setAttribute('transform','translate(' +(20 + xp * 480).toFixed(1)+ ' 0)');
 put('ad-tod',TOD[weather]|| '');
 const se =(C0 && C0.season)|| 'summer';
 put('ad-se',(SEI[se]|| '')+ se.toUpperCase(),1);
@@ -24749,6 +24755,15 @@ put('ad-pg-n',got + '<small>/' +(imgs.length || 5)+ '</small>',0);
 $('ad-pg').lastChild.innerHTML = memo['ad-pg-n'];
 $('ad-psq').lastChild.textContent = CNT.sq;
 $('ad-ppf').lastChild.textContent = CNT.pf;
+{
+const LT =(window.__cntLit ||={v:{},t:{}});
+for(const[id,v]of[['ad-pg',got],['ad-psq',CNT.sq],['ad-ppf',CNT.pf]]){
+if(LT.v[id]!== undefined && LT.v[id]!== v)LT.t[id]= performance.now()+ 4500;
+LT.v[id]= v;
+const el = $(id);
+if(el)el.classList.toggle('lit',performance.now()<(LT.t[id]|| 0));
+}
+}
 if(popPill){
 const el = $(popPill === 'sq' ? 'ad-psq' : 'ad-ppf');
 el.classList.add('pop');
@@ -54782,8 +54797,8 @@ requestAnimationFrame(loop);
 {
 const TOY_DEF ={
 card:{
-corny:{x: -0.5,y: 0,z: 0,rx: 0,ry: 0,rz: 0},
-chickum:{x: 0.5,y: 0,z: 0.02,rx: 0,ry: -20,rz: 0},
+corny:{x: -0.42,y: 0,z: 0,rx: -4,ry: 0,rz: 0},
+chickum:{x: 0.42,y: 0,z: 0.05,rx: 0,ry: -20,rz: 0},
 tilt: 8.6,
 spin: 0.012
 },
