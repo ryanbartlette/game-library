@@ -508,7 +508,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=419',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=420',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -4055,7 +4055,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 419';
+window.__BUILD='BUILD 420';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5578,9 +5578,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794902618'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794905214'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794902618'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794905214'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -5955,8 +5955,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794902618'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794902618'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794905214'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794905214'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6414,7 +6414,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794902618',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794905214',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6428,7 +6428,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794902618',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794905214',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -13691,7 +13691,7 @@ const id=window.animeCars&&animeCars.player&&animeCars.player.name;return !id||i
  function at(E,d){const {P,s}=E;let lo=0,hi=s.length-1;while(hi-lo>1){const m=(lo+hi)>>1;if(s[m]<=d)lo=m;else hi=m}const a=P[lo],b=P[hi],u=s[hi]>s[lo]?(d-s[lo])/(s[hi]-s[lo]):0;
   const rx=a.rx+(b.rx-a.rx)*u,rz=a.rz+(b.rz-a.rz)*u,rl=Math.hypot(rx,rz)||1;return {x:a.x+(b.x-a.x)*u,y:a.y+(b.y-a.y)*u,z:a.z+(b.z-a.z)*u,rx:rx/rl,rz:rz/rl}}
  const CAPG=new THREE.CylinderGeometry(.075,.075,.07,8),CAPM=new THREE.MeshBasicMaterial({color:0xffc414});CAPG.translate(0,.035,0);
- const PITCH=3.55,PER=40,steel=new THREE.MeshLambertMaterial({color:0xc9ced2,side:THREE.DoubleSide});
+ const RH=.8,PITCH=3.55,PER=40,steel=new THREE.MeshLambertMaterial({color:0xc9ced2,side:THREE.DoubleSide});
  const chunks=[];   // {c:{x,z}, near:[meshes], far:mesh}
  import('./assets/lib/three/examples/jsm/loaders/GLTFLoader.js').then(({GLTFLoader})=>new GLTFLoader().load('assets/models/guard_rail.glb',gl=>{
   const go=(n)=>{if(!window.__inTown&&n<40)return setTimeout(()=>go(n+1),250);build(gl)};go(0)},undefined,()=>{}))
@@ -13709,13 +13709,13 @@ const id=window.animeCars&&animeCars.player&&animeCars.player.name;return !id||i
     for(const p of parts){const im=new THREE.InstancedMesh(p.g,p.mat,segs.length);
      segs.forEach(([A,B],i)=>{const rx=(A.rx+B.rx)/2,rz=(A.rz+B.rz)/2,rl=Math.hypot(rx,rz)||1;
       // columns: along = chord / model length; up = vertical (posts stay upright); out = towards the road
-      M.set((B.x-A.x)/L,0,rx/rl*k,A.x,(B.y-A.y)/L,k*.4,0,A.y,(B.z-A.z)/L,0,rz/rl*k,A.z,0,0,0,1)/* 0.4 of the model height: lower, so it reads as a guard rail not a fence */;im.setMatrixAt(i,M)});
+      M.set((B.x-A.x)/L,0,rx/rl*k,A.x,(B.y-A.y)/L,k*RH,0,A.y,(B.z-A.z)/L,0,rz/rl*k,A.z,0,0,0,1)/* (build 420) 0.8 of the model's real 1 m: the beam sits at about a car's beltline, like a real touge rail */;im.setMatrixAt(i,M)});
      im.instanceMatrix.needsUpdate=true;im.computeBoundingSphere();im.frustumCulled=true;im.visible=false;root.add(im);near.push(im)}
     // (build 419) yellow reflector caps on top of the posts (the bright dots that trace the road edge at night)
-    {const cap=new THREE.InstancedMesh(CAPG,CAPM,segs.length);segs.forEach(([A],i)=>{M.makeTranslation(A.x-A.rx*.1,A.y+.43,A.z-A.rz*.1);cap.setMatrixAt(i,M)});cap.instanceMatrix.needsUpdate=true;cap.computeBoundingSphere();cap.visible=false;root.add(cap);near.push(cap)}
+    {const cap=new THREE.InstancedMesh(CAPG,CAPM,segs.length);segs.forEach(([A],i)=>{M.makeTranslation(A.x-A.rx*.1,A.y+RH+.02,A.z-A.rz*.1);cap.setMatrixAt(i,M)});cap.instanceMatrix.needsUpdate=true;cap.computeBoundingSphere();cap.visible=false;root.add(cap);near.push(cap)}
     // the far version: a plain steel band along the same stretch
-    const v=[],ix=[];segs.forEach(([A],i)=>{for(const h of [.24,.4])v.push(A.x,A.y+h,A.z);if(i){const j=(i-1)*2;ix.push(j,j+1,j+2,j+1,j+3,j+2)}});
-    {const B=segs[segs.length-1][1];const n=v.length/3;for(const h of [.24,.4])v.push(B.x,B.y+h,B.z);ix.push(n-2,n-1,n,n-1,n+1,n)}
+    const v=[],ix=[];segs.forEach(([A],i)=>{for(const h of [.56,.8])v.push(A.x,A.y+h,A.z);if(i){const j=(i-1)*2;ix.push(j,j+1,j+2,j+1,j+3,j+2)}});
+    {const B=segs[segs.length-1][1];const n=v.length/3;for(const h of [.56,.8])v.push(B.x,B.y+h,B.z);ix.push(n-2,n-1,n,n-1,n+1,n)}
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setIndex(ix);g.computeVertexNormals();const far=new THREE.Mesh(g,steel);root.add(far);
     const mid=segs[segs.length>>1][0];chunks.push({x:mid.x,z:mid.z,near,far,on:false})}}
   const credit=document.getElementById('modelCredit');if(credit)credit.innerHTML+='<br>Guard rail: "Guard Rail" by shirlanne · CC BY 4.0';window.__frRails=chunks.length}}
