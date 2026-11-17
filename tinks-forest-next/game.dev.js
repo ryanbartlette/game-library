@@ -15535,10 +15535,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 578;
+const BUILD = 579;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 146;
+const LOOKV = 147;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -63894,6 +63894,115 @@ requestAnimationFrame(poll);
 addEventListener('gamepadconnected',()=>{
 PAD.used = performance.now();
 });
+}
+{
+const LOG =[];
+window.__hitches = LOG;
+let last = 0,
+progN = -1,
+texN = -1,
+geoN = -1;
+const seenProg = new Set();
+const newRes =[];
+try{
+new PerformanceObserver(l =>{
+for(const e of l.getEntries())if(/\.(glb|gltf|webp|png|jpg|ktx2|mp3|ogg|m4a|bin|json)(\?|$)/i.test(e.name))newRes.push(e.name.split('/').pop().split('?')[0]);
+}).observe({type: 'resource',buffered: false});
+}catch(e){}
+const where =()=>{
+const o ={};
+try{
+o.at =[+P.pos.x.toFixed(1),+P.pos.z.toFixed(1)];
+o.season = window.__CYCLE && window.__CYCLE.season;
+const QA = window.__QAPI,
+cm = QA && QA.curMain && QA.curMain();
+o.quest = cm && cm.id;
+if(window.__farmWasIn)o.inFarmhouse = true;
+if(window.__sceneOn || document.body.classList.contains('cut'))o.scene = true;
+if(window.__POV || P.povUser)o.catEye = true;
+}catch(e){}
+return o;
+};
+const tick = now =>{
+requestAnimationFrame(tick);
+const dt = last ? now - last : 0;
+last = now;
+let progs =[],
+tx = 0,
+gx = 0;
+try{
+const inf = renderer.info,
+pl = inf.programs ||[];
+if(progN < 0){
+for(const p of pl)seenProg.add(p);
+}else if(pl.length !== progN)
+for(const p of pl)
+if(!seenProg.has(p)){
+seenProg.add(p);
+progs.push(p.name ||(p.cacheKey ? String(p.cacheKey).slice(0,40): '?'));
+}
+progN = pl.length;
+if(texN >= 0)tx = inf.memory.textures - texN;
+if(geoN >= 0)gx = inf.memory.geometries - geoN;
+texN = inf.memory.textures;
+geoN = inf.memory.geometries;
+}catch(e){}
+const res = newRes.splice(0);
+if(dt > 70 && window.__worldBuilt && !document.hidden){
+const h = Object.assign({t: +(now / 1000).toFixed(1),ms: Math.round(dt),newPrograms: progs.length,newTextures: Math.max(0,tx),newModels: Math.max(0,gx)},where());
+if(progs.length)h.programs = progs.slice(0,12);
+if(res.length)h.downloaded = res.slice(0,10);
+LOG.push(h);
+if(LOG.length > 200)LOG.shift();
+if(PANEL)PANEL.draw();
+}
+};
+requestAnimationFrame(tick);
+let PANEL = null;
+const ON =(()=>{
+try{
+return new URLSearchParams(location.search).has('hitches');
+}catch(e){
+return false;
+}
+})();
+if(ON){
+const pn = document.createElement('div');
+pn.style.cssText =
+'position:fixed;right:10px;top:10px;width:320px;max-height:60vh;overflow:auto;z-index:9999;background:rgba(24,22,30,.92);color:#f1ece4;font:11px/1.35 ui-monospace,monospace;border:1px solid #3a3540;border-radius:8px;padding:8px 10px';
+pn.innerHTML =
+'<div style="font:600 13px system-ui;margin-bottom:4px">Hitch log</div><div id="hlL"></div><div style="margin-top:6px;display:flex;gap:6px"><button id="hlC" style="background:#e7a24a;border:0;border-radius:5px;padding:5px 8px;font:600 11px system-ui;cursor:pointer">Copy for Claude</button><button id="hlX" style="background:#3a3540;color:#f1ece4;border:0;border-radius:5px;padding:5px 8px;font:11px system-ui;cursor:pointer">Clear</button></div>';
+for(const ev of['pointerdown','click','keydown','wheel','mousedown'])pn.addEventListener(ev,e => e.stopPropagation());
+const L = pn.querySelector('#hlL');
+PANEL ={
+draw(){
+L.innerHTML = LOG.slice(-25)
+.reverse()
+.map(h => '<div style="border-top:1px solid #3a3540;padding:2px 0">' + h.ms + 'ms · ' + h.newPrograms + ' prog · ' + h.newTextures + ' tex' +(h.downloaded ? ' · ' + h.downloaded.length + ' file' : '')+(h.inFarmhouse ? ' · farmhouse' : '')+(h.scene ? ' · scene' : '')+ ' · ' +(h.quest || '')+ '</div>')
+.join('');
+}
+};
+pn.querySelector('#hlC').onclick = async()=>{
+const t = 'HITCHES ' + JSON.stringify(LOG);
+try{
+await navigator.clipboard.writeText(t);
+pn.querySelector('#hlC').textContent = 'Copied';
+}catch(e){
+const ta = document.createElement('textarea');
+ta.value = t;
+pn.appendChild(ta);
+ta.select();
+pn.querySelector('#hlC').textContent = 'Copy the box';
+}
+setTimeout(()=>(pn.querySelector('#hlC').textContent = 'Copy for Claude'),1500);
+};
+pn.querySelector('#hlX').onclick =()=>{
+LOG.length = 0;
+PANEL.draw();
+};
+const add =()=> document.body.appendChild(pn);
+document.body ? add(): addEventListener('DOMContentLoaded',add);
+}
 }
 
 /*GAME-END*/
