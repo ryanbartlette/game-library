@@ -508,7 +508,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=416',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=417',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -4055,7 +4055,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 416';
+window.__BUILD='BUILD 417';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5578,9 +5578,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794888008'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794891883'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794888008'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794891883'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -5955,8 +5955,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794888008'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794888008'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794891883'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794891883'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6414,7 +6414,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794888008',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794891883',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6428,7 +6428,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794888008',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794891883',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -18819,12 +18819,31 @@ const animeLocations=window.animeLocations=(()=>{
    const im=new THREE.InstancedMesh(cone,new THREE.MeshLambertMaterial({color:0x1f4a2c}),P.length),it=new THREE.InstancedMesh(trunk,new THREE.MeshLambertMaterial({color:0x4b3426}),P.length),M=new THREE.Matrix4(),Q=new THREE.Quaternion(),S=new THREE.Vector3(),V=new THREE.Vector3();
    P.forEach(([x,y,z,k],j)=>{S.set(k,k*(.9+Math.random()*.3),k);V.set(x,y,z);M.compose(V,Q,S);im.setMatrixAt(j,M);it.setMatrixAt(j,M)});im.castShadow=false;G.add(im,it)}
   // the old brick railway viaduct, off in the trees
-  if(L.arches){const bt=signTex((x,w,h)=>{x.fillStyle='#7d3524';x.fillRect(0,0,w,h);x.strokeStyle='#4a1d12';x.lineWidth=3;for(let r=0;r<16;r++){const y=r*16;x.beginPath();x.moveTo(0,y);x.lineTo(w,y);x.stroke();for(let c=0;c<9;c++){const xx=c*32+(r%2)*16;x.beginPath();x.moveTo(xx,y);x.lineTo(xx,y+16);x.stroke()}}},256,256,false);
-   bt.wrapS=bt.wrapT=THREE.RepeatWrapping;bt.repeat.set(2,2);const mat=new THREE.MeshLambertMaterial({map:bt});
-   const C=tougeCenters,T=tougeTangents,N0=C.length-1;for(const f of [.33,.72]){const i=Math.round(N0*f),c=C[i],t=T[i];if(!c||!t)continue;const s={x:-t.z,z:t.x},sd=f<.5?1:-1,dist=55,bx=c.x+s.x*sd*dist,bz=c.z+s.z*sd*dist,by=groundAt(bx,bz,c.y);
-    const V=new THREE.Group();for(let a=-3;a<=3;a++){const pier=new THREE.Mesh(new THREE.BoxGeometry(2.2,16,3),mat);pier.position.set(a*9,8,0);V.add(pier);
-     if(a<3){const arch=new THREE.Mesh(new THREE.TorusGeometry(3.4,1.1,6,14,Math.PI),mat);arch.position.set(a*9+4.5,12.2,0);V.add(arch)}}
-    const deck=new THREE.Mesh(new THREE.BoxGeometry(64,2.4,3.4),mat);deck.position.y=17;V.add(deck);V.position.set(bx,by-4,bz);V.rotation.y=Math.atan2(t.x,t.z);G.add(V)}}
+  // (build 417) Usui's Megane Bridge: one big red-brick railway viaduct striding across the road on the short straight
+  // into the tightest hairpin (~43% round the loop). You go under its tall centre arch as you brake. It fades to
+  // see-through while the camera is passing through it, so it never blocks your view.
+  if(L.arches){const bt=signTex((x,w,h)=>{x.fillStyle='#8a3a26';x.fillRect(0,0,w,h);x.strokeStyle='#4f1f14';x.lineWidth=2;for(let r=0;r<32;r++){const y=r*8;x.beginPath();x.moveTo(0,y);x.lineTo(w,y);x.stroke();for(let c=0;c<17;c++){const xx=c*16+(r%2)*8;x.beginPath();x.moveTo(xx,y);x.lineTo(xx,y+8);x.stroke()}}
+    x.fillStyle='rgba(30,10,5,.12)';for(let k=0;k<70;k++)x.fillRect((k*53)%w,(k*97)%h,10+(k%4)*6,6+(k%3)*4);x.fillStyle='rgba(60,90,40,.18)';for(let k=0;k<30;k++)x.fillRect((k*71)%w,h-20-(k*13)%60,14,8)},256,256,false);
+   bt.wrapS=bt.wrapT=THREE.RepeatWrapping;bt.repeat.set(1/9,1/9);
+   const mat=new THREE.MeshLambertMaterial({map:bt,transparent:true,opacity:1});
+   const C=tougeCenters,T=tougeTangents,N0=C.length-1,m=window.M_PER_INDEX||1,K=n=>Math.max(1,Math.round(n/m)),hd=j=>Math.atan2(T[Math.max(0,Math.min(N0,j))].x,T[Math.max(0,Math.min(N0,j))].z),turn=(a,b)=>{let d=0;for(let j=a;j<b;j+=K(4)){let q=hd(j+K(4))-hd(j);while(q>Math.PI)q-=2*Math.PI;while(q<-Math.PI)q+=2*Math.PI;d+=q}return Math.abs(d)};
+   // the spot, in the direction you're driving: a straight of ~80 m running into the tightest hairpin between 30% and 55%
+   let i=Math.round(N0*.43),best=-1;for(let j=Math.round(N0*.3);j<N0*.55;j+=K(3)){const sc=turn(j+K(25),j+K(110))-2.5*turn(j-K(60),j+K(15));if(sc>best){best=sc;i=j}}
+   const c=C[i],t=T[i];
+   if(c&&t){const W=(window.__wideAt?__wideAt(i):0)+5.2,clear=Math.max(11,W+3.5),spring=9,deckY=clear+spring+5,side=15,pier=4.5,depth=7;
+    // the face: a long wall with arch openings (the road's in the middle one), extruded into a thick viaduct
+    const spans=[side,side,clear*2,side,side],L=spans.reduce((a,b)=>a+b,0)+pier*(spans.length+1),bot=-26,sh=new THREE.Shape();
+    sh.moveTo(-L/2,bot);sh.lineTo(L/2,bot);sh.lineTo(L/2,deckY);sh.lineTo(-L/2,deckY);sh.lineTo(-L/2,bot);
+    let xx=-L/2+pier;for(const sp of spans){const r=sp/2,cx=xx+r,top=sp===clear*2?spring:spring+3-Math.abs(cx)*.02,hole=new THREE.Path();
+     hole.moveTo(cx-r,bot+.5);hole.lineTo(cx+r,bot+.5);hole.lineTo(cx+r,top);hole.absarc(cx,top,r,0,Math.PI,false);hole.lineTo(cx-r,bot+.5);sh.holes.push(hole);xx+=sp+pier}
+    const geo=new THREE.ExtrudeGeometry(sh,{depth,bevelEnabled:false,curveSegments:14});geo.translate(0,0,-depth/2);
+    const V=new THREE.Mesh(geo,mat);V.castShadow=false;V.receiveShadow=true;
+    // a parapet along the top
+    const par=new THREE.Mesh(new THREE.BoxGeometry(L,1.2,depth+.6),mat);par.position.y=deckY+.6;V.add(par);
+    V.position.set(c.x,c.y-.05,c.z);V.rotation.y=Math.atan2(t.x,t.z);G.add(V);window.__locBridge=V;
+    const lp=new THREE.Vector3();let op=1;
+    V.onBeforeRender=(r,sc,cam)=>{try{lp.copy(cam.position);V.worldToLocal(lp);const inside=Math.abs(lp.z)<depth/2+7&&Math.abs(lp.x)<L/2+4&&lp.y<deckY+6;
+     const want=inside?.22:1;op+=(want-op)*.25;mat.opacity=op;mat.depthWrite=op>.95}catch(e){}}}}
   // Myogi's rocky spires around the valley
   if(L.spires){const geo=new THREE.ConeGeometry(6,40,5);geo.translate(0,18,0);const mat=new THREE.MeshLambertMaterial({color:0x3d3a3f});const P=[];
    along(90,(i,c,t,s)=>{for(const sd of [-1,1]){if(Math.random()<.35)continue;const d=70+Math.random()*90,x=c.x+s.x*sd*d,z=c.z+s.z*sd*d;P.push([x,groundAt(x,z,c.y)-6,z,.6+Math.random()*1.1])}});
@@ -18856,8 +18875,11 @@ const animeLocations=window.animeLocations=(()=>{
   const n=new KeyboardEvent(ty,{code:SW[e.code],key:SW[e.code].replace(/^Key/,'').toLowerCase(),repeat:e.repeat,bubbles:true,cancelable:true});n.__sw=true;(e.target||document).dispatchEvent(n)},true);
  // (build 411) the mini map says where you are
  setInterval(()=>{try{const t=document.getElementById('miniTitle');if(!t)return;const p=window.__PASS||'akina',want='COURSE MAP · '+((window.__THEME&&__THEME.name)||p.toUpperCase());if(t.textContent!==want)t.textContent=want}catch(e){}},1000);
- let wait=0;setInterval(()=>{try{const p=passNow();if(p===cur){if(p&&!props&&wait++<40&&typeof tougeCenters!=='undefined'&&tougeCenters.length>10){revert();apply(p)}return}
-   wait=0;if(cur)revert();cur=p;if(p&&typeof tougeCenters!=='undefined'&&tougeCenters.length>10)apply(p)}catch(e){console.warn('locations',e)}},400);
+ // (build 417) the road can be re-laid after the props were first put down (the run is set up after the page loads):
+ // rebuild them whenever the road under them changes, so signs, posts and the bridge always sit on the real road
+ let roadKey='';const keyNow=()=>{try{const C=tougeCenters,n=C.length-1;return n<10?'':[C[0].x,C[0].z,C[n].x,C[n].z,n].map(v=>Math.round(v*10)).join()}catch(e){return ''}};
+ let wait=0;setInterval(()=>{try{const p=passNow();if(p===cur){const k=keyNow();if(p&&k&&k!==roadKey&&(props||wait++<40)){roadKey=k;revert();apply(p)}return}
+   wait=0;if(cur)revert();cur=p;if(p&&typeof tougeCenters!=='undefined'&&tougeCenters.length>10){roadKey=keyNow();apply(p)}}catch(e){console.warn('locations',e)}},400);
  return {LOC,get cur(){return cur},force(k){forced=k||null}}})();
 
 // ============================================================================================
