@@ -1857,6 +1857,14 @@ const HU = window.__hillU;
 if(HU){
 HU.uNight.value = SKYP.night;
 HU.uDusk.value = SKYP.dusk;
+const shh =(window.__CYCLE && window.__CYCLE.snowHills)||(typeof grassU !== 'undefined' && grassU.uSnowG ? grassU.uSnowG.value : 0);
+if(shh > 0.001 && HU.uHN.value && HU.uHN.value.isColor){
+const hz = HU.uHH.value,
+lum = Math.min(1,Math.max(0.4,(0.3 * hz.r + 0.59 * hz.g + 0.11 * hz.b)* 1.25));
+const sn =(window.__hillSnowC ||(window.__hillSnowC = new THREE.Color())).setRGB(0.86 * lum,0.9 * lum,0.98 * lum);
+HU.uHN.value.lerp(sn,Math.min(1,shh)* 0.88);
+HU.uHF.value.lerp(sn,Math.min(1,shh)* 0.7);
+}
 }
 const ev = window.__EV;
 G.uGrey.value +=((ev ? Math.max(ev.rain || 0,(ev.snow || 0)* 0.6): 0)- G.uGrey.value)* k;
@@ -4296,7 +4304,7 @@ if(uSnowG>.01){float thr=.8*rk+.2*gvn(wp*.23);float sG=smoothstep(thr-.12,thr+.1
  float th2=aSn.x+aOff.w+aSn.y*(3.14159/7.)*1.35*(1.-aSn.z);float rr2=R*(1.-aSn.z);
  vec2 q=vec2(cos(th2),sin(th2))*rr2;float u2=clamp(rr2/R,0.,1.);float dome=Hs*(1.-u2*u2)*(1.-.35*u2*u2);
  vec3 sn=vec3(q.x,dome+.004,q.y);
- lp=mix(lp,sn,sG);lp*=mix(1.,smoothstep(.004,.025,Hs),sG);/* FOREST 140 (Ryan's real snow layer): with the snow blanket on, the tuft just sinks away beneath it */if(uSnowLay>.5){lp*=1.-smoothstep(.05,.7,sG);vSG=0.;}/* FOREST 117 (Ryan: star shapes along the paths): where there's no snow to speak of (a path's edge) the tuft simply isn't there, leaving the ground's own dusting */vSnH=clamp(1.-u2*u2,0.,1.);
+ lp=mix(lp,sn,sG);lp*=mix(1.,smoothstep(.004,.025,Hs),sG);/* FOREST 140 (Ryan's real snow layer): with the snow blanket on, the tuft just sinks away beneath it */if(uSnowLay>.5){lp*=1.-smoothstep(.05,.7,sG);lp*=1.-smoothstep(.3,.62,uSnowG);vSG=0.;}/* (Build 580, Ryan: a square of grass left standing once the ground was white): every tuft is under by the time the snow has settled, wherever it grows *//* FOREST 117 (Ryan: star shapes along the paths): where there's no snow to speak of (a path's edge) the tuft simply isn't there, leaving the ground's own dusting */vSnH=clamp(1.-u2*u2,0.,1.);
  vColor.rgb=mix(vColor.rgb,vec3(.96,.975,1.),sG);vSW=wp+lp.xz;}}
 vec3 transformed=vec3(wp.x,texture2D(uHeight,tuv).r,wp.y)+lp;/* FOREST 105 (Ryan: on slopes the snow stacked in flat plates): each point of a mound sits on the ground right beneath it, so the drifts follow the slope */if(vSG>.001)transformed.y=mix(transformed.y,texture2D(uHeight,(wp+lp.xz+uWorld*.5)/uWorld).r+lp.y,vSG);vGW=vec3(wp.x,aT,wp.y);vShade=.8+.4*fract(sin(dot(aOff.xy,vec2(12.9898,78.233)))*43758.5);`
 )
@@ -15380,10 +15388,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 579;
+const BUILD = 580;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 147;
+const LOOKV = 148;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -22305,11 +22313,13 @@ P.povUser = localStorage.getItem('tink.pov')=== '1';
 P.povUser = false;
 }
 }
+if(window.__benchPov &&(P.mode === 'air' ||(!P.watch && !P.sit)|| P.speed > 0.3))window.__benchPov = false;
+const benchPov = !!window.__benchPov && !window.__sceneOn;
 const wantPov =
-(inT > 0.35 || P.povUser)&&
+(inT > 0.35 || P.povUser || benchPov)&&
 P.mode !== 'climb' &&
 !P.summit &&
-!P.watch &&
+(!P.watch || benchPov)&&
 !(window.__INTRO && window.__INTRO.lock)&&
 !(ROOM && ROOM.active && !P.povUser);
 P.povK = damp(P.povK || 0,wantPov ? 1 : 0,wantPov ? 2 : 1.4,dt);
@@ -22393,7 +22403,7 @@ if(hide !== !!P.povHid){
 P.povHid = hide;
 pc.catRoot.visible = true;
 }
-window.__povHead = hide ? pc.catRoot : null;
+window.__povHead = hide ?(window.__asJack && window.__jackBody ? window.__jackBody : pc.catRoot): null;
 }
 }
 if(P.camBack){
@@ -22480,12 +22490,7 @@ camOut = cp.x < bb.min.x || cp.x > bb.max.x || cp.z < bb.min.z || cp.z > bb.max.
 if(under && camOut && cp.y < bb.max.y - 0.15)under = false;
 }
 const turnSee = t === TG[0]&& performance.now()<(window.__turnSee || 0);
-if(t === TG[0]&& window.__sceneOn && !turnSee && d < 30 && t.g.visible !== false){
-rc2.set(head,camera.position.clone().sub(head).normalize());
-rc2.far = Math.max(0,d - 0.05);
-const h2 = rc2.intersectObject(t.g,true)[0];
-t.hit = !!(h2 && h2.distance < 1.4);
-}else if((turnSee ||(!under && !window.__sceneOn))&& d < 30 && t.g.visible !== false && head.distanceTo(t.g.getWorldPosition(new V3()))< 14){
+if((turnSee ||(!under && !window.__sceneOn))&& d < 30 && t.g.visible !== false && head.distanceTo(t.g.getWorldPosition(new V3()))< 14){
 t.hit = rc.intersectObject(t.g,true).length > 0;
 if(!t.hit && t === TG[0]&& window.__busBoxes){
 const r = new THREE.Ray(head,camera.position.clone().sub(head).normalize()),
@@ -44357,7 +44362,7 @@ e.position
 e.position.y += 0.012;
 }
 e.material.opacity = K.eyeOp * blink * fk;
-e.visible = fk > 0.01;
+e.visible = fk > 0.01 && !(window.__povHead && window.__povHead === window.__jackBody && window.__asJack);
 });
 }else eyes.forEach(e =>(e.visible = false));
 for(let i = 0;i < N;i++){
@@ -44487,6 +44492,7 @@ c.lookAt(lv.look);
 if(window.__FCS && window.__FCS.jackLeave)window.__FCS.dir = lv.t > 0.8 ? lv.dir.clone(): null;
 }
 if(!window.__asJack || !PJ)return;
+window.__jackBody = PJ.holder;
 const c = L();
 if(!c)return;
 if(cat !== cats.luca){
@@ -45123,17 +45129,14 @@ o.traverse(q =>{
 if(q.isMesh && q.visible && !/shadow/i.test((q.material && q.material.name)|| ''))ms.push(q);
 });
 const bx = ms.map(q => new THREE.Box3().setFromObject(q,true));
-const sz = bx.map(b => b.getSize(new V3()));
-let main = 0;
-ms.forEach((q,i)=>{
-const n = q.geometry && q.geometry.attributes.position ? q.geometry.attributes.position.count : 0,
-m = ms[main].geometry && ms[main].geometry.attributes.position ? ms[main].geometry.attributes.position.count : 0;
-if(n > m)main = i;
-});
+const md = b => Math.max(...b.getSize(new V3()).toArray());
 const out = new THREE.Box3();
 bx.forEach((b,i)=>{
-const s0 = sz[main],s1 = sz[i];
-if(i !== main &&(s1.x > s0.x * 3 || s1.y > s0.y * 3 || s1.z > s0.z * 3))return;
+if(bx.length > 1){
+const rest = new THREE.Box3();
+bx.forEach((c,j)=> j !== i && rest.union(c));
+if(md(b)> md(rest)* 4)return;
+}
 out.union(b);
 });
 if(out.isEmpty())out.setFromObject(o);
@@ -48171,16 +48174,16 @@ document.body.appendChild(white);
 const GIFTLINE =
 {
 flower: '**Love.** Which guided you here.',
-pebble: '**Courage.** For the dark.',
+pebble: '**Courage.** To keep you warm in the dark…',
 bell: '**Tears.** Because you needed them to grow.',
 leaf: '**Hope.** To remind you the sun always finds its way home.',
-boat: "**Joy.** So you'll always remember us, and how happy we were together."
+boat: "**Joy.** So you'll always remember how happy we were…"
 };
 const LAST_TAIL =[
 ["I'm not lost. I'm in the lanterns, and the rain, and the top of the tallest tree.",''],
 ["When you find a warm patch of sun, I'll be laying beside you.",''],
 [
-'Luca… I picked you special. I knew she would need someone to run with… someone to bring back her joy.',
+'Luca… I picked you special. I knew she would need someone to run with… someone to bring her joy…',
 '',
 'luca'
 ],
@@ -48852,27 +48855,17 @@ F.end = t;
 const landedFor = S.starLandAt ?(performance.now()- S.starLandAt)/ 1000 : -1;
 if((landedFor > 7.5 || g > 36)&& !F.ded){
 F.ded = 1;
-const BLK = 3.2,
-kids =[...ded.children].filter(c => !c.classList.contains('cr')&& !c.classList.contains('ky'));
-for(const c of kids){
-c.style.transition = 'opacity 3.4s ease';
-c.style.opacity = 0;
-}
-ded.style.transition = 'opacity ' + BLK + 's ease';
 ded.style.opacity = 1;
 ded.style.pointerEvents = 'auto';
 setTimeout(()=>{
-for(const c of kids)c.style.opacity = 1;
-},BLK * 1000 + 400);
-setTimeout(()=>{
 const c = ded.querySelector('.cr');
 if(c)c.style.opacity = 1;
-},BLK * 1000 + 6000);
+},4500);
 setTimeout(()=>{
 const k = ded.querySelector('.ky');
 if(k)k.style.opacity = 0.8;
 F.canEnd = true;
-},BLK * 1000 + 10500);
+},9000);
 }
 }
 };
@@ -51204,6 +51197,7 @@ const r = window.__povHead;
 const hbOf =
 ()=>{
 try{
+if(window.__asJack)return headOf(r);
 const c3 = cats[cat.kind]&& cats[cat.kind].c3;
 return headOf(c3 && c3.holder)|| headOf(r);
 }catch(e){
@@ -52989,6 +52983,7 @@ P.groom = true;
 P.sit = 1;
 P.autoWatch = false;
 P.speed = 0;
+window.__benchPov = true;
 try{
 const B = D.bseat || benchSeats();
 const CS2 = window.__CAMST;
@@ -53886,7 +53881,7 @@ float snD(vec2 p){
  float mk=texture2D(uSnowM,snUV(p)).r;
  float grow=max(smoothstep(.05,.4,mk),snWh(p));
 #ifdef SN_OUTER
- grow=max(grow,smoothstep(58.,74.,length(p)));/* (Build 578: out toward the world's edge it is all snow, running into the white distance) */
+ grow=max(grow,smoothstep(80.,84.,max(abs(p.x),abs(p.y))));/* (Build 578: right at the world's edge it is all snow; Build 580: only the very rim, the beanstalk glade sits out near the edge and was being buried) */
 #endif
  float thr=snN(p*4.1)*.55+snN(p*.9)*.35+.05;
  float cov=smoothstep(thr-.25,thr+.35,uSnowG*1.25)*smoothstep(.0,.8,uSnowG)*mix(.3,1.,smoothstep(.25,1.,uSnowG));/* (Build 577: a thin dusting in patches first, spreading and deepening slowly, with wide soft edges so nothing pops in) */
@@ -59418,6 +59413,8 @@ sp: +comp.P.speed.toFixed(2),
 kind: comp.cat.kind
 });
 window.__RC = new THREE.Raycaster();
+window.__scene = scene;
+window.__THREE = THREE;
 window.__trunkAhead =()=> trunkAhead();
 window.__luca ={
 get comp(){
@@ -61151,6 +61148,13 @@ geoN = inf.memory.geometries;
 const res = newRes.splice(0);
 if(dt > 70 && window.__worldBuilt && !document.hidden){
 const h = Object.assign({t: +(now / 1000).toFixed(1),ms: Math.round(dt),newPrograms: progs.length,newTextures: Math.max(0,tx),newModels: Math.max(0,gx)},where());
+try{
+const ri = renderer.info.render;
+h.drawCalls = ri.calls;
+h.trianglesK = Math.round(ri.triangles / 1000);
+h.wideGrass = !!(window.__grassWide && window.__grassWide[0]&& window.__grassWide[0].visible);
+h.px = Math.round(renderer.domElement.width * renderer.domElement.height / 1000)+ 'k';
+}catch(e){}
 if(progs.length)h.programs = progs.slice(0,12);
 if(res.length)h.downloaded = res.slice(0,10);
 LOG.push(h);
