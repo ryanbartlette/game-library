@@ -502,6 +502,10 @@ body.jackEyes #jackEyesV{opacity:1;animation:jkEyeShim 4.5s ease-in-out infinite
 /* Build 565 (Ryan: "W A S D walk" showed the stick far off to the left with a big gap): keys with no controller twin (A, S, D
    beside W, which becomes the stick) stay hidden instead of taking up space as empty buttons */
 html body.pad-mode :is(#cutSkip,#coach,#climbP,#help,*) kbd[data-btn=""],html body.pad-mode :is(#cutSkip,#coach,#climbP,#help,*) .kc[data-btn=""]{display:none!important}
+/* Build 571 (Ryan, Zelda/Ghibli-style): the skip hint sits quietly in the bottom-right corner, inside the black bar when there is
+   one, so "A to continue" has the middle to itself; with a controller it reads "Hold View to skip" and a thin line fills as you hold */
+html body div#cutSkip{left:auto!important;right:34px!important;transform:none!important;bottom:max(20px,calc(var(--barVis,0px) / 2 - .75em))!important;font-size:12px!important;color:rgba(255,253,244,.62)!important;padding-bottom:5px!important;background:linear-gradient(rgba(255,253,244,.85),rgba(255,253,244,.85)) left bottom / calc(var(--skipK,0) * 100%) 1.5px no-repeat!important}
+#cutSkip .padOnly{display:none}body.pad-mode #cutSkip .padOnly{display:inline}
 </style>
 
 <div id="app"></div>
@@ -565,7 +569,7 @@ html body.pad-mode :is(#cutSkip,#coach,#climbP,#help,*) kbd[data-btn=""],html bo
 
 
 <div id="toast"></div>
-<div id="cutFade" style="position:fixed;inset:0;pointer-events:none;background:#04080a;opacity:0;transition:opacity .35s ease;z-index:40"></div><div id="cutSkip" class="actP" style="position:fixed;right:22px;bottom:18px;pointer-events:none;font:600 11px/1 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:rgba(235,245,240,.75);text-shadow:0 1px 3px rgba(0,0,0,.6);opacity:0;transition:opacity .6s ease;z-index:41"><kbd style="font:inherit;border:1px solid rgba(235,245,240,.5);border-radius:4px;padding:3px 6px;margin-right:6px">Tab</kbd>to skip</div><div id="flash" style="position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 55%,#fffbe8,#e8f6ee 60%,rgba(220,240,230,.6));opacity:0"></div>
+<div id="cutFade" style="position:fixed;inset:0;pointer-events:none;background:#04080a;opacity:0;transition:opacity .35s ease;z-index:40"></div><div id="cutSkip" class="actP" style="position:fixed;right:22px;bottom:18px;pointer-events:none;font:600 11px/1 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:rgba(235,245,240,.75);text-shadow:0 1px 3px rgba(0,0,0,.6);opacity:0;transition:opacity .6s ease;z-index:41"><span class="padOnly">Hold </span><kbd style="font:inherit;border:1px solid rgba(235,245,240,.5);border-radius:4px;padding:3px 6px;margin-right:6px">Tab</kbd>to skip</div><div id="flash" style="position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 55%,#fffbe8,#e8f6ee 60%,rgba(220,240,230,.6));opacity:0"></div>
 
 <div id="pre"><div class="pre-in"><div class="pre-t" id="preTxt">Building the forest…</div><div class="pre-bar"><span id="preFill"></span></div><div class="pre-s" id="preSub">In loving memory of Jack</div></div></div>
 <style>#pre{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:radial-gradient(circle at 50% 45%,#16241f,#070c0b 75%);color:#f4f1e6;cursor:default;transition:opacity 1.2s ease;font-family:Montserrat,system-ui,sans-serif;text-align:center}
@@ -582,7 +586,7 @@ html body.pad-mode :is(#cutSkip,#coach,#climbP,#help,*) kbd[data-btn=""],html bo
 <div id="gate">
   <div class="g-shade"></div>
   <div class="g-corner">In loving memory of<b>Jack</b></div>
-  <div class="g-build" id="gBuild">Build 570</div>
+  <div class="g-build" id="gBuild">Build 571</div>
   <div class="g-music" id="gMusic" aria-pressed="false"><i></i>Music</div>
   <header class="g-title">
     <div class="g-small">Tink's Magical</div>
@@ -633,6 +637,6 @@ window.__THEME=(()=>{let done=false;const M=window.__MUS.mk('audio/music/01-the-
  b.addEventListener('click',e=>{e.stopPropagation();if(on){want=false;stop(600)}else{want=true;start()}});
  const tk=setInterval(()=>{if(done||on){if(done)clearInterval(tk);return}start()},300);for(const ev of ['pointerdown','keydown'])addEventListener(ev,start,{capture:true});return {el:null,stop,play:()=>{done=false;want=true;start()},state:()=>({on,want,done,ready:ready()})}})();</script>
 <script type="importmap">{"imports":{"three":"./three.module.js","three/addons/":"./jsm/"}}</script>
-<script>(async()=>{if(/[?&]dev\b/.test(location.search)){location.replace(location.pathname.replace(/[^/]*$/,"")+"dev.html"+location.search+location.hash);return}const lay=fetch("./data/world-layout.9bf0ca4036.json").then(r=>r.ok?r.text():null).catch(()=>null);const u="./game.js?v=1794883615";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
+<script>(async()=>{if(/[?&]dev\b/.test(location.search)){location.replace(location.pathname.replace(/[^/]*$/,"")+"dev.html"+location.search+location.hash);return}const lay=fetch("./data/world-layout.9bf0ca4036.json").then(r=>r.ok?r.text():null).catch(()=>null);const u="./game.js?v=1794884248";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
  if(!txt){const g=document.getElementById("goTxt");if(g)g.textContent="Could not download the game. Please reload";return}
  try{const lt=await lay;if(lt)window.__LAYOUT=JSON.parse(lt)}catch(e){} const sc=document.createElement("script");sc.type="module";sc.src=URL.createObjectURL(new Blob([txt],{type:"text/javascript"}));document.body.appendChild(sc)})()</script>
