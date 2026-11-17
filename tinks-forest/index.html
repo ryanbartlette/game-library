@@ -4,7 +4,7 @@
    It keeps its OWN save: every story key 'tink.x' is read and written as 'tinkroam.x', so the real story save is never touched.
    Settings (sound mix, options, HUD, world edits, night look) stay shared. */(()=>{try{
 const q=new URLSearchParams(location.search);if(!q.has('roam'))return;
-const dev=/dev\.html/.test(location.pathname)||q.has('dev');let ok=dev;try{ok=ok||localStorage.getItem('tink.roamUnlocked')==='1'}catch(e){}if(!ok)return;
+const dev=/dev\.html/.test(location.pathname)||q.has('dev');let ok=dev||/tinks-forest-(new|next)/.test(location.pathname);try{ok=ok||localStorage.getItem('tink.roamUnlocked')==='1'}catch(e){}if(!ok)return;
 window.__ROAM=true;window.__devSkip=true;
 /* ?roam&season=spring|summer|autumn|winter picks the season to look at */const se=q.get('season');
 const SHARED=/^tink\.(mix|opt|hud|hudStyle|pov|world\.|edit\.|nightLook|roamUnlocked|qstyle)/;
@@ -612,7 +612,7 @@ html body div#cutSkip{left:auto!important;right:34px!important;transform:none!im
 <div id="gate">
   <div class="g-shade"></div>
   <div class="g-corner">In loving memory of<b>Jack</b></div>
-  <div class="g-build" id="gBuild">Build 574</div>
+  <div class="g-build" id="gBuild">Build 575</div>
   <div class="g-music" id="gMusic" aria-pressed="false"><i></i>Music</div>
   <header class="g-title">
     <div class="g-small">Tink's Magical</div>
@@ -621,8 +621,9 @@ html body div#cutSkip{left:auto!important;right:34px!important;transform:none!im
   </header>
   <nav class="g-menu">
     <div class="go loading" id="goBtn"><span class="go-w"><span id="goTxt">Building the forest…</span><span class="go-bar"><span id="goFill"></span></span></span></div>
-    <div class="g-opts"><span id="gHow">How to play</span><i></i><span id="gCred">Credits</span><i></i><span id="gQuit">Quit</span></div>
+    <div class="g-opts"><span id="gHow">How to play</span><i></i><span id="gCred">Credits</span><i id="gRoamI" hidden></i><span id="gRoam" hidden>Free roam</span><i></i><span id="gQuit">Quit</span></div>
     <div id="load"></div>
+    <script>/* Build 575 (Ryan): a Free roam link on the title screen: always on the test pages, and on the live game once the story is finished. It opens the world with the story done, on its own save; in free roam it reads Story and goes back */(()=>{try{const q=new URLSearchParams(location.search),r=document.getElementById('gRoam'),ri=document.getElementById('gRoamI');if(!r)return;let ok=/dev\.html|tinks-forest-(new|next)/.test(location.pathname)||q.has('dev');try{ok=ok||localStorage.getItem('tink.roamUnlocked')==='1'}catch(e){}if(!ok&&!q.has('roam'))return;r.hidden=false;ri.hidden=false;if(q.has('roam'))r.textContent='Story';r.style.cursor='pointer';r.addEventListener('click',e=>{e.stopPropagation();const u=new URL(location.href);if(u.searchParams.has('roam'))u.searchParams.delete('roam');else u.searchParams.set('roam','');location.href=u.toString().replace('roam=&','roam&').replace(/roam=$/,'roam')})}catch(e){}})();</script>
 <script>(()=>{const say=t=>{const g=document.getElementById("goTxt");if(g)g.textContent=t};const errs=[];
 addEventListener("error",e=>{if(window.__ready)return;const el=e.target;if(el&&el!==window&&(el.src||el.href))errs.push("could not load "+(el.src||el.href).split("/").slice(-2).join("/"));else if(el&&el.tagName==="SCRIPT")errs.push("one of the game's code files failed to load");else if(e.message)errs.push(e.message+(e.filename?" ("+e.filename.split("/").pop()+":"+e.lineno+")":""))},true);
 addEventListener("unhandledrejection",e=>{if(window.__ready)return;errs.push(String(e.reason&&e.reason.message||e.reason))});
@@ -663,6 +664,6 @@ window.__THEME=(()=>{let done=false;const M=window.__MUS.mk('audio/music/01-the-
  b.addEventListener('click',e=>{e.stopPropagation();if(on){want=false;stop(600)}else{want=true;start()}});
  const tk=setInterval(()=>{if(done||on){if(done)clearInterval(tk);return}start()},300);for(const ev of ['pointerdown','keydown'])addEventListener(ev,start,{capture:true});return {el:null,stop,play:()=>{done=false;want=true;start()},state:()=>({on,want,done,ready:ready()})}})();</script>
 <script type="importmap">{"imports":{"three":"./three.module.js","three/addons/":"./jsm/"}}</script>
-<script>(async()=>{if(/[?&]dev\b/.test(location.search)){location.replace(location.pathname.replace(/[^/]*$/,"")+"dev.html"+location.search+location.hash);return}const lay=fetch("./data/world-layout.9bf0ca4036.json").then(r=>r.ok?r.text():null).catch(()=>null);const u="./game.js?v=1794887961";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
+<script>(async()=>{if(/[?&]dev\b/.test(location.search)){location.replace(location.pathname.replace(/[^/]*$/,"")+"dev.html"+location.search+location.hash);return}const lay=fetch("./data/world-layout.9bf0ca4036.json").then(r=>r.ok?r.text():null).catch(()=>null);const u="./game.js?v=1794889525";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
  if(!txt){const g=document.getElementById("goTxt");if(g)g.textContent="Could not download the game. Please reload";return}
  try{const lt=await lay;if(lt)window.__LAYOUT=JSON.parse(lt)}catch(e){} const sc=document.createElement("script");sc.type="module";sc.src=URL.createObjectURL(new Blob([txt],{type:"text/javascript"}));document.body.appendChild(sc)})()</script>
