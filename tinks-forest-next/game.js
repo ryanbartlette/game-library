@@ -15372,10 +15372,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 575;
+const BUILD = 576;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 143;
+const LOOKV = 144;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -15773,14 +15773,6 @@ P.groom = !P.groom;
 if(c === 'KeyQ'){
 audioInit();
 catVoice('meow');
-}
-if(c === 'KeyY'){
-audioInit();
-catVoice('yowl');
-}
-if(c === 'KeyR'){
-audioInit();
-catVoice('hiss');
 }
 if(c === 'KeyJ'){
 window.__QUESTS && window.__QUESTS.menu();
@@ -53677,7 +53669,7 @@ return new URLSearchParams(location.search);
 return new URLSearchParams('');
 }
 })();
-const ON = !q.has('oldsnow')&&(q.has('snowlayer')|| /tinks-forest-new/.test(location.pathname));
+const ON = !q.has('oldsnow');
 window.__snowLayer = ON;
 grassU.uSnowLay ={value: ON ? 1 : 0};
 if(ON){
@@ -53695,13 +53687,63 @@ uWheat: grassU.uWheat,
 uWheatA: grassU.uWheatA,
 uWorldS:{value: WORLD},
 uCtr:{value: new THREE.Vector2()},
-uRS:{value: R}
+uRS:{value: R},
+uSnowM:{value: null}
 };
+{
+const SN = 1024,
+sc = document.createElement('canvas');
+sc.width = sc.height = SN;
+const sx = sc.getContext('2d');
+const tex = new THREE.CanvasTexture(sc);
+tex.flipY = false;
+tex.magFilter = tex.minFilter = THREE.LinearFilter;
+tex.generateMipmaps = false;
+let ver = -1,
+nT = -1;
+const build =()=>{
+const mt = grassU.uMask.value,
+mc = mt && mt.image;
+if(!mc || !mc.width)return;
+const tr = window.__TRAILS ||[];
+if(mt.version === ver && tr.length === nT)return;
+ver = mt.version;
+nT = tr.length;
+sx.save();
+sx.globalCompositeOperation = 'source-over';
+sx.filter = 'blur(3px)';
+sx.drawImage(mc,0,0,SN,SN);
+sx.globalCompositeOperation = 'darken';
+sx.filter = 'blur(2px)';
+sx.strokeStyle = '#000';
+sx.lineCap = sx.lineJoin = 'round';
+const W2P = SN / WORLD,
+tp =(x,z)=>[(x + WORLD / 2)* W2P,(z + WORLD / 2)* W2P];
+for(const fl of tr){
+sx.lineWidth = 2 * 1.05 * W2P;
+sx.beginPath();
+for(let i = 0;i < fl.length;i += 2){
+const[a,b]= tp(fl[i],fl[i + 1]);
+i ? sx.lineTo(a,b): sx.moveTo(a,b);
+}
+sx.stroke();
+}
+sx.restore();
+tex.needsUpdate = true;
+U.uSnowM.value = tex;
+};
+window.__snowMaskBuild = build;
+setInterval(()=>{
+try{
+if(window.__worldBuilt && grassU.uSnowG.value > 0.001)build();
+}catch(e){}
+},1500);
+}
 const m = new THREE.MeshStandardMaterial({color: 0xffffff,roughness: 1,metalness: 0});
 m.onBeforeCompile = sh =>{
 Object.assign(sh.uniforms,U);
 const FN = `
-uniform sampler2D uHeight,uMask,uSnowT;uniform float uSnowG,uWorldS,uRS,uWheatA;uniform vec3 uGTree;uniform vec2 uCtr;uniform vec4 uWheat;
+uniform sampler2D uHeight,uMask,uSnowT,uSnowM;uniform float uSnowG,uWorldS,uRS,uWheatA;uniform vec3 uGTree;uniform vec2 uCtr;uniform vec4 uWheat;
 float snWh(vec2 p){if(uWheat.z<=0.)return 0.;vec2 d=p-uWheat.xy;float c=cos(uWheatA),s=sin(uWheatA);vec2 l=vec2(d.x*c+d.y*s,-d.x*s+d.y*c);vec2 e=abs(l)-uWheat.zw;return 1.-smoothstep(-.25,.15,max(e.x,e.y));}
 varying vec2 vSwp;varying float vStr,vSd;
 float snH(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
@@ -53710,8 +53752,8 @@ float snF(vec2 p){float s=0.,a=.5;for(int i=0;i<3;i++){s+=a*snN(p);p=p*2.07+vec2
 vec2 snUV(vec2 p){return (p+uWorldS*.5)/uWorldS;}
 float snTr(vec2 p){return texture2D(uSnowT,snUV(p)).r;}
 float snD(vec2 p){
- float mk=0.;for(int a=-1;a<=1;a++)for(int b=-1;b<=1;b++)mk+=texture2D(uMask,snUV(p+vec2(float(a),float(b))*.3)).r;mk/=9.;
- float grow=max(smoothstep(.07,.22,mk),snWh(p));
+ float mk=texture2D(uSnowM,snUV(p)).r;
+ float grow=max(smoothstep(.06,.26,mk),snWh(p));
  float thr=snN(p*4.1)*.55+snN(p*.9)*.35+.05;
  float cov=smoothstep(thr-.05,thr+.18,uSnowG*1.1)*smoothstep(.0,.55,uSnowG);
  float drift=.5+.5*snF(p*.33)+.1*snN(p*2.3);
@@ -53768,7 +53810,9 @@ try{
 if(prev)prev.apply(this,arguments);
 }catch(e){}
 try{
-const on = grassU.uSnowG.value > 0.001;
+let on = grassU.uSnowG.value > 0.001;
+if(on && !U.uSnowM.value)window.__snowMaskBuild();
+on = on && !!U.uSnowM.value;
 mesh.visible = on;
 if(on){
 const st =(R * 2)/ N,
@@ -60161,6 +60205,28 @@ ax = a.left + a.width / 2,
 ay = a.top + a.height / 2;
 let best = null,
 bs = Infinity;
+if(dy){
+let ma = Infinity;
+const rows =[];
+for(const c of cs){
+if(c === PAD.sel)continue;
+const b = c.getBoundingClientRect(),
+along =(b.top + b.height / 2 - ay)* dy,
+across = Math.abs(b.left + b.width / 2 - ax);
+if(along <= 6)continue;
+rows.push([c,along,across]);
+if(along < ma)ma = along;
+}
+for(const[c,along,across]of rows)
+if(along <= ma + 18 && across < bs){
+bs = across;
+best = c;
+}
+if(best){
+focus(best);
+return;
+}
+}
 for(const c of cs){
 if(c === PAD.sel)continue;
 const b = c.getBoundingClientRect(),
@@ -60236,7 +60302,7 @@ switch:{A: 'B',B: 'A',X: 'Y',Y: 'X',LB: 'L',RB: 'R',LT: 'ZL',RT: 'ZR',L3: 'L-sti
 };
 const SHARED ={UP: 'D-pad ↑',DOWN: 'D-pad ↓',LEFT: 'D-pad ←',RIGHT: 'D-pad →',LS: 'Left stick',RS: 'Right stick'};
 const nm = b =>(NAMES[PAD.kind || 'xbox']|| NAMES.xbox)[b]|| SHARED[b]|| b;
-const KEYBTN ={Space: 'A',Enter: 'A',E: 'X',X: 'X',Q: 'UP',J: 'VIEW',G: 'DOWN',R: 'LEFT',Y: 'RIGHT',Esc: 'MENU',Tab: 'VIEW',Click: 'RT',F: 'RT',I: 'R3',Mouse: 'RS'};
+const KEYBTN ={Space: 'A',Enter: 'A',E: 'X',X: 'X',Q: 'UP',J: 'VIEW',G: 'DOWN',Esc: 'MENU',Tab: 'VIEW',Click: 'RT',F: 'RT',I: 'R3',Mouse: 'RS'};
 const btnFor =(k,verb)=>(k === 'Shift' ? 'L3' : KEYBTN[k]);
 PAD.kbT = performance.now();
 PAD.mode = false;
@@ -60460,7 +60526,7 @@ sec.innerHTML =
 '<div class="o-row"><span class="o-l">Invert look up/down</span>' + segN('padInv',[['0','Off'],['1','On']])+ '</div>' +
 '<div class="o-row"><span class="o-l">Vibration</span>' + segN('rumble',[['1','On'],['0','Off']])+ '</div>' +
 '<div class="o-row"><span class="o-l">Button names</span>' + segN('padKind',[['auto','Auto'],['xbox','Xbox'],['ps','PS'],['switch','Switch']])+ '</div>' +
-'<div class="go" id="padMapGo">Controller layout</div>';
+'<div class="go" id="padMapGo" style="white-space:nowrap">Controller layout</div>';
 box.insertBefore(sec,back);
 const cur = k =>
 k === 'padInv' ?(OPT.padInv ? '1' : '0'): k === 'rumble' ?(OPT.rumble === false ? '0' : '1'): OPT.padKind || 'auto';
@@ -60503,7 +60569,7 @@ map.hidden = true;
 const row =(b,what)=> '<div class="pm-r"><kbd data-btn="' + b + '" data-pb="' + b + '"></kbd><span>' + what + '</span></div>';
 const draw =()=>{
 const PT ={LT:[372,128],LB:[398,140],VIEW:[481,201],LS:[400,205],L3:[400,205],DP:[447,272],RT:[652,128],RB:[626,140],MENU:[543,201],Y:[622,174],X:[594,202],B:[651,202],A:[622,231],RS:[568,267],R3:[568,267]};
-const L =[['LT','Cat senses · hold to sense critters, tap to look ahead'],['LB','Swat with her left paw'],['VIEW','Quests · skip a scene'],['LS','Move · tilt further to go faster'],['L3','Run · click again for zoomies when they glow'],['UP','Meow','DP'],['DOWN','Groom','DP'],['LEFT','Hiss','DP'],['RIGHT','Yowl','DP']];
+const L =[['LT','Cat senses · hold to sense critters, tap to look ahead'],['LB','Swat with her left paw'],['VIEW','Quests · skip a scene'],['LS','Move · tilt further to go faster'],['L3','Run · click again for zoomies when they glow'],['UP','Meow','DP'],['DOWN','Groom','DP'],['LEFT','Switch cat','DP'],['RIGHT','Switch cat','DP']];
 const R =[['RT','Stalk · squeeze deeper to sink lower, let go to pounce'],['RB','Swat with her right paw'],['MENU','Pause'],['Y','Sit and watch'],['B','Crouch · back'],['X','Pick up, plant, give, curl up'],['A','Jump and climb · read on'],['RS','Look around'],['R3','Toggle view (press the stick)']];
 const BN ={"LT": "Left Trigger","LB": "Left Bumper","VIEW": "View Button","LS": "Left Stick","L3": "Left Stick Button","UP": "D-Pad Up","DOWN": "D-Pad Down","LEFT": "D-Pad Left","RIGHT": "D-Pad Right","RT": "Right Trigger","RB": "Right Bumper","MENU": "Menu Button","Y": "Y Button","B": "B Button","X": "X Button","A": "A Button","RS": "Right Stick","R3": "Right Stick Button"};
 const y0 = 62,dy = 50.5;
@@ -60721,8 +60787,16 @@ setTimeout(()=>(PAD.rtMax = null),300);
 if(pr(BT.R3))tap('KeyI');
 if(pr(BT.UP))tap('KeyQ');
 if(pr(BT.DOWN))tap('KeyG');
-if(pr(BT.LEFT))tap('KeyR');
-if(pr(BT.RIGHT))tap('KeyY');
+if((pr(BT.LEFT)|| pr(BT.RIGHT))&& actOK()){
+const L =['Digit1'];
+if(window.__jackPlayable)L.push('Digit2');
+if(window.__jackPlayable && window.__jackNight)L.push('Digit3');
+if(L.length > 1){
+const cur = window.__asJack ? 'Digit3' : typeof cat !== 'undefined' && cat && cat.kind === 'luca' ? 'Digit2' : 'Digit1';
+const i = Math.max(0,L.indexOf(cur));
+tap(L[(i +(pr(BT.RIGHT)? 1 : L.length - 1))% L.length]);
+}
+}
 {
 const inScene = inCut()|| document.body.classList.contains('cut');
 const sk = document.getElementById('cutSkip');
