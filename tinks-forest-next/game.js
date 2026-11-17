@@ -15372,10 +15372,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 573;
+const BUILD = 574;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 141;
+const LOOKV = 142;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -15747,8 +15747,7 @@ return;
 }
 if(c === 'KeyH')setHud(document.body.classList.contains('hud-off'));
 if(c === 'KeyZ'){
-slowmo = !slowmo;
-toast(slowmo ? 'Slow motion' : 'Normal speed',900);
+if((P.zCharge || 0)>= 1 &&(isKey('ShiftLeft')|| isKey('ShiftRight'))&& window.__zoomGo)window.__zoomGo();
 }
 if(false){
 P.walkMode = !P.walkMode;
@@ -18841,6 +18840,12 @@ H.delete(g);
 }
 }
 };
+window.__zoomGo =()=>{
+if(!window.__ROAM || P.mode !== 'ground' ||(P.zCharge || 0)< 1 || P.zoomT > 0)return false;
+P.zCharge = 0;
+P.zoomT = 4;
+return true;
+};
 function pounceGoal(){
 if(PADLOCK.on && PADLOCK.sq && window.__PAD && window.__PAD.mode){
 const s = PADLOCK.sq;
@@ -19274,6 +19279,18 @@ P.speed = 0;
 if(!((isKey('ShiftLeft')|| isKey('ShiftRight'))&& dir)){
 P.dashT = 0;
 P.dashing = false;
+P.zoomT = 0;
+}
+P.zoomT = Math.max(0,(P.zoomT || 0)- dt);
+if(window.__ROAM && P.mode === 'ground' && P.speed > T.walk + 0.3 && !(P.zoomT > 0)){
+const was = P.zCharge || 0;
+P.zCharge = Math.min(1,was + dt / 24);
+if(was < 1 && P.zCharge >= 1 && !window.__zoomTold){
+window.__zoomTold = true;
+try{
+toast(window.__PAD && window.__PAD.mode ? 'Zoomies ready! Click L3 while running' : 'Zoomies ready! Press Z while running',2800);
+}catch(e){}
+}
 }
 const sprintKey =(isKey('ShiftLeft')|| isKey('ShiftRight'))&& performance.now()-(P.shiftT || 0)> 180;
 const RW = !!(ROOM && ROOM.active);
@@ -19547,12 +19564,8 @@ label = 'Walk';
 target = T.run;
 label = 'Trot';
 }else if(sprintKey && !P.sprintLock && P.stamina > 0){
-if(
-P.speed >
-T.sprint * 0.85
-)
-P.dashT = window.__ROAM ? Math.min(3,(P.dashT || 0)+ dt): 0;
-P.dashing = P.dashT >= 3;
+P.dashing =(P.zoomT || 0)> 0;
+P.dashT = P.dashing ? 3 : 0;
 target = P.dashing ? Math.max(T.sprint,T.dash ?? 6.5): T.sprint;
 label = P.dashing ? 'Zoomies!' : 'Run';
 }else if(P.walkMode){
@@ -22506,7 +22519,7 @@ if(P.bedSleep || P.sit > 0.6)d = -1 / 45;
 else if(sp < 0.15)d = -1 / 150;
 else if(sp <= T.walk + 0.15)d = 1 / 720;
 else if(sp <= T.run + 0.25)d = 1 / 480;
-else d = P.dashing ? 1 / 170 : 1 / 270;
+else d = P.dashing ? 0 : 1 / 270;
 if(P.mode === 'climb')d = 1 / 320;
 EN[k]= clamp(EN[k]- d * dt,0,1);
 EN[o]= clamp(EN[o]+ dt / 75,0,1);
@@ -22698,7 +22711,7 @@ prog:()=>[Q.p.swapRest ? 1 : 0,1]
 {
 id: 'zoomies',
 title: 'Zoomies!',
-desc: 'Hold Shift and keep running until the zoomies kick in',
+desc: 'Run about until her portrait glows blue, then press Z while sprinting',
 unlock:()=> !!Q.done.spirit && !!Q.p.ran &&(Q.p.roam || 0)> 200,
 prog:()=>[Q.p.zoom ? 1 : 0,1]
 },
@@ -23346,16 +23359,17 @@ const catH = k =>
 k +
 '"' +
 (k === 'jack' ? ' style="display:none"' : '')+
-'><div class="ad-ring"><img alt="' +
+'><div class="ad-ring"><div class="ad-in"><img alt="' +
 {tink: 'Tink',luca: 'Luca',jack: 'Jack'}[k]+
 '" src="' +
 FACE[k]+
-'">' +
+'"><div class="ad-nm"></div></div>' +
+'<svg class="ad-er" viewBox="0 0 100 100" aria-hidden="true"><circle class="tr" cx="50" cy="50" r="47"/><circle class="en" cx="50" cy="50" r="47" pathLength="100" stroke-dasharray="100" stroke-dashoffset="0"/></svg>' +
 ZR +
 MOON +
 '<span class="ad-key">' +
 {tink: '1',luca: '2',jack: '3'}[k]+
-'</span></div><div class="ad-bar"><i></i></div><div class="ad-nm"></div></div>';
+'</span></div><div class="ad-bar"><i></i></div></div>';
 const PILL =(id,title,svg)=>
 '<div class="ad-pill" id="' + id + '" title="' + title + '">' + svg + '<em>' +{'ad-pg': 'Gifts','ad-psq': 'Squirrels','ad-ppf': 'Moss puffs'}[id]+ '</em><span></span></div>';
 const GIFT =
@@ -24857,12 +24871,21 @@ el.classList.toggle('rest',!a);
 const e = EN[k];
 el.querySelector('.ad-bar i').style.width = Math.round(e * 100)+ '%';
 el.querySelector('.ad-bar').classList.toggle('low',e < 0.25);
+{
+const er = el.querySelector('.ad-er');
+if(er){
+er.querySelector('.en').setAttribute('stroke-dashoffset',(100 - e * 100).toFixed(1));
+er.classList.toggle('low',e < 0.25);
+}
+}
 put('ad-nm-' + k,k.toUpperCase());
 el.querySelector('.ad-nm').textContent = memo['ad-nm-' + k];
 const zr = el.querySelector('.ad-zr');
-const z = a ? clamp((P.dashT || 0)/ 3,0,1): 0;
+const z = a ?(P.zoomT > 0 ? clamp(P.zoomT / 4,0,1): clamp(P.zCharge || 0,0,1)): 0;
 zr.querySelector('circle').setAttribute('stroke-dashoffset',(100 - z * 100).toFixed(1));
 zr.classList.toggle('full',a && !!P.dashing);
+el.style.setProperty('--zk',z.toFixed(3));
+el.classList.toggle('zfull',a && !(P.zoomT > 0)&&(P.zCharge || 0)>= 1);
 }
 const cats2 = $('ad-cats');
 if(act === 'luca' && cats2.firstChild.id !== 'ad-c-luca')
@@ -24884,7 +24907,7 @@ const nm = jel.querySelector('.ad-nm');
 if(nm)nm.textContent = 'JACK';
 const br = jel.querySelector('.ad-bar');
 if(br)br.style.visibility = 'hidden';
-for(const q of jel.querySelectorAll('.ad-ring > :not(img):not(.ad-key)'))q.style.display = 'none';
+for(const q of jel.querySelectorAll('.ad-ring > :not(.ad-in):not(.ad-key)'))q.style.display = 'none';
 const sOver =
 !!window.__jackPlayable;
 document.body.classList.toggle('storyMode',!sOver);
@@ -45054,6 +45077,10 @@ lay(B,TC.card.chickum);
 g.add(A,B);
 return g;
 }
+if(id === 'chickum' && window.__chickumMesh){
+const m = window.__chickumMesh();
+if(m)return m;
+}
 if(id === 'corny' && window.__cornyMesh){
 const m = window.__cornyMesh();
 if(m)return m;
@@ -45715,7 +45742,7 @@ gm = giftMesh(G2.id);
 if(gm.userData.glow)gm.remove(gm.userData.glow);
 gm.updateMatrixWorld(true);
 let bb;
-if(G2.id === 'toys')bb = toyBox(gm);
+if(/^(toys|corny|chickum)$/.test(G2.id))bb = toyBox(gm);
 else{
 bb = new THREE.Box3();
 gm.traverse(q =>{
@@ -45728,9 +45755,19 @@ gm.scale.setScalar(k);
 gm.position.copy(bb.getCenter(new V3()).multiplyScalar(-k));
 spin.add(gm);
 };
-put(G);
+let toyStep = G.id === 'toys' ? 0 : -1;
+const toyShow =()=>{
+const id = toyStep === 0 ? 'corny' : 'chickum';
+put({id});
+const nm = ov.querySelector('.gnm');
+if(nm)nm.textContent = toyStep === 0 ? 'Corny' : 'Chickum';
+const ok = ov.querySelector('#gok');
+if(ok)ok.textContent = toyStep === 0 ? 'Next' : opt.btn ||(VIEW ? 'Close' : 'Carry them');
+};
+if(toyStep === 0)toyShow();
+else put(G);
 const isToys = G.id === 'toys';
-window.__toyCardRebuild = isToys ?()=> put(G): null;
+window.__toyCardRebuild = isToys ?()=> toyShow(): null;
 const N = 70,
 pg = new THREE.BufferGeometry(),
 pp = new Float32Array(N * 3);
@@ -45817,6 +45854,11 @@ const n = have.length;
 if(!n)return;
 cur =(((cur + d)% n)+ n)% n;
 const G2 = have[cur];
+toyStep = G2.id === 'toys' ? 0 : -1;
+if(toyStep === 0){
+toyShow();
+return;
+}
 put(G2);
 t0 = performance.now()- 0.2;
 const nm = ov.querySelector('.gnm'),
@@ -45847,11 +45889,24 @@ return;
 if(['Enter','Space','KeyF'].includes(e.code)){
 e.preventDefault();
 e.stopPropagation();
-close();
+okBtn();
 }
 };
 addEventListener('keydown',kd,true);
-ov.querySelector('#gok').onclick = close;
+function okBtn(){
+if(toyStep === 0){
+toyStep = 1;
+t0 = performance.now()- 0.2;
+yaw = 0;
+toyShow();
+try{
+sfx('sparkle',{vol: 0.25,rate: 1.2});
+}catch(e){}
+return;
+}
+close();
+}
+ov.querySelector('#gok').onclick = okBtn;
 {
 const a = ov.querySelector('#gnext'),
 b = ov.querySelector('#gprev');
@@ -49139,7 +49194,7 @@ star.position
 .copy(G.S0)
 .addScaledVector(G.face,150)
 .add(new V3(0,70,0));
-star.scale.setScalar(7 + 0.6 * Math.sin(time * 1.3));
+star.scale.setScalar(3.5 + 0.3 * Math.sin(time * 1.3));
 if(lsec < 8)star.scale.multiplyScalar(1 + Math.exp(-lsec / 1.4)*(0.9 + 0.5 * Math.sin(lsec * 17)));
 }
 star.material.opacity = k *(0.85 + 0.15 * Math.sin(time * 2.1));
@@ -49147,7 +49202,7 @@ const bo = window.__jackDuskMsg ? 1 - smooth(6,14,(performance.now()- window.__j
 star.scale.multiplyScalar(1 + 0.5 * bo);
 starAura.position.copy(star.position);
 starAura.scale.setScalar(star.scale.x *(4.2 + 0.4 * Math.sin(time * 0.9)));
-starAura.material.opacity = k *(0.75 + 0.25 * bo)*(0.85 + 0.15 * Math.sin(time * 1.1));
+starAura.material.opacity = k *(0.55 + 0.25 * bo)*(0.85 + 0.15 * Math.sin(time * 1.1));
 }
 starAura.visible = star.visible;
 starRays.visible = star.visible;
@@ -60446,7 +60501,7 @@ map.hidden = true;
 const row =(b,what)=> '<div class="pm-r"><kbd data-btn="' + b + '" data-pb="' + b + '"></kbd><span>' + what + '</span></div>';
 const draw =()=>{
 const PT ={LT:[372,128],LB:[398,140],VIEW:[481,201],LS:[400,205],L3:[400,205],DP:[447,272],RT:[652,128],RB:[626,140],MENU:[543,201],Y:[622,174],X:[594,202],B:[651,202],A:[622,231],RS:[568,267],R3:[568,267]};
-const L =[['LT','Cat senses · hold to sense critters, tap to look ahead'],['LB','Swat with her left paw'],['VIEW','Quests · skip a scene'],['LS','Move · tilt further to go faster'],['L3','Run (press the stick)'],['UP','Meow','DP'],['DOWN','Groom','DP'],['LEFT','Hiss','DP'],['RIGHT','Yowl','DP']];
+const L =[['LT','Cat senses · hold to sense critters, tap to look ahead'],['LB','Swat with her left paw'],['VIEW','Quests · skip a scene'],['LS','Move · tilt further to go faster'],['L3','Run · click again for zoomies when they glow'],['UP','Meow','DP'],['DOWN','Groom','DP'],['LEFT','Hiss','DP'],['RIGHT','Yowl','DP']];
 const R =[['RT','Stalk · squeeze deeper to sink lower, let go to pounce'],['RB','Swat with her right paw'],['MENU','Pause'],['Y','Sit and watch'],['B','Crouch · back'],['X','Pick up, plant, give, curl up'],['A','Jump and climb · read on'],['RS','Look around'],['R3','Toggle view (press the stick)']];
 const BN ={"LT": "Left Trigger","LB": "Left Bumper","VIEW": "View Button","LS": "Left Stick","L3": "Left Stick Button","UP": "D-Pad Up","DOWN": "D-Pad Down","LEFT": "D-Pad Left","RIGHT": "D-Pad Right","RT": "Right Trigger","RB": "Right Bumper","MENU": "Menu Button","Y": "Y Button","B": "B Button","X": "X Button","A": "A Button","RS": "Right Stick","R3": "Right Stick Button"};
 const y0 = 62,dy = 50.5;
@@ -60592,7 +60647,10 @@ hold('KeyW',ly < -0.5);
 hold('KeyS',ly > 0.5);
 hold('KeyA',lx < -0.5);
 hold('KeyD',lx > 0.5);
-if(pr(BT.L3))PAD.run = !PAD.run;
+if(pr(BT.L3)){
+if(PAD.run &&(P.zCharge || 0)>= 1 && window.__zoomGo && window.__zoomGo()){
+}else PAD.run = !PAD.run;
+}
 if(PAD.mag > 0.3)PAD.stillT = 0;
 else if((PAD.stillT =(PAD.stillT || 0)+ dt)> 0.35)PAD.run = false;
 hold('ShiftLeft',!!PAD.run && PAD.mag > 0.3);

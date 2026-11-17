@@ -506,6 +506,31 @@ html body.pad-mode :is(#cutSkip,#coach,#climbP,#help,*) kbd[data-btn=""],html bo
    one, so "A to continue" has the middle to itself; with a controller it reads "Hold View to skip" and a thin line fills as you hold */
 html body div#cutSkip{left:auto!important;right:34px!important;transform:none!important;bottom:max(20px,calc(var(--barVis,0px) / 2 - .75em))!important;font-size:12px!important;color:rgba(255,253,244,.62)!important;padding-bottom:5px!important;background:linear-gradient(rgba(255,253,244,.85),rgba(255,253,244,.85)) left bottom / calc(var(--skipK,0) * 100%) 1.5px no-repeat!important}
 #cutSkip .padOnly{display:none}body.pad-mode #cutSkip .padOnly{display:inline}
+
+/* Build 574 (Ryan): the cats move to the bottom-right corner as three circles: the one you're playing large on top, the other two
+   below; name inside, energy as the ring round each, the zoomies a cyan glow that grows round the big one */
+#ad-cats{left:auto!important;top:auto!important;right:34px;bottom:30px;width:200px;display:flex;flex-wrap:wrap;justify-content:center;gap:12px 20px}
+#ad-cats .ad-cat{gap:0}
+#ad-cats .ad-cat.act{flex-basis:100%;align-items:center}
+#ad-cats .ad-bar,#ad-cats .ad-moon,#ad-cats .ad-zr{display:none!important}
+#ad-cats .ad-ring{padding:0!important;background:none!important;box-shadow:0 4px 14px rgba(0,0,0,.5),0 0 calc(var(--zk,0)*26px) calc(var(--zk,0)*3px) rgba(95,224,255,calc(var(--zk,0)*.75))!important;margin-top:0!important;transition:width .4s,height .4s,box-shadow .3s}
+#ad-cats .ad-cat.act .ad-ring{width:104px;height:104px}
+#ad-cats .ad-cat.rest .ad-ring{width:66px;height:66px}
+#ad-cats .ad-cat.zfull .ad-ring{animation:adZoom 1.3s ease-in-out infinite}
+@keyframes adZoom{0%,100%{box-shadow:0 4px 14px rgba(0,0,0,.5),0 0 22px 3px rgba(95,224,255,.65)}50%{box-shadow:0 4px 14px rgba(0,0,0,.5),0 0 34px 7px rgba(150,240,255,.9)}}
+#ad-cats .ad-in{position:absolute;inset:4px;border-radius:50%;overflow:hidden}
+#ad-cats .ad-in img{width:100%;height:100%;border:0}
+#ad-cats .ad-nm{position:absolute;left:0;right:0;bottom:0;padding:16px 0 13%;text-align:center;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.62));font-size:9px!important;letter-spacing:.18em!important;color:#fff!important}
+#ad-cats .ad-cat.rest .ad-nm{font-size:7.5px!important;padding:10px 0 12%}
+#ad-cats .ad-er{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);pointer-events:none;overflow:visible}
+#ad-cats .ad-er circle{fill:none;stroke-width:4.5}
+#ad-cats .ad-cat.rest .ad-er circle{stroke-width:6}
+#ad-cats .ad-er .tr{stroke:rgba(10,10,24,.55)}
+#ad-cats .ad-er .en{stroke:#9ee05a;stroke-linecap:round;filter:drop-shadow(0 0 3px rgba(160,240,100,.55));transition:stroke-dashoffset .5s,stroke .4s}
+#ad-cats .ad-er.low .en{stroke:#f0a040;filter:drop-shadow(0 0 3px rgba(240,150,60,.6))}
+#ad-cats .ad-key{left:50%!important;right:auto!important;top:7px!important;bottom:auto!important;transform:translateX(-50%);width:16px!important;height:16px!important;border-radius:5px!important;font-size:9px!important;letter-spacing:0!important;background:rgba(0,0,0,.45)!important}
+#ad-cats .ad-cat.act .ad-key{display:none}
+#ad-br{bottom:230px!important}
 </style>
 
 <div id="app"></div>
@@ -532,7 +557,8 @@ html body div#cutSkip{left:auto!important;right:34px!important;transform:none!im
   <span class="k"><kbd>W A S D</kbd></span><span>Wander about</span>
   <span class="k"><kbd>Mouse</kbd></span><span>Look around</span>
   <span class="k"><kbd>Shift</kbd> tap</span><span>Walk or trot</span>
-  <span class="k"><kbd>Shift</kbd> hold</span><span>Run · keep running to fill the zoomies</span>
+  <span class="k"><kbd>Shift</kbd> hold</span><span>Run</span>
+  <span class="k"><kbd>Z</kbd></span><span>Zoomies, when her portrait glows blue (while running)</span>
   <span class="k"><kbd>Space</kbd></span><span>Jump · hold and look to aim the landing ring</span>
   <span class="k"><kbd>Left click</kbd></span><span>Hold to stalk and wiggle · let go to pounce</span>
   <span class="k"><kbd>Right click</kbd></span><span>Swat with a paw</span>
@@ -612,7 +638,7 @@ html body div#cutSkip{left:auto!important;right:34px!important;transform:none!im
 <div id="gate">
   <div class="g-shade"></div>
   <div class="g-corner">In loving memory of<b>Jack</b></div>
-  <div class="g-build" id="gBuild">Build 573</div>
+  <div class="g-build" id="gBuild">Build 574</div>
   <div class="g-music" id="gMusic" aria-pressed="false"><i></i>Music</div>
   <header class="g-title">
     <div class="g-small">Tink's Magical</div>
@@ -663,8 +689,8 @@ window.__THEME=(()=>{let done=false;const M=window.__MUS.mk('audio/music/01-the-
  b.addEventListener('click',e=>{e.stopPropagation();if(on){want=false;stop(600)}else{want=true;start()}});
  const tk=setInterval(()=>{if(done||on){if(done)clearInterval(tk);return}start()},300);for(const ev of ['pointerdown','keydown'])addEventListener(ev,start,{capture:true});return {el:null,stop,play:()=>{done=false;want=true;start()},state:()=>({on,want,done,ready:ready()})}})();</script>
 <script type="importmap">{"imports":{"three":"./three.module.js","three/addons/":"./jsm/"}}</script>
-<script>(async()=>{const lay=fetch("./data/world-layout.9bf0ca4036.json").then(r=>r.ok?r.text():null).catch(()=>null);const u="/tinks-forest-next/game.dev.js?v=1794887143";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
+<script>(async()=>{const lay=fetch("./data/world-layout.9bf0ca4036.json").then(r=>r.ok?r.text():null).catch(()=>null);const u="/tinks-forest-next/game.dev.js?v=1794887981";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
  if(!txt){const g=document.getElementById("goTxt");if(g)g.textContent="Could not download the game. Please reload";return}
  try{const lt=await lay;if(lt)window.__LAYOUT=JSON.parse(lt)}catch(e){} const sc=document.createElement("script");sc.type="module";sc.src=URL.createObjectURL(new Blob([txt],{type:"text/javascript"}));document.body.appendChild(sc)})()</script>
 <div style="position:fixed;left:6px;top:4px;z-index:99999;font:600 10px system-ui;color:#fff;background:#c0392bcc;padding:1px 5px;border-radius:3px;pointer-events:none">STAGING</div>
-<script>if(/[?&]bench\b/.test(location.search)){const s=document.createElement("script");s.src="/tinks-forest-next/bench.js?v=1794887143";document.body.appendChild(s)}</script>
+<script>if(/[?&]bench\b/.test(location.search)){const s=document.createElement("script");s.src="/tinks-forest-next/bench.js?v=1794887981";document.body.appendChild(s)}</script>
