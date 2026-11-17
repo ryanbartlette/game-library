@@ -15523,10 +15523,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 568;
+const BUILD = 569;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 136;
+const LOOKV = 137;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -18780,6 +18780,13 @@ z = PD.mz;
 }
 }
 if(!x && !z)return null;
+{
+const PD = window.__PAD;
+if(PD && PD.mode && PD.mag > 0 &&(P.povK || 0)> 0.5){
+const yb = z < -0.35 && Math.abs(x)< 0.5 ? P.yaw + Math.PI : P.yaw - x * 0.95;
+return new V3(Math.sin(yb),0,Math.cos(yb));
+}
+}
 const f = new V3(-Math.sin(cam.yaw),0,-Math.cos(cam.yaw)),
 r = new V3(Math.cos(cam.yaw),0,-Math.sin(cam.yaw));
 return f.multiplyScalar(z).addScaledVector(r,x).normalize();
@@ -22358,11 +22365,16 @@ const up = -0.55 * Math.pow(Math.sin(u * Math.PI),2);
 cam.yaw += angDiff(cam.yaw,base + off)* Math.min(1,dt * 1.1);
 P.povPitch = lerp(P.povPitch ?? 0.04,up + 0.04,Math.min(1,dt * 1.1));
 P.yaw += angDiff(P.yaw,Math.atan2(d.x,d.z)+ off * 0.5)* Math.min(1,dt * 1.1);
-}else if(P.speed > 0.15 && performance.now()- lastMouse > 900)
+}else if(P.speed > 0.15 && performance.now()- Math.max(lastMouse,window.__padLookT || 0)> 900)
 cam.yaw += angDiff(cam.yaw,P.yaw + Math.PI)*(1 - Math.exp(-dt * 2.2 * k));
 if(P.povUser && k > 0.5 && !(TR &&(TR.cs || TR.wonder || TR.hes))){
 const rel = angDiff(P.yaw + Math.PI,cam.yaw);
-if(Math.abs(rel)> 1.05)cam.yaw = P.yaw + Math.PI + Math.sign(rel)* 1.05;
+if(window.__PAD && window.__PAD.mode && P.mode === 'ground' && !P.script){
+const lim = 0.7;
+if(Math.abs(rel)> lim)P.yaw += Math.sign(rel)*(Math.abs(rel)- lim)*(1 - Math.exp(-dt * 6));
+const rel2 = angDiff(P.yaw + Math.PI,cam.yaw);
+if(Math.abs(rel2)> 1.25)cam.yaw = P.yaw + Math.PI + Math.sign(rel2)* 1.25;
+}else if(Math.abs(rel)> 1.05)cam.yaw = P.yaw + Math.PI + Math.sign(rel)* 1.05;
 }
 const f = fwdOf(P.yaw);
 const eye = new V3(
@@ -62906,11 +62918,6 @@ inv = OPT.padInv ? -1 : 1;
 const boost = 1 + 0.45 * smooth(0.2,0.6,PAD.rimT || 0);
 if(!window.__sceneOn)cam.yaw -= cv(rx)* 3.3 * sens * boost * dt;
 if((P.povK || 0)> 0.5){
-const fwd = P.yaw + Math.PI;
-let rel = cam.yaw - fwd;
-while(rel > Math.PI)rel -= 2 * Math.PI;
-while(rel < -Math.PI)rel += 2 * Math.PI;
-if(Math.abs(rel)> 1.05)cam.yaw = P.yaw + Math.PI + Math.sign(rel)* 1.05;
 P.povPitch = clamp((P.povPitch ?? 0.04)+ inv * cv(ry)* 2.0 * sens * dt,-1.45,0.72);
 }else cam.pitch = clamp(cam.pitch + inv * cv(ry)* 2.0 * sens * dt,-0.35,1.2);
 }
