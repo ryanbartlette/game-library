@@ -481,18 +481,18 @@ const __PASS=(()=>{const p=new URLSearchParams(location.search).get('pass');retu
 window.__THEMES={
  akina:{name:'AKINA',season:'SUMMER',grass:[1.24,2.24,.72],cliff:[3.3,1.55,.82],cliffAt:.79,litter:null,
   shrubs:null,tufts:null,stones:1,trees:1,pine:[.08,.82],leaf:null,pineLeaf:null,tints:null,wall:{base:'#6f6b63',style:'block'},petals:true},
- akinanew:{near:1.9,name:'AKINA',season:'SUMMER',grass:[1.2,2.3,.7],cliff:[3.0,1.6,.9],cliffAt:.79,litter:null,
+ akinanew:{near:1.9,treeK:1.3,name:'AKINA',season:'SUMMER',grass:[1.2,2.3,.7],cliff:[3.0,1.6,.9],cliffAt:.79,litter:null,
   shrubs:null,tufts:null,stones:1.2,trees:1.1,pine:[.1,.8],leaf:null,pineLeaf:null,tints:null,wall:{base:'#6f6b63',style:'block'},petals:false},
- usui:{near:1.9,name:'USUI',season:'LATE SUMMER',grass:[.8,1.9,.62],cliff:[1.7,1.75,1.0],cliffAt:.82,litter:{c:[1.0,1.6,.75],a:.35,f:.05},
+ usui:{near:1.9,treeK:1.3,name:'USUI',season:'LATE SUMMER',grass:[.8,1.9,.62],cliff:[1.7,1.75,1.0],cliffAt:.82,litter:{c:[1.0,1.6,.75],a:.35,f:.05},
   shrubs:[[.16,.38,.18],[.2,.44,.2],[.13,.33,.17],[.24,.46,.17],[.18,.4,.24]],tufts:[[.2,.5,.2],[.16,.44,.2],[.28,.55,.18]],stones:1.4,trees:1.45,
   pine:[.78,.92],leaf:[.17,.36,.13],pineLeaf:[.1,.27,.14],tints:[[1,1,1],[.85,.95,.9],[1.1,1.05,.9],[.9,1,1.05]],wall:{base:'#4f5a45',style:'moss'},petals:false},
- myogi:{near:1.9,name:'MYOGI',season:'EARLY AUTUMN',grass:[1.55,1.9,.68],cliff:[2.3,2.25,2.3],cliffAt:.9,litter:{c:[2.6,2.1,.9],a:.3,f:.03},
+ myogi:{near:1.9,treeK:1.3,name:'MYOGI',season:'EARLY AUTUMN',grass:[1.55,1.9,.68],cliff:[2.3,2.25,2.3],cliffAt:.9,litter:{c:[2.6,2.1,.9],a:.3,f:.03},
   shrubs:[[.5,.55,.24],[.42,.5,.22],[.6,.5,.2],[.36,.46,.24],[.66,.44,.16]],tufts:[[.62,.6,.28],[.5,.56,.24],[.7,.62,.3]],stones:6,trees:.65,
   pine:[.35,.75],leaf:[.42,.48,.16],pineLeaf:[.18,.33,.17],tints:[[1,1,1],[1.5,.85,.6],[1.25,1.05,.7],[.85,1,.95],[1.7,.75,.5]],wall:{base:'#7a7670',style:'kenchi'},petals:false},
- akagi:{near:1.9,name:'AKAGI',season:'LATE AUTUMN',grass:[1.9,1.85,.82],cliff:[2.4,1.9,1.5],cliffAt:.8,litter:{c:[2.9,2.4,1.25],a:.5,f:.025},
+ akagi:{near:1.9,treeK:1.3,name:'AKAGI',season:'LATE AUTUMN',grass:[1.9,1.85,.82],cliff:[2.4,1.9,1.5],cliffAt:.8,litter:{c:[2.9,2.4,1.25],a:.5,f:.025},
   shrubs:[[.6,.58,.36],[.54,.55,.34],[.66,.6,.4],[.5,.5,.3]],tufts:[[.72,.68,.42],[.66,.64,.38],[.78,.72,.46]],stones:1.6,trees:.85,
   pine:[.55,.8],leaf:[.62,.42,.2],pineLeaf:[.8,.6,.16],tints:[[1,1,1],[1.1,.9,.8],[.9,1,1],[1.15,1.1,.9]],wall:{base:'#9a9890',style:'lattice'},petals:false},
- irohazaka:{near:1.9,name:'IROHAZAKA',season:'AUTUMN',grass:[1.3,1.95,.7],cliff:[2.25,2.2,2.2],cliffAt:.84,litter:{c:[3.4,1.4,.6],a:.55,f:.035},
+ irohazaka:{near:1.9,treeK:1.3,name:'IROHAZAKA',season:'AUTUMN',grass:[1.3,1.95,.7],cliff:[2.25,2.2,2.2],cliffAt:.84,litter:{c:[3.4,1.4,.6],a:.55,f:.035},
   shrubs:[[.75,.24,.12],[.8,.42,.12],[.7,.6,.16],[.36,.48,.2],[.68,.2,.14]],tufts:[[.5,.56,.24],[.64,.5,.2],[.44,.54,.22]],stones:2.2,trees:1.2,
   pine:[.2,.45],leaf:[.95,.32,.1],pineLeaf:[.14,.3,.16],tints:[[1,.6,.9],[1,1,1],[1,1.65,1.3],[1.05,.45,.8],[.6,1.9,.9],[1,1.3,1]],wall:{base:'#86847e',style:'block'},petals:false}};
 window.__THEME=(()=>{try{const p=window.__PASS;return (p&&__THEMES[p])||__THEMES.akina}catch(e){return __THEMES.akina}})();
@@ -508,7 +508,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=421',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=422',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -4055,7 +4055,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 421';
+window.__BUILD='BUILD 422';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5578,9 +5578,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794906042'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794906494'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794906042'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794906494'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -5955,8 +5955,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794906042'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794906042'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794906494'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794906494'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6414,7 +6414,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794906042',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794906494',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6428,7 +6428,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794906042',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794906494',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -13875,7 +13875,7 @@ const id=window.animeCars&&animeCars.player&&animeCars.player.name;return !id||i
    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(N,3));g.setAttribute('color',new THREE.Float32BufferAttribute(Cc,3));return g})();
   const stoneGeo=(()=>{const g=new THREE.DodecahedronGeometry(1,0).toNonIndexed();const p=g.attributes.position;for(let k=0;k<p.count;k++){p.setY(k,Math.max(-.2,p.getY(k))*.55)}g.computeVertexNormals();
    const Cc=[];for(let k=0;k<p.count;k++){const s=.75+.35*Math.max(0,p.getY(k)/.55);Cc.push(s,s,s)}g.setAttribute('color',new THREE.Float32BufferAttribute(Cc,3));return g})();
-  const shrubMat=toon(mkGrad([70,120,175,215,255]),{side:THREE.FrontSide});
+  const shrubMat=(window.__seeThrough||(x=>x))(toon(mkGrad([70,120,175,215,255]),{side:THREE.FrontSide}));
   const grassMat=toon(mkGrad([110,190,255]),{side:THREE.DoubleSide});
   const stoneMat=toon(mkGrad([90,170,255]));
 
@@ -13918,7 +13918,7 @@ const id=window.animeCars&&animeCars.player&&animeCars.player.name;return !id||i
     // pines take over the higher you climb (the top third of the mountain is mostly pine)
     const t=(y-YLO)/(YHI-YLO),PN=TH.pine||[.08,.82],pine=rnd()<Math.min(.95,PN[0]+Math.max(0,(t-.4)/.4)*(PN[1]-PN[0]));
     if(ERASED(pine?'pine':'broadleaf',jx,jz))continue;
-    TREES.push([jx,y-.3,jz,pine?9+rnd()*8:8+rnd()*7,rnd()*6.28,.8+rnd()*.35,d,pine?1+(nP++%2):0])}}
+    TREES.push([jx,y-.3,jz,(pine?9+rnd()*8:8+rnd()*7)*((TH.treeK||1)*(d<20?.88:1)),rnd()*6.28,.8+rnd()*.35,d,pine?1+(nP++%2):0])}}
   // hand-placed scenery (the ground editor): added after the generated lot, sitting on the drawn ground
   const PLACED=(window.__EDS&&__EDS.all.scn.place)||[];
   const placeOne=(e,pushTree)=>{const y=H(e.x,e.z),s=e.s||1,ry=e.ry||0,hv=Math.abs(Math.sin(e.x*3.1+e.z*1.7));
@@ -13988,7 +13988,7 @@ const id=window.animeCars&&animeCars.player&&animeCars.player.name;return !id||i
    // snow: three bare trees in place of the broadleaf one (if the file is missing, the snowy broadleaf trees stay)
    let gls=G0,TYPE=t=>t[7]||0,SP=SPEC;
    if(SNOWY){const bt=bareTrees(G0[0]);if(bt.length){gls=[...bt,G0[2],G0[3]];SP=[...bt.map(()=>BARE),SPEC[1],SPEC[2]];TYPE=t=>t[7]?bt.length+t[7]-1:(Math.abs(Math.round(t[0]*5.3+t[2]*2.9))%bt.length)}else gls=G0.slice(1);window.frLand.bare=bt.length}
-   const tmat=toon(mkGrad([80,135,190,255])),tris={};window.frLand.leafMats=[tmat,shrubMat,grassMat];
+   const tmat=(window.__seeThrough||(x=>x))(toon(mkGrad([80,135,190,255]))),tris={};   /* (build 422) trees between the camera and your car dither away */window.frLand.leafMats=[tmat,shrubMat,grassMat];
    const tch=new Map();
    gls.forEach((gl,s)=>{if(!gl)return;const GEO=buildLOD(gl,SP[s]);tris[SP[s].file+(SP[s].bare?s:'')]={full:GEO.full.attributes.position.count/3,mid:GEO.mid.attributes.position.count/3,far:GEO.far.attributes.position.count/3};
     const chunks2=new Map();for(const t of TREES){if(TYPE(t)!==s)continue;const k=ck(t[0],t[2]);let c=chunks2.get(k);if(!c)chunks2.set(k,c={near:[],away:[],cx:(Math.floor(t[0]/CH)+.5)*CH,cz:(Math.floor(t[2]/CH)+.5)*CH});
@@ -18818,8 +18818,8 @@ const animeLocations=window.animeLocations=(()=>{
     const bd=board(tex,1.5,.85,1.5);let x=c.x+s.x*out*(edge(i)+1.5),z=c.z+s.z*out*(edge(i)+1.5),gy=fits(x,z,c.y);if(gy==null){x=c.x-s.x*out*(edge(i)+1.5);z=c.z-s.z*out*(edge(i)+1.5);gy=fits(x,z,c.y)}if(gy==null)continue;bd.position.set(x,gy,z);bd.rotation.y=Math.atan2(-t.x,-t.z);G.add(bd)}}
   // a cedar forest: tall narrow dark cones in rows behind the verges
   if(L.cedar){const cone=new THREE.ConeGeometry(1.5,11,7);cone.translate(0,7.5,0);const trunk=new THREE.CylinderGeometry(.22,.3,2.2,6);trunk.translate(0,1.1,0);
-   const P=[];along(7,(i,c,t,s)=>{for(const sd of [-1,1])for(let r=0;r<2;r++){const d=half+7+r*6+Math.random()*4,x=c.x+s.x*sd*d+t.x*(Math.random()-.5)*5,z=c.z+s.z*sd*d+t.z*(Math.random()-.5)*5;P.push([x,groundAt(x,z,c.y)-.3,z,.8+Math.random()*.5])}});
-   const im=new THREE.InstancedMesh(cone,new THREE.MeshLambertMaterial({color:0x1f4a2c}),P.length),it=new THREE.InstancedMesh(trunk,new THREE.MeshLambertMaterial({color:0x4b3426}),P.length),M=new THREE.Matrix4(),Q=new THREE.Quaternion(),S=new THREE.Vector3(),V=new THREE.Vector3();
+   const P=[];along(7,(i,c,t,s)=>{for(const sd of [-1,1])for(let r=0;r<2;r++){const d=half+7+r*6+Math.random()*4,x=c.x+s.x*sd*d+t.x*(Math.random()-.5)*5,z=c.z+s.z*sd*d+t.z*(Math.random()-.5)*5;P.push([x,groundAt(x,z,c.y)-.3,z,(.8+Math.random()*.5)*(r?1.8:1.45)])   /* (build 422) towering cedars, the front row a little lower so they never clip the camera */}});
+   const im=new THREE.InstancedMesh(cone,(window.__seeThrough||(x=>x))(new THREE.MeshLambertMaterial({color:0x1f4a2c})),P.length),it=new THREE.InstancedMesh(trunk,new THREE.MeshLambertMaterial({color:0x4b3426}),P.length),M=new THREE.Matrix4(),Q=new THREE.Quaternion(),S=new THREE.Vector3(),V=new THREE.Vector3();
    P.forEach(([x,y,z,k],j)=>{S.set(k,k*(.9+Math.random()*.3),k);V.set(x,y,z);M.compose(V,Q,S);im.setMatrixAt(j,M);it.setMatrixAt(j,M)});im.castShadow=false;G.add(im,it)}
   // the old brick railway viaduct, off in the trees
   // (build 417) Usui's Megane Bridge: one big red-brick railway viaduct striding across the road on the short straight
