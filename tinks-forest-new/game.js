@@ -15368,10 +15368,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 567;
+const BUILD = 568;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 135;
+const LOOKV = 136;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -47435,7 +47435,7 @@ JPHOTO +
 '<img src="' +
 JPAW +
 '" alt="" style="display:block;height:clamp(40px,4.6vw,64px);width:auto;margin:6px auto 18px;opacity:.92;filter:drop-shadow(0 0 14px rgba(140,180,255,.35))">' +
-'<div style="font-family:Fraunces,Georgia,serif;font-style:italic;font-size:clamp(17px,2vw,24px);opacity:.9">who watches over Tink and Luca, always</div><div class="cr" style="margin-top:46px;font-family:Montserrat,sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;opacity:0;transition:opacity 2s ease;line-height:2.1">Tink\'s Magical Forest<br><span style="opacity:.7">for Tink, Luca and Jack</span></div><div class="ky" style="margin-top:34px;font-family:Montserrat,sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:0;transition:opacity 1.6s ease">Press any key to keep exploring</div></div>' +
+'<div style="font-family:Fraunces,Georgia,serif;font-style:italic;font-size:clamp(17px,2vw,24px);opacity:.9">who watches over Tink and Luca, always</div><div class="cr" style="margin-top:46px;font-family:Montserrat,sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;opacity:0;transition:opacity 2s ease;line-height:2.1">Tink\'s Magical Forest<br><span style="opacity:.7">for Tink, Luca and Jack</span><br><span style="display:inline-block;margin-top:14px;font-family:Caveat,\'Klee One\',cursive;font-weight:600;font-size:26px;letter-spacing:.01em;text-transform:none;opacity:.92;line-height:1.2">Made with love for Melody, who believed I could<svg viewBox="0 0 24 22" preserveAspectRatio="none" width="1.0em" height="0.86em" aria-hidden="true" style="vertical-align:-.08em;margin-left:.34em;overflow:visible;transform:rotate(10deg) scaleX(-1.12) scaleY(.86)"><path d="M12 20.6C9.1 18 2.2 13.4 1.2 8.6.5 4.7 3.3 1.7 6.6 1.9c2.8.2 4.6 2.5 5.3 5.4.8-2.1 2.4-3.7 4.6-3.7 2.6 0 4.2 2.2 3.8 4.9-.6 4.1-5.2 8.1-8.8 11.8-.4.4-.9.8-1.5 1.1" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div><div class="ky" style="margin-top:34px;font-family:Montserrat,sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:0;transition:opacity 1.6s ease">Press any key to keep exploring</div></div>' +
 '<div style="justify-self:start">' +
 KIDS +
 '</div></div>';
