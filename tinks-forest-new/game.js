@@ -15372,10 +15372,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 572;
+const BUILD = 573;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 140;
+const LOOKV = 141;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -18646,7 +18646,7 @@ fx /= fl;
 fz /= fl;
 const maxH =(T.jumpMax * T.jumpMax)/(2 * T.gravity)- 0.15,
 maxD = Math.min(4.2,T.jumpMax * 0.6);
-const D = window.__PAD && window.__PAD.mode && window.__PAD.ltDown ? lerp(0.6,maxD,smooth(0.2,0.95,window.__PAD.ltP || 0)): lerp(maxD,0.6,smooth(-0.1,0.75,cam.pitch));
+const D = false ? lerp(0.6,maxD,smooth(0.2,0.95,window.__PAD.ltP || 0)): lerp(maxD,0.6,smooth(-0.1,0.75,cam.pitch));
 let best = null;
 for(let k = 0;k <= 6;k++){
 const dd = D *(1 - k * 0.06);
@@ -18712,7 +18712,140 @@ best = s;
 }
 return best;
 }
+const PADLOCK ={on: false,k: 0,sq: null,rc: 0,halos: new Map(),tex: null,veil: null};
+window.__padLock = PADLOCK;
+const senseOK = g =>{
+let o = g;
+while(o){
+if(!o.visible)return false;
+if(!o.parent && o !== scene)return false;
+o = o.parent;
+}
+return true;
+};
+function senseSq(){
+const fx = Math.sin(P.yaw),
+fz = Math.cos(P.yaw);
+let best = null,
+bs = -1e9;
+for(const s of squirrels){
+if(s.state === 'caught' || s.state === 'treed' || s.state === 'climb' ||(s.g && !senseOK(s.g)))continue;
+const dx = s.x - P.pos.x,
+dz = s.z - P.pos.z,
+d = Math.hypot(dx,dz);
+if(d > T.pounceDist * 1.15 + 0.6 || d < 0.2)continue;
+const sc =((dx * fx + dz * fz)/ d)* 2 - d / 4;
+if(sc > bs &&(dx * fx + dz * fz)/ d > 0.2){
+bs = sc;
+best = s;
+}
+}
+return best;
+}
+window.__lockStart =()=>(PADLOCK.on = true);
+window.__lockEnd =()=>{
+PADLOCK.on = false;
+PADLOCK.sq = null;
+};
+window.__camRecenter =()=>(PADLOCK.rc = 0.35);
+window.__lockTick = dt =>{
+if(PADLOCK.rc > 0){
+PADLOCK.rc -= dt;
+cam.yaw += angDiff(cam.yaw,P.yaw + Math.PI)* Math.min(1,dt * 10);
+window.__padLookT = performance.now();
+}
+const want = PADLOCK.on &&(P.mode === 'ground' || P.mode === 'air')&& !window.__asJack ? 1 : 0;
+PADLOCK.k +=(want - PADLOCK.k)* Math.min(1,dt *(want ? 4 : 3));
+const k = PADLOCK.k;
+if(!PADLOCK.veil){
+const v =(PADLOCK.veil = document.createElement('div'));
+v.style.cssText =
+'position:fixed;inset:0;pointer-events:none;z-index:6;opacity:0;background:radial-gradient(ellipse at 50% 55%,rgba(255,236,200,0) 38%,rgba(70,48,30,.34) 100%);backdrop-filter:saturate(.8);-webkit-backdrop-filter:saturate(.8)';
+document.body.appendChild(v);
+}
+PADLOCK.veil.style.opacity = k.toFixed(3);
+try{
+if(typeof AUD !== 'undefined' && AUD.ctx &&(k > 0.002 || PADLOCK.sndOn)){
+PADLOCK.sndOn = k > 0.002;
+for(const nm in AUD.buses){
+const base =(AUD.mix && AUD.mix[nm])?? 1;
+let m = 1;
+if(/^music/.test(nm))m = lerp(1,0.05,k);
+else if(/bird|robin|squirrel|crow|owl|frog|woodpecker|rustle|crickets|cicadas|dawn|day|chirp/.test(nm))m = lerp(1,1.7,k);
+else if(/wind|rain|drizzle|stream/.test(nm))m = lerp(1,0.55,k);
+AUD.buses[nm].gain.value = base * m;
+}
+}
+}catch(e){}
+PADLOCK.sq = PADLOCK.on ? senseSq(): null;
+if(!PADLOCK.tex){
+const c = document.createElement('canvas');
+c.width = c.height = 64;
+const x = c.getContext('2d'),
+gr = x.createRadialGradient(32,32,0,32,32,32);
+gr.addColorStop(0,'rgba(255,240,205,1)');
+gr.addColorStop(0.35,'rgba(255,214,140,.55)');
+gr.addColorStop(1,'rgba(255,190,110,0)');
+x.fillStyle = gr;
+x.fillRect(0,0,64,64);
+PADLOCK.tex = new THREE.CanvasTexture(c);
+}
+const H = PADLOCK.halos,
+seen = new Set();
+if(k > 0.01){
+const tp = new V3(),
+now = performance.now()/ 1000;
+const things =[];
+for(const g of window.__CRITTERS ||[])things.push([g,0.9]);
+for(const Y of window.__YARNS ||[])if(Y.m && Y.held !== 'p')things.push([Y.m,0.7]);
+try{
+const J = window.__JACK,
+gm = J && J.st && J.st.gift && J.st.gift.m;
+if(gm && gm.parent)things.push([gm,1.4]);
+}catch(e){}
+const DG = window.__DIR && window.__DIR.goal;
+if(DG && isFinite(DG.x)){
+const gp = PADLOCK.gp ||(PADLOCK.gp = new THREE.Object3D());
+if(!gp.parent)scene.add(gp);
+gp.position.set(DG.x,(isFinite(DG.y)? DG.y : heightAt(DG.x,DG.z))+ 0.6,DG.z);
+if(Math.hypot(DG.x - P.pos.x,DG.z - P.pos.z)> 4)things.push([gp,2.2,40]);
+}
+for(const[g,sz,far = 22]of things){
+if(!senseOK(g))continue;
+g.getWorldPosition(tp);
+const d = Math.hypot(tp.x - P.pos.x,tp.z - P.pos.z);
+if(d > far)continue;
+seen.add(g);
+let h = H.get(g);
+if(!h){
+h = new THREE.Sprite(new THREE.SpriteMaterial({map: PADLOCK.tex,transparent: true,depthWrite: false,depthTest: false,blending: THREE.AdditiveBlending}));
+h.renderOrder = 9;
+scene.add(h);
+H.set(g,h);
+}
+const lit = PADLOCK.sq && PADLOCK.sq.g === g;
+const pulse = 0.85 + 0.15 * Math.sin(now * 3 + tp.x);
+h.position.set(tp.x,tp.y + 0.12,tp.z);
+h.scale.setScalar(sz *(lit ? 1.5 : 1)* pulse);
+h.material.opacity = k *(lit ? 1 : 0.6)*(1 - smooth(far * 0.65,far,d));
+h.visible = true;
+}
+}
+for(const[g,h]of H)
+if(!seen.has(g)){
+h.visible = false;
+if(k < 0.01){
+scene.remove(h);
+h.material.dispose();
+H.delete(g);
+}
+}
+};
 function pounceGoal(){
+if(PADLOCK.on && PADLOCK.sq && window.__PAD && window.__PAD.mode){
+const s = PADLOCK.sq;
+if(Math.hypot(s.x - P.pos.x,s.z - P.pos.z)< T.pounceDist * 1.15 + 0.6)return{x: s.x,y: s.y,z: s.z,sq: s};
+}
 let fx = P.pos.x - camera.position.x,
 fz = P.pos.z - camera.position.z;
 let fl = Math.hypot(fx,fz)|| 1;
@@ -19284,9 +19417,14 @@ return;
 P.spcPrev = spc;
 }
 {
-let can = false;
+let can = false,
+beanUp = false;
 if(P.mode === 'ground' && !P.vault && !P.script && !P.carry && !noClimbAt(P.pos.x,P.pos.z)){
-if(trunkAhead())can = true;
+const ta = trunkAhead();
+if(ta && ta.bean){
+can = true;
+beanUp = true;
+}else if(ta && !ta.noClimb && window.__treeClimb)can = true;
 else if((ROOM && ROOM.active)|| nearBuilding()){
 const f = fwdOf(P.yaw),
 y = P.pos.y;
@@ -19309,9 +19447,16 @@ e.innerHTML = '<kbd>Space</kbd> Climb';
 document.body.appendChild(e);
 return e;
 })());
+{
+const lab = beanUp ? '<kbd>Space</kbd> Climb the beanstalk' : '<kbd>Space</kbd> Climb';
+if(cp.dataset.lab !== lab){
+cp.dataset.lab = lab;
+cp.innerHTML = lab;
+}
+}
 cp.style.opacity =
 can &&
-!window.__nearBean &&
+(beanUp || !window.__nearBean)&&
 !window.__storyClimb &&
 !document.body.classList.contains('cut')&&
 !P.summit &&
@@ -22498,7 +22643,7 @@ title: 'Something Glints in the Stream',
 unlock:()=> GOT('flower')&& GOT('leaf')&& GOT('pebble')&& GOT('bell')&& !!Q.done.bean,
 steps:[
 ['Chase the little red dot',()=> !!Q.p.dotDone || GOT('boat')],
-['Splash through the shallows to the glinting thing',()=> GOT('boat')]
+['Follow the light into the stream',()=> GOT('boat')]
 ],
 done:()=> GOT('boat')
 },
@@ -25453,6 +25598,7 @@ U.open ||(window.__FCS && window.__FCS.lock)|| document.body.classList.contains(
 return U;
 })();
 function signTick(sg){
+if(!window.__signRead)return;
 const g = sg.grp;
 if(!g.visible || g.userData.gone || !P || !P.pos)return;
 const c = g.position;
@@ -35536,6 +35682,160 @@ console.warn('ridge bark',e);
 }
 });
 (window.__AE = window.__AE ||[]).push(()=>{
+try{
+const H = M.houseIn;
+if(!H || !H.g)return;
+let hm = null;
+for(const k of H.g.children)
+if(k.isMesh &&(!hm || k.geometry.attributes.position.count > hm.geometry.attributes.position.count))hm = k;
+if(!hm)return;
+H.g.updateMatrixWorld(true);
+const rc = new THREE.Raycaster(),
+upv = new V3(0,1,0);
+const roofOver = p =>{
+rc.set(p,upv);
+rc.far = 7;
+return rc.intersectObject(hm,false)[0]|| null;
+};
+const w = H.w,
+pts =[];
+for(let x = w.x0 - 0.2;x <= w.x1 + 0.2;x += 0.3){
+let best = null;
+for(let dz = 0.2;dz <= 3.8;dz += 0.08){
+const h = roofOver(H.g.localToWorld(new V3(x,1.2,w.z1 + dz)));
+if(h)best ={dz,y: h.point.y};
+else if(best)break;
+}
+if(best)pts.push({x,dz: best.dz,y: best.y});
+}
+if(pts.length < 4)return;
+const rnd = mulberry32(5731225);
+const PAL =[
+[1.0,0.8,0.52],
+[1.0,0.3,0.22],
+[0.32,0.92,0.45],
+[0.45,0.68,1.0]
+];
+const bulbs =[],
+wire =[];
+const HOOK = 4;
+pts.forEach((q,i)=>{
+const f =(i % HOOK)/ HOOK,
+sag = 0.075 * Math.sin(f * Math.PI)+(rnd()- 0.5)* 0.015;
+const wp = H.g.localToWorld(new V3(q.x,0,w.z1 + q.dz - 0.1));
+wp.y = q.y - 0.07 - sag;
+wire.push(wp.clone());
+const col = rnd()< 0.7 ? 0 : 1 + Math.floor(rnd()* 3);
+const c = PAL[col].slice();
+const odd = rnd()< 0.12;
+if(odd)c.forEach((v,k)=>(c[k]= Math.min(1,v *(0.85 + rnd()* 0.3))));
+bulbs.push({
+p: wp.clone().add(new V3(0,-0.035,0)),
+c,
+s:(odd ? 0.8 + rnd()* 0.5 : 1)*(0.9 + rnd()* 0.2),
+ph: rnd()* 6.283,
+sp: 0.35 + rnd()* 0.5,
+dim: rnd()< 0.08 ? 0.55 : 1,
+flick: rnd()< 0.07,
+dip: 0,
+dipT: 4 + rnd()* 20
+});
+});
+const grp = new THREE.Group();
+grp.visible = false;
+{
+const g = new THREE.BufferGeometry().setFromPoints(wire);
+grp.add(new THREE.Line(g,new THREE.LineBasicMaterial({color: 0x1b2a1e,transparent: true,opacity: 0.85})));
+}
+const bm = new THREE.MeshBasicMaterial({color: 0xffffff,transparent: true,fog: true});
+const im = new THREE.InstancedMesh(new THREE.SphereGeometry(0.03,8,6),bm,bulbs.length);
+const mt = new THREE.Matrix4(),
+cc = new THREE.Color();
+bulbs.forEach((b,i)=>{
+mt.compose(b.p,new THREE.Quaternion(),new V3(b.s,b.s * 1.35,b.s));
+im.setMatrixAt(i,mt);
+im.setColorAt(i,cc.setRGB(b.c[0],b.c[1],b.c[2]));
+});
+im.frustumCulled = false;
+grp.add(im);
+const gc = document.createElement('canvas');
+gc.width = gc.height = 64;
+{
+const x = gc.getContext('2d'),
+gr = x.createRadialGradient(32,32,0,32,32,32);
+gr.addColorStop(0,'rgba(255,255,255,1)');
+gr.addColorStop(0.25,'rgba(255,255,255,.45)');
+gr.addColorStop(1,'rgba(255,255,255,0)');
+x.fillStyle = gr;
+x.fillRect(0,0,64,64);
+}
+const gpos = new Float32Array(bulbs.length * 3),
+gcol = new Float32Array(bulbs.length * 3);
+bulbs.forEach((b,i)=> gpos.set([b.p.x,b.p.y,b.p.z],i * 3));
+const gg = new THREE.BufferGeometry();
+gg.setAttribute('position',new THREE.BufferAttribute(gpos,3));
+gg.setAttribute('color',new THREE.BufferAttribute(gcol,3));
+const glow = new THREE.Points(
+gg,
+new THREE.PointsMaterial({
+size: 0.42,
+map: new THREE.CanvasTexture(gc),
+vertexColors: true,
+transparent: true,
+depthWrite: false,
+blending: THREE.AdditiveBlending,
+sizeAttenuation: true
+})
+);
+glow.frustumCulled = false;
+grp.add(glow);
+scene.add(grp);
+window.__xmasLights = grp;
+let k = 0,
+last = performance.now();
+const prev = scene.onBeforeRender;
+scene.onBeforeRender = function(){
+try{
+if(prev)prev.apply(this,arguments);
+}catch(e){}
+try{
+const now = performance.now(),
+dt = Math.min(0.1,(now - last)/ 1000);
+last = now;
+const QA = window.__QAPI,
+met = !!(QA && QA.Q && QA.Q.done && QA.Q.done.house);
+const want = met && grassU.uSnowG.value > 0.3 ? 1 : 0;
+k +=(want - k)*(1 - Math.exp(-dt / 1.5));
+grp.visible = k > 0.01;
+if(!grp.visible)return;
+const t = now / 1000;
+const night = typeof weather !== 'undefined' && /dusk|night|sunset/.test(weather)? 1 : 0.65;
+bulbs.forEach((b,i)=>{
+b.dipT -= dt;
+if(b.dipT <= 0){
+b.dip = 1;
+b.dipT = 6 + Math.random()* 22;
+}
+b.dip = Math.max(0,b.dip - dt * 1.6);
+let v = 0.78 + 0.22 * Math.sin(t * b.sp + b.ph);
+v *= 1 - 0.75 * Math.sin(Math.min(1,b.dip)* Math.PI)*(b.dip > 0 ? 1 : 0);
+if(b.flick && Math.sin(t * 23 + b.ph)> 0.82)v *= 0.45;
+v *= b.dim * k * night;
+im.setColorAt(i,cc.setRGB(b.c[0]*(0.35 + 0.65 * v),b.c[1]*(0.35 + 0.65 * v),b.c[2]*(0.35 + 0.65 * v)));
+gcol[i * 3]= b.c[0]* v * 0.9;
+gcol[i * 3 + 1]= b.c[1]* v * 0.9;
+gcol[i * 3 + 2]= b.c[2]* v * 0.9;
+});
+im.instanceColor.needsUpdate = true;
+gg.attributes.color.needsUpdate = true;
+bm.opacity = Math.min(1,k * 1.2);
+}catch(e){}
+};
+}catch(e){
+console.warn('xmas lights',e);
+}
+});
+(window.__AE = window.__AE ||[]).push(()=>{
 const H = M.houseIn,
 C = M.chime;
 if(!H || !C || !C.g)return;
@@ -44386,7 +44686,7 @@ line: 'Picked from the very top, where the sun sleeps. Hope always grows toward 
 id: 'boat',
 name: 'a tiny toy boat',
 mean: 'joy',
-line: 'Full of splashes and giggles. Happy memories float away, but they always drift back to you.'
+line: 'It caught the light and carried it all this way to you. Joy drifts off sometimes, but it always floats back.'
 }
 ];
 const gMean = G =>
@@ -46630,7 +46930,7 @@ house:[
 boat:[
 ['That little red dot… always one leap ahead. || And still, you never stopped chasing…',''],
 [
-"Maybe that's the secret… || some lights aren't meant to be caught, only chased. || Keep chasing… and never, ever stop…",
+"Some lights aren't meant to be caught… only followed. || Look where this one led us…",
 ''
 ]
 ]
@@ -48349,9 +48649,9 @@ const fw = new V3();
 camera.getWorldDirection(fw);
 const rt = new V3().crossVectors(fw,camera.up).normalize(),
 up = new V3().crossVectors(rt,fw).normalize();
-const a = camera.position.clone().addScaledVector(fw,90).addScaledVector(rt,-62).addScaledVector(up,14),
-cc = camera.position.clone().addScaledVector(fw,90).addScaledVector(rt,-4).addScaledVector(up,52),
-b = camera.position.clone().addScaledVector(fw,90).addScaledVector(rt,58).addScaledVector(up,6);
+const a = camera.position.clone().addScaledVector(fw,90).addScaledVector(rt,-52).addScaledVector(up,12),
+cc = camera.position.clone().addScaledVector(fw,90).addScaledVector(rt,-8).addScaledVector(up,44),
+b = camera.position.clone().addScaledVector(fw,90).addScaledVector(rt,40).addScaledVector(up,24);
 const kk = Math.min(1,k),
 bz = t2 => a.clone().multiplyScalar((1 - t2)*(1 - t2)).addScaledVector(cc,2 * t2 *(1 - t2)).addScaledVector(b,t2 * t2);
 shoot.position.copy(bz(kk));
@@ -48401,19 +48701,30 @@ F.sky = 1;
 F.want = 'sky';
 F.end = t;
 }
-if(g > 25.2 && !F.ded){
+const landedFor = S.starLandAt ?(performance.now()- S.starLandAt)/ 1000 : -1;
+if((landedFor > 7.5 || g > 36)&& !F.ded){
 F.ded = 1;
+const BLK = 3.2,
+kids =[...ded.children].filter(c => !c.classList.contains('cr')&& !c.classList.contains('ky'));
+for(const c of kids){
+c.style.transition = 'opacity 3.4s ease';
+c.style.opacity = 0;
+}
+ded.style.transition = 'opacity ' + BLK + 's ease';
 ded.style.opacity = 1;
 ded.style.pointerEvents = 'auto';
 setTimeout(()=>{
+for(const c of kids)c.style.opacity = 1;
+},BLK * 1000 + 400);
+setTimeout(()=>{
 const c = ded.querySelector('.cr');
 if(c)c.style.opacity = 1;
-},4500);
+},BLK * 1000 + 6000);
 setTimeout(()=>{
 const k = ded.querySelector('.ky');
 if(k)k.style.opacity = 0.8;
 F.canEnd = true;
-},9000);
+},BLK * 1000 + 10500);
 }
 }
 };
@@ -48675,7 +48986,22 @@ const SW = S.swimTo ||(S.swimTo ={on: false,t: 0});
 const here = !!(K && K.op > 0.05 && K.holder.visible && P.mode !== 'air' && !window.__asJack && !S.fin);
 const story = !!(window.__qHold || say ||(J.st && J.st.ph === 'story')|| J.card);
 const boatJust = window.__boatGotT && performance.now()- window.__boatGotT < 40000 && !SW.boatDone;
-if(here && story && !window.__ROAM &&(P.inWater ||(boatJust && K.holder.position.distanceTo(P.pos)> 1.6))&& !SW.on){
+let watering = false;
+try{
+const QA2 = window.__QAPI,
+cm = QA2 && QA2.curMain && QA2.curMain(),
+bn = QA2 && QA2.BN && QA2.BN();
+watering = !!(cm && cm.id === 'bean' && bn && bn.st >= 4 && !bn.wet);
+}catch(e){}
+if(watering && SW.on){
+SW.on = false;
+window.__autoDir = null;
+if(window.__FCS && window.__FCS.swimTo){
+window.__FCS.dir = null;
+window.__FCS.swimTo = false;
+}
+}
+if(!watering && here && story && !window.__ROAM &&(P.inWater ||(boatJust && K.holder.position.distanceTo(P.pos)> 1.6))&& !SW.on){
 SW.on = true;
 SW.t = 0;
 if(boatJust)SW.boatDone = true;
@@ -49879,7 +50205,7 @@ const OPEN ={
 house: "There's a place I was afraid of, once… back when every shadow had teeth…",
 rain: "Listen to the rain… it's saying everything we couldn't. || Come, sit with me…",
 bean: 'Even under the snow, the smallest seed still dreams of the light…',
-boat: 'Do you remember our midnight races down the hall? || I could never catch you…',
+boat: 'Do you remember chasing the light across the floor? || We never once caught it… but we never gave up. || Always sure that next time, we would…',
 home: "I'll be under the big tree… waiting as long as it takes… || I always did…"
 };
 const BRIDGES =[
@@ -51077,9 +51403,9 @@ D.busWait = true;
 });
 };
 const BEANKX = s =>
-'<span style="display:inline-block;border:1px solid #fff;border-radius:5px;padding:1px 7px;margin-right:10px">' +
+'<kbd style="display:inline-block;border:1px solid #fff;border-radius:5px;padding:1px 7px;margin-right:10px">' +
 s +
-'</span>';
+'</kbd>';
 D.waterNear = c =>{
 if(D.waterAt && D.waterAt.k === c.x.toFixed(1)+ c.z.toFixed(1))return D.waterAt;
 let best = null,
@@ -51173,7 +51499,7 @@ D.scoopEnd = performance.now();
 }
 }
 const on =
-!!b.leaf &&
+!!(b.leaf || D.dryLeaf)&&
 !b.wet &&
 !D.scoop &&
 performance.now()-(D.scoopEnd || 0)> 900 &&
@@ -51185,6 +51511,7 @@ window.__carryDel && window.__carryDel(g);
 return;
 }
 window.__carryAdd && window.__carryAdd(g,D.leafCO ||(D.leafCO ={f: 0.1,u: -0.06,yaw: 0}));
+g.userData.w.visible = !!b.leaf;
 g.userData.w.scale.y = 0.45 + 0.05 * Math.sin(performance.now()/ 180);
 };
 D.clearCam =(c,R,H)=>{
@@ -51491,6 +51818,7 @@ P.script = null;
 };
 setTimeout(()=>{
 b.leaf = 1;
+D.dryLeaf = false;
 A.saveQ();
 try{
 sfx('water_splash',{vol: 0.35,rate: 1.4});
@@ -51977,7 +52305,21 @@ if(!G || Math.hypot(P.pos.x - G.x,P.pos.z - G.z)< 4){
 pws.visible = false;
 return;
 }
-const k2 = G.x.toFixed(0)+ ',' + G.z.toFixed(0)+(D.via ? 'v' : '');
+let onPath = true;
+try{
+const GD = grid();
+if(GD){
+const[ci,cj]= cellOf(P.pos.x,P.pos.z);
+onPath = false;
+for(let dj = -1;dj <= 1 && !onPath;dj++)
+for(let di = -1;di <= 1 && !onPath;di++){
+const ii = ci + di,
+jj = cj + dj;
+if(ii >= 0 && jj >= 0 && ii < GN && jj < GN && GD.path[jj * GN + ii])onPath = true;
+}
+}
+}catch(e){}
+const k2 = G.x.toFixed(0)+ ',' + G.z.toFixed(0)+(D.via ? 'v' : '')+(onPath ? 'p' : 'o');
 D.rtChk =
 (D.rtChk || 0)- dt;
 if(RT && RT.prints && D.rtChk <= 0){
@@ -51992,8 +52334,9 @@ rtAt = null;
 D.strayed = true;
 }
 }
-if(!RT || k2 !== rtKey || !rtAt || rtAt.distanceTo(P.pos)> 10){
-if(D.via){
+if(!RT || k2 !== rtKey || !rtAt || rtAt.distanceTo(P.pos)>(onPath ? 10 : 4)){
+if(!onPath)RT = D.route(P.pos,G,true);
+else if(D.via){
 const r1 = D.route(P.pos,D.via),
 r2 = D.route(D.via,G);
 RT = r1.concat(r2.slice(1));
@@ -52038,7 +52381,7 @@ rtAt = null;
 D.strayed = true;
 return;
 }
-const bright = D.stepT > 40 ? 1.5 : 1;
+const bright =(D.stepT > 40 ? 1.5 : 1)*(1 + 0.9 *((window.__padLock && window.__padLock.k)|| 0));
 const tm = performance.now()/ 1000;
 pws.visible = true;
 for(
@@ -52456,7 +52799,7 @@ if(window.__SL)window.__SL.free = 0;
 try{
 window.__storyLine &&
 window.__storyLine(
-'It vanished… but look, something glints in the water',
+'The little light danced away… and now it\'s sparkling on the water',
 'splash in after it',
 4600
 );
@@ -53085,6 +53428,26 @@ const onBr = !!P.onSurf || BRIDGES.some(b2 => Math.hypot(b2[0]- P.pos.x,b2[1]- P
 if((g < 0.45 || P.inWater)&& !onBr)act = 'fill';
 }else if(b.st >= 4 && !b.wet && b.leaf && dS < 0.9)act = 'pour';
 }
+if(b.st >= 4 && !b.wet && b.leaf && !D.scoop && performance.now()-(D.scoopEnd || 0)> 1500 && !window.__asJack){
+const fast = P.mode === 'ground' && P.speed >(T.run + T.sprint)* 0.5;
+D.spillT = fast ?(D.spillT || 0)+ dt : 0;
+const hop = P.mode === 'air' && !D.spillAir && P.vel && P.vel.y > 2.2;
+if(P.mode !== 'air')D.spillAir = false;
+if(hop || D.spillT > 0.45){
+D.spillAir = P.mode === 'air';
+D.spillT = 0;
+b.leaf = 0;
+D.dryLeaf = true;
+A.saveQ();
+try{
+sfx('water_splash',{at: P.pos.clone(),vol: 0.45,rate: 1.5});
+}catch(e){}
+try{
+window.__storyLine &&
+window.__storyLine('The water slipped away…','go back and fill the leaf again, gently this time',4800);
+}catch(e){}
+}
+}else D.spillT = 0;
 D.beanAct = act;
 if(D.benchReady === false && !CS && !D.hopReady && !D.hopDown){
 if(act === 'sleep')D.prompt(BEANKX('X')+ 'Curl up and sleep');
@@ -58612,7 +58975,7 @@ camera.quaternion.slerpQuaternions(CE.q,camera.quaternion,k);
 }
 }
 }
-if(P.mode === 'ground' && P.jumpCharge > JC0 && !P.chargeRun){
+if(P.mode === 'ground' && P.jumpCharge > JC0 && !P.chargeRun && !(window.__PAD && window.__PAD.mode)){
 const G = jumpAim();
 const sv = P.yaw;
 P.yaw = Math.atan2(G.x - P.pos.x,G.z - P.pos.z);
@@ -60083,7 +60446,7 @@ map.hidden = true;
 const row =(b,what)=> '<div class="pm-r"><kbd data-btn="' + b + '" data-pb="' + b + '"></kbd><span>' + what + '</span></div>';
 const draw =()=>{
 const PT ={LT:[372,128],LB:[398,140],VIEW:[481,201],LS:[400,205],L3:[400,205],DP:[447,272],RT:[652,128],RB:[626,140],MENU:[543,201],Y:[622,174],X:[594,202],B:[651,202],A:[622,231],RS:[568,267],R3:[568,267]};
-const L =[['LT','Aim a leap · pull further to leap further, let go to leap'],['LB','Swat with her left paw'],['VIEW','Quests · skip a scene'],['LS','Move · tilt further to go faster'],['L3','Run (press the stick)'],['UP','Meow','DP'],['DOWN','Groom','DP'],['LEFT','Hiss','DP'],['RIGHT','Yowl','DP']];
+const L =[['LT','Cat senses · hold to sense critters, tap to look ahead'],['LB','Swat with her left paw'],['VIEW','Quests · skip a scene'],['LS','Move · tilt further to go faster'],['L3','Run (press the stick)'],['UP','Meow','DP'],['DOWN','Groom','DP'],['LEFT','Hiss','DP'],['RIGHT','Yowl','DP']];
 const R =[['RT','Stalk · squeeze deeper to sink lower, let go to pounce'],['RB','Swat with her right paw'],['MENU','Pause'],['Y','Sit and watch'],['B','Crouch · back'],['X','Pick up, plant, give, curl up'],['A','Jump and climb · read on'],['RS','Look around'],['R3','Toggle view (press the stick)']];
 const BN ={"LT": "Left Trigger","LB": "Left Bumper","VIEW": "View Button","LS": "Left Stick","L3": "Left Stick Button","UP": "D-Pad Up","DOWN": "D-Pad Down","LEFT": "D-Pad Left","RIGHT": "D-Pad Right","RT": "Right Trigger","RB": "Right Bumper","MENU": "Menu Button","Y": "Y Button","B": "B Button","X": "X Button","A": "A Button","RS": "Right Stick","R3": "Right Stick Button"};
 const y0 = 62,dy = 50.5;
@@ -60235,12 +60598,23 @@ else if((PAD.stillT =(PAD.stillT || 0)+ dt)> 0.35)PAD.run = false;
 hold('ShiftLeft',!!PAD.run && PAD.mag > 0.3);
 if(pr(BT.LT)&& actOK()){
 PAD.ltDown = true;
-send('keydown','Space');
+PAD.ltT = 0;
+PAD.ltLock = false;
+}
+if(PAD.ltDown && btn[BT.LT]){
+PAD.ltT += dt;
+if(!PAD.ltLock && PAD.ltT > 0.2){
+PAD.ltLock = true;
+window.__lockStart && window.__lockStart();
+}
 }
 if(up(BT.LT)&& PAD.ltDown){
 PAD.ltDown = false;
-send('keyup','Space');
+if(PAD.ltLock)window.__lockEnd && window.__lockEnd();
+else window.__camRecenter && window.__camRecenter();
+PAD.ltLock = false;
 }
+window.__lockTick && window.__lockTick(dt);
 if(pr(BT.A)){
 PAD.aDown = true;
 send('keydown','Space');
