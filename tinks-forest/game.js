@@ -15380,10 +15380,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 577;
+const BUILD = 578;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 145;
+const LOOKV = 146;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -21996,6 +21996,31 @@ if(window.__sceneWas && !on && window.__camKeepOnce)window.__camKeepOnce = false
 else if(window.__sceneWas && !on && P.mode !== 'climb'){
 cam.yaw = P.yaw + Math.PI;
 cam.pitch = clamp(cam.pitch,0.2,0.5);
+try{
+const BS = window.__BUSSTOP;
+if(BS && BS.visible !== false){
+const hd = new V3(P.pos.x,(P.visY ?? P.pos.y)+ 0.25,P.pos.z);
+if(hd.distanceTo(BS.getWorldPosition(new V3()))< 8){
+const bx = window.__busBoxes && window.__busBoxes();
+const r = new THREE.Ray();
+const blocked = yy =>{
+const cp = hd.clone().add(new V3(Math.sin(yy)* 2.6,0.9,Math.cos(yy)* 2.6));
+const dv = cp.clone().sub(hd),
+L = dv.length();
+r.set(hd,dv.normalize());
+const hit = new V3();
+for(const b of bx ||[])if(r.intersectBox(b,hit)&& hit.distanceTo(hd)< L)return true;
+return false;
+};
+if(bx && blocked(cam.yaw))
+for(const a of[Math.PI,Math.PI / 2,-Math.PI / 2,Math.PI * 0.75,-Math.PI * 0.75])
+if(!blocked(cam.yaw + a)){
+cam.yaw += a;
+break;
+}
+}
+}
+}catch(e){}
 }
 window.__sceneWas = on;
 }
@@ -22426,6 +22451,12 @@ o.material = Array.isArray(o.material)? o.material.map(cl): cl(o.material);
 g.traverse(o =>{
 if(o.isMesh && !low.has(o))for(const m of Array.isArray(o.material)? o.material :[o.material])if(m && !t.mats.includes(m))t.mats.push(m);
 });
+if(i === 0){
+const tall =[];
+g.traverse(o => o.isMesh && !low.has(o)&& tall.push(o));
+let bxs = null;
+window.__busBoxes =()=> bxs ||(bxs = tall.map(o => new THREE.Box3().setFromObject(o).expandByScalar(0.03)).filter(b => b.max.y - b.min.y < 6));
+}
 for(const m of t.mats){
 if(m.userData.op0 == null)m.userData.op0 = m.opacity;
 if(m.userData.wasTr == null)m.userData.wasTr = m.transparent;
@@ -22449,8 +22480,21 @@ camOut = cp.x < bb.min.x || cp.x > bb.max.x || cp.z < bb.min.z || cp.z > bb.max.
 if(under && camOut && cp.y < bb.max.y - 0.15)under = false;
 }
 const turnSee = t === TG[0]&& performance.now()<(window.__turnSee || 0);
-if((turnSee ||(!under && !window.__sceneOn))&& d < 30 && t.g.visible !== false && head.distanceTo(t.g.getWorldPosition(new V3()))< 14){
+if(t === TG[0]&& window.__sceneOn && !turnSee && d < 30 && t.g.visible !== false){
+rc2.set(head,camera.position.clone().sub(head).normalize());
+rc2.far = Math.max(0,d - 0.05);
+const h2 = rc2.intersectObject(t.g,true)[0];
+t.hit = !!(h2 && h2.distance < 1.4);
+}else if((turnSee ||(!under && !window.__sceneOn))&& d < 30 && t.g.visible !== false && head.distanceTo(t.g.getWorldPosition(new V3()))< 14){
 t.hit = rc.intersectObject(t.g,true).length > 0;
+if(!t.hit && t === TG[0]&& window.__busBoxes){
+const r = new THREE.Ray(head,camera.position.clone().sub(head).normalize()),
+hp2 = new V3();
+for(const b of window.__busBoxes())if(b.containsPoint(camera.position)||(r.intersectBox(b,hp2)&& hp2.distanceTo(head)< d)){
+t.hit = true;
+break;
+}
+}
 if(!t.hit){
 rc2.set(head,camera.position.clone().sub(head).normalize());
 rc2.far = Math.max(0,d - 0.05);
@@ -26054,9 +26098,11 @@ autumn:[1.25,0.86,0.92],
 winter:[0.92,1,1.15]
 }[se];
 const sh =(window.__CYCLE && window.__CYCLE.snowHills)|| 0;
+const lumF = 0.3 * W.rFar[0]+ 0.59 * W.rFar[1]+ 0.11 * W.rFar[2],
+snk = Math.min(1,Math.max(0.42,lumF * 2.4));
 RU.uNear.value
 .setRGB(W.rNear[0]* st[0],W.rNear[1]* st[1],W.rNear[2]* st[2])
-.lerp(new THREE.Color(W.rFar[0]* 1.35,W.rFar[1]* 1.35,W.rFar[2]* 1.4),sh * 0.55);
+.lerp(new THREE.Color(0.8 * snk,0.85 * snk,0.95 * snk),sh * 0.9);
 RU.uFar.value
 .setRGB(...W.rFar)
 .lerp(
@@ -26066,7 +26112,8 @@ Math.min(1,W.rFar[1]* 1.5),
 Math.min(1,W.rFar[2]* 1.45)
 ),
 sh * 0.6
-);
+)
+.lerp(new THREE.Color(0.84 * snk,0.88 * snk,0.97 * snk),sh * 0.75);
 RU.uMist.value.setRGB(...W.rFar);
 RU.uRim.value.setRGB(...W.rRim);
 const R2 = window.__ridges;
@@ -35042,7 +35089,7 @@ sh.fragmentShader = sh.fragmentShader.replace('#include <common>','#include <com
 '#include <color_fragment>',
 '#include <color_fragment>\n{float lu=dot(diffuseColor.rgb,vec3(.3,.59,.11));diffuseColor.rgb=mix(diffuseColor.rgb,vec3(lu)*vec3(.58,1.08,.4)*1.15,uWGreen);diffuseColor.rgb=mix(diffuseColor.rgb,vec3(lu)*vec3(1.08,.98,.78)*.95,uWStub);}'
 );
-sh.vertexShader = sh.vertexShader.replace('#include <common>','#include <common>\nuniform vec3 uCat,uCat2;uniform float uSnowW;').replace(
+sh.vertexShader = sh.vertexShader.replace('#include <common>','#include <common>\nuniform vec3 uCat,uCat2;uniform float uSnowW,uWGreen,uWStub;').replace(
 '#include <project_vertex>',
 `/* Build 572 (Ryan): a crop, so in winter it's gone: the stalks sink away under the snow as it settles; young and short in spring,
    cut to low stubble in autumn */transformed*=1.-smoothstep(.12,.6,uSnowW);transformed.y*=mix(1.,.62,uWGreen)*mix(1.,.22,uWStub);
@@ -35760,8 +35807,13 @@ sag = 0.075 * Math.sin(f * Math.PI)+(rnd()- 0.5)* 0.015;
 const wp = H.g.localToWorld(new V3(q.x,0,w.z1 + q.dz + 0.1));
 wp.y = q.y - 0.24 - sag;
 wire.push(wp.clone());
-const col = rnd()< 0.7 ? 0 : 1 + Math.floor(rnd()* 3);
-const c = PAL[col].slice();
+const r0 = rnd();
+let c = PAL[1 +(i % 3)].slice();
+if(r0 < 0.16)c = PAL[0].slice();
+else if(r0 < 0.38){
+const wv = 0.35 + rnd()* 0.35;
+c = c.map((v,k)=> v +(PAL[0][k]- v)* wv);
+}
 const odd = rnd()< 0.12;
 if(odd)c.forEach((v,k)=>(c[k]= Math.min(1,v *(0.85 + rnd()* 0.3))));
 bulbs.push({
@@ -37478,9 +37530,10 @@ PI2 = 0.06;
 if(!C.py){
 C.py = true;
 try{
-if(window.__catVoice)P.yaw = Math.atan2(hw.x - P.pos.x,hw.z - P.pos.z);
+if(window.__catVoice)C.faceYaw = Math.atan2(hw.x - P.pos.x,hw.z - P.pos.z);
 }catch(e){}
 }
+if(C.faceYaw != null)P.yaw += angDiff(P.yaw,C.faceYaw)* Math.min(1,rdt * 3.5);
 const gcam =()=>{
 const T0 = CS && CS.T;
 const dist = T0 ? T0.camDist : 2.4,
@@ -37537,7 +37590,7 @@ hp && hl
 ? c =>{
 const el =(performance.now()- t0s)/ 1000;
 if(outT == null && el > SW &&(gotGift()|| el > 40))outT = el;
-const backK = outT == null ? 0 : smooth(outT,outT + 1.8,el);
+const backK = outT == null ? 0 : 1;
 if(outT != null && backK >= 1 && window.__FCS === LK){
 window.__FCS = null;
 moved = false;
@@ -37552,7 +37605,7 @@ const tk = new V3(P.pos.x,(P.visY ?? P.pos.y)+ 0.12,P.pos.z);
 const dv = hp.clone().sub(tk).setY(0);
 if(dv.lengthSq()< 1e-4)dv.set(Math.sin(cam.yaw),0,Math.cos(cam.yaw));
 dv.normalize();
-const oP = tk.clone().addScaledVector(dv,1.35).add(new V3(0,0.55,0));
+const oP = tk.clone().addScaledVector(dv,1.7).add(new V3(0,1.35,0));
 c.position.copy(hp).lerp(oP,k);
 c.lookAt(hl.clone().lerp(tk,k));
 return;
@@ -37560,7 +37613,7 @@ return;
 if(outT != null && backK >= 1 && window.__camOverride === hold){
 try{
 const CS2 = window.__CAMST;
-cam.yaw = Math.atan2(hp.x - P.pos.x,hp.z - P.pos.z);
+cam.yaw = Math.atan2(camera.position.x - P.pos.x,camera.position.z - P.pos.z);
 if(CS2 && CS2.cam)CS2.cam.yaw = cam.yaw;
 }catch(e){}
 moved = true;
@@ -50549,7 +50602,7 @@ const skipH = document.createElement('div');
 skipH.classList.add('actP','skipH');
 skipH.style.cssText =
 'position:fixed;right:28px;bottom:calc(var(--barH,12.8vh) + 16px);color:rgba(255,255,255,.55);font-family:Montserrat,sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;pointer-events:none;opacity:0;transition:opacity 1s;z-index:46';
-skipH.innerHTML = '<kbd>Tab</kbd>to skip';
+skipH.innerHTML = '<span class="padOnly">Hold </span><kbd>Tab</kbd>to skip';
 document.body.appendChild(skipH);
 const title = id =>{
 const i = ORDER.indexOf(id);
@@ -52939,7 +52992,23 @@ P.speed = 0;
 try{
 const B = D.bseat || benchSeats();
 const CS2 = window.__CAMST;
-if(B && CS2 && CS2.cam)CS2.cam.yaw = Math.atan2(B.fw.x,B.fw.z);
+if(B && CS2 && CS2.cam){
+let y = Math.atan2(B.fw.x,B.fw.z);
+const BS = window.__BUSSTOP;
+if(BS){
+const rc = new THREE.Raycaster(),
+hd = new V3(P.pos.x,(P.visY ?? P.pos.y)+ 0.25,P.pos.z);
+const blocked = yy =>{
+const cp = hd.clone().add(new V3(Math.sin(yy)* 2.6,0.7,Math.cos(yy)* 2.6));
+const d = cp.clone().sub(hd);
+rc.set(hd,d.clone().normalize());
+rc.far = d.length();
+return rc.intersectObject(BS,true).length > 0;
+};
+if(blocked(y)&& !blocked(y + Math.PI))y += Math.PI;
+}
+CS2.cam.yaw = y;
+}
 }catch(e){}
 if(P.script && P.script.dirSit)P.script = null;
 if(D.jack){
@@ -52953,7 +53022,9 @@ D.hopMv = P.speed > 0.25 ?(D.hopMv || 0)+ 1 / 60 : 0;
 if(D.hopMv > 0.3 || P.mode === 'air'){
 D.hopReady = false;
 D.prompt(null);
-}else D.prompt(BEANKX('X')+ 'Jump down');
+}else if(document.body.classList.contains('cut')|| window.__sceneOn || window.__qHold ||(window.__JACK && window.__JACK.showing)||(window.__FCS && window.__FCS.lock))
+D.prompt(null);
+else D.prompt(BEANKX('X')+ 'Jump down');
 }
 if(D.hopDown){
 const H = D.hopDown;
@@ -53730,8 +53801,8 @@ const ON = !q.has('oldsnow');
 window.__snowLayer = ON;
 grassU.uSnowLay ={value: ON ? 1 : 0};
 if(ON){
-const R = 34,
-N = 272;
+const R = 22,
+N = 352;
 const g = new THREE.PlaneGeometry(R * 2,R * 2,N,N);
 g.rotateX(-Math.PI / 2);
 const U ={
@@ -53771,6 +53842,8 @@ sx.globalCompositeOperation = 'source-over';
 sx.filter = 'blur(7px)';
 sx.drawImage(mc,0,0,SN,SN);
 sx.globalCompositeOperation = 'darken';
+sx.filter = 'blur(1.5px)';
+sx.drawImage(mc,0,0,SN,SN);
 sx.filter = 'blur(5px)';
 sx.strokeStyle = '#000';
 sx.lineCap = sx.lineJoin = 'round';
@@ -53790,6 +53863,7 @@ tex.needsUpdate = true;
 U.uSnowM.value = tex;
 };
 window.__snowMaskBuild = build;
+window.__snowMaskCanvas = sc;
 setInterval(()=>{
 try{
 if(window.__worldBuilt && grassU.uSnowG.value > 0.001)build();
@@ -53811,24 +53885,37 @@ float snTr(vec2 p){return texture2D(uSnowT,snUV(p)).r;}
 float snD(vec2 p){
  float mk=texture2D(uSnowM,snUV(p)).r;
  float grow=max(smoothstep(.05,.4,mk),snWh(p));
+#ifdef SN_OUTER
+ grow=max(grow,smoothstep(58.,74.,length(p)));/* (Build 578: out toward the world's edge it is all snow, running into the white distance) */
+#endif
  float thr=snN(p*4.1)*.55+snN(p*.9)*.35+.05;
  float cov=smoothstep(thr-.25,thr+.35,uSnowG*1.25)*smoothstep(.0,.8,uSnowG)*mix(.3,1.,smoothstep(.25,1.,uSnowG));/* (Build 577: a thin dusting in patches first, spreading and deepening slowly, with wide soft edges so nothing pops in) */
  float drift=.5+.5*snF(p*.33)+.1*snN(p*2.3);
- float dent=1.-.86*smoothstep(.04,.7,snTr(p));
+ float trS=(snTr(p)*2.+snTr(p+vec2(.16,0.))+snTr(p-vec2(.16,0.))+snTr(p+vec2(0.,.16))+snTr(p-vec2(0.,.16)))/6.;/* (Build 578: the trench's walls slope over a hand's width, rounded, never a sheer step) */
+ float dent=1.-.86*smoothstep(.04,.75,trS);
  float gt=uGTree.z>0.?smoothstep(uGTree.z,uGTree.z+.8,length(p-uGTree.xy)):1.;
- vec2 e=abs(p-uCtr);float edge=1.-smoothstep(uRS*.7,uRS*.97,max(e.x,e.y));
+ vec2 e=abs(p-uCtr);
+#ifdef SN_OUTER
+ float edge=smoothstep(uRS*.7,uRS*.97,max(e.x,e.y));/* (the far sheet takes over just where the near one fades out) */
+#else
+ float edge=1.-smoothstep(uRS*.7,uRS*.97,max(e.x,e.y));
+#endif
  /* Build 577 (Ryan): the snow she pushes aside heaps up in a little rough ridge along both banks of her trail */
- float tr0=snTr(p),tb=(snTr(p+vec2(.32,0.))+snTr(p-vec2(.32,0.))+snTr(p+vec2(0.,.32))+snTr(p-vec2(0.,.32)))*.25;
- float rim=clamp((tb-tr0)*2.2,0.,1.)*(1.-smoothstep(.25,.6,tr0));
+ float tr0=trS,tb=(snTr(p+vec2(.42,0.))+snTr(p-vec2(.42,0.))+snTr(p+vec2(0.,.42))+snTr(p-vec2(0.,.42))+snTr(p+vec2(.3,.3))+snTr(p-vec2(.3,.3))+snTr(p+vec2(.3,-.3))+snTr(p-vec2(.3,-.3)))*.125;
+ float rim=clamp((tb-tr0)*2.6,0.,1.)*(1.-smoothstep(.2,.5,tr0));
  float rough=.55+.9*snN(p*6.3)*snN(p*2.1+3.7);
- return .17*grow*cov*drift*dent*gt*edge+.055*rim*rough*grow*cov*gt*edge;}
+ return .17*grow*cov*drift*dent*gt*edge+.11*rim*rough*grow*cov*gt*edge;}
 float snY(vec2 p){return texture2D(uHeight,snUV(p)).r-.035+snD(p)*1.2;}
 `;
 sh.vertexShader = sh.vertexShader
 .replace('#include <common>','#include <common>\n' + FN)
 .replace(
 '#include <beginnormal_vertex>',
-`vec2 swp=position.xz+uCtr;float se=.22;
+`#ifdef SN_OUTER
+vec2 swp=position.xz;float se=.4;
+#else
+vec2 swp=position.xz+uCtr;float se=.14;
+#endif
 vec3 objectNormal=normalize(vec3(snY(swp-vec2(se,0.))-snY(swp+vec2(se,0.)),2.*se,snY(swp-vec2(0.,se))-snY(swp+vec2(0.,se))));
 #ifdef USE_TANGENT
 vec3 objectTangent=vec3(1.,0.,0.);
@@ -53858,6 +53945,21 @@ float snN2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(snH
 );
 };
 m.customProgramCacheKey =()=> 'snowLayer';
+{
+const GO = new THREE.PlaneGeometry(WORLD,WORLD,340,340);
+GO.rotateX(-Math.PI / 2);
+const mo = new THREE.MeshStandardMaterial({color: 0xffffff,roughness: 1,metalness: 0});
+mo.defines ={SN_OUTER: 1};
+mo.onBeforeCompile = m.onBeforeCompile;
+mo.customProgramCacheKey =()=> 'snowLayerOuter';
+const mso = new THREE.Mesh(GO,mo);
+mso.frustumCulled = false;
+mso.receiveShadow = true;
+mso.visible = false;
+mso.renderOrder = 1;
+scene.add(mso);
+window.__snowMeshOuter = mso;
+}
 const mesh = new THREE.Mesh(g,m);
 mesh.frustumCulled = false;
 mesh.receiveShadow = true;
@@ -53875,6 +53977,7 @@ let on = grassU.uSnowG.value > 0.001;
 if(on && !U.uSnowM.value)window.__snowMaskBuild();
 on = on && !!U.uSnowM.value;
 mesh.visible = on;
+if(window.__snowMeshOuter)window.__snowMeshOuter.visible = on;
 if(on){
 const st =(R * 2)/ N,
 c = typeof P !== 'undefined' && P.pos ? P.pos : camera.position;
@@ -59588,7 +59691,27 @@ if(o.userData && o.userData.wbridge && o.geometry){
 const g = o.geometry;
 if(!g.boundingBox)g.computeBoundingBox();
 const bb = g.boundingBox;
-for(const m of mats(o))snowify(m,bb.max.y - 0.2 *(bb.max.y - bb.min.y));
+let minY = bb.max.y - 0.06 *(bb.max.y - bb.min.y);
+try{
+const P2 = g.attributes.position,
+N2 = g.attributes.normal;
+const wx = bb.max.x - bb.min.x,
+wz = bb.max.z - bb.min.z,
+ac = wx > wz ? 'z' : 'x',
+cc = ac === 'z' ?(bb.min.z + bb.max.z)/ 2 :(bb.min.x + bb.max.x)/ 2,
+hw =(ac === 'z' ? wz : wx)/ 2;
+let deck = -1e9,
+top = -1e9;
+for(let i = 0;i < P2.count;i++){
+if(N2 && N2.getY(i)< 0.7)continue;
+const y = P2.getY(i),
+c = ac === 'z' ? P2.getZ(i): P2.getX(i);
+if(y > top)top = y;
+if(Math.abs(c - cc)< hw * 0.3 && y > deck)deck = y;
+}
+if(top - deck > 0.02 && deck > -1e8)minY = deck +(top - deck)* 0.5;
+}catch(e){}
+for(const m of mats(o))snowify(m,minY);
 return;
 }
 if(/Bridge_Bridge/.test(srcOf(o)+ ' ' +(o.name || '')+ ' ' +((o.parent && o.parent.name)|| ''))&& o.geometry){
@@ -59708,13 +59831,19 @@ src === 'flowers.glb' ||
 src === 'flowers4.glb' ||
 src === 'ferns.glb' ||
 src === 'tadpole.glb' ||
-/fern|flower/i.test(src)||
-(o.userData.batch && /fern|flower/i.test(o.userData.batch.pack || ''))||
+/fern|flower|daisy|bloom|tulip|dandelion|poppy|lily|petal/i.test(src + ' ' +(o.name || ''))||
+(o.userData.batch && /fern|flower|bloom/i.test(o.userData.batch.pack || ''))||
+(o.userData.stemOf && o.parent && o.parent.visible === false)||
 mats(o).some(m => /^(archfern|flow)/.test(tagOf(m)))
 )
 stash(o);
 });
 };
+setInterval(()=>{
+try{
+if(window.__curSeason === 'winter' && window.__seasonVis)window.__seasonVis('winter');
+}catch(e){}
+},5000);
 }catch(e){
 console.warn('winter looks',e);
 }
@@ -60923,6 +61052,7 @@ PAD.skipT = 0;
 PAD.skipDone = false;
 }
 if(sk)sk.style.setProperty('--skipK',Math.min(1,(PAD.skipT || 0)/ 0.8).toFixed(3));
+for(const sh of document.querySelectorAll('.actP.skipH'))sh.style.setProperty('--skipK',Math.min(1,(PAD.skipT || 0)/ 0.8).toFixed(3));
 if(pr(BT.VIEW)&& !inScene)tap('KeyJ');
 }
 if(pr(BT.MENU))tap('Escape');
