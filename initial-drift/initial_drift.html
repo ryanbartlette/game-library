@@ -508,7 +508,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=414',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=415',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -4054,7 +4054,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 414';
+window.__BUILD='BUILD 415';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5577,9 +5577,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794884242'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794887575'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794884242'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794887575'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -5954,8 +5954,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794884242'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794884242'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794887575'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794887575'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6413,7 +6413,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794884242',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794887575',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6427,7 +6427,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794884242',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794887575',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -9764,7 +9764,10 @@ let pad=null,was=[],navT={},toastT=0;
   steps.forEach(([n,type,o],i)=>setTimeout(()=>{if(type==='trigger-rumble'&&!trig){cb&&cb(n+' · NOT SUPPORTED IN THIS BROWSER');return}cb&&cb(n);try{a.playEffect(type,Object.assign({duration:700},o)).catch(()=>{})}catch(e){}},i*1000));
   setTimeout(()=>cb&&cb(''),steps.length*1000)};
  window.__rumbleHit=(kind,k)=>{if(kind==='start'){if(RM_K[rmMode])startSeq();return}const f=EV[kind];if(!f||!RM_K[rmMode])return;const[s,w,lt,rt,d]=f(Math.max(0,Math.min(1,k==null?1:k)));bursts.push({s,w,lt,rt,t0:performance.now()/1000,d})};
- window.__padRumble=(s,w,ms)=>bursts.push({s:s||0,w:w||0,lt:0,rt:0,t0:performance.now()/1000,d:(ms||120)/1000});
+ // (build 415) the engines turning over at the start: the starter cranking (a few pulses), the engine catching (a big
+// thump), then a rough idle settling
+window.__rumbleStart=(k)=>{k=k==null?1:k;const P=window.__padRumble;if(!P)return;[[0,.5],[170,.55],[340,.5],[510,.6]].forEach(([t,s])=>setTimeout(()=>P(s*k,0,130),t));setTimeout(()=>P(.95*k,0,420),720);[1150,1400,1650].forEach((t,i)=>setTimeout(()=>P((.35-.08*i)*k,0,200),t))};
+window.__padRumble=(s,w,ms)=>bursts.push({s:s||0,w:w||0,lt:0,rt:0,t0:performance.now()/1000,d:(ms||120)/1000});
  let rmLast=0,rmPrev='',rmHB=false,rmCl=1;
  const rumble=(t,race)=>{const a=pad&&pad.vibrationActuator;if(!a||!a.playEffect)return;const K=RM_K[rmMode];
   let S=0,W=0,LT=0,RT=0;
@@ -9786,6 +9789,8 @@ let pad=null,was=[],navT={},toastT=0;
   // priority: a knock takes over; the steady feel ducks under it and comes back as it fades
   let bS=0,bW=0,bLT=0,bRT=0;for(let i=bursts.length-1;i>=0;i--){const b=bursts[i],f=1-(t-b.t0)/b.d;if(f<=0){bursts.splice(i,1);continue}const e=f*f;bS=Math.max(bS,b.s*e);bW=Math.max(bW,b.w*e);bLT=Math.max(bLT,b.lt*e);bRT=Math.max(bRT,b.rt*e)}
   {const duck=1-Math.min(1,Math.max(bS,bW)*1.5);S=Math.max(S*duck,bS);W=Math.max(W*duck,bW);LT=Math.max(LT,bLT);RT=Math.max(RT,bRT)}
+  // (build 415) the small motor does nothing on Xbox pads in most browsers: everything it plays is felt lightly on the big one too
+  S=Math.max(S,W*.45);
   // the pad's motors barely move at small values: lift anything that's on above that threshold, then the setting's strength
   {const g=v=>v>.005?Math.min(1,(.1+v*1.25)*K):0;S=g(S);W=g(W);LT=g(LT);RT=g(RT)}
   const q=x=>Math.round(Math.min(1,x)*20)/20,key=[q(S),q(W),q(LT),q(RT)].join();
@@ -11870,16 +11875,16 @@ const animeAudio=(()=>{
   if(window.__v8){__v8.load();}
   const V8=!!(window.__v8&&__v8.ready);
   // racing someone: his engine catches a moment after yours (two drivers, two keys, never in step)
-  const rivalKey=()=>{if(canyonEvent!=='race'||typeof rival==='undefined'||!rival.visible)return;setTimeout(()=>{try{if(audioCtx.state==='running'&&typeof rivalGain!=='undefined')__v8.startup(1,rivalGain,__rivalSoundId(),false)}catch(e){}},700+Math.random()*700)};
+  const rivalKey=()=>{if(canyonEvent!=='race'||typeof rival==='undefined'||!rival.visible)return;setTimeout(()=>{try{if(audioCtx.state==='running'&&typeof rivalGain!=='undefined'){__v8.startup(1,rivalGain,__rivalSoundId(),false);try{window.__rumbleStart&&__rumbleStart(.5)}catch(e){}}}catch(e){}},700+Math.random()*700)};
   if(V8){for(const k in playerVoices)animeEngineDrive(playerVoices[k],t,1000,0,0);for(const k in playerSamples)driveSampleEngine(playerSamples[k],t,1000,0,0);if(sample)sample.g.gain.setTargetAtTime(0,t,.04);animeEngineDrive(player,t,1000,0,0);
    // the bumper camera sits on the nose, by the engine bay: the outside sound, and everything from the car a bit louder.
    // The hood/dash camera (4) and the cockpit (5) hear it from inside the cabin
    const inside=typeof camMode==='number'&&(camMode>=4)&&!(window.animeReplay&&animeReplay.active);
    {const bump=typeof camMode==='number'&&camMode===3&&!(window.animeReplay&&animeReplay.active);if(audioMaster&&!soundMuted&&(bump||FIN.bumpWas))audioMaster.gain.setTargetAtTime(bump?.48*1.25:.48,t,.15);FIN.bumpWas=bump}
    // straight to the master (not through the old engine's volume swell, which made the idle half as loud as driving), as on the bench
-   if(!quiet&&!window.__v8Started&&Math.abs(speed)<2&&!document.getElementById('frLoading')&&audioCtx.state==='running'){window.__v8Started=1;__v8.startup(0,audioMaster,__playerSoundId(),inside);rivalKey()}
+   if(!quiet&&!window.__v8Started&&Math.abs(speed)<2&&!document.getElementById('frLoading')&&audioCtx.state==='running'){window.__v8Started=1;__v8.startup(0,audioMaster,__playerSoundId(),inside);try{window.__rumbleStart&&__rumbleStart(1)}catch(e){}rivalKey()}
    if(quiet&&!courseChosen)window.__v8Started=0;
-   window.__engineStartNow=()=>{if(window.__v8Started||audioCtx.state!=='running')return false;window.__v8Started=1;__v8.startup(0,audioMaster,__playerSoundId(),inside);rivalKey();return true};
+   window.__engineStartNow=()=>{if(window.__v8Started||audioCtx.state!=='running')return false;window.__v8Started=1;__v8.startup(0,audioMaster,__playerSoundId(),inside);try{window.__rumbleStart&&__rumbleStart(1)}catch(e){}rivalKey();return true};
    __v8.drive(0,audioMaster,__playerSoundId(),eRPM,load>.5?1:0,quiet||preStart?0:finLive?(window.__tofuDone||Math.abs(speed)<.5?.36:.52):.6,inside)}
   else{
   const pid=(window.__playerTune&&window.__playerTune.id)||'ae86',pkind=pid==='fd'||pid==='fc'?'rotary':pid==='imp'?'boxer':'ae86';
@@ -16542,14 +16547,14 @@ const animePractice=window.animePractice=(()=>{
    ${S.course!=='lot'?'<div class="cmap"><canvas width="420" height="300"></canvas><b></b></div>':''}
    <div class="who me" style="--acc:${d.acc}"><div class="in"><img class="face" src="${d.img}" alt=""><img class="car" src="${IMG(d.carImg||car[3])}" alt="" onerror="this.style.display='none'"></div><b>${d.name}</b></div>
    ${rv?`<div class="who rv" style="--acc:${rv.acc}"><div class="in"><img class="face" src="${rv.img}" alt=""><img class="car" src="${IMG(rv.carImg||((CARS.find(c=>c[0]===rv.car)||CARS[0])[3]))}" alt="" onerror="this.style.display='none'"></div><b>${rv.name}</b></div>`:''}
-   <div class="rows">${R(0,'DRIVER',d.name+' '+d.last,(S.driver===0&&S.swap?'AE86 TRUENO · 20V ENGINE SWAP · 11,000 RPM':(d.carName||car[1])+' · '+car[2])+(D.length<drivers().length?'<br><span style="color:#f6db7a">More drivers unlock in story mode</span>':''))}${S.course==='lot'?R(1,'RIVAL','NONE','the driving school is just you and the cones'):R(1,'RIVAL',rv?rv.name+' '+rv.last:'NONE',rv?(rv.carName||'')+' · PACE '+fmtT(paceFor(rv.id,S.course,S.wx)):'just you and the clock')}${rv?R(6,'RIVAL PACE',PACEN[S.pace||'normal'][0],PACEN[S.pace||'normal'][1]):''}${R(2,'COURSE',co[1],S.course==='lot'?'six stations to learn the car: launch, slalom, hairpin, drift circle, figure 8, donuts':'')}${S.course!=='lot'&&!rv?R(7,'GHOST',S.ghost===false?'OFF':'ON',S.ghost===false?'no ghost car':'a see-through car replays your best run (this course, this car)'):''}${R(3,'WEATHER',wx[1],wx[2])}${R(4,'RADIO',S.song<0?'OFF':title(SONGS[S.song%SONGS.length]),S.song<0?'ambient sounds of the mountain':'N next song · M radio off')}
+   <div class="rows">${R(0,'DRIVER',d.name+' '+d.last,(S.driver===0&&S.swap?'AE86 TRUENO · 20V ENGINE SWAP · 11,000 RPM':(d.carName||car[1])+' · '+car[2])+(D.length<drivers().length?'<br><span style="color:#f6db7a">More drivers unlock in story mode</span>':''))}${S.course==='lot'?R(1,'RIVAL','NONE','the driving school is just you and the cones'):R(1,'RIVAL',rv?rv.name+' '+rv.last:'NONE',rv?(rv.carName||'')+' · PACE '+fmtT(paceFor(rv.id,S.course,S.wx)):'just you and the clock')}${rv?R(6,'RIVAL PACE',PACEN[S.pace||'normal'][0],PACEN[S.pace||'normal'][1]):''}${R(2,'COURSE',co[1],S.course==='lot'?'six stations to learn the car: launch, slalom, hairpin, drift circle, figure 8, donuts':'')}${S.course!=='lot'&&!rv?R(7,'GHOST',S.ghost!==true?'OFF':'ON',S.ghost!==true?'no ghost car':'a see-through car replays your best run (this course, this car)'):''}${R(3,'WEATHER',wx[1],wx[2])}${R(4,'RADIO',S.song<0?'OFF':title(SONGS[S.song%SONGS.length]),S.song<0?'ambient sounds of the mountain':'N next song · M radio off')}
    <button class="go${row===5?' sel':''}" data-i="5">DRIVE ▶</button></div>
    <div class="hint">↑ ↓ CHOOSE · ← → CHANGE · ENTER DRIVE · ESC BACK</div>`;
   root.querySelectorAll('[data-i]').forEach(el=>{el.onclick=e=>{const i=+el.dataset.i;if(i===5)return go();row=i;const r=el.getBoundingClientRect();change(e.clientX<r.left+r.width/2?-1:1)}})}
  function change(s){const D=dlist();
   if(row===0){const L=[[0,0],...(swapOpen()?[[0,1]]:[]),...D.filter(x=>x.id!==0).map(x=>[x.id,0])];const i=Math.max(0,L.findIndex(x=>x[0]===S.driver&&x[1]===(S.driver===0?(S.swap?1:0):0)));const n=L[(i+s+L.length)%L.length];S.driver=n[0];S.swap=n[1];const dd=D.find(x=>x.id===n[0]);if(dd&&CARS.some(c=>c[0]===dd.car))S.car=dd.car}   /* Takumi twice: the stock 86 and the 20-valve swap */
   else if(row===1){if(S.course==='lot')return;const L=[0,...(S.driver!==0?[12]:[]),...D.filter(x=>x.id!==0&&x.id!==S.driver).map(x=>x.id)];   /* Takumi races you when you drive someone else */const i=Math.max(0,L.indexOf(S.rival||0));S.rival=L[(i+s+L.length)%L.length]}   /* NONE first */
-  else if(row===7){S.ghost=S.ghost===false}
+  else if(row===7){S.ghost=S.ghost!==true}   /* (build 415) off unless you turn it on */
   else if(row===6){const L=['easy','normal','hard'],i=Math.max(0,L.indexOf(S.pace||'normal'));S.pace=L[(i+s+3)%3]}
   else if(row===2){const i=Math.max(0,COURSES.findIndex(c=>c[0]===S.course));S.course=COURSES[(i+s+COURSES.length)%COURSES.length][0]}
   else if(row===3){const i=Math.max(0,WX.findIndex(w=>w[0]===S.wx));S.wx=WX[(i+s+WX.length)%WX.length][0]}
@@ -18567,7 +18572,7 @@ const animeArcade=window.animeArcade=(()=>{
  window.__speedShake=()=>{const v=Math.abs(speed)*3.6;if(countdown>0||finished||(window.__opts&&__opts.shake===false))return;const k=ss((v-140)/90)*.0011;if(k<=0)return;shT+=1/60;   /* a faint hum, not a judder: kept small and slow so it never gets queasy */
   camera.rotateX(Math.sin(shT*11.3)*k+Math.sin(shT*17.9)*k*.35);camera.rotateZ(Math.sin(shT*8.7+1.3)*k*.6)};
  // ---------------------------------------------------------------- 2 · ghost
- const GHOST_ON=PRAC&&!LOT&&pracS.ghost!==false&&!/[?&]rival=\d/.test(location.search);   /* time trials only: not with a rival */
+ const GHOST_ON=PRAC&&!LOT&&pracS.ghost===true&&!/[?&]rival=\d/.test(location.search);   /* time trials only: not with a rival */
  const gKey=()=>{let c='ae86';try{c=animeCars.player.name||'ae86'}catch(e){}return 'idGhost:'+(window.__PASS?__PASS+':':'')+(/[?&]dir=up/.test(location.search)?'up':'down')+':'+c};
  let rec=[],recT=-1,best=null,ghost=null,ghostMat=null;
  function loadBest(){try{best=JSON.parse(localStorage.getItem(gKey())||'null')}catch(e){best=null}}
