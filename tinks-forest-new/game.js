@@ -15368,10 +15368,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 565;
+const BUILD = 566;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 133;
+const LOOKV = 134;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -22011,9 +22011,10 @@ window.__csZoom ? 1.6 : 4,
 dt
 );
 camera.updateProjectionMatrix();
-if(P.mode === 'ground' && P.speed > T.walk + 0.2 && performance.now()- lastMouse > 1200){
+if(P.mode === 'ground' && P.speed > T.walk + 0.2 && performance.now()- Math.max(lastMouse,window.__padLookT || 0)> 1500){
 const want = P.yaw + Math.PI;
-cam.yaw += angDiff(cam.yaw,want)*(1 - Math.exp(-dt * 0.9 * clamp(P.speed / T.run,0.4,1.6)));
+const away = window.__PAD && window.__PAD.mode ? 0.35 + 0.65 * Math.max(0,Math.cos(angDiff(cam.yaw,want))): 1;
+cam.yaw += angDiff(cam.yaw,want)*(1 - Math.exp(-dt * 0.9 * away * clamp(P.speed / T.run,0.4,1.6)));
 }
 const SKc = P.scaredCam;
 if(SKc > 0.05 && performance.now()- lastMouse > 1500)cam.pitch = damp(cam.pitch,0.1,1.2 * SKc,dt);
@@ -59985,12 +59986,28 @@ prevB = btn;
 feel();
 return;
 }
+const DZ = 0.14,
+RIM = 0.94;
 const lx = ax[0]|| 0,
 ly = ax[1]|| 0,
-m = Math.min(1,Math.hypot(lx,ly));
-PAD.mag = m > 0.2 ? m : 0;
-PAD.mx = PAD.mag ? lx / m : 0;
-PAD.mz = PAD.mag ? -ly / m : 0;
+raw = Math.hypot(lx,ly),
+m = raw > DZ ? Math.min(1,(raw - DZ)/(RIM - DZ)): 0;
+PAD.mag = m > 0.02 ? 0.2 + m * 0.8 : 0;
+if(PAD.mag){
+const k = 1 - Math.exp(-dt / 0.045),
+tx = lx / raw,
+tz = -ly / raw;
+if(!PAD.mx && !PAD.mz){
+PAD.mx = tx;
+PAD.mz = tz;
+}else{
+PAD.mx +=(tx - PAD.mx)* k;
+PAD.mz +=(tz - PAD.mz)* k;
+const n = Math.hypot(PAD.mx,PAD.mz)|| 1;
+PAD.mx /= n;
+PAD.mz /= n;
+}
+}else PAD.mx = PAD.mz = 0;
 hold('KeyW',ly < -0.5);
 hold('KeyS',ly > 0.5);
 hold('KeyA',lx < -0.5);
@@ -60057,22 +60074,36 @@ if(pr(BT.LEFT))tap('KeyR');
 if(pr(BT.RIGHT))tap('KeyY');
 if(pr(BT.VIEW))tap(inCut()|| document.body.classList.contains('cut')? 'Tab' : 'KeyJ');
 if(pr(BT.MENU))tap('Escape');
-const rx = ax[2]|| 0,
+let rx = ax[2]|| 0,
 ry = ax[3]|| 0;
-if((rx || ry)&& lookOK()){
-const cv = v => Math.sign(v)* Math.pow(Math.abs(v),1.6);
+{
+const rr = Math.hypot(rx,ry),
+rm = rr > DZ ? Math.min(1,(rr - DZ)/(RIM - DZ)): 0,
+cm = rm * rm *(0.35 + 0.65 * rm);
+const tx = rr > 0 ?(rx / rr)* cm : 0,
+ty = rr > 0 ?(ry / rr)* cm : 0;
+const k = 1 - Math.exp(-dt / 0.07);
+PAD.lookX =(PAD.lookX || 0)+(tx -(PAD.lookX || 0))* k;
+PAD.lookY =(PAD.lookY || 0)+(ty -(PAD.lookY || 0))* k;
+PAD.rimT = rm > 0.97 && Math.abs(rx)> 0.8 ? Math.min(0.6,(PAD.rimT || 0)+ dt): 0;
+rx = PAD.lookX;
+ry = PAD.lookY;
+}
+if(Math.abs(rx)> 0.01 || Math.abs(ry)> 0.01)window.__padLookT = performance.now();
+if((Math.abs(rx)> 1e-4 || Math.abs(ry)> 1e-4)&& lookOK()){
+const cv = v => v;
 const sens = OPT.padSens ?? 1,
 inv = OPT.padInv ? -1 : 1;
-const boost = 1 + 0.6 * Math.max(0,Math.abs(rx)- 0.9)/ 0.1;
-if(!window.__sceneOn)cam.yaw -= cv(rx)* 2.6 * sens * boost * dt;
+const boost = 1 + 0.45 * smooth(0.2,0.6,PAD.rimT || 0);
+if(!window.__sceneOn)cam.yaw -= cv(rx)* 3.3 * sens * boost * dt;
 if((P.povK || 0)> 0.5){
 const fwd = P.yaw + Math.PI;
 let rel = cam.yaw - fwd;
 while(rel > Math.PI)rel -= 2 * Math.PI;
 while(rel < -Math.PI)rel += 2 * Math.PI;
 if(Math.abs(rel)> 1.05)cam.yaw = P.yaw + Math.PI + Math.sign(rel)* 1.05;
-P.povPitch = clamp((P.povPitch ?? 0.04)+ inv * cv(ry)* 1.7 * sens * dt,-1.45,0.72);
-}else cam.pitch = clamp(cam.pitch + inv * cv(ry)* 1.7 * sens * dt,-0.35,1.2);
+P.povPitch = clamp((P.povPitch ?? 0.04)+ inv * cv(ry)* 2.0 * sens * dt,-1.45,0.72);
+}else cam.pitch = clamp(cam.pitch + inv * cv(ry)* 2.0 * sens * dt,-0.35,1.2);
 }
 prevB = btn;
 feel();
