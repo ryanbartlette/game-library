@@ -15523,10 +15523,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 563;
+const BUILD = 564;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 131;
+const LOOKV = 132;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -45551,6 +45551,30 @@ m.userData.sparkle = true;
 return m;
 };
 J.sparkleU = sparkleU;
+const toyBox = o =>{
+o.updateMatrixWorld(true);
+const ms =[];
+o.traverse(q =>{
+if(q.isMesh && q.visible && !/shadow/i.test((q.material && q.material.name)|| ''))ms.push(q);
+});
+const bx = ms.map(q => new THREE.Box3().setFromObject(q,true));
+const sz = bx.map(b => b.getSize(new V3()));
+let main = 0;
+ms.forEach((q,i)=>{
+const n = q.geometry && q.geometry.attributes.position ? q.geometry.attributes.position.count : 0,
+m = ms[main].geometry && ms[main].geometry.attributes.position ? ms[main].geometry.attributes.position.count : 0;
+if(n > m)main = i;
+});
+const out = new THREE.Box3();
+bx.forEach((b,i)=>{
+const s0 = sz[main],s1 = sz[i];
+if(i !== main &&(s1.x > s0.x * 3 || s1.y > s0.y * 3 || s1.z > s0.z * 3))return;
+out.union(b);
+});
+if(out.isEmpty())out.setFromObject(o);
+return out;
+};
+window.__toyBox = toyBox;
 const giftMesh = id =>{
 if(id === 'bean' && window.__beanMesh)return window.__beanMesh(true);
 if(id === 'toys' && window.__cornyMesh && window.__chickumMesh){
@@ -45561,11 +45585,7 @@ const ctr = o =>{
 const w = new THREE.Group();
 w.add(o);
 w.updateMatrixWorld(true);
-const bb = new THREE.Box3();
-o.traverse(q =>{
-if(q.isMesh && q.visible && !/shadow/i.test((q.material && q.material.name)|| ''))bb.expandByObject(q,true);
-});
-if(bb.isEmpty())bb.setFromObject(o);
+const bb = toyBox(o);
 const c = bb.getCenter(new V3());
 o.position.sub(new V3(c.x,bb.min.y,c.z));
 return[w,Math.min(bb.max.x - bb.min.x,bb.max.z - bb.min.z,0.6)];
@@ -46245,11 +46265,7 @@ if(gm)spin.remove(gm);
 gm = giftMesh(G2.id);
 if(gm.userData.glow)gm.remove(gm.userData.glow);
 gm.updateMatrixWorld(true);
-const bb = new THREE.Box3();
-gm.traverse(q =>{
-if(q.isMesh && q.visible && !/shadow/i.test((q.material && q.material.name)|| ''))bb.expandByObject(q,true);
-});
-if(bb.isEmpty())bb.setFromObject(gm);
+const bb = toyBox(gm);
 const k = 1.5 / Math.max(...bb.getSize(new V3()).toArray());
 gm.scale.setScalar(k);
 gm.position.copy(bb.getCenter(new V3()).multiplyScalar(-k));
@@ -46393,6 +46409,7 @@ LIFE.swell = 14;
 J.updateTracker && J.updateTracker();
 };
 J.showcase = showcase;
+window.__giftMesh = giftMesh;
 J.giveFirst =
 ()=>{
 const G = GIFTS[0];
