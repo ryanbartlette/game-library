@@ -15523,10 +15523,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 570;
+const BUILD = 571;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 138;
+const LOOKV = 139;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -22043,6 +22043,7 @@ window.__sceneWas = on;
 P.scaredCam = damp(P.scaredCam || 0,(P.scared || P.crouchOn || window.__farmLookK ||(AP.stalk || 0)> 0.4)&& P.mode === 'ground' ? 1 : 0,1.6,dt);
 if(window.__camOverride){
 window.__camOverride(camera);
+window.__lastShot ={p: camera.position.clone(),q: camera.quaternion.clone(),t: performance.now()};
 return;
 }
 if(
@@ -22481,8 +22482,12 @@ let under = false;
 if(t === TG[0]){
 const bb = t.bb ||(t.bb = new THREE.Box3().setFromObject(t.g));
 under = head.x > bb.min.x && head.x < bb.max.x && head.z > bb.min.z && head.z < bb.max.z;
+const cp = camera.position,
+camOut = cp.x < bb.min.x || cp.x > bb.max.x || cp.z < bb.min.z || cp.z > bb.max.z;
+if(under && camOut && cp.y < bb.max.y - 0.15)under = false;
 }
-if(!under && !window.__sceneOn && d < 30 && t.g.visible !== false && head.distanceTo(t.g.getWorldPosition(new V3()))< 14)t.hit = rc.intersectObject(t.g,true).length > 0;
+const turnSee = t === TG[0]&& performance.now()<(window.__turnSee || 0);
+if((turnSee ||(!under && !window.__sceneOn))&& d < 30 && t.g.visible !== false && head.distanceTo(t.g.getWorldPosition(new V3()))< 14)t.hit = rc.intersectObject(t.g,true).length > 0;
 }
 }
 for(const t of TG){
@@ -52572,6 +52577,15 @@ const hi = pp.clone().add(up(26)),
 far = new V3(0,0,0);
 far.y = gy(0,0)+ 3;
 if(id === 'rain'){
+window.__turnSee = performance.now()+ 6500;
+{
+const LS = window.__lastShot;
+if(LS && performance.now()- LS.t < 9000){
+camera.position.copy(LS.p);
+camera.quaternion.copy(LS.q);
+P.camBack = null;
+}
+}
 const sky = pp
 .clone()
 .add(up(14))
@@ -62901,7 +62915,22 @@ if(pr(BT.UP))tap('KeyQ');
 if(pr(BT.DOWN))tap('KeyG');
 if(pr(BT.LEFT))tap('KeyR');
 if(pr(BT.RIGHT))tap('KeyY');
-if(pr(BT.VIEW))tap(inCut()|| document.body.classList.contains('cut')? 'Tab' : 'KeyJ');
+{
+const inScene = inCut()|| document.body.classList.contains('cut');
+const sk = document.getElementById('cutSkip');
+if(inScene && btn[BT.VIEW]&& !PAD.skipDone){
+PAD.skipT =(PAD.skipT || 0)+ dt;
+if(PAD.skipT >= 0.8){
+PAD.skipDone = true;
+tap('Tab');
+}
+}else if(!btn[BT.VIEW]){
+PAD.skipT = 0;
+PAD.skipDone = false;
+}
+if(sk)sk.style.setProperty('--skipK',Math.min(1,(PAD.skipT || 0)/ 0.8).toFixed(3));
+if(pr(BT.VIEW)&& !inScene)tap('KeyJ');
+}
 if(pr(BT.MENU))tap('Escape');
 let rx = ax[2]|| 0,
 ry = ax[3]|| 0;
