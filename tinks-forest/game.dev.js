@@ -15523,10 +15523,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 569;
+const BUILD = 570;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 137;
+const LOOKV = 138;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -19586,11 +19586,13 @@ if(!window.__farmCrawl)P.scared = false;
 const crouching = P.crouchOn && !sprintKey;
 if(sprintKey && dir)P.crouchOn = false;
 const charging = P.jumpCharge >= 0 || P.pounceCharge >= 0;
+const creepK =
+window.__PAD && window.__PAD.mode && window.__PAD.mag > 0 ? lerp(0.15,1,smooth(0.22,0.92,window.__PAD.mag)): 1;
 let target = 0;
 let label = 'Stand';
 if(dir && P.sit < 0.5){
 if(crouching){
-target = T.stalk;
+target = T.stalk * creepK;
 label = 'Stalk';
 }else if(P.bedGo){
 target = T.walk * 0.8;
@@ -19658,7 +19660,7 @@ P.crouchOn = false;
 P.dashing = false;
 P.dashT = 0;
 if(dir && P.sit < 0.5){
-target = T.stalk * 0.72;
+target = T.stalk * 0.72 * creepK;
 label = 'Creep';
 }
 }else P.scared = false;
@@ -19712,7 +19714,7 @@ label = target > T.run * 0.8 ? 'Splash' : 'Wade';
 if(P.pin > 0.05 || P.hissT > 0 || P.perchT > 0)target = 0;
 if(charging && !P.chargeRun){
 const rtd = window.__PAD && window.__PAD.mode && window.__PAD.rt ? window.__PAD.rtP || 0 : -1;
-target = P.pounceCharge >= 0 && dir && P.sit < 0.5 ? T.stalk *(rtd >= 0 ? lerp(0.95,0.12,smooth(0.15,0.9,rtd)): 0.65): 0;
+target = P.pounceCharge >= 0 && dir && P.sit < 0.5 ? T.stalk *(rtd >= 0 ? lerp(0.95,0.12,smooth(0.15,0.9,rtd)): 0.65)* creepK : 0;
 }
 P.stamina = 1;
 P.sprintLock = false;
@@ -37718,10 +37720,8 @@ window.__FCS = null;
 moved = false;
 }
 if(window.__FCS === LK){
-if(el > 0.6 && el < SW - 0.4){
-const a2 =(LK.a0 ??(LK.a0 = P.yaw))+(el - 0.6)* 0.75;
-LK.dir = new V3(Math.sin(a2),0,Math.cos(a2));
-}else LK.dir = null;
+LK.dir = null;
+P.groom = true;
 }
 if((outT == null || backK < 1)&& window.__camOverride === hold){
 const k = smooth(0.4,2.2,el)*(1 - backK);
@@ -46288,7 +46288,15 @@ if(gm)spin.remove(gm);
 gm = giftMesh(G2.id);
 if(gm.userData.glow)gm.remove(gm.userData.glow);
 gm.updateMatrixWorld(true);
-const bb = toyBox(gm);
+let bb;
+if(G2.id === 'toys')bb = toyBox(gm);
+else{
+bb = new THREE.Box3();
+gm.traverse(q =>{
+if(q.isMesh && q.visible && !/shadow/i.test((q.material && q.material.name)|| ''))bb.expandByObject(q,true);
+});
+if(bb.isEmpty())bb.setFromObject(gm);
+}
 const k = 1.5 / Math.max(...bb.getSize(new V3()).toArray());
 gm.scale.setScalar(k);
 gm.position.copy(bb.getCenter(new V3()).multiplyScalar(-k));
