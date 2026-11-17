@@ -15368,10 +15368,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 566;
+const BUILD = 567;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 134;
+const LOOKV = 135;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -17554,10 +17554,20 @@ else if(cat === window.__playerCat)base = P.dashing && sp > T.sprint * 0.95 ? 'r
 else base = sp < 2.7 ? 'run' : 'runFast';
 const tr = P.turnRate || 0;
 let slot = base;
-if(Math.abs(tr)> 0.9 && base !== 'swim')slot = base +(tr > 0 ? 'L' : 'R');
+let turning;
+if(window.__PAD && window.__PAD.mode && cat === window.__playerCat){
+const was = c.turnSide || 0,
+now = performance.now();
+if(!was && Math.abs(tr)> 1.25){
+c.turnSide = tr > 0 ? 1 : -1;
+c.turnT0 = now;
+}else if(was &&(Math.abs(tr)< 0.55 || Math.sign(tr)!== was)&& now -(c.turnT0 || 0)> 350)c.turnSide = 0;
+turning = c.turnSide || 0;
+}else turning = Math.abs(tr)> 0.9 ?(tr > 0 ? 1 : -1): 0;
+if(turning && base !== 'swim')slot = base +(turning > 0 ? 'L' : 'R');
 want = act(slot);
 ts = clamp(sp /(C3_SPEED[C3_DEF[base]]|| 0.8)/(T.stride || 1),0.35,2.6);
-fade = Math.abs(tr)> 0.9 ? 0.3 : 0.22;
+fade = window.__PAD && window.__PAD.mode ? 0.42 : Math.abs(tr)> 0.9 ? 0.3 : 0.22;
 if(base === 'crawl' && window.__farmCrawl && !/Crouch/.test(c.curName || ''))fade = 0.95;
 }else if(P.inWater && waterLevelAt(P.pos.x,P.pos.z)- heightAt(P.pos.x,P.pos.z)> 0.3 && P.mode === 'ground'){
 want =
