@@ -4302,7 +4302,7 @@ vec3 transformed=vec3(wp.x,texture2D(uHeight,tuv).r,wp.y)+lp;/* FOREST 105 (Ryan
 )
 .replace(
 '#include <color_vertex>',
-'#include <color_vertex>\nfloat gsh=.85+.3*fract(sin(dot(aOff.xy,vec2(12.9898,78.233)))*43758.5);vColor.rgb=mix(uGBase,uGTip,pow(aT,.85))*gsh;vColor.rgb=mix(vColor.rgb,mix(vec3(.86,.9,.97),vec3(.98,.99,1.),pow(aT,.5))*(.97+.03*gsh),uSnowG);'
+'#include <color_vertex>\nfloat gsh=.85+.3*fract(sin(dot(aOff.xy,vec2(12.9898,78.233)))*43758.5);vColor.rgb=mix(uGBase,uGTip,pow(aT,.85))*gsh;vColor.rgb=mix(vColor.rgb,mix(vec3(.86,.9,.97),vec3(.98,.99,1.),pow(aT,.5))*(.97+.03*gsh),uSnowLay>.5?uSnowG*.45*pow(aT,1.6):uSnowG);/* (Build 577: under the snow layer the grass keeps its colour, only its tips frosting, and sinks as the snow rises round it) */'
 );
 sh.vertexShader = sh.vertexShader.replace(
 '#include <beginnormal_vertex>',
@@ -6143,7 +6143,14 @@ const leafK = sea === 'winter' ?(prevSea === 'winter' ? 0 : 1 - fp): prevSea ===
 if(window.__leafFadeU)window.__leafFadeU.value = leafK;
 window.__bdBare = 1 - leafK;
 {
-grassU.uSnowG.value = 1 - leafK;
+const now = performance.now(),
+sdt = Math.min(0.5,(now -(window.__snT || now))/ 1000);
+window.__snT = now;
+if(window.__snClk == null)window.__snClk = sea === 'winter' && leafK < 0.05 ? 1 : 0;
+if(sea === 'winter'){
+if(leafK < 0.9)window.__snClk = Math.min(1,window.__snClk + sdt / 50);
+}else window.__snClk = Math.max(0,window.__snClk - sdt / 35);
+grassU.uSnowG.value = smooth(0,1,window.__snClk);
 }
 if(window.__ivyAutU)window.__ivyAutU.value = sea === 'autumn' ?(prevSea === 'autumn' ? 1 : fp): prevSea === 'autumn' ? 1 - fp : 0;
 for(const[cl,m]of window.__czSeaMats ||[]){
@@ -15220,6 +15227,7 @@ if(!h)return;
 const on = started &&((inCut()&& !!window.__CUTSKIP)|| !!window.__lookBack)&& !window.__cutSkipping;
 const v = on ? '1' : '0';
 if(h.style.opacity !== v)h.style.opacity = v;
+if(!on)h.style.setProperty('--skipK','0');
 };
 addEventListener('keydown',e =>{
 if(window.__EDITING)return;
@@ -15372,10 +15380,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 576;
+const BUILD = 577;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 144;
+const LOOKV = 145;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -18574,9 +18582,9 @@ z = PD.mz;
 if(!x && !z)return null;
 {
 const PD = window.__PAD;
-if(false && PD && PD.mode && PD.mag > 0 &&(P.povK || 0)> 0.5){
-const yb = z < -0.35 && Math.abs(x)< 0.5 ? P.yaw + Math.PI : P.yaw - x * 0.95;
-return new V3(Math.sin(yb),0,Math.cos(yb));
+if(PD && PD.mode && PD.mag > 0 &&(P.povK || 0)> 0.5 && P.povUser){
+const f = new V3(-Math.sin(cam.yaw),0,-Math.cos(cam.yaw));
+return z < -0.35 && Math.abs(x)< 0.6 ? f.negate(): f;
 }
 }
 const f = new V3(-Math.sin(cam.yaw),0,-Math.cos(cam.yaw)),
@@ -22375,7 +22383,8 @@ camera.quaternion.copy(B.q.clone().slerp(camera.quaternion,k));
 }
 }
 {
-const rc = new THREE.Raycaster();
+const rc = new THREE.Raycaster(),
+rc2 = new THREE.Raycaster();
 let n = 0;
 const TG =[];
 const get =()=>{
@@ -22440,7 +22449,16 @@ camOut = cp.x < bb.min.x || cp.x > bb.max.x || cp.z < bb.min.z || cp.z > bb.max.
 if(under && camOut && cp.y < bb.max.y - 0.15)under = false;
 }
 const turnSee = t === TG[0]&& performance.now()<(window.__turnSee || 0);
-if((turnSee ||(!under && !window.__sceneOn))&& d < 30 && t.g.visible !== false && head.distanceTo(t.g.getWorldPosition(new V3()))< 14)t.hit = rc.intersectObject(t.g,true).length > 0;
+if((turnSee ||(!under && !window.__sceneOn))&& d < 30 && t.g.visible !== false && head.distanceTo(t.g.getWorldPosition(new V3()))< 14){
+t.hit = rc.intersectObject(t.g,true).length > 0;
+if(!t.hit){
+rc2.set(head,camera.position.clone().sub(head).normalize());
+rc2.far = Math.max(0,d - 0.05);
+t.hit = rc2.intersectObject(t.g,true).length > 0;
+rc.set(camera.position,head.clone().sub(camera.position).normalize());
+rc.far = Math.max(0,d - 0.3);
+}
+}
 }
 }
 for(const t of TG){
@@ -30616,7 +30634,7 @@ if(inFarm)FH.wasIn = true;
 else if(!onSteps)FH.wasIn = false;
 window.__farmWasIn = !!FH.wasIn;
 window.__farmUp =(onSteps && !FH.wasIn)|| inFarm;
-const songOn =(inFarm ||(onSteps && !FH.wasIn))&& window.__farmAlive !== false;
+const songOn =(inFarm ||(onSteps && !FH.wasIn && !window.__farmMet))&& window.__farmAlive !== false;
 FH.slvl =
 (FH.slvl || 0)+((songOn ? 1 : 0)-(FH.slvl || 0))* Math.min(1,dt *(songOn ? 0.7 : 0.35));
 FH.lvl +=((inFarm ? 1 : 0)- FH.lvl)* Math.min(1,dt *(inFarm ? 0.7 : 0.35));
@@ -35739,8 +35757,8 @@ const HOOK = 4;
 pts.forEach((q,i)=>{
 const f =(i % HOOK)/ HOOK,
 sag = 0.075 * Math.sin(f * Math.PI)+(rnd()- 0.5)* 0.015;
-const wp = H.g.localToWorld(new V3(q.x,0,w.z1 + q.dz - 0.1));
-wp.y = q.y - 0.07 - sag;
+const wp = H.g.localToWorld(new V3(q.x,0,w.z1 + q.dz + 0.1));
+wp.y = q.y - 0.24 - sag;
 wire.push(wp.clone());
 const col = rnd()< 0.7 ? 0 : 1 + Math.floor(rnd()* 3);
 const c = PAL[col].slice();
@@ -37024,7 +37042,9 @@ const busy =
 (window.__FCS && window.__FCS.lock)||
 (window.__inCut && window.__inCut())||
 (window.__STORY && window.__STORY.busy && window.__STORY.busy());
+window.__farmMet = !!FE.seen;
 if(
+!FE.seen &&
 EN.st === 'idle' &&
 !EN.crawl &&
 !inside &&
@@ -37066,14 +37086,27 @@ P.scaredCam = 1;
 }
 }
 }
-if(!EN.crawl && !window.__asJack && EN.st !== 'look' && !window.__farmWasIn && dF < 2.2 && P.pos.y > EN.foot.y + 0.08)EN.crawl = true;
+if(!FE.seen && !EN.crawl && !window.__asJack && EN.st !== 'look' && !window.__farmWasIn && dF < 2.2 && P.pos.y > EN.foot.y + 0.08)EN.crawl = true;
+if(FE.seen && EN.crawl && !inside && EN.st !== 'look' && !(window.__FCS && window.__FCS.lock)){
+EN.crawl = false;
+P.crouchOn = false;
+}
 if(EN.crawl &&((window.__farmWasIn && !inside && FE.st === 'out')||(!inside && !window.__farmWasIn && dF > 6))){
 EN.crawl = false;
 P.crouchOn = false;
 }
 }
 if(inside && !window.__asJack && EN.st !== 'look')EN.crawl = true;
-if(!EN.crawl && !window.__asJack && EN.st !== 'look' && FE.st !== 'out' && FE.st !== 'in')EN.crawl = true;
+if(!EN.crawl && !window.__asJack && EN.st !== 'look' && FE.st !== 'out' && FE.st !== 'in' &&(!FE.seen || inside)&&(inside || !EN.foot || Math.hypot(P.pos.x - EN.foot.x,P.pos.z - EN.foot.z)< 6))EN.crawl = true;
+if(EN.crawl && !inside && EN.st !== 'look' && FE.st !== 'cine' && EN.foot && Math.hypot(P.pos.x - EN.foot.x,P.pos.z - EN.foot.z)> 6.5 && !(window.__FCS && window.__FCS.lock)){
+EN.crawl = false;
+P.crouchOn = false;
+P.scared = false;
+if(FE.st === 'soft' || FE.st === 'dark' || FE.st === 'in')FE.st = 'out';
+window.__barsHold = false;
+window.__farmLookK = false;
+window.__slowK = 1;
+}
 if(EN.crawl && !inside && FE.st === 'out' && !(RP && RP.g)&& window.__farmWasIn)EN.crawl = false;
 if(window.__farmAlive === false && EN.st !== 'look'){
 EN.crawl = false;
@@ -37398,6 +37431,11 @@ const pos = hw
 .addScaledVector(to,1.4)
 .add(new V3(Math.sin(C.t * 61)* sh,-0.3 + Math.cos(C.t * 47)* sh,0));
 const lk = hw.clone().add(new V3(0,-0.08,0));
+if(C.t > 0.6){
+if(!C.hold)C.hold =[pos.clone(),lk.clone()];
+pos.copy(C.hold[0]);
+lk.copy(C.hold[1]);
+}
 c.position.copy(pos);
 c.lookAt(lk);
 c.fov = lerp(52,36,smooth(0,0.35,C.t));
@@ -37456,7 +37494,7 @@ Math.cos(Y)* Math.cos(PI2)
 return[tg.clone().add(off),tg,T0 ? T0.fov : 60];
 };
 F.cam = c =>{
-const k = smooth(2.2,4.6,C.t);
+const k = smooth(4.4,6.8,C.t);
 const[gp,gt,gf]= gcam();
 const p0 = C.fp || gp,
 l0 = C.fl || gt;
@@ -37468,7 +37506,7 @@ C.hl = l0.clone().lerp(gl,k);
 c.fov = lerp(36,gf,k);
 c.updateProjectionMatrix();
 };
-if(C.t > 4.6){
+if(C.t > 6.8){
 turnTo(0);
 if(M.faceL)M.faceL.intensity = 0;
 if(CS && CS.cam){
@@ -37518,6 +37556,14 @@ const oP = tk.clone().addScaledVector(dv,1.35).add(new V3(0,0.55,0));
 c.position.copy(hp).lerp(oP,k);
 c.lookAt(hl.clone().lerp(tk,k));
 return;
+}
+if(outT != null && backK >= 1 && window.__camOverride === hold){
+try{
+const CS2 = window.__CAMST;
+cam.yaw = Math.atan2(hp.x - P.pos.x,hp.z - P.pos.z);
+if(CS2 && CS2.cam)CS2.cam.yaw = cam.yaw;
+}catch(e){}
+moved = true;
 }
 if(moved || P.speed > 0.05 ||(P.vel && Math.hypot(P.vel.x,P.vel.z)> 0.05)|| window.__camOverride !== hold){
 removeEventListener('mousemove',onMM);
@@ -49750,6 +49796,16 @@ fim.instanceMatrix.needsUpdate = true;
 C.setSeason =(v,quiet)=>{
 if(v !== C.season)C.seasP = 0;
 si = SEAS.indexOf(v);
+if(v === 'winter' && C.season !== 'winter' && C.season != null && !C.story){
+try{
+setTimeout(()=>{
+if(C.season === 'winter' && !C.story && C.setEvent){
+C.setEvent('snow',0.85);
+if(window.__EV)window.__EV.left = 80;
+}
+},2500);
+}catch(e){}
+}
 C.season = v;
 try{
 localStorage.setItem('tink.season',v);
@@ -49988,7 +50044,8 @@ window.__seasonCard && window.__seasonCard(C.season);
 C.annSeason = C.season;
 }
 const wi = C.season === 'winter' ? 1 : 0;
-window.__SNOWU.value +=(wi - window.__SNOWU.value)* k * 0.6;
+if(typeof grassU !== 'undefined' && grassU.uSnowG && window.__snClk != null)window.__SNOWU.value = grassU.uSnowG.value;
+else window.__SNOWU.value +=(wi - window.__SNOWU.value)* k * 0.6;
 WATER_U.uIce.value +=(wi - WATER_U.uIce.value)* k * 0.6;
 window.__ICE = WATER_U.uIce.value > 0.5;
 if(
@@ -53711,16 +53768,16 @@ ver = mt.version;
 nT = tr.length;
 sx.save();
 sx.globalCompositeOperation = 'source-over';
-sx.filter = 'blur(3px)';
+sx.filter = 'blur(7px)';
 sx.drawImage(mc,0,0,SN,SN);
 sx.globalCompositeOperation = 'darken';
-sx.filter = 'blur(2px)';
+sx.filter = 'blur(5px)';
 sx.strokeStyle = '#000';
 sx.lineCap = sx.lineJoin = 'round';
 const W2P = SN / WORLD,
 tp =(x,z)=>[(x + WORLD / 2)* W2P,(z + WORLD / 2)* W2P];
 for(const fl of tr){
-sx.lineWidth = 2 * 1.05 * W2P;
+sx.lineWidth = 2 * 1.3 * W2P;
 sx.beginPath();
 for(let i = 0;i < fl.length;i += 2){
 const[a,b]= tp(fl[i],fl[i + 1]);
@@ -53753,14 +53810,18 @@ vec2 snUV(vec2 p){return (p+uWorldS*.5)/uWorldS;}
 float snTr(vec2 p){return texture2D(uSnowT,snUV(p)).r;}
 float snD(vec2 p){
  float mk=texture2D(uSnowM,snUV(p)).r;
- float grow=max(smoothstep(.06,.26,mk),snWh(p));
+ float grow=max(smoothstep(.05,.4,mk),snWh(p));
  float thr=snN(p*4.1)*.55+snN(p*.9)*.35+.05;
- float cov=smoothstep(thr-.05,thr+.18,uSnowG*1.1)*smoothstep(.0,.55,uSnowG);
+ float cov=smoothstep(thr-.25,thr+.35,uSnowG*1.25)*smoothstep(.0,.8,uSnowG)*mix(.3,1.,smoothstep(.25,1.,uSnowG));/* (Build 577: a thin dusting in patches first, spreading and deepening slowly, with wide soft edges so nothing pops in) */
  float drift=.5+.5*snF(p*.33)+.1*snN(p*2.3);
  float dent=1.-.86*smoothstep(.04,.7,snTr(p));
  float gt=uGTree.z>0.?smoothstep(uGTree.z,uGTree.z+.8,length(p-uGTree.xy)):1.;
  vec2 e=abs(p-uCtr);float edge=1.-smoothstep(uRS*.7,uRS*.97,max(e.x,e.y));
- return .17*grow*cov*drift*dent*gt*edge;}
+ /* Build 577 (Ryan): the snow she pushes aside heaps up in a little rough ridge along both banks of her trail */
+ float tr0=snTr(p),tb=(snTr(p+vec2(.32,0.))+snTr(p-vec2(.32,0.))+snTr(p+vec2(0.,.32))+snTr(p-vec2(0.,.32)))*.25;
+ float rim=clamp((tb-tr0)*2.2,0.,1.)*(1.-smoothstep(.25,.6,tr0));
+ float rough=.55+.9*snN(p*6.3)*snN(p*2.1+3.7);
+ return .17*grow*cov*drift*dent*gt*edge+.055*rim*rough*grow*cov*gt*edge;}
 float snY(vec2 p){return texture2D(uHeight,snUV(p)).r-.035+snD(p)*1.2;}
 `;
 sh.vertexShader = sh.vertexShader
@@ -59498,7 +59559,7 @@ for(const m of mats(o)){
 const tg = tagOf(m);
 if(
 /^(stone|stones|logb|shrinerock)$/.test(tg)||
-/grock|riverrocks|rock_pillar|frog_rock|frog_stone|slate|magicstone/.test(src)
+/grock|riverrocks|rock_pillar|frog_rock|frog_stone|slate|magicstone|pebble/i.test(src)
 )
 snowify(m,-1e9,true);
 }
@@ -59523,6 +59584,13 @@ try{
 const BS = window.__BUSSTOP;
 scene.traverse(o =>{
 if(!o.isMesh || o.isPoints)return;
+if(o.userData && o.userData.wbridge && o.geometry){
+const g = o.geometry;
+if(!g.boundingBox)g.computeBoundingBox();
+const bb = g.boundingBox;
+for(const m of mats(o))snowify(m,bb.max.y - 0.2 *(bb.max.y - bb.min.y));
+return;
+}
 if(/Bridge_Bridge/.test(srcOf(o)+ ' ' +(o.name || '')+ ' ' +((o.parent && o.parent.name)|| ''))&& o.geometry){
 const g = o.geometry;
 if(!g.boundingBox)g.computeBoundingBox();
@@ -59531,12 +59599,56 @@ for(const m of mats(o))snowify(m,bb.max.y - 0.14 *(bb.max.y - bb.min.y));
 return;
 }
 if(lan(o)|| /(^|[^a-z])logs?([^a-z]|$)|fallen|Log_|_log/i.test((o.name || '')+ ' ' +(o.parent && o.parent.name || '')+ ' ' + srcOf(o))|| mats(o).some(m => /^(wellm|lantern|logb)/.test(tagOf(m))))for(const m of mats(o))snowify(m,-1e9);
+else if(/pebble/i.test(srcOf(o))|| /pebble/i.test(o.name || ''))for(const m of mats(o))snowify(m,-1e9,true);
+else if(/deadtree|fallen-logs/i.test(srcOf(o))|| mats(o).some(m => m &&((typeof barkTex !== 'undefined' && m.map === barkTex)||(m.customProgramCacheKey && /barkPaint/.test(String(m.customProgramCacheKey()))))))
+for(const m of mats(o))if(m && !(m.map && m.map ===(typeof ringTex !== 'undefined' ? ringTex : null)))snowify(m,-1e9,/deadtree|fallen-logs/i.test(srcOf(o)));
 else if(BS && under(o,BS)){
 const bb = new THREE.Box3().setFromObject(BS);
 const ob = new THREE.Box3().setFromObject(o);
 if(ob.max.y > bb.min.y +(bb.max.y - bb.min.y)* 0.75)for(const m of mats(o))snowify(m,-1e9);
 }
 });
+{
+const skip = new Set();
+const addTree = g => g && g.traverse && g.traverse(q => skip.add(q));
+for(const g of window.__CRITTERS ||[])addTree(g);
+for(const Y of window.__YARNS ||[])addTree(Y.m);
+try{
+for(const k in cats)addTree(cats[k]&& cats[k].catRoot);
+}catch(e){}
+try{
+addTree(window.__JACK && window.__JACK.k && window.__JACK.k.holder);
+}catch(e){}
+try{
+addTree(window.__MORE && window.__MORE.houseIn && window.__MORE.houseIn.g);
+}catch(e){}
+addTree(window.__snowMesh);
+const inMats = new Set();
+try{
+const HI = window.__MORE && window.__MORE.houseIn && window.__MORE.houseIn.g;
+if(HI)HI.traverse(q => q.isMesh && mats(q).forEach(m => inMats.add(m)));
+}catch(e){}
+const BS2 = window.__BUSSTOP;
+const bsRoot = new Set();
+if(BS2)BS2.traverse(q => bsRoot.add(q));
+scene.traverse(o =>{
+if(!o.isMesh || o.isSkinnedMesh || o.isPoints || o.isSprite || skip.has(o)|| bsRoot.has(o))return;
+if(o.userData &&(o.userData.wbridge || o.userData.gift))return;
+const g = o.geometry;
+if(!g)return;
+if(!g.boundingSphere)g.computeBoundingSphere();
+const ws = Math.max(o.scale.x,o.scale.y,o.scale.z)*(o.isInstancedMesh ? 1 : 1);
+if(!o.isInstancedMesh && g.boundingSphere.radius * ws > 18)return;
+for(const m of mats(o)){
+if(!m || inMats.has(m)|| m.isShaderMaterial || m.isMeshBasicMaterial || m.isPointsMaterial || m.isLineBasicMaterial)continue;
+if(m.transparent &&(m.opacity ?? 1)< 0.95)continue;
+if(m.emissive && m.emissiveIntensity > 0.4 && m.emissive.getHSL({}).l > 0.15)continue;
+if(/grass|terrain|ground|path|water|ice|snow|sky|cloud|leaf|leaves|petal|paper|shoji|gift|toy|fur|cat|eye/i.test(tagOf(m)+ ' ' +(m.name || '')))continue;
+if(/water|ice|grass|terrain|ground|sky|cloud|gift|toy|corny|chickum|cat|fur/i.test(srcOf(o)+ ' ' +(o.name || '')))continue;
+snowify(m,-1e9);
+}
+});
+}
 }catch(e){
 console.warn('snow extra',e);
 }
@@ -60830,6 +60942,12 @@ rx = PAD.lookX;
 ry = PAD.lookY;
 }
 if(Math.abs(rx)> 0.01 || Math.abs(ry)> 0.01)window.__padLookT = performance.now();
+if(P.povUser &&(P.povK || 0)> 0.5 && P.mode === 'ground' && !window.__sceneOn && lookOK()&& Math.abs(PAD.mx || 0)> 0.02){
+const lx = PAD.mx,
+want = Math.sign(lx)* Math.pow(Math.abs(lx),1.5)* 2.2 *(OPT.padSens ?? 1);
+PAD.povTurn =(PAD.povTurn || 0)+(want -(PAD.povTurn || 0))* Math.min(1,dt * 8);
+}else PAD.povTurn =(PAD.povTurn || 0)* Math.max(0,1 - dt * 10);
+if(Math.abs(PAD.povTurn || 0)> 1e-4)cam.yaw -= PAD.povTurn * dt;
 if((Math.abs(rx)> 1e-4 || Math.abs(ry)> 1e-4)&& lookOK()){
 const cv = v => v;
 const sens = OPT.padSens ?? 1,
