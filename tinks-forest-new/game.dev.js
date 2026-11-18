@@ -15566,10 +15566,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 586;
+const BUILD = 587;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 154;
+const LOOKV = 155;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -55035,8 +55035,10 @@ float snD(vec2 p){
 /* (Build 586, Ryan: the beanstalk trail stayed white though the snow map had it clear): where there's no snow the sheet now sinks well
    under the ground; it used to sit just 3.5 cm below, and on the higher ground out by the glade the height map's rounding put it above
    the ground, a thin flat blanket over the path */
-float snSink(float d){return .035+.25*(1.-smoothstep(.0,.012,d));}
-float snY(vec2 p){float d=snD(p);return texture2D(uHeight,snUV(p)).r-snSink(d)+d*1.2;}
+/* (Build 587, Ryan: the trail edges went zig-zag): the sinking follows the soft, blurred snow map instead of the snow's own depth, so
+   it eases in gently well inside the clear ground, and the sheet never cuts steeply through the ground's own triangles at a bank */
+float snSinkP(vec2 p){float mk=texture2D(uSnowM,snUV(p)).r;return .035+.12*(1.-smoothstep(.0,.18,mk));}
+float snY(vec2 p){float d=snD(p);return texture2D(uHeight,snUV(p)).r-snSinkP(p)+d*1.2;}
 `;
 sh.vertexShader = sh.vertexShader
 .replace('#include <common>','#include <common>\n' + FN)
@@ -55054,7 +55056,7 @@ vec3 objectTangent=vec3(1.,0.,0.);
 )
 .replace(
 '#include <begin_vertex>',
-`float sd0=snD(swp);vec3 transformed=vec3(swp.x,texture2D(uHeight,snUV(swp)).r-snSink(sd0)+sd0*1.2,swp.y);vSwp=swp;vStr=snTr(swp);vSd=sd0;`
+`float sd0=snD(swp);vec3 transformed=vec3(swp.x,texture2D(uHeight,snUV(swp)).r-snSinkP(swp)+sd0*1.2,swp.y);vSwp=swp;vStr=snTr(swp);vSd=sd0;`
 );
 sh.uniforms.uEdgeC = window.__edgeC ||(window.__edgeC ={value: new THREE.Color(0.75,0.82,0.78)});
 sh.fragmentShader = sh.fragmentShader
@@ -62678,9 +62680,9 @@ sh.fragmentShader = sh.fragmentShader
 ',normalize(vSnN).y)*step(uSnMinY,vSnY)*uSnowK;' +
 (strip
 ?
-'{float hw=' + strip.hw.toFixed(3)+ ',L=vSnL;float wob=(sin(L*1.7+.6)*.09+sin(L*4.3+2.1)*.045)*hw;float wd=hw*(.5+.07*sin(L*2.9+1.3)+.05*sin(L*7.7));/* (Build 586: a bit wider) */' +
-'float rag=(sin(L*11.3+vSnC*5.1)*.5+sin(L*23.7-vSnC*9.3)*.3+sin(L*5.3+2.)*.2)*hw*.06;' +
-'sn*=smoothstep(wd*.62,wd*1.08,abs(vSnC-(' + strip.c.toFixed(3)+ ')-wob)+rag);}'
+'{float hw=' + strip.hw.toFixed(3)+ ',L=vSnL;float wob=(sin(L*1.7+.6)*.03+sin(L*4.3+2.1)*.015)*hw;float wd=hw*(.74+.04*sin(L*2.9+1.3)+.02*sin(L*7.7));' +
+'float rag=(sin(L*11.3+vSnC*5.1)*.5+sin(L*23.7-vSnC*9.3)*.3+sin(L*5.3+2.)*.2)*hw*.03;' +
+'float e=abs(vSnC-(' + strip.c.toFixed(3)+ ')-wob);sn*=smoothstep(wd*.9,wd*1.12,e+rag)*mix(.5,1.,smoothstep(hw*.86,hw*.95,e));}'
 : '')+
 (full
 ? '/* Build 260: mossy rocks and logs go grey-white under the snow, no green showing through */float lu=dot(diffuseColor.rgb,vec3(.3,.59,.11));diffuseColor.rgb=mix(diffuseColor.rgb,vec3(lu)*vec3(.95,.97,1.04)+.04,uSnowK*.85);'
