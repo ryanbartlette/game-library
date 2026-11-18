@@ -46031,6 +46031,26 @@ if(!alive)return;
 const tt =(performance.now()- t0)/ 1000;
 const TCs = isToys && window.__toyCfg ? window.__toyCfg().card : null;
 if(TCs && !drag && window.__toyBuilderOn)pit =(TCs.tilt || 0)*(Math.PI / 180);
+try{
+const gp = window.__PAD && window.__PAD.gp;
+if(gp && gp.connected !== false){
+const dz = v =>(Math.abs(v)< 0.18 ? 0 :(v - Math.sign(v)* 0.18)/ 0.82);
+const sx = dz(gp.axes[0]|| 0)+ dz(gp.axes[2]|| 0),
+sy = dz(gp.axes[1]|| 0)+ dz(gp.axes[3]|| 0);
+if(sx || sy){
+const now2 = performance.now(),
+dtg = Math.min(0.05,(now2 -(loop.lt || now2))/ 1000);
+yaw += Math.sign(sx)* Math.min(1,Math.abs(sx))** 1.6 * 3.2 * dtg;
+pit = clamp(pit + Math.sign(sy)* Math.min(1,Math.abs(sy))** 1.6 * 2.2 * dtg,-1.2,1.2);
+auto = 0;
+loop.held = now2;
+}else if(loop.held && performance.now()- loop.held > 1800){
+loop.held = 0;
+auto = 1;
+}
+}
+}catch(e){}
+loop.lt = performance.now();
 if(auto)yaw += TCs ?(TCs.spin ?? 0.012): 0.012;
 spin.rotation.set(pit,yaw,0);
 spin.scale.setScalar(Math.min(1,tt * 2.2)*(1 + 0.03 * Math.sin(tt * 2)));
@@ -46038,10 +46058,12 @@ sp2.rotation.y = tt * 0.25;
 rr.render(sc2,cam2);
 requestAnimationFrame(loop);
 };
+window.__giftOrbit = true;
 loop();
 const close =()=>{
 if(!alive)return;
 alive = false;
+window.__giftOrbit = false;
 if(isToys)window.__toyCardRebuild = null;
 ov.style.opacity = 0;
 removeEventListener('pointermove',mv);
@@ -61138,10 +61160,11 @@ const J = window.__JACK;
 if(r){
 releaseAll();
 let d = '';
-if(btn[BT.UP]|| ax[1]< -0.6)d = 'u';
-else if(btn[BT.DOWN]|| ax[1]> 0.6)d = 'd';
-else if(btn[BT.LEFT]|| ax[0]< -0.6)d = 'l';
-else if(btn[BT.RIGHT]|| ax[0]> 0.6)d = 'r';
+const sk = window.__giftOrbit ? 0 : 1;
+if(btn[BT.UP]|| sk * ax[1]< -0.6)d = 'u';
+else if(btn[BT.DOWN]|| sk * ax[1]> 0.6)d = 'd';
+else if(btn[BT.LEFT]|| sk * ax[0]< -0.6)d = 'l';
+else if(btn[BT.RIGHT]|| sk * ax[0]> 0.6)d = 'r';
 let dir = null;
 if(d &&(d !== navDir || now > navT)){
 navT = now +(d !== navDir ? 380 : 160);
