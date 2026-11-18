@@ -48202,6 +48202,7 @@ const bgOn =
 clearTimeout(jbgT);
 jbg.style.opacity = 1;
 window.__dimUntil = Infinity;
+document.body.classList.add('jackSay');
 },
 bgOff = ms =>{
 clearTimeout(jbgT);
@@ -48209,6 +48210,7 @@ window.__dimUntil = performance.now()+ ms + 1050;
 jbgT = setTimeout(()=>{
 jbg.style.opacity = 0;
 window.__dimUntil = performance.now()+ 1050;
+document.body.classList.remove('jackSay');
 },ms);
 };
 window.__jackDim =()=> performance.now()<(window.__dimUntil || 0);
