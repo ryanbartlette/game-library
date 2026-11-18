@@ -1481,6 +1481,7 @@ const HU ={
 uHN:{value: SKYP.hNearS},
 uHF:{value: SKYP.hFar},
 uHH:{value: SKYP.haze},
+uHSn:{value: 0},
 uSunDir:{value: sunDir},
 uBump:{value: SKYS.hBump},
 uRoll:{value: SKYS.hRoll},
@@ -1505,7 +1506,7 @@ depthWrite: false,
 transparent: true,
 uniforms:{...HU,uK:{value: k},uR:{value: R},uEl:{value: Math.max(0.002,SKYS['hL' +(i + 1)]?? 0.1)},uSeed:{value: i * 17.3 + SKYS.hSeed * 3.1}},
 vertexShader: `varying vec3 vP;uniform float uR;void main(){vec3 p=position;p.y=mix(-.1*uR,.3*uR,p.y);vP=p;gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.);gl_Position.z=gl_Position.w*.99999;}`,
-fragmentShader: `varying vec3 vP;uniform vec3 uHN,uHF,uHH,uSunDir;uniform float uK,uR,uEl,uSeed,uBump,uRoll,uCrowns,uFade,uMistK,uNight,uDusk;
+fragmentShader: `varying vec3 vP;uniform vec3 uHN,uHF,uHH,uSunDir;uniform float uHSn,uK,uR,uEl,uSeed,uBump,uRoll,uCrowns,uFade,uMistK,uNight,uDusk;
 float h2(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7))+uSeed)*43758.5453);}float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h2(i),h2(i+vec2(1,0)),f.x),mix(h2(i+vec2(0,1)),h2(i+vec2(1,1)),f.x),f.y);}
 vec2 ring(float an){return vec2(cos(an),sin(an))*uR*.01;}
 float ridgeAt(vec2 q){float r=n2(q*.16*uRoll)*.6+n2(q*.42*uRoll+3.)*.28+n2(q*1.1*uRoll+9.)*.12;return smoothstep(.05,.95,r);}
@@ -1513,12 +1514,12 @@ void main(){float an=atan(vP.z,vP.x);vec2 q=ring(an);float ridge=ridgeAt(q);
  float crowns=(n2(q*7.+uSeed)*.55+n2(q*19.)*.45)*(1.-uK)*.0035*uCrowns;
  float top=(uEl+uEl*uBump*(ridge-.4)*1.6)*uR+crowns*uR;float y=vP.y;if(y>top)discard;
  float d=clamp((top-y)/max(top+.1*uR,1.),0.,1.);
- vec3 c=mix(uHN,uHF,uK);c=mix(c,uHH,uFade*uK*uK*.85+.06);
+ vec3 c=mix(uHN,uHF,uK);vec3 hzC=mix(uHH,uHN*1.02,uHSn);/* (Build 581, Ryan: a band of green between the snow and the white hills: their misty feet took the green haze colour; in winter the mist at their feet is snow-white too) */c=mix(c,hzC,uFade*uK*uK*.85+.06);
  float bl=n2(q*5.+vec2(0.,y*.12))*.6+n2(q*13.+vec2(0.,y*.35))*.4;c*=1.+(bl-.5)*.22*(1.-uK*.8);
  float da=.05/(uR*.01);float sl=ridgeAt(ring(an+da))-ridgeAt(ring(an-da));c*=1.+clamp(sl*3.,-.12,.12)*(1.-uK*.6);
  vec2 dir=vec2(cos(an),sin(an));float sunSide=max(dot(normalize(uSunDir.xz+1e-4),dir),0.);
  vec3 rimC=mix(vec3(1.06,1.04,.94),vec3(1.3,1.,.66),uDusk);c=mix(c,c*rimC,(1.-smoothstep(0.,.07,d))*(.3+.5*sunSide)*(1.-uNight));
- float hgt=max(top,1.);float low=1.-smoothstep(-.03*uR,hgt*.3,y);c=mix(c,uHH*1.04,low*low*uMistK*(.7+.3*n2(q*2.+vec2(0.,y*.05))));
+ float hgt=max(top,1.);float low=1.-smoothstep(-.03*uR,hgt*.3,y);c=mix(c,hzC*1.04,low*low*uMistK*(.7+.3*n2(q*2.+vec2(0.,y*.05))));
  float edge=smoothstep(0.,uR*.002,top-y);gl_FragColor=vec4(c,edge);
  #include <tonemapping_fragment>
  #include <colorspace_fragment>
@@ -1865,6 +1866,15 @@ const sn =(window.__hillSnowC ||(window.__hillSnowC = new THREE.Color())).setRGB
 HU.uHN.value.lerp(sn,Math.min(1,shh)* 0.88);
 HU.uHF.value.lerp(sn,Math.min(1,shh)* 0.7);
 }
+if(HU.uHSn)HU.uHSn.value = Math.min(1,shh);
+try{
+const EC =(window.__edgeC = window.__edgeC ||{value: new THREE.Color(0.75,0.82,0.78)});
+const sn = HU.uHSn ? HU.uHSn.value : 0;
+const hz =(window.__edgeHz ||(window.__edgeHz = new THREE.Color())).copy(HU.uHH.value).lerp((window.__edgeT ||(window.__edgeT = new THREE.Color())).copy(HU.uHN.value).multiplyScalar(1.02),sn);
+EC.value.copy(HU.uHN.value).lerp(hz,0.06);
+const mk = Math.min(1,(HU.uMistK ? HU.uMistK.value : 1)* 0.85);
+EC.value.lerp((window.__edgeT2 ||(window.__edgeT2 = new THREE.Color())).copy(hz).multiplyScalar(1.04),mk);
+}catch(e){}
 }
 const ev = window.__EV;
 G.uGrey.value +=((ev ? Math.max(ev.rain || 0,(ev.snow || 0)* 0.6): 0)- G.uGrey.value)* k;
@@ -1906,6 +1916,8 @@ m.onBeforeCompile = sh =>{
 sh.uniforms.uTime = grassU.uTime;
 sh.uniforms.uMaskG = grassU.uMask;
 sh.uniforms.uSnowGG = grassU.uSnowG;
+sh.uniforms.uSnowMG = grassU.uSnowMG ||(grassU.uSnowMG ={value: null});
+sh.uniforms.uSnowMOn = grassU.uSnowMOn ||(grassU.uSnowMOn ={value: 0});
 sh.uniforms.uSnowTG = grassU.uSnowT;
 sh.uniforms.uGTreeG = grassU.uGTree;
 sh.uniforms.uWheatG = grassU.uWheat;
@@ -1938,7 +1950,7 @@ sh.vertexShader = sh.vertexShader
 sh.fragmentShader = sh.fragmentShader
 .replace(
 '#include <common>',
-'#include <common>\nvarying vec3 vWg;uniform vec3 uGLight,uGBase,uGTip;uniform float uTime,uDap,uWorldG,uGustG,uCloudK;uniform vec2 uCloudOff;uniform sampler2D uMaskG,uCanopyG,uGTexG,uDirtG,uSnowTG;uniform float uSnowGG;uniform vec3 uGTreeG;uniform vec4 uWheatG;uniform float uWheatAG;float inWheat(vec2 p){if(uWheatG.z<=0.)return 0.;vec2 d=p-uWheatG.xy;float c=cos(uWheatAG),s=sin(uWheatAG);vec2 l=vec2(d.x*c+d.y*s,-d.x*s+d.y*c);vec2 e=abs(l)-uWheatG.zw;return 1.-smoothstep(-.25,.15,max(e.x,e.y));}'+
+'#include <common>\nvarying vec3 vWg;uniform vec3 uGLight,uGBase,uGTip;uniform float uTime,uDap,uWorldG,uGustG,uCloudK;uniform vec2 uCloudOff;uniform sampler2D uMaskG,uCanopyG,uGTexG,uDirtG,uSnowTG;uniform float uSnowGG;uniform sampler2D uSnowMG;uniform float uSnowMOn;uniform vec3 uGTreeG;uniform vec4 uWheatG;uniform float uWheatAG;float inWheat(vec2 p){if(uWheatG.z<=0.)return 0.;vec2 d=p-uWheatG.xy;float c=cos(uWheatAG),s=sin(uWheatAG);vec2 l=vec2(d.x*c+d.y*s,-d.x*s+d.y*c);vec2 e=abs(l)-uWheatG.zw;return 1.-smoothstep(-.25,.15,max(e.x,e.y));}'+
 'float gmSoft(vec2 p){/* FOREST (Ryan: path edges were jagged): the mask is read softly (nine taps, a third of a metre apart) along a gently wandering edge, so paths have smooth, painted borders */vec2 j=vec2(sin(p.y*1.7+sin(p.x*.9)),cos(p.x*1.5+sin(p.y*1.1)))*.18;vec2 q=p+j;float s=0.;for(int a=-1;a<=1;a++)for(int b=-1;b<=1;b++)s+=texture2D(uMaskG,(q+vec2(float(a),float(b))*.34+uWorldG*.5)/uWorldG).r;return s/9.;}' +
 CLOUD_GLSL +
 WC_GLSL
@@ -1975,13 +1987,16 @@ WC_GLSL
     float lum0=dot(c,vec3(.3,.59,.11));soil*=.75+.6*smoothstep(.05,.4,lum0);c=mix(c,soil*(.9+.2*gran),bare*.85);}}
   /* FOREST 105 (Ryan: the trails showed snowflake-shaped cut-outs): in winter the ground itself turns white under the drifts, and the
      paths get a light, patchy painted dusting; it whitens bit by bit with the season, and trodden snow shows a cool blue */
-  if(uSnowGG>.001){float gm=gmSoft(p);float bare=1.-smoothstep(.07,.14,gm);/* FOREST 116 (Ryan: the ground went white all at once): flakes settle first as scattered specks, then gather into patches that join up as the season turns */float thrG=wcN(p*4.1)*.55+wcN(p*.9)*.35+.05;float sgk=smoothstep(thrG-.05,thrG+.18,uSnowGG*1.1)*mix(.55,1.,smoothstep(.3,1.,uSnowGG));
+  if(uSnowGG>.001){float gm=gmSoft(p);float bare=1.-smoothstep(.07,.14,gm);/* Build 581 (Ryan: the path up to the beanstalk glade, and others, were white): the forest trails aren't bare in the meadow map, so the ground under them was painted snowy while the snow sheet above was clear; the ground now reads the snow map too, which has every trail in it */bare=max(bare,1.-smoothstep(.12,.45,texture2D(uSnowMG,(p+uWorldG*.5)/uWorldG).r)*step(.5,uSnowMOn));/* FOREST 116 (Ryan: the ground went white all at once): flakes settle first as scattered specks, then gather into patches that join up as the season turns */float thrG=wcN(p*4.1)*.55+wcN(p*.9)*.35+.05;float sgk=smoothstep(thrG-.05,thrG+.18,uSnowGG*1.1)*mix(.55,1.,smoothstep(.3,1.,uSnowGG));
    vec3 sc=mix(vec3(.83,.87,.97),vec3(.965,.975,1.),smoothstep(.3,.7,wcF(p*.35)));sc*=.97+.06*gran;
    float dust=smoothstep(.38,.62,wcF(p*.7+3.))*.55+.1;/* (Build 572: the wheat field is snow-covered, not a trodden path) */bare*=1.-inWheat(p);float cov=sgk*mix(.97,dust,bare);/* FOREST 117 (Ryan liked the worn, shadowed trail): every path is the same well-travelled track: a thin patchy dusting in cool shadow */sc=mix(sc,vec3(.5,.56,.75),bare*.5);/* (FOREST 105, Ryan: the Great Tree's hollow stays warm and dry) */if(uGTreeG.z>0.)cov*=smoothstep(uGTreeG.z,uGTreeG.z+.8,length(p-uGTreeG.xy));
    float tr=texture2D(uSnowTG,(p+uWorldG*.5)/uWorldG).r;sc=mix(sc,vec3(.46,.53,.76),smoothstep(.06,.8,tr)*.75*(1.-bare));
    c=mix(c,sc,cov);}
   diffuseColor.rgb=c;}`
-);
+)
+.replace('#include <common>','#include <common>\nuniform vec3 uEdgeC;')
+.replace('#include <tonemapping_fragment>','gl_FragColor.rgb=mix(gl_FragColor.rgb,uEdgeC,smoothstep(' + EDGE_A.toFixed(1)+ ',' + EDGE_B.toFixed(1)+ ',length(vWg.xz)));\n#include <tonemapping_fragment>');
+sh.uniforms.uEdgeC = window.__edgeC ||(window.__edgeC ={value: new THREE.Color(0.75,0.82,0.78)});
 };
 m.customProgramCacheKey =()=> 'groundPaint';
 m.needsUpdate = true;
@@ -2802,6 +2817,9 @@ if(MODES[w]&& w !== 'rain' && w !== 'windy')weather = w;
 }catch(e){}
 const W = JSON.parse(JSON.stringify(MODES[weather]));
 const WORLD = 170,
+WORLD_R = 82,
+EDGE_A = 80.5,
+EDGE_B = 85,
 HN = 257,
 CELL = WORLD /(HN - 1);
 const HGT = new Float32Array(HN * HN);
@@ -4266,7 +4284,7 @@ vec2 rel=mod(aOff.xy-uCenter.xz+uTile*.5,uTile)-uTile*.5;rel+=uShift;vec2 wp=uCe
 float msk=(texture2D(uMask,tuv).r*2.+texture2D(uMask,tuv+vec2(.3,0.)/uWorld).r+texture2D(uMask,tuv-vec2(.3,0.)/uWorld).r+texture2D(uMask,tuv+vec2(0.,.3)/uWorld).r+texture2D(uMask,tuv-vec2(0.,.3)/uWorld).r)/6.;/* FOREST: read softly, for smooth path edges */float dist=length(rel);float sc=aOff.z*smoothstep(.36,.6,msk)*(.55+.45*msk)*smoothstep(uOut,uOut-5.,dist);
 /* (Ryan) every tuft leans along the breeze, give or take about 15 degrees */float th=atan(-uWDir.x,uWDir.y)+(aOff.w/6.283-.5)*1.2;float cs=cos(th),sn=sin(th);float rk=fract(sin(dot(aOff.xy,vec2(41.3,17.9)))*24634.6);/* (Ryan) never sparse, like a painted meadow: the grass stays full everywhere and only gets shorter toward the paths, thinning just at a path's very edge *//* (Ryan's rule) paths are bare; the grass runs full and short right up to their edge (a crisp, slightly ragged border) */float keep=step(.11+rk*.05,msk);sc=aOff.z*keep*(.75+.25*msk)*smoothstep(uOut,uOut-5.,dist);float wsc=(0.6+sc*1.5)*keep;/* sparse ground keeps fewer whole clumps instead of squashed star shapes *//* short clumps shrink whole instead of lying flat as star shapes *//* drifts of long grass here and there (where the ferns used to grow) */float tallP=smoothstep(.35,.8,.5+.5*sin(wp.x*.19+sin(wp.y*.15)*2.1)*sin(wp.y*.17+sin(wp.x*.12)*2.3));float hsc=sc*(1.+1.6*tallP);
 /* (Ryan) long and wild away from the paths, shorter where it's trodden: the grass shortens as the mask fades toward a path, and slow patches of taller and shorter grass drift across the fields */
-{float wild=smoothstep(.11,.32,msk);/* FOREST (Ryan: sparse bare patches): the whole meadow grows full; only a path's edge band is shorter */float pn=.5+.25*sin(wp.x*.07+sin(wp.y*.05)*2.3)+.25*sin(wp.y*.083+sin(wp.x*.061)*1.9);hsc*=mix(.3,1.,wild)*(.72+.6*pn)*(1.-.15*uIntro.w*(1.-smoothstep(uIntro.z,uIntro.z+4.,length(wp-uIntro.xy))));/* FOREST 84 (Ryan): a touch shorter in the intro meadow only */wsc*=mix(1.,2.6,uSnowG);/* FOREST 85 (Ryan): soft powder, and where the cats have walked it stays trodden down for the rest of the winter */{float sT=texture2D(uSnowT,tuv).r*uSnowG;hsc*=1.-.7*sT;}/* FOREST 85 (Ryan: a square of flattened blades showed on the snow): the blades narrow away with the height, so the patch round you ends in a soft circle */wsc*=smoothstep(uOut,uOut-5.,dist);/* FOREST 84 (Ryan): in winter the tufts sink into low soft drifts of snow */}vec3 lp=vec3(position.x*wsc,position.y*hsc,position.z*wsc);/* FOREST 97: the far grass ring: fewer, bigger tufts, only beyond the near grass */lp.xz*=uBig;lp.y*=mix(1.,uBig,.55);if(uInner>.5)lp*=smoothstep(uInner-1.,uInner+3.,dist);/* FOREST 104 (Ryan: a circle, an empty square, then a bigger circle): in scenes the near grass fills its whole square and thins at its edge to the same density as the wider copies, so the meadow runs on as one continuous circle */if(length(uShift)<.5&&uScene>.001){float eK=uScene*smoothstep(12.5,14.6,max(abs(rel.x),abs(rel.y)));if(gl_InstanceID>=int(uNC))lp*=1.-eK;else{lp.xz*=1.+.3*eK;lp.y*=1.+.165*eK;}}lp=vec3(lp.x*cs-lp.z*sn,lp.y,lp.x*sn+lp.z*cs);
+{float wild=smoothstep(.11,.32,msk);/* FOREST (Ryan: sparse bare patches): the whole meadow grows full; only a path's edge band is shorter */float pn=.5+.25*sin(wp.x*.07+sin(wp.y*.05)*2.3)+.25*sin(wp.y*.083+sin(wp.x*.061)*1.9);hsc*=mix(.3,1.,wild)*(.72+.6*pn)*(1.-.15*uIntro.w*(1.-smoothstep(uIntro.z,uIntro.z+4.,length(wp-uIntro.xy))));/* FOREST 84 (Ryan): a touch shorter in the intro meadow only */wsc*=mix(1.,2.6,uSnowG);/* FOREST 85 (Ryan): soft powder, and where the cats have walked it stays trodden down for the rest of the winter */{float sT=texture2D(uSnowT,tuv).r*uSnowG;hsc*=1.-.7*sT;}/* FOREST 85 (Ryan: a square of flattened blades showed on the snow): the blades narrow away with the height, so the patch round you ends in a soft circle */wsc*=smoothstep(uOut,uOut-5.,dist);/* FOREST 84 (Ryan): in winter the tufts sink into low soft drifts of snow */}vec3 lp=vec3(position.x*wsc,position.y*hsc,position.z*wsc);/* FOREST 97: the far grass ring: fewer, bigger tufts, only beyond the near grass */lp.xz*=uBig;lp.y*=mix(1.,uBig,.55);if(uInner>.5)lp*=smoothstep(uInner-1.,uInner+3.,dist);/* FOREST 104 (Ryan: a circle, an empty square, then a bigger circle): in scenes the near grass fills its whole square and thins at its edge to the same density as the wider copies, so the meadow runs on as one continuous circle */if(length(uShift)<.5&&uScene>.001){float eK=uScene*smoothstep(9.5,14.4,length(rel));/* (Build 581, Ryan: from high up in a scene the thicker near grass still showed as a square): it thins to the wider copies' density in a soft circle instead, its square's corners already at their density */if(gl_InstanceID>=int(uNC))lp*=1.-eK;else{lp.xz*=1.+.3*eK;lp.y*=1.+.165*eK;}}lp=vec3(lp.x*cs-lp.z*sn,lp.y,lp.x*sn+lp.z*cs);lp*=1.-smoothstep(79.5,82.5,length(wp));/* (Build 581: the round world: no grass past its edge) */
 /* (Ryan) the wind as flowing currents, like the middle of the ocean: a soft noise field drifts across the meadow along the breeze, warped
    by a slower noise so it swirls and eddies. Each blade reads it at its root: how hard to bow, and which way (the current turns the
    breeze a little here and there). Then each blade is ROTATED about its root (never pushed), so it keeps its length, never dips into
@@ -4304,7 +4322,7 @@ if(uSnowG>.01){float thr=.8*rk+.2*gvn(wp*.23);float sG=smoothstep(thr-.12,thr+.1
  float th2=aSn.x+aOff.w+aSn.y*(3.14159/7.)*1.35*(1.-aSn.z);float rr2=R*(1.-aSn.z);
  vec2 q=vec2(cos(th2),sin(th2))*rr2;float u2=clamp(rr2/R,0.,1.);float dome=Hs*(1.-u2*u2)*(1.-.35*u2*u2);
  vec3 sn=vec3(q.x,dome+.004,q.y);
- lp=mix(lp,sn,sG);lp*=mix(1.,smoothstep(.004,.025,Hs),sG);/* FOREST 140 (Ryan's real snow layer): with the snow blanket on, the tuft just sinks away beneath it */if(uSnowLay>.5){lp*=1.-smoothstep(.05,.7,sG);lp*=1.-smoothstep(.3,.62,uSnowG);vSG=0.;}/* (Build 580, Ryan: a square of grass left standing once the ground was white): every tuft is under by the time the snow has settled, wherever it grows *//* FOREST 117 (Ryan: star shapes along the paths): where there's no snow to speak of (a path's edge) the tuft simply isn't there, leaving the ground's own dusting */vSnH=clamp(1.-u2*u2,0.,1.);
+ lp=mix(lp,sn,sG);lp*=mix(1.,smoothstep(.004,.025,Hs),sG);/* FOREST 140 (Ryan's real snow layer): with the snow blanket on, the tuft just sinks away beneath it */if(uSnowLay>.5){lp*=1.-smoothstep(.05,.7,sG);lp*=1.-smoothstep(mix(.14,.04,uScene),mix(.46,.24,uScene),uSnowG);vSG=0.;}/* (Build 581, Ryan: from high up the patch of green round Tink stayed too long once the land was white): the tufts go under sooner, and sooner still in a scene, where the camera is up high *//* (Build 580, Ryan: a square of grass left standing once the ground was white): every tuft is under by the time the snow has settled, wherever it grows *//* FOREST 117 (Ryan: star shapes along the paths): where there's no snow to speak of (a path's edge) the tuft simply isn't there, leaving the ground's own dusting */vSnH=clamp(1.-u2*u2,0.,1.);
  vColor.rgb=mix(vColor.rgb,vec3(.96,.975,1.),sG);vSW=wp+lp.xz;}}
 vec3 transformed=vec3(wp.x,texture2D(uHeight,tuv).r,wp.y)+lp;/* FOREST 105 (Ryan: on slopes the snow stacked in flat plates): each point of a mound sits on the ground right beneath it, so the drifts follow the slope */if(vSG>.001)transformed.y=mix(transformed.y,texture2D(uHeight,(wp+lp.xz+uWorld*.5)/uWorld).r+lp.y,vSG);vGW=vec3(wp.x,aT,wp.y);vShade=.8+.4*fract(sin(dot(aOff.xy,vec2(12.9898,78.233)))*43758.5);`
 )
@@ -5136,6 +5154,12 @@ if(/Bridge_Bridge/.test(file))return 'bridge';
 if(/Lantern/.test(file))return 'lantern';
 if(/Sculpt/.test(file))return 'sculpt';
 if(/Ivy/.test(file))return 'ivy';
+if(/Foliage_Flowers/.test(file))return 'flowers';
+if(/Pillars/.test(file))return 'pillar';
+{
+const pb = file.match(/pebal(\d)/);
+if(pb)return 'peb' + pb[1];
+}
 if(/leaf birch/.test(nm))return 'leafbirch';
 if(/^leaf/.test(nm))return 'leaf';
 if(/birch/.test(nm))return 'birch';
@@ -5243,6 +5267,10 @@ return tintMat(m,'czleaf');
 }
 const m = new THREE.MeshStandardMaterial({roughness: 1});
 if(k)m.map = tex(k,false);
+if(k === 'flowers'){
+m.alphaTest = 0.45;
+m.side = THREE.DoubleSide;
+}
 if(k && /^rock/.test(k))return tintMat(mossify(m),'czbark');
 return tintMat(sway ? windify(m,false,swU): m,'czbark');
 };
@@ -5926,6 +5954,7 @@ if(k === 'lantern')window.__czLanternIm = im;
 const small = /^(g0|g1|weed)$/.test(k);
 im.castShadow = !small;
 im.receiveShadow = true;
+im.userData.czKind = k;
 if(k === 'lantern' || k === 'sculpt'){
 im.userData.src = 'forest-' + k;
 (window.__czEditable = window.__czEditable ||[]).push(im);
@@ -6348,7 +6377,7 @@ float sc=aOff.z*keep;float cs=cos(aOff.w),sn=sin(aOff.w);
 /* (Ryan) each stem is as tall as the grass around it (the same rule the grass uses: wild patches tall, trodden edges short), so the flower always peeps out just above it */
 float tallP=smoothstep(.35,.8,.5+.5*sin(wp.x*.19+sin(wp.y*.15)*2.1)*sin(wp.y*.17+sin(wp.x*.12)*2.3));float wild=smoothstep(.11,.32,msk);float pn=.5+.25*sin(wp.x*.07+sin(wp.y*.05)*2.3)+.25*sin(wp.y*.083+sin(wp.x*.061)*1.9);
 float gh=.21*(1.+1.6*tallP)*mix(.3,1.,wild)*(.72+.6*pn)*(1.-.15*uIntro.w*(1.-smoothstep(uIntro.z,uIntro.z+4.,length(wp-uIntro.xy))));float fh=(gh*1.12+.03)*keep;float hs=(.55+.6*fract(rk*7.31))*keep;
-vec3 lp=aHead>.5?vec3(position.x*hs,fh+(position.y-1.)*hs,position.z*hs):vec3(position.x*keep,position.y*fh,position.z*fh);lp=vec3(lp.x*cs-lp.z*sn,lp.y,lp.x*sn+lp.z*cs);sc=fh;
+vec3 lp=aHead>.5?vec3(position.x*hs,fh+(position.y-1.)*hs,position.z*hs):vec3(position.x*keep,position.y*fh,position.z*fh);lp=vec3(lp.x*cs-lp.z*sn,lp.y,lp.x*sn+lp.z*cs);lp*=1.-smoothstep(79.5,82.5,length(wp));/* (Build 581: no flowers past the round edge) */sc=fh;
 /* FOREST (Ryan, Nov 14: "the flowers dont blow at all"): each flower now rides the very same slow current as the grass around it, leaning about its root */
 {float wsK=clamp((uWS.y-.55)/.8,0.,1.);float gsF=dot(wp,uWDir)-uGF;float gw=(gsF>0.?exp(-gsF*gsF/16.):exp(-gsF*gsF/(140.+260.*wsK)))*uGust;
 vec2 cq=wp*.085-uWDir*uTime*.3*uWS.x;vec2 wq=vec2(gvn(cq*.55+vec2(uTime*.025,0.)),gvn(cq*.55+vec2(5.2,uTime*.02)))-.5;float cur=gvn(cq+wq*1.9)*.65+gvn(cq*2.3+wq*1.2+3.7)*.35;
@@ -10524,8 +10553,8 @@ for(let x = -WORLD / 2 + 1;x < WORLD / 2;x += 4.2)
 for(let z = -WORLD / 2 + 1;z < WORLD / 2;z += 4.2){
 const px = x +(rr()- 0.5)* 3,
 pz = z +(rr()- 0.5)* 3;
-const e = Math.max(Math.abs(px),Math.abs(pz));
-if(e < WORLD / 2 - 21)continue;
+const e = Math.hypot(px,pz)+ 1;
+if(e < WORLD / 2 - 21 || e > EDGE_B)continue;
 const depth =(e -(WORLD / 2 - 21))/ 21;
 if(rr()> 0.3 + depth * 0.6)continue;
 let ok = true;
@@ -10970,7 +10999,7 @@ sh.vertexShader = sh.vertexShader
 )
 .replace(
 '#include <begin_vertex>',
-`vec3 transformed=vec3(position);float fl=aFluff*uLen*mix(1.,.3,uWet);transformed+=normalize(normal)*fl*(uInfl+uShell*(1.-uInfl));transformed.y-=uShell*uShell*fl*.45;transformed.x-=aBack*fl*(uShell*.8+uInfl*.4);transformed+=aComb*fl*uShell;vF=aFluff;vFu=uv;`
+`vec3 transformed=vec3(position);float fl=aFluff*uLen*mix(1.,.85,uWet);float fk=fl*(uInfl+uShell*(1.-uInfl));transformed+=normalize(normal)*fk*(1.-.78*uWet);transformed.y-=fk*uWet*.95;/* (Build 581, Ryan: wet long fur stays long but hangs: heavy with water it no longer stands out, it lies flat along her back and hangs down from her belly, sides and tail, standing back up and fluffing out as she dries) */transformed.y-=uShell*uShell*fl*.45;transformed.x-=aBack*fl*(uShell*.8+uInfl*.4);transformed+=aComb*fl*uShell;vF=aFluff;vFu=uv;`
 );
 sh.fragmentShader = sh.fragmentShader
 .replace(
@@ -10981,9 +11010,9 @@ sh.fragmentShader = sh.fragmentShader
 '#include <map_fragment>',
 `#include <map_fragment>
 if(uShell>0.&&(vF<.002||diffuseColor.a<.5))discard;// no fur shells on bare or see-through parts (whisker and fringe cards, ear tips)
-if(uShell>0.){vec2 c=vFu*uDens+vec2(.35,.22)*uShell*uShell;vec2 id=floor(c);vec2 f=fract(c)-.5;float h=fract(sin(dot(id,vec2(127.1,311.7)))*43758.5453);float L=mix(.45,1.,h);if(uShell>L)discard;float rad=(.5*pow(1.-uShell/L,1.25)+.03)*mix(1.,.72,uWet);if(length(f)>rad)discard;}
+if(uShell>0.){vec2 c=vFu*uDens*mix(1.,.62,uWet)+vec2(.35,.22)*uShell*uShell;/* (Build 581: wet fur gathers into fewer, thicker, pointed clumps, like Ryan's bath-time photos) */vec2 id=floor(c);vec2 f=fract(c)-.5;float h=fract(sin(dot(id,vec2(127.1,311.7)))*43758.5453);float L=mix(.45,1.,h);if(uShell>L)discard;float rad=(.5*pow(1.-uShell/L,1.25+1.4*uWet)+.03)*mix(1.,.8,uWet);if(length(f)>rad)discard;}
 diffuseColor.rgb*=mix(1.-uDark,1.,uShell);
-diffuseColor.rgb*=mix(1.,.58,uWet);`
+diffuseColor.rgb*=mix(1.,.4,uWet);/* (Build 581: much darker when wet) */`
 )
 .replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor=mix(roughnessFactor,.5,uWet*.8);');
 };
@@ -15388,10 +15417,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 580;
+const BUILD = 581;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 148;
+const LOOKV = 149;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -19263,6 +19292,13 @@ if(!tryP(nx,P.pos.z))tryP(P.pos.x,nz);
 const lim = WORLD / 2 - 6;
 P.pos.x = clamp(P.pos.x,-lim,lim);
 P.pos.z = clamp(P.pos.z,-lim,lim);
+{
+const rr = Math.hypot(P.pos.x,P.pos.z);
+if(rr > WORLD_R){
+P.pos.x *= WORLD_R / rr;
+P.pos.z *= WORLD_R / rr;
+}
+}
 }
 const info ={};
 function updatePlayer(dt,time){
@@ -20543,7 +20579,7 @@ comp.P.squash = Math.max(comp.P.squash || 0,0.35);
 }
 function compSafe(x,z){
 const L = WORLD / 2 - 8;
-return Math.abs(x)< L && Math.abs(z)< L && !blocked(x,z,groundAt(x,z,1e3)- 0.1);
+return Math.abs(x)< L && Math.abs(z)< L && Math.hypot(x,z)< WORLD_R - 1 && !blocked(x,z,groundAt(x,z,1e3)- 0.1);
 }
 function compAI(dt,pl){
 const A = comp.ai;
@@ -25207,6 +25243,9 @@ function updateWade(dt){
 try{
 updateWet(dt);
 }catch(e){}
+try{
+DRIPS(dt);
+}catch(e){}
 const on = false;
 if(!AUD.ctx || !AUD.on){
 return;
@@ -25730,6 +25769,91 @@ ripples.splice(i,1);
 }
 }
 }
+const DRIPS =(()=>{
+const MAX = 140;
+const rnd = mulberry32(58121);
+const geo = new THREE.SphereGeometry(1,6,4);
+geo.scale(1,1.6,1);
+const mat = new THREE.MeshStandardMaterial({color: 0xdcefff,roughness: 0.15,metalness: 0,transparent: true,opacity: 0.8,depthWrite: false});
+mat.name = 'water drip';
+const mesh = new THREE.InstancedMesh(geo,mat,MAX);
+mesh.name = 'cat drips';
+mesh.frustumCulled = false;
+mesh.castShadow = mesh.receiveShadow = false;
+mesh.count = 0;
+scene.add(mesh);
+const D =[];
+const acc ={tink: 0,luca: 0};
+const m4 = new THREE.Matrix4(),
+q0 = new THREE.Quaternion(),
+v0 = new V3(),
+s0 = new V3();
+const spawn =(PP,speed)=>{
+if(D.length >= MAX)return;
+const f = fwdOf(PP.yaw || 0),
+sx = f.z,
+sz = -f.x;
+const a =(rnd()- 0.5)* 0.5,
+b =(rnd()- 0.5)* 0.17;
+const k = Math.min(1,speed / 3);
+D.push({
+x: PP.pos.x + f.x * a + sx * b,
+y: PP.pos.y + 0.1 + rnd()* 0.16,
+z: PP.pos.z + f.z * a + sz * b,
+vx: f.x * speed * 0.35 + sx *(rnd()- 0.5)* 0.5 * k,
+vy: -0.15 - rnd()* 0.2,
+vz: f.z * speed * 0.35 + sz *(rnd()- 0.5)* 0.5 * k,
+r: 0.0075 + rnd()* 0.006,
+t: 0
+});
+};
+return dt =>{
+const W = window.__wetU;
+if(!W || dt <= 0)return;
+for(const[k,PP]of[
+['tink',P],
+['luca',typeof comp !== 'undefined' && comp && comp.P]
+]){
+if(!PP || !PP.pos || !W[k])continue;
+const w = W[k].value;
+if(w < 0.06 || PP.inWater){
+acc[k]= 0;
+continue;
+}
+const speed = Math.max(0,PP.speed || 0);
+acc[k]+= dt * Math.pow(w,1.6)*(4 + 12 * Math.min(1,speed / 2.5));
+while(acc[k]>= 1){
+acc[k]-= 1;
+spawn(PP,speed);
+}
+}
+let n = 0;
+for(let i = D.length - 1;i >= 0;i--){
+const d = D[i];
+d.t += dt;
+d.vy -= 9.8 * dt;
+d.x += d.vx * dt;
+d.y += d.vy * dt;
+d.z += d.vz * dt;
+let g = -1e9;
+try{
+g = groundAt(d.x,d.z,d.y + 0.3);
+}catch(e){}
+if(d.y <= g || d.t > 2){
+D.splice(i,1);
+continue;
+}
+}
+for(const d of D){
+const st = 1 + Math.min(1.2,-d.vy * 0.25);
+m4.compose(v0.set(d.x,d.y,d.z),q0,s0.set(d.r,d.r * st,d.r));
+mesh.setMatrixAt(n++,m4);
+}
+mesh.count = n;
+mesh.visible = n > 0;
+if(n)mesh.instanceMatrix.needsUpdate = true;
+};
+})();
 function spook(radius){
 for(const s of squirrels){
 const d = Math.hypot(s.x - P.pos.x,s.z - P.pos.z);
@@ -45851,17 +45975,9 @@ gm.scale.setScalar(k);
 gm.position.copy(bb.getCenter(new V3()).multiplyScalar(-k));
 spin.add(gm);
 };
-let toyStep = G.id === 'toys' ? 0 : -1;
-const toyShow =()=>{
-const id = toyStep === 0 ? 'corny' : 'chickum';
-put({id});
-const nm = ov.querySelector('.gnm');
-if(nm)nm.textContent = toyStep === 0 ? 'Corny' : 'Chickum';
-const ok = ov.querySelector('#gok');
-if(ok)ok.textContent = toyStep === 0 ? 'Next' : opt.btn ||(VIEW ? 'Close' : 'Carry them');
-};
-if(toyStep === 0)toyShow();
-else put(G);
+let toyStep = -1;
+const toyShow =()=> put({id: 'toys'});
+put(G);
 const isToys = G.id === 'toys';
 window.__toyCardRebuild = isToys ?()=> toyShow(): null;
 const N = 70,
@@ -45950,7 +46066,7 @@ const n = have.length;
 if(!n)return;
 cur =(((cur + d)% n)+ n)% n;
 const G2 = have[cur];
-toyStep = G2.id === 'toys' ? 0 : -1;
+toyStep = -1;
 if(toyStep === 0){
 toyShow();
 return;
@@ -53856,6 +53972,8 @@ sx.stroke();
 sx.restore();
 tex.needsUpdate = true;
 U.uSnowM.value = tex;
+(grassU.uSnowMG ||(grassU.uSnowMG ={value: null})).value = tex;
+(grassU.uSnowMOn ||(grassU.uSnowMOn ={value: 0})).value = 1;
 };
 window.__snowMaskBuild = build;
 window.__snowMaskCanvas = sc;
@@ -53881,7 +53999,7 @@ float snD(vec2 p){
  float mk=texture2D(uSnowM,snUV(p)).r;
  float grow=max(smoothstep(.05,.4,mk),snWh(p));
 #ifdef SN_OUTER
- grow=max(grow,smoothstep(80.,84.,max(abs(p.x),abs(p.y))));/* (Build 578: right at the world's edge it is all snow; Build 580: only the very rim, the beanstalk glade sits out near the edge and was being buried) */
+ grow=max(grow,smoothstep(80.,84.,length(p)));/* (Build 581: the world's edge is round) *//* (Build 578: right at the world's edge it is all snow; Build 580: only the very rim, the beanstalk glade sits out near the edge and was being buried) */
 #endif
  float thr=snN(p*4.1)*.55+snN(p*.9)*.35+.05;
  float cov=smoothstep(thr-.25,thr+.35,uSnowG*1.25)*smoothstep(.0,.8,uSnowG)*mix(.3,1.,smoothstep(.25,1.,uSnowG));/* (Build 577: a thin dusting in patches first, spreading and deepening slowly, with wide soft edges so nothing pops in) */
@@ -53920,6 +54038,7 @@ vec3 objectTangent=vec3(1.,0.,0.);
 '#include <begin_vertex>',
 `float sd0=snD(swp);vec3 transformed=vec3(swp.x,texture2D(uHeight,snUV(swp)).r-.035+sd0*1.2,swp.y);vSwp=swp;vStr=snTr(swp);vSd=sd0;`
 );
+sh.uniforms.uEdgeC = window.__edgeC ||(window.__edgeC ={value: new THREE.Color(0.75,0.82,0.78)});
 sh.fragmentShader = sh.fragmentShader
 .replace(
 '#include <common>',
@@ -53928,6 +54047,8 @@ varying vec2 vSwp;varying float vStr,vSd;
 float snH2(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float snN2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(snH2(i),snH2(i+vec2(1,0)),f.x),mix(snH2(i+vec2(0,1)),snH2(i+vec2(1,1)),f.x),f.y);}`
 )
+.replace('#include <tonemapping_fragment>','gl_FragColor.rgb=mix(gl_FragColor.rgb,uEdgeC,smoothstep(' + EDGE_A.toFixed(1)+ ',' + EDGE_B.toFixed(1)+ ',length(vSwp)));\n#include <tonemapping_fragment>')
+.replace('#include <common>','#include <common>\nuniform vec3 uEdgeC;')
 .replace(
 '#include <color_fragment>',
 `#include <color_fragment>
@@ -56974,7 +57095,7 @@ const BAKED_EDITS =
 window.__LAYOUT ||
 (()=>{
 const x = new XMLHttpRequest();
-x.open('GET','data/world-layout.9bf0ca4036.json',false);
+x.open('GET','data/world-layout.6d60bfdc9f.json',false);
 x.send();
 return JSON.parse(x.responseText);
 })();
@@ -58222,7 +58343,11 @@ const HIDDEN_KINDS = new Set([
 'Ghibli tree 4',
 'Ghibli tree 5',
 'Ghibli bush 1',
-'Ghibli bush 2'
+'Ghibli bush 2',
+'Cherry tree',
+'Green tree',
+'Bush',
+'River stone'
 ]);
 {
 const grpOf =(geo,mat,h)=>{
@@ -58360,6 +58485,56 @@ const KIND_LABEL ={
 'Well': 'Well',
 'Forest spirit': 'Forest spirit'
 };
+const CZ_PIECES =[
+['Tree 1','Foliage_Trees_Tree_1_Tree1_High'],
+['Tree 2','Foliage_Trees_Tree_2_Tree2_High'],
+['Oak','Foliage_Trees_Tree_3_Oak_OakTree2_High'],
+['Birch','Foliage_Trees_Tree_4_Brich_Tree4_High'],
+['Large bush','Foliage_Bushes_Large_bush_LargeBush_HighNew'],
+['Small bush','Foliage_Bushes_Bush_Bush1'],
+['Blue flowers','Foliage_Flowers_Blue_Flowers_BlueFlower_High'],
+['Purple flowers','Foliage_Flowers_Purple_Flower_Purple_High'],
+['White flowers','Foliage_Flowers_White_Flower_White_High'],
+['White flowers (large)','Foliage_Flowers_White_Flower_WhiteLarge_High'],
+['Yellow flowers','Foliage_Flowers_Yellow_Flower_Yellow_High'],
+['Grass tuft 1','Foliage_Grass_Weeds_Grass0'],
+['Grass tuft 2','Foliage_Grass_Weeds_Grass1'],
+['Weeds','Foliage_Grass_Weeds_Weed1V2'],
+['Ivy (small clump)','Foliage_Ivy_SmallClump1'],
+['Ivy (large clump)','Foliage_Ivy_LargeClump1'],
+['Ivy (large clump 2)','Foliage_Ivy_LargeClump2'],
+['Ivy (vines)','Foliage_Ivy_Vines'],
+['Ivy (long vine)','Foliage_Ivy_VineLong'],
+['Rock 1','Props_Rocks_Rock_1_Rock1_High'],
+['Rock 2','Props_Rocks_Rock_2_Rock2_High'],
+['Rock 3','Props_Rocks_Rock_3_Rocks3_High'],
+['Rock 4','Props_Rocks_Rock_4_Rock4_High'],
+['Pebble 1','Props_Rocks_Pebals_pebal1'],
+['Pebble 2','Props_Rocks_Pebals_pebal2'],
+['Pebble 3','Props_Rocks_Pebals_pebal3'],
+['Lantern','Props_Lantern_Lantern_High'],
+['Pagoda sculpture','Props_Sculptures_Sculpture1'],
+['Bridge','Props_Bridge_Bridge'],
+['Bridge pillars','Props_Bridge_Pillars']
+];
+for(const[nm,file]of CZ_PIECES){
+KINDS['Cizzy: ' + nm]=()=>{
+const g = new THREE.Group();
+g.userData.czFile = file;
+const L = window.__czLoad;
+if(!L)return g;
+L(file).then(M =>{
+if(!M)return;
+for(const pt of M.parts){
+const m = new THREE.Mesh(pt.g,pt.mat);
+m.castShadow = !pt.leafy || /Tree/.test(file);
+m.receiveShadow = true;
+g.add(m);
+}
+});
+return g;
+};
+}
 const lantSorted = Object.keys(KINDS).filter(k => /^Stone lantern \d/.test(k));
 const sizeWords =['Small','Medium','Tall','Tallest','Grand'];
 lantSorted.forEach((k,i)=>{
@@ -59592,13 +59767,16 @@ try{
 const SN =
 window.__SNOWU;
 const done = new Set();
+const PRE = new WeakMap();
 const snowify =(mat,minY,full)=>{
 if(!mat || done.has(mat)|| mat.isShaderMaterial || mat.isMeshBasicMaterial)return;
 done.add(mat);
 const prev = mat.onBeforeCompile;
 const pk = mat.customProgramCacheKey ? mat.customProgramCacheKey.bind(mat):()=> '';
+PRE.set(mat,{obc: prev,key: mat.customProgramCacheKey});
 mat.onBeforeCompile =(sh,r)=>{
 if(prev && prev !== THREE.Material.prototype.onBeforeCompile)prev.call(mat,sh,r);
+if(sh.vertexShader.indexOf('varying vec3 vSnN')>= 0)return;
 sh.uniforms.uSnowK = SN;
 sh.uniforms.uSnMinY ={value: minY};
 sh.vertexShader = sh.vertexShader
@@ -59684,11 +59862,28 @@ try{
 const BS = window.__BUSSTOP;
 scene.traverse(o =>{
 if(!o.isMesh || o.isPoints)return;
-if(o.userData && o.userData.wbridge && o.geometry){
+const isWB = o.userData && o.userData.wbridge,
+isBB =(o.userData && o.userData.czKind === 'bridge')|| /Bridge_Bridge/.test(srcOf(o)+ ' ' +(o.name || '')+ ' ' +((o.parent && o.parent.name)|| ''));
+if((isWB || isBB)&& o.geometry){
+if(!o.userData.snowOwn){
+o.userData.snowOwn = true;
+const cl = m =>{
+if(!m)return m;
+const c = m.clone();
+const pr = PRE.get(m);
+if(pr){
+c.onBeforeCompile = pr.obc;
+if(pr.key)c.customProgramCacheKey = pr.key;
+else delete c.customProgramCacheKey;
+}
+return c;
+};
+o.material = Array.isArray(o.material)? o.material.map(cl): cl(o.material);
+}
 const g = o.geometry;
 if(!g.boundingBox)g.computeBoundingBox();
 const bb = g.boundingBox;
-let minY = bb.max.y - 0.06 *(bb.max.y - bb.min.y);
+let minY = null;
 try{
 const P2 = g.attributes.position,
 N2 = g.attributes.normal;
@@ -59706,16 +59901,9 @@ c = ac === 'z' ? P2.getZ(i): P2.getX(i);
 if(y > top)top = y;
 if(Math.abs(c - cc)< hw * 0.3 && y > deck)deck = y;
 }
-if(top - deck > 0.02 && deck > -1e8)minY = deck +(top - deck)* 0.5;
+if(deck > -1e8 && top - deck > 0.03 * Math.max(0.2,bb.max.y - bb.min.y))minY = deck +(top - deck)* 0.5;
 }catch(e){}
-for(const m of mats(o))snowify(m,minY);
-return;
-}
-if(/Bridge_Bridge/.test(srcOf(o)+ ' ' +(o.name || '')+ ' ' +((o.parent && o.parent.name)|| ''))&& o.geometry){
-const g = o.geometry;
-if(!g.boundingBox)g.computeBoundingBox();
-const bb = g.boundingBox;
-for(const m of mats(o))snowify(m,bb.max.y - 0.14 *(bb.max.y - bb.min.y));
+if(minY != null)for(const m of mats(o))snowify(m,minY);
 return;
 }
 if(lan(o)|| /(^|[^a-z])logs?([^a-z]|$)|fallen|Log_|_log/i.test((o.name || '')+ ' ' +(o.parent && o.parent.name || '')+ ' ' + srcOf(o))|| mats(o).some(m => /^(wellm|lantern|logb)/.test(tagOf(m))))for(const m of mats(o))snowify(m,-1e9);
@@ -59753,7 +59941,7 @@ const bsRoot = new Set();
 if(BS2)BS2.traverse(q => bsRoot.add(q));
 scene.traverse(o =>{
 if(!o.isMesh || o.isSkinnedMesh || o.isPoints || o.isSprite || skip.has(o)|| bsRoot.has(o))return;
-if(o.userData &&(o.userData.wbridge || o.userData.gift))return;
+if(o.userData &&(o.userData.wbridge || o.userData.gift || o.userData.snowOwn || o.userData.czKind === 'bridge'))return;
 const g = o.geometry;
 if(!g)return;
 if(!g.boundingSphere)g.computeBoundingSphere();
@@ -60110,6 +60298,65 @@ console.warn('glow',e);
 }
 Math.random = __MR;
 window.__worldBuilt = true;
+{
+const OUT = EDGE_B + 0.5;
+const m4 = new THREE.Matrix4(),
+v = new V3(),
+zero = new THREE.Matrix4().makeScale(0,0,0);
+const keep = o =>{
+const n =((o.name || '')+ ' ' +((o.userData && o.userData.src)|| '')+ ' ' +((o.geometry && o.geometry.userData && o.geometry.userData.src)|| '')).toLowerCase();
+return /sky|cloud|hill|ridge|terrain|ground|water|stream|river|rain|snow|mist|fog|sun|moon|star|petal|flock|bird|firefl/.test(n);
+};
+const cut =()=>{
+let n = 0;
+scene.traverse(o =>{
+if(!o.isMesh || keep(o)|| o.isSkinnedMesh)return;
+if(o.isInstancedMesh){
+let ch = false;
+for(let i = 0;i < o.count;i++){
+o.getMatrixAt(i,m4);
+if(m4.elements[0]=== 0 && m4.elements[5]=== 0)continue;
+v.setFromMatrixPosition(m4).applyMatrix4(o.matrixWorld);
+const rr = Math.hypot(v.x,v.z);
+if(rr > OUT && rr < 125){
+o.setMatrixAt(i,zero);
+ch = true;
+n++;
+}
+}
+if(ch){
+o.instanceMatrix.needsUpdate = true;
+o.computeBoundingSphere && o.computeBoundingSphere();
+}
+return;
+}
+const g = o.geometry;
+if(!g)return;
+if(!g.boundingSphere)g.computeBoundingSphere();
+const sc = o.getWorldScale(v);
+if(g.boundingSphere.radius * Math.max(sc.x,sc.y,sc.z)> 15)return;
+o.getWorldPosition(v);
+const rr = Math.hypot(v.x,v.z);
+if(rr > OUT && rr < 125 && o.visible){
+o.visible = false;
+n++;
+}
+});
+for(const sf of SURF)if(!sf.dead && typeof sf.x === 'number' && Math.hypot(sf.x,sf.z)> OUT)sf.dead = true;
+return n;
+};
+let k = 0;
+const iv = setInterval(()=>{
+try{
+cut();
+}catch(e){}
+if(++k > 12)clearInterval(iv);
+},2500);
+try{
+cut();
+}catch(e){}
+window.__cutOutside = cut;
+}
 window.__topdown =
 (px = 2048,y0 = 90)=>{
 const oc = new THREE.OrthographicCamera(-WORLD / 2,WORLD / 2,WORLD / 2,-WORLD / 2,1,y0 + 60);
@@ -61096,6 +61343,13 @@ PAD.used = performance.now();
 {
 const LOG =[];
 window.__hitches = LOG;
+window.__tp =(x,z)=>{
+P.pos.x = x;
+P.pos.z = z;
+try{
+P.pos.y = groundAt(x,z,60);
+}catch(e){}
+};
 let last = 0,
 progN = -1,
 texN = -1,
@@ -61115,7 +61369,8 @@ o.season = window.__CYCLE && window.__CYCLE.season;
 const QA = window.__QAPI,
 cm = QA && QA.curMain && QA.curMain();
 o.quest = cm && cm.id;
-if(window.__farmWasIn)o.inFarmhouse = true;
+if(window.__inFarm)o.inFarmhouse = true;
+if(window.__isRaining && window.__isRaining())o.rain = true;
 if(window.__sceneOn || document.body.classList.contains('cut'))o.scene = true;
 if(window.__POV || P.povUser)o.catEye = true;
 }catch(e){}
