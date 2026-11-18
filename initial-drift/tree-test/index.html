@@ -48,7 +48,7 @@ import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {DRACOLoader} from 'three/addons/loaders/DRACOLoader.js';
 
-const CZ='../../tinks-forest-new/cz/',ID='../assets/models/';
+const CZ='../assets/cizzy/',ID='../assets/models/';
 const Q=new URLSearchParams(location.search);
 const S={pine:Q.get('pine')||'old',p1:100,p2:400,look:Q.get('look')||'painted',season:Q.get('season')||'summer',cam:'drive',shad:'off',res:Q.get('res')||'1.5',d1:120,d2:400};
 
@@ -103,7 +103,7 @@ const BL=TREES.filter(t=>!t.pine),PN=TREES.filter(t=>t.pine);
 
 // ---------------------------------------------------------------- loading
 const loader=new GLTFLoader();{const dr=new DRACOLoader();dr.setDecoderPath('../assets/lib/three/examples/jsm/libs/draco/gltf/');loader.setDRACOLoader(dr)}const load=u=>new Promise((res,rej)=>loader.load(u,res,undefined,rej));
-const tl=new THREE.TextureLoader();const tex=(k,srgb=true)=>{const t=tl.load(CZ+'t/'+k+'.png');t.flipY=false;if(srgb)t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=4;return t};
+const tl=new THREE.TextureLoader();const tex=(k,srgb=true)=>{const t=tl.load(CZ+'t/'+k+'.webp');t.flipY=false;if(srgb)t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=4;return t};
 const TEX={bark:tex('bark'),birch:tex('birch'),leaf:tex('leaf',false),leafbirch:tex('leafbirch',false)};
 const kindOf=nm=>{nm=(nm||'').toLowerCase();if(/billboard|board|lod/.test(nm)&&!/leaf/.test(nm))return null;if(/leaf birch/.test(nm))return 'leafbirch';if(/^leaf/.test(nm))return 'leaf';if(/birch/.test(nm))return 'birch';if(/bark|default obj/.test(nm))return 'bark';return null};
 const CZT=[['Tree_1_Tree1',0x5f8f3e],['Tree_2_Tree2',0x6f9a44],['Tree_3_Oak_OakTree2',0x557f36],['Tree_4_Brich_Tree4',0x86a64a]];

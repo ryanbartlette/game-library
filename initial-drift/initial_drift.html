@@ -508,7 +508,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=426',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=427',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -4055,7 +4055,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 426';
+window.__BUILD='BUILD 427';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5578,9 +5578,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794961916'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794972333'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794961916'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794972333'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -5955,8 +5955,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794961916'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794961916'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794972333'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794972333'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6414,7 +6414,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794961916',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794972333',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6428,7 +6428,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794961916',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794972333',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -13972,7 +13972,7 @@ const id=window.animeCars&&animeCars.player&&animeCars.player.name;return !id||i
    const build=(mode)=>{const P=[],N=[],Cc=[];let li=0;
     for(const pt of parts){if(sp.bare){const g=pt.g.index?pt.g.toNonIndexed():pt.g.clone(),p=g.attributes.position,nn=g.attributes.normal;const col=pt.c.clone().multiplyScalar(1.15);
       for(let k=0;k<p.count;k++){P.push(p.getX(k),p.getY(k),p.getZ(k));if(nn)N.push(nn.getX(k),nn.getY(k),nn.getZ(k));else N.push(0,1,0);Cc.push(col.r,col.g,col.b)}continue}
-     const lv=pt.leaf?[1,.9,1.1,.95,1.05,.88][li++%6]:1,THL=window.__THEME&&(sp.cone?__THEME.pineLeaf:__THEME.leaf),col=(pt.leaf&&THL?new THREE.Color(THL[0],THL[1],THL[2]):pt.c.clone()).multiplyScalar(pt.leaf?(THL?1.55:sp.br)*lv:1.2);let g;
+     const lv=pt.leaf?[1,.9,1.1,.95,1.05,.88][li++%6]:1,THL=window.__THEME&&(sp.cone?__THEME.pineLeaf:__THEME.leaf),col=(pt.leaf&&THL?new THREE.Color(THL[0],THL[1],THL[2]):pt.c.clone()).multiplyScalar(pt.leaf?(THL?1.55:sp.br)*lv:1.2);let g;if(pt.leaf&&!sp.cone&&!window.__leafBase)window.__leafBase=[col.r/lv,col.g/lv,col.b/lv];   /* (build 427) the bushes take their greens from here */
      if(mode==='full'){g=pt.g.index?pt.g.toNonIndexed():pt.g.clone()}
      else if(pt.leaf&&sp.cone){const b=pt.g.boundingBox,w=Math.max(b.max.x-b.min.x,b.max.z-b.min.z),hh=b.max.y-b.min.y;g=new THREE.ConeGeometry(w*.5,hh,mode==='mid'?7:4,1).toNonIndexed();g.translate((b.min.x+b.max.x)/2,b.min.y+hh/2,(b.min.z+b.max.z)/2)}
      else if(pt.leaf){const s=pt.g.boundingSphere;g=(mode==='mid'?new THREE.IcosahedronGeometry(s.radius*.92,0):new THREE.OctahedronGeometry(s.radius*.95,0)).toNonIndexed();g.translate(s.center.x,s.center.y,s.center.z)}
@@ -14024,10 +14024,86 @@ const id=window.animeCars&&animeCars.player&&animeCars.player.name;return !id||i
     const before=REG.length;if(ent.k==='broadleaf'||/^pine/.test(ent.k))placeOne(ent,pt);
     else{const tmp={shrub:[],grass:[],stone:[]};const keepPut=null;const y=H(ent.x,ent.z),s=ent.s||1,ry=ent.ry||0;
      const list=ent.k==='shrub'?[[ent.x,y-.12*s,ent.z,s,ry,shrubCols[2],.75]]:ent.k==='grass'?[[ent.x,y-.03,ent.z,s*.7,ry,[.4,.74,.24],1]]:[[ent.x,y-.05,ent.z,s*.5,ry,[.55,.53,.5],.85]];
+     if(ent.k==='shrub'&&window.frLand.bushProxy){const px={setMatrixAt(){},instanceMatrix:{},isBushProxy:true};REG.push({im:px,list,kind:'shrub'});return px}
      made=make(ent.k==='shrub'?shrubNear:ent.k==='grass'?grassGeo:stoneGeo,ent.k==='shrub'?shrubMat:ent.k==='grass'?grassMat:stoneMat,list,ent.k)}
     return made},
-   remove(im){if(!im)return;root.remove(im);const i=REG.findIndex(R=>R.im===im);if(i>=0)REG.splice(i,1)},
+   remove(im){if(!im)return;if(!im.isBushProxy)root.remove(im);const i=REG.findIndex(R=>R.im===im);if(i>=0)REG.splice(i,1)},
    kinds:()=>Object.keys(TGEO)};
+  // ================================================================ cizzy7 bushes (build 427)
+  // The roadside shrubs keep their generated spots, sizes, turns and tints (the records above, untouched); only what
+  // is drawn changes: cizzy7's Large_bush for the big ones (High under 25 m, MidBlend to 80 m, an 8-triangle picture
+  // card beyond) and Bush1 for the small ones (96 triangles to 80 m, a card beyond). Each model/level is one instanced
+  // batch, refilled ten times a second from the records. Leaves are alpha-tested cut-outs (bush.webp mask), depth-
+  // written, lit as one soft rounded mass; the per-bush tint is the instance colour. The old puff meshes stay until the
+  // models arrive (and stay for good if they can't load).
+  {const BD='assets/cizzy/',WHITE=[.359,.422];   // a solid texel of the mask: the branches use it so they draw in the same batch
+   const ld=f=>new Promise(res=>import('./assets/lib/three/examples/jsm/loaders/GLTFLoader.js').then(({GLTFLoader})=>new GLTFLoader().load(BD+f,res,undefined,()=>{console.warn('bush '+f+' not found');res(null)})).catch(()=>res(null)));
+   const ldT=f=>new Promise(res=>new THREE.TextureLoader().load(BD+'t/'+f,t=>res(t),undefined,()=>res(null)));
+   // one geometry per model: branches + leaves merged (non-indexed), normalised to the old puff's footprint
+   const build=(gl,ref)=>{const sc0=gl.scene;sc0.updateMatrixWorld(true);const pcs=[];
+    sc0.traverse(o=>{if(!o.isMesh||/BigBoard/i.test(o.material.name))return;let g=o.geometry.clone().applyMatrix4(o.matrixWorld);if(g.index)g=g.toNonIndexed();pcs.push({g,leaf:!/Default OBJ/i.test(o.material.name)})});
+    const box=new THREE.Box3();for(const p of pcs){p.g.computeBoundingBox();box.union(p.g.boundingBox)}
+    const R=ref||{cx:(box.min.x+box.max.x)/2,cz:(box.min.z+box.max.z)/2,y0:box.min.y,h:box.max.y-box.min.y};if(!ref){R.kh=R.kv=Math.min(3.0/Math.max(box.max.x-box.min.x,box.max.z-box.min.z),1.75/R.h)}   // true proportions: about 1.75 m tall, never wider than 3 m (before size/height jitter)
+    let n=0;for(const p of pcs)n+=p.g.attributes.position.count;const P=new Float32Array(n*3),N=new Float32Array(n*3),U=new Float32Array(n*2),Cc=new Float32Array(n*3);let o=0;
+    const H1=R.h*R.kv,cy=H1*.38;
+    for(const p of pcs){const ps=p.g.attributes.position,uv=p.g.attributes.uv;for(let k=0;k<ps.count;k++,o++){
+      const x=(ps.getX(k)-R.cx)*R.kh,y=(ps.getY(k)-R.y0)*R.kv,z=(ps.getZ(k)-R.cz)*R.kh;P.set([x,y,z],o*3);
+      const l=Math.hypot(x,(y-cy)*1.3,z)||1;N.set([x/l,(y-cy)*1.3/l,z/l],o*3);   // one soft rounded mass, like the old puffs
+      if(p.leaf){U.set([uv?uv.getX(k):WHITE[0],uv?uv.getY(k):WHITE[1]],o*2);const t=Math.max(0,Math.min(1,y/H1)),s=.75+.45*t;Cc.set([s,s,s],o*3)}
+      else{U.set(WHITE,o*2);Cc.set([.62,.5,.4],o*3)}}}
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(P,3));g.setAttribute('normal',new THREE.BufferAttribute(N,3));g.setAttribute('uv',new THREE.BufferAttribute(U,2));g.setAttribute('color',new THREE.BufferAttribute(Cc,3));
+    g.computeBoundingSphere();return {g,R,tris:n/3,H:H1}};
+   // a picture card: the High model drawn front and side (unlit: shade comes from the card's own normals) into a
+   // 512x256 picture, shown on four upright quads (8 triangles)
+   const card=(B,mask)=>{const ren=window.__R&&__R.renderer;if(!ren)return null;const W=256,rt=new THREE.WebGLRenderTarget(W*2,W);rt.texture.generateMipmaps=true;rt.texture.minFilter=THREE.LinearMipmapLinearFilter;
+    const sc=new THREE.Scene(),m=new THREE.MeshBasicMaterial({vertexColors:true,alphaMap:mask,alphaTest:.5,side:THREE.DoubleSide});sc.add(new THREE.Mesh(B.g,m));
+    const half=1.55,cam=new THREE.OrthographicCamera(-half,half,B.H*1.02,0,.01,20);
+    const prev=ren.getRenderTarget(),pc=new THREE.Color();ren.getClearColor(pc);const pa=ren.getClearAlpha();ren.setClearColor(0x000000,0);rt.viewport.set(0,0,W*2,W);rt.scissorTest=false;ren.setRenderTarget(rt);ren.clear();
+    for(const [k,ang] of [[0,0],[1,Math.PI/2]]){cam.position.set(Math.sin(ang)*8,0,Math.cos(ang)*8);cam.lookAt(0,0,0);cam.updateMatrixWorld();rt.viewport.set(k*W,0,W,W);rt.scissor.set(k*W,0,W,W);rt.scissorTest=true;ren.setRenderTarget(rt);ren.render(sc,cam)}
+    rt.scissorTest=false;rt.viewport.set(0,0,W*2,W);ren.setRenderTarget(prev);ren.setClearColor(pc,pa);m.dispose();
+    const P=[],U=[],N=[],I=[],Ht=B.H*1.02,cy=B.H*.38;[[0,0],[1,Math.PI/2],[0,Math.PI/4],[1,Math.PI*.75]].forEach(([k,ang],q)=>{const cx=Math.cos(ang),cz=-Math.sin(ang),b=q*4;
+     for(const [sx,y] of [[-1,0],[1,0],[-1,Ht],[1,Ht]]){const x=sx*half*cx,z=sx*half*cz;P.push(x,y,z);const l=Math.hypot(x,(y-cy)*1.3,z)||1;N.push(x/l,(y-cy)*1.3/l,z/l)}
+     U.push(k*.5,0,k*.5+.5,0,k*.5,1,k*.5+.5,1);I.push(b,b+1,b+2,b+2,b+1,b+3)});
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(N,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));g.setIndex(I);g.computeBoundingSphere();return {g,tex:rt.texture,tris:8}};
+   Promise.all([ld('Foliage_Bushes_Large_bush_LargeBush_HighNew.glb'),ld('Foliage_Bushes_Large_bush_BushMidBlend.glb'),ld('Foliage_Bushes_Bush_Bush1.glb'),ldT('bush.webp')]).then(([gh,gm,gs,mask])=>{try{
+    if(!gh||!gm||!gs||!mask)return;mask.flipY=false;mask.wrapS=mask.wrapT=THREE.ClampToEdgeWrapping;mask.needsUpdate=true;
+    const Bh=build(gh),Bm=build(gm,Bh.R),Bs=build(gs),Ch=card(Bh,mask),Cs=card(Bs,mask);
+    const grad=mkGrad([80,135,190,255]);   // the trees' light steps, so a bush next to a tree reads as the same foliage
+    // bush colours follow the broadleaf leaves: each bush keeps its own variation (its tint relative to the average
+    // shrub colour) around the trees' leaf colour, a touch darker (low, partly shaded)
+    const SM=[0,0,0];for(const c of shrubCols)for(let i=0;i<3;i++)SM[i]+=c[i]/shrubCols.length;
+    const tone=()=>{const B=window.__leafBase;return B?[B[0]/SM[0],B[1]/SM[1],B[2]/SM[2]]:[1,1,1]};
+    const leafM=()=>{const m=toon(grad,{side:THREE.DoubleSide,alphaMap:mask,alphaTest:.42});m.transparent=false;m.depthWrite=true;return m};
+    const cardM=c=>{const m=toon(grad,{side:THREE.DoubleSide,map:c.tex,alphaTest:.5,vertexColors:false});m.transparent=false;m.depthWrite=true;return m};
+    // tiny leaves vanish in the smaller mip levels (the averaged mask drops under the cut-off), so far bushes would
+    // thin out to nothing: the cut-out alpha is boosted by the mip level the pixel is reading (keeps their coverage)
+    const keepLeaves=(sh,m)=>{const uv=m.alphaMap?'vAlphaMapUv':'vMapUv',sz=m.alphaMap?'512.':'vec2(512.,256.)';
+     sh.fragmentShader=sh.fragmentShader.replace('#include <alphatest_fragment>','{vec2 dd=max(abs(dFdx('+uv+')),abs(dFdy('+uv+')))*'+sz+';float lv=max(0.,log2(max(max(dd.x,dd.y),1e-4)));diffuseColor.a*=1.+lv*.3;}\n#include <alphatest_fragment>')};
+    const mats=[leafM()];if(Ch)mats.push(cardM(Ch));if(Cs)mats.push(cardM(Cs));
+    // the bush materials follow the old shrub material: its season tint, see-through dither and snow
+    let obc=null;const follow=()=>{for(const m of mats){m.color.copy(shrubMat.color)}if(shrubMat.onBeforeCompile!==obc){obc=shrubMat.onBeforeCompile;const ck=shrubMat.customProgramCacheKey.bind(shrubMat);for(const m of mats){const o=obc;m.onBeforeCompile=(sh,r)=>{o.call(m,sh,r);keepLeaves(sh,m)};m.customProgramCacheKey=()=>ck()+'|leafmip';m.needsUpdate=true}}};
+    const lists=()=>{const S=new Set();for(const R of REG)if(R.kind==='shrub')S.add(R.list);return S};const total=()=>{let n=0;for(const L of lists())n+=L.length;return n};   // (near and far chunks shared one list)
+    const CAP=total()+512;
+    const batch=(g,m,shadow)=>{const im=new THREE.InstancedMesh(g,m,CAP);im.count=0;im.frustumCulled=false;im.receiveShadow=!!shadow;im.userData.keep=true;im.userData.bush=true;im.setColorAt(0,new THREE.Color(1,1,1));root.add(im);return im};
+    const BT={bigHi:batch(Bh.g,mats[0],1),bigMid:batch(Bm.g,mats[0],1),small:batch(Bs.g,mats[0],1),bigCard:Ch?batch(Ch.g,mats[1]):null,smallCard:Cs?batch(Cs.g,mats[Ch?2:1]):null};
+    // swap: the old puff chunks leave; their records stay in REG (editor erase/reseat/unerase keep working on them)
+    const proxy={setMatrixAt(){},instanceMatrix:{},isBushProxy:true};
+    for(const R of REG)if(R.kind==='shrub'&&R.im&&!R.im.isBushProxy){root.remove(R.im);R.im=proxy}
+    for(const p of parts){if(p.sn){p.sn=null;p.sf=null}}
+    const T=Ch?{hi:25,mid:80,far:1200}:{hi:25,mid:1200,far:1200},fw=new THREE.Vector3();
+    const tick=()=>{follow();const cp=window.__camLock?{x:__camLock[0],z:__camLock[2]}:camera.position;camera.getWorldDirection(fw);const fl=Math.hypot(fw.x,fw.z)||1,fx=fw.x/fl,fz=fw.z/fl;
+     const n={bigHi:0,bigMid:0,small:0,bigCard:0,smallCard:0};const TN=tone();
+     for(const LL of lists()){for(const r of LL){if(r.gone)continue;const dx=r[0]-cp.x,dz=r[2]-cp.z,d=Math.hypot(dx,dz);if(d>T.far)continue;
+       if(d>20&&(dx*fx+dz*fz)<-.35*d)continue;   // well behind the camera (wide margin for a fast flick of the view)
+       const big=r[3]>=1.1;const key=big?(d<T.hi?'bigHi':d<T.mid?'bigMid':'bigCard'):(d<(Cs?T.mid:T.far)?'small':'smallCard');const im=BT[key];if(!im||n[key]>=CAP)continue;
+       e.set(0,r[4],0);q.setFromEuler(e);v3.set(r[0],r[1],r[2]);sc.set(r[3],r[3]*r[6],r[3]);m4.compose(v3,q,sc);im.setMatrixAt(n[key],m4);cl.setRGB(r[5][0]*TN[0],r[5][1]*TN[1],r[5][2]*TN[2]);im.setColorAt(n[key],cl);n[key]++}}
+     for(const k in BT){const im=BT[k];if(!im)continue;im.count=n[k];im.instanceMatrix.needsUpdate=true;im.instanceColor.needsUpdate=true}
+     window.frLand.bushInfo={counts:n,tris:{bigHi:Bh.tris,bigMid:Bm.tris,small:Bs.tris,card:8}}};
+    tick();setInterval(tick,100);
+    window.frLand.bushes=true;window.frLand.bushTick=tick;Object.defineProperty(window.frLand,'bushRecs',{get(){const o=[];for(const LL of lists())for(const r of LL)o.push(r);return o},configurable:true});
+    window.frLand.bushProxy=proxy;
+    {const cr=document.getElementById('modelCredit');if(cr&&!/cizzy7/.test(cr.innerHTML))cr.innerHTML+='<br>Bushes: painted bushes by cizzy7';}
+    console.log('AKLOG bushes',Bh.tris,Bm.tris,Bs.tris,!!Ch,total())}catch(err){console.warn('bushes',err)}})}
   console.log('AKLOG frLand',JSON.stringify(window.frLand.lake),nS,nG,nT,parts.length)}
 })();
 
