@@ -508,7 +508,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=432',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=433',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -4055,7 +4055,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 432';
+window.__BUILD='BUILD 433';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5578,9 +5578,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794993699'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795024960'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794993699'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795024960'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -5955,8 +5955,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794993699'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794993699'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795024960'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795024960'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6414,7 +6414,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794993699',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795024960',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6428,7 +6428,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794993699',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795024960',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -7958,7 +7958,8 @@ const animeTrees=window.animeTrees=(()=>{
   tougeWorld.traverse(o=>{if(o.isMesh&&(o.geometry===cedarTrunk||o.geometry===cedarLeaves))o.visible=false})}
  let GLTFLoader=null,BufferGeometryUtils=null,SimplifyModifier=null;
  const load=f=>new Promise(res=>new GLTFLoader().load(f,g=>res(g),undefined,()=>res(null)));
- if(!window.__PASS)   /* (build 432) the passes use the cizzy7 / grimren13 trees only: these older models aren't loaded there */
+ if(window.__PASS){for(const t of [0,1500,5000,12000])setTimeout(()=>{try{hideOld()}catch(e){}},t)}   /* (build 433) ...but the old blob-crowned canyon trees they used to hide must still be hidden */
+ else   /* (build 432) the passes use the cizzy7 / grimren13 trees only: these older models aren't loaded there */
  Promise.all([import('./assets/lib/three/examples/jsm/loaders/GLTFLoader.js'),import('./assets/lib/three/examples/jsm/utils/BufferGeometryUtils.js'),import('./assets/lib/three/examples/jsm/modifiers/SimplifyModifier.js')])
   .then(async([a,b,c])=>{GLTFLoader=a.GLTFLoader;BufferGeometryUtils=b;SimplifyModifier=c.SimplifyModifier;
    const [cg,gg]=await Promise.all([load(FILES.cherry[0]),load(FILES.green[0])]);if(!cg||!gg){console.warn('tree models missing, keeping the old trees');return}
@@ -13239,7 +13240,31 @@ body.silentBeat #hud,body.silentBeat #minimap,body.silentBeat #speed,body.silent
  const SECT=['THE FIVE HAIRPINS','THE SWEEPERS','THE ZIGZAGS','THE LAKESIDE S-BENDS'];
  let sect=-1,placeT=null;
  const atAkina=()=>{if(!window.AKINA||typeof AKINA_CP==='undefined')return false;const ch=chap();if(ch)return /^AKINA/.test(ch.sub||'');return canyonEvent==='race'||canyonEvent==='time'};
+ // (build 433) the passes: named stretches found from the road itself (in driving order), so each title shows as you
+ // enter it — a run of hairpins, a run of fast sweepers, a long straight; Akina's run of five is "the five hairpins"
+ const PNAME={akinanew:'AKINA',myogi:'MYOGI',akagi:'AKAGI',usui:'USUI',irohazaka:'IROHAZAKA'};let ZONES=null;
+ function zones(){if(ZONES)return ZONES;ZONES=[];try{const cs=window.__scanFR?__scanFR():[],m=window.M_PER_INDEX||3,N=tougeCenters.length-1,pass=window.__PASS;
+  const pin=c=>c.ang>2.4||c.r<26,sw=c=>!pin(c)&&c.r>=40&&c.ang<2;
+  // Akina: the five hairpins are the tightest run of five near-U-turns (over 150°), wherever they fall on this layout
+  if(pass==='akinanew'){const U=cs.filter(c=>c.ang>2.6);let best=null;for(let k=0;k+4<U.length;k++){const span=U[k+4].end-U[k].start;if(!best||span<best.span)best={span,a:U[k].start,b:U[k+4].end}}
+   if(best&&best.span*m<900)ZONES.push({a:best.a-Math.round(40/m),b:best.b,t:'THE FIVE HAIRPINS'})}
+  // hairpin runs: hairpins no more than ~170 m apart
+  let i=0;while(i<cs.length){if(!pin(cs[i])){i++;continue}let j=i,n=1;for(let k=i+1;k<cs.length;k++){if((cs[k].start-cs[j].end)*m>170)break;if(pin(cs[k])){j=k;n++}}
+   const za=cs[i].start-Math.round(40/m),zb=cs[j].end;if(n>=3&&!ZONES.some(z=>z.a<zb&&z.b>za))ZONES.push({a:za,b:zb,t:pass==='irohazaka'?'THE HAIRPIN STAIRWAY':n>=4?'THE HAIRPINS':'THE ZIGZAGS'});i=j+1}
+  // sweeper runs: three or more open corners in a row with no hairpin, over 350 m or more
+  i=0;while(i<cs.length){if(!sw(cs[i])){i++;continue}let j=i;while(j+1<cs.length&&sw(cs[j+1])&&(cs[j+1].start-cs[j].end)*m<120)j++;
+   if(j-i>=2&&(cs[j].end-cs[i].start)*m>350&&!ZONES.some(z=>z.a<cs[j].end&&z.b>cs[i].start))ZONES.push({a:cs[i].start-Math.round(20/m),b:cs[j].end,t:'THE SWEEPERS'});i=j+1}
+  // long straights between corners
+  for(let k=0;k+1<cs.length;k++){if((cs[k+1].start-cs[k].end)*m>260&&!ZONES.some(z=>z.a<cs[k+1].start&&z.b>cs[k].end))ZONES.push({a:cs[k].end+Math.round(20/m),b:cs[k+1].start,t:'THE LONG STRAIGHT'})}
+  ZONES.sort((p,q)=>p.a-q.a);
+  // a name used more than once gets where it is on the mountain (upper / middle / lower)
+  const down=tougeCenters[0].y>tougeCenters[N].y;const by={};ZONES.forEach(z=>(by[z.t]=by[z.t]||[]).push(z));
+  for(const t in by){const L=by[t];if(L.length<2)continue;L.forEach((z,k)=>{let w=k===0?'UPPER':k===L.length-1?'LOWER':'MIDDLE';if(!down)w=w==='UPPER'?'LOWER':w==='LOWER'?'UPPER':w;if(L.length>3&&w==='MIDDLE')w='MID-MOUNTAIN';z.t=t.replace('THE ','THE '+w+' ')})}}catch(e){}return ZONES}
+ function placeFR(){const Z=zones(),p=progress;let s=-1;for(let k=0;k<Z.length;k++)if(p>=Z[k].a&&p<=Z[k].b){s=k;break}
+  if(s!==sect){sect=s;if(s>=0){placeEl.innerHTML=`${PNAME[window.__PASS]||''} · <b>${Z[s].t}</b>`;placeEl.classList.add('on');clearTimeout(placeT);placeT=setTimeout(()=>placeEl.classList.remove('on'),3200)}}}
+ window.__zones=zones;
  function place(dt){if(!atAkina()||!courseChosen||storyActive||countdown>0||finished){sect=-1;return}
+  if(window.__PASS){placeFR();return}
   const o=orig(progress),s=o<AKINA_CP[0]?0:o<AKINA_CP[1]?1:o<AKINA_CP[2]?2:3;
   if(s!==sect){sect=s;placeEl.innerHTML=`AKINA · <b>${SECT[s]}</b>`;placeEl.classList.add('on');clearTimeout(placeT);placeT=setTimeout(()=>placeEl.classList.remove('on'),3200)}}
  // ---------------------------------------------------------------- sounds (your files, or a stand-in)
@@ -14459,7 +14484,7 @@ const id=window.animeCars&&animeCars.player&&animeCars.player.name;return !id||i
    // retaining walls that match the ground the terrain carves for them (akina_terrain wallOf): 'fill' faces drop from
    // a level concrete edge just past the rail down to the ground by the road below; 'cut' faces rise from the foot
    // of the flat shelf into the hillside
-   for(const side of [-1,1]){let open=null,u=0,last=null,run=[],prev=null;
+   for(const side of [-1,1]){let open=null,u=0,last=null,run=[],prev=null,lastPts=null;
     const flush=()=>{if(run.length<4){P.length=run.length?run[0].p0:P.length;UV.length=run.length?run[0].u0:UV.length;I.length=run.length?run[0].i0:I.length}run=[]};
     const WI=WIC[side]||(WIC[side]=[]),fresh=!WI.length;if(fresh)for(let k=0;k<=NN;k+=2){const p=C[k],t=T[k],sx=-t.z*side,sz=t.x*side,w0=W(k);
      const ptAt=dT=>{let r=w0+dT;for(let it=0;it<3;it++){const n=G.near(p.x+sx*r,p.z+sz*r,70);if(!n)break;r+=dT-n.d}return [p.x+sx*r,p.z+sz*r]};
@@ -14484,12 +14509,16 @@ const id=window.animeCars&&animeCars.player&&animeCars.player.name;return !id||i
      let pts=wi?mk(wi):null;
      // never let a wall face reach over a road: sample across the face, drop it if any point lies on asphalt (a hairpin's
      // other leg, a road below) or if it jumps far from the last piece (faces folding round a tight bend)
-     if(pts){const A=pts[0],B=pts[pts.length-1];for(let q=1;q<=8&&pts;q++){const u=q/8,x=A[0]+(B[0]-A[0])*u,z=A[2]+(B[2]-A[2])*u,n=G.near(x,z,12);if(n&&n.d<(typeof tougeWidth!=='undefined'?tougeWidth/2:4.85)-.3)pts=null}
-      if(pts&&open&&last&&Math.hypot(pts[0][0]-last[0],pts[0][2]-last[1])>7){if(open)flush();open=null;last=null;prev=null}}
+     // (build 433) also the strip joining it to the last face, and the extra piece each wall runs on by
+     const HWr=(typeof tougeWidth!=='undefined'?tougeWidth/2:4.85)-.3,overRoad=(ps,ref)=>{const A=ps[0],B=ps[ps.length-1];for(let q=0;q<=8;q++){const u=q/8;let x=A[0]+(B[0]-A[0])*u,z=A[2]+(B[2]-A[2])*u;
+       if(ref){const RA=ref[0],RB=ref[ref.length-1];x=(x+RA[0]+(RB[0]-RA[0])*u)/2;z=(z+RA[2]+(RB[2]-RA[2])*u)/2}const n=G.near(x,z,12);if(n&&n.d<HWr)return true}return false};
+     if(pts&&(overRoad(pts)||(lastPts&&open&&overRoad(pts,lastPts))))pts=null;
+     if(pts){
+      if(pts&&open&&last&&Math.hypot(pts[0][0]-last[0],pts[0][2]-last[1])>7){if(open)flush();open=null;last=null;prev=null;lastPts=null}}
      if(pts){const q=pts[wi.t==='fill'?1:0];if(wErased(q[0],q[2]))pts=null;else{const dh=wDH(q[0],q[2]);if(dh){if(wi.t==='fill'){pts[0][1]+=dh;pts[1][1]+=dh}else pts[1][1]=Math.max(pts[0][1]+.3,pts[1][1]+dh)}}}
-     if(!pts||(open&&open!==wi.t)){if(open&&prev){const ex=mk(prev);if(ex)emit(ex,prev.t)}   // run each wall on one more step so neighbouring pieces meet
-      if(open)flush();open=null;last=null;prev=null;if(!pts)continue}
-     emit(pts,wi.t);prev=wi}
+     if(!pts||(open&&open!==wi.t)){if(open&&prev){const ex=mk(prev);if(ex&&!overRoad(ex)&&!(lastPts&&overRoad(ex,lastPts)))emit(ex,prev.t)}   // run each wall on one more step so neighbouring pieces meet
+      if(open)flush();open=null;last=null;prev=null;lastPts=null;if(!pts)continue}
+     emit(pts,wi.t);prev=wi;lastPts=pts}
     if(open)flush()}
    window.__frWallsNew=P.length/3}
   else
@@ -19161,6 +19190,11 @@ const animeLocations=window.animeLocations=(()=>{
      const reach=sg=>{for(let d=12;d<=170;d+=4){const x=c.x+ux*d*sg,z=c.z+uz*d*sg;if(gnd(x,z,c.y)>=top-1.5)return d}return null};
      const dR=reach(1),dL=reach(-1);if(dR==null||dL==null)continue;const len=dR+dL;if(len<60)continue;
      const sc=-len-Math.abs(ang)*20;if(!pick||sc>pick.sc)pick={sc,j,ux,uz,dR,dL,len}}}
+   // (build 433) pinned where it stood when you approved it (builds 425-430): closing the loop in build 431 shifted the
+   // road's numbering and the search above wandered off to a fallback spot
+   if(window.__PASS==='usui'){const PX=-44.15,PZ=482.69,RY=1.3507;let j0=0,bd=1e9;for(let j=0;j<=N0;j++){const d=Math.hypot(C[j].x-PX,C[j].z-PZ);if(d<bd){bd=d;j0=j}}
+    const c=C[j0],ux=Math.cos(RY),uz=-Math.sin(RY),top=c.y+DECK,reach=sg=>{for(let d=12;d<=170;d+=4){const x=c.x+ux*d*sg,z=c.z+uz*d*sg;if(gnd(x,z,c.y)>=top-1.5)return d}return null};
+    const dR=reach(1)||84,dL=reach(-1)||84;pick={j:j0,ux,uz,dR,dL,len:dR+dL,pinned:true}}
    if(!pick){const j=Math.round(N0*.45),t=T[j];pick={j,ux:-t.z,uz:t.x,dR:70,dL:70,len:140,fallback:true}}
    const c=C[pick.j];
    if(c){const depth=7,pier=4.6,L0=-pick.dL-8,L1=pick.dR+8;   // run 8 m into each hillside
