@@ -2018,14 +2018,6 @@ HU.uHN.value.lerp(sn,Math.min(1,shh)* 0.88);
 HU.uHF.value.lerp(sn,Math.min(1,shh)* 0.7);
 }
 if(HU.uHSn)HU.uHSn.value = Math.min(1,shh);
-try{
-const EC =(window.__edgeC = window.__edgeC ||{value: new THREE.Color(0.75,0.82,0.78)});
-const sn = HU.uHSn ? HU.uHSn.value : 0;
-const hz =(window.__edgeHz ||(window.__edgeHz = new THREE.Color())).copy(HU.uHH.value).lerp((window.__edgeT ||(window.__edgeT = new THREE.Color())).copy(HU.uHN.value).multiplyScalar(1.02),sn);
-EC.value.copy(HU.uHN.value).lerp(hz,0.06);
-const mk = Math.min(1,(HU.uMistK ? HU.uMistK.value : 1)* 0.85);
-EC.value.lerp((window.__edgeT2 ||(window.__edgeT2 = new THREE.Color())).copy(hz).multiplyScalar(1.04),mk);
-}catch(e){}
 }
 const ev = window.__EV;
 G.uGrey.value +=((ev ? Math.max(ev.rain || 0,(ev.snow || 0)* 0.6): 0)- G.uGrey.value)* k;
@@ -2138,15 +2130,16 @@ WC_GLSL
     float lum0=dot(c,vec3(.3,.59,.11));soil*=.75+.6*smoothstep(.05,.4,lum0);c=mix(c,soil*(.9+.2*gran),bare*.85);}}
   /* FOREST 105 (Ryan: the trails showed snowflake-shaped cut-outs): in winter the ground itself turns white under the drifts, and the
      paths get a light, patchy painted dusting; it whitens bit by bit with the season, and trodden snow shows a cool blue */
-  if(uSnowGG>.001){float gm=gmSoft(p);float bare=1.-smoothstep(.07,.14,gm);/* Build 581 (Ryan: the path up to the beanstalk glade, and others, were white): the forest trails aren't bare in the meadow map, so the ground under them was painted snowy while the snow sheet above was clear; the ground now reads the snow map too, which has every trail in it */bare=max(bare,1.-smoothstep(.12,.45,texture2D(uSnowMG,(p+uWorldG*.5)/uWorldG).r)*step(.5,uSnowMOn));/* FOREST 116 (Ryan: the ground went white all at once): flakes settle first as scattered specks, then gather into patches that join up as the season turns */float thrG=wcN(p*4.1)*.55+wcN(p*.9)*.35+.05;float sgk=smoothstep(thrG-.05,thrG+.18,uSnowGG*1.1)*mix(.55,1.,smoothstep(.3,1.,uSnowGG));
+  if(uSnowGG>.001){float gm=gmSoft(p);float bare=1.-smoothstep(.07,.14,gm);/* Build 581 (Ryan: the path up to the beanstalk glade, and others, were white): the forest trails aren't bare in the meadow map, so the ground under them was painted snowy while the snow sheet above was clear; the ground now reads the snow map too, which has every trail in it */float bareS=(1.-smoothstep(.12,.45,texture2D(uSnowMG,(p+uWorldG*.5)/uWorldG).r))*step(.5,uSnowMOn);bare=max(bare,bareS);/* FOREST 116 (Ryan: the ground went white all at once): flakes settle first as scattered specks, then gather into patches that join up as the season turns */float thrG=wcN(p*4.1)*.55+wcN(p*.9)*.35+.05;float sgk=smoothstep(thrG-.05,thrG+.18,uSnowGG*1.1)*mix(.55,1.,smoothstep(.3,1.,uSnowGG));
    vec3 sc=mix(vec3(.83,.87,.97),vec3(.965,.975,1.),smoothstep(.3,.7,wcF(p*.35)));sc*=.97+.06*gran;
-   float dust=smoothstep(.38,.62,wcF(p*.7+3.))*.55+.1;/* (Build 572: the wheat field is snow-covered, not a trodden path) */bare*=1.-inWheat(p);float cov=sgk*mix(.97,dust,bare);/* FOREST 117 (Ryan liked the worn, shadowed trail): every path is the same well-travelled track: a thin patchy dusting in cool shadow */sc=mix(sc,vec3(.5,.56,.75),bare*.5);/* (FOREST 105, Ryan: the Great Tree's hollow stays warm and dry) */if(uGTreeG.z>0.)cov*=smoothstep(uGTreeG.z,uGTreeG.z+.8,length(p-uGTreeG.xy));
+   float dust=smoothstep(.38,.62,wcF(p*.7+3.))*.55+.1;/* (Build 572: the wheat field is snow-covered, not a trodden path) */bare*=1.-inWheat(p);float cov=sgk*mix(.97,dust,bare)*(1.-.55*bareS);/* (Build 581: the trails show their earth through a lighter dusting) *//* FOREST 117 (Ryan liked the worn, shadowed trail): every path is the same well-travelled track: a thin patchy dusting in cool shadow */sc=mix(sc,vec3(.5,.56,.75),bare*.5);/* (FOREST 105, Ryan: the Great Tree's hollow stays warm and dry) */if(uGTreeG.z>0.)cov*=smoothstep(uGTreeG.z,uGTreeG.z+.8,length(p-uGTreeG.xy));
    float tr=texture2D(uSnowTG,(p+uWorldG*.5)/uWorldG).r;sc=mix(sc,vec3(.46,.53,.76),smoothstep(.06,.8,tr)*.75*(1.-bare));
    c=mix(c,sc,cov);}
   diffuseColor.rgb=c;}`
 )
 .replace('#include <common>','#include <common>\nuniform vec3 uEdgeC;')
-.replace('#include <tonemapping_fragment>','gl_FragColor.rgb=mix(gl_FragColor.rgb,uEdgeC,smoothstep(' + EDGE_A.toFixed(1)+ ',' + EDGE_B.toFixed(1)+ ',length(vWg.xz)));\n#include <tonemapping_fragment>');
+.replace('#include <clipping_planes_fragment>','#include <clipping_planes_fragment>\nif(length(vWg.xz)>' + EDGE_B.toFixed(1)+ ')discard;')
+.replace('#include <colorspace_fragment>','#include <colorspace_fragment>\ngl_FragColor.rgb=mix(gl_FragColor.rgb,uEdgeC,smoothstep(' + EDGE_A.toFixed(1)+ ',' + EDGE_B.toFixed(1)+ ',length(vWg.xz)));');
 sh.uniforms.uEdgeC = window.__edgeC ||(window.__edgeC ={value: new THREE.Color(0.75,0.82,0.78)});
 };
 m.customProgramCacheKey =()=> 'groundPaint';
@@ -3941,7 +3934,7 @@ addSurf(r.s,r.x - r.R * 1.6,r.z - r.R * 1.6,r.x + r.R * 1.6,r.z + r.R * 1.6);
 for(const s of stumps)
 addSurf({t: 'disk',x: s.x,z: s.z,r: s.r * 1.18,top: s.top},s.x - 1,s.z - 1,s.x + 1,s.z + 1);
 for(const l of logs){
-l.s ={t: 'cap',ax: l.ax,az: l.az,ay: l.ay,bx: l.bx,bz: l.bz,by: l.by,r: l.r};
+l.s ={t: 'cap',ax: l.ax,az: l.az,ay: l.ay,bx: l.bx,bz: l.bz,by: l.by,r: l.r,keepLog: true};
 addSurf(
 l.s,
 Math.min(l.ax,l.bx)- 1,
@@ -5138,7 +5131,7 @@ const isOwned = sf => sf.own &&(owners.has(sf.own)||(sf.own.parent && owners.has
 let killed = 0;
 for(const sf of SURF){
 if(sf.dead || !sf._bb)continue;
-if(sf.bridge || sf.czNew ||(sf.tree && sf.tree.czTree))continue;
+if(sf.bridge || sf.czNew || sf.keepLog ||(sf.tree && sf.tree.czTree))continue;
 const[x0,z0,x1,z1]= sf._bb;
 const cx =(x0 + x1)/ 2,
 cz =(z0 + z1)/ 2;
@@ -15572,10 +15565,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 581;
+const BUILD = 582;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 149;
+const LOOKV = 150;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -22731,25 +22724,35 @@ if(under && camOut && cp.y < bb.max.y - 0.15)under = false;
 }
 const turnSee = t === TG[0]&& performance.now()<(window.__turnSee || 0);
 if((turnSee ||(!under && !window.__sceneOn))&& d < 30 && t.g.visible !== false && head.distanceTo(t.g.getWorldPosition(new V3()))< 14){
-t.hit = rc.intersectObject(t.g,true).length > 0;
+{
+const hh = rc.intersectObject(t.g,true);
+t.hit = hh.length > 0;
+if(t.hit)t.why = 'cam ray: ' +(hh[0].object.name || hh[0].object.type)+ ' @' + hh[0].point.toArray().map(v => v.toFixed(1)).join(',');
+}
 if(!t.hit && t === TG[0]&& window.__busBoxes){
 const r = new THREE.Ray(head,camera.position.clone().sub(head).normalize()),
 hp2 = new V3();
 for(const b of window.__busBoxes())if(b.containsPoint(camera.position)||(r.intersectBox(b,hp2)&& hp2.distanceTo(head)< d)){
 t.hit = true;
+t.why = 'box ' + b.min.toArray().map(v => v.toFixed(1)).join(',')+ ' / ' + b.max.toArray().map(v => v.toFixed(1)).join(',');
 break;
 }
 }
 if(!t.hit){
 rc2.set(head,camera.position.clone().sub(head).normalize());
 rc2.far = Math.max(0,d - 0.05);
-t.hit = rc2.intersectObject(t.g,true).length > 0;
+{
+const hh = rc2.intersectObject(t.g,true);
+t.hit = hh.length > 0;
+if(t.hit)t.why = 'head ray: ' +(hh[0].object.name || hh[0].object.type)+ ' @' + hh[0].point.toArray().map(v => v.toFixed(1)).join(',');
+}
 rc.set(camera.position,head.clone().sub(camera.position).normalize());
 rc.far = Math.max(0,d - 0.3);
 }
 }
 }
 }
+window.__fadeWhy = TG.map(t => t &&(t.hit ? t.why || 'hit' : '-'));
 for(const t of TG){
 if(!t)continue;
 const want = t.hit ? 1 : 0;
@@ -22770,6 +22773,18 @@ m.depthWrite = t.k < 0.5;
 };
 requestAnimationFrame(loop);
 }
+window.__camMatch =()=>{
+cam.yaw = Math.atan2(camera.position.x - P.pos.x,camera.position.z - P.pos.z);
+const hx = Math.hypot(camera.position.x - P.pos.x,camera.position.z - P.pos.z)|| 1;
+cam.pitch = clamp(Math.atan2(camera.position.y - P.pos.y - T.camHeight,hx),0.15,0.9);
+try{
+const CS2 = window.__CAMST;
+if(CS2 && CS2.cam){
+CS2.cam.yaw = cam.yaw;
+CS2.cam.pitch = cam.pitch;
+}
+}catch(e){}
+};
 const moveEl = document.getElementById('move'),
 stamI = document.querySelector('#stamBar i'),
 chI = document.querySelector('#chargeBar i');
@@ -26546,6 +26561,19 @@ BU.uSil.value.lerp(new THREE.Color().copy(hc).multiplyScalar(0.9 * lf),0.75);
 BU.uLit.value.lerp(new THREE.Color().copy(hc).multiplyScalar(1.45 * lf),0.7);
 }
 BU.uBare.value = window.__bdBare || 0;
+try{
+const shh =(window.__CYCLE && window.__CYCLE.snowHills)||(typeof grassU !== 'undefined' && grassU.uSnowG ? grassU.uSnowG.value : 0);
+if(shh > 0.001){
+const k = Math.min(1,shh),
+f = BU.uFog.value,
+lum = Math.min(1,Math.max(0.35,(0.3 * f.r + 0.59 * f.g + 0.11 * f.b)* 1.35)),
+sn =(window.__bdSnowC ||(window.__bdSnowC = new THREE.Color())).setRGB(0.88 * lum,0.91 * lum,0.97 * lum);
+BU.uFog.value.lerp(sn,k * 0.95);
+BU.uSil.value.lerp(sn,k * 0.45);
+BU.uLit.value.lerp(sn,k * 0.55);
+}
+(window.__edgeC ||(window.__edgeC ={value: new THREE.Color()})).value.copy(BU.uFog.value);
+}catch(e){}
 BU.uSunA.value = Math.atan2(sun.position.z - sun.target.position.z,sun.position.x - sun.target.position.x);
 }
 grassU.uDap.value = W.dap;
@@ -38327,9 +38355,12 @@ return;
 }
 if(outT != null && backK >= 1 && window.__camOverride === hold){
 try{
+if(window.__camMatch)window.__camMatch();
+else{
 const CS2 = window.__CAMST;
 cam.yaw = Math.atan2(camera.position.x - P.pos.x,camera.position.z - P.pos.z);
 if(CS2 && CS2.cam)CS2.cam.yaw = cam.yaw;
+}
 }catch(e){}
 moved = true;
 }
@@ -47084,6 +47115,7 @@ J.updateTracker && J.updateTracker();
 };
 J.showcase = showcase;
 window.__giftMesh = giftMesh;
+window.__GIFTS = GIFTS;
 J.giveFirst =
 ()=>{
 const G = GIFTS[0];
@@ -54913,7 +54945,7 @@ sx.lineCap = sx.lineJoin = 'round';
 const W2P = SN / WORLD,
 tp =(x,z)=>[(x + WORLD / 2)* W2P,(z + WORLD / 2)* W2P];
 for(const fl of tr){
-sx.lineWidth = 2 * 1.3 * W2P;
+sx.lineWidth = 2 * 1.9 * W2P;
 sx.beginPath();
 for(let i = 0;i < fl.length;i += 2){
 const[a,b]= tp(fl[i],fl[i + 1]);
@@ -54999,8 +55031,9 @@ varying vec2 vSwp;varying float vStr,vSd;
 float snH2(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float snN2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(snH2(i),snH2(i+vec2(1,0)),f.x),mix(snH2(i+vec2(0,1)),snH2(i+vec2(1,1)),f.x),f.y);}`
 )
-.replace('#include <tonemapping_fragment>','gl_FragColor.rgb=mix(gl_FragColor.rgb,uEdgeC,smoothstep(' + EDGE_A.toFixed(1)+ ',' + EDGE_B.toFixed(1)+ ',length(vSwp)));\n#include <tonemapping_fragment>')
+.replace('#include <colorspace_fragment>','#include <colorspace_fragment>\ngl_FragColor.rgb=mix(gl_FragColor.rgb,uEdgeC,smoothstep(' + EDGE_A.toFixed(1)+ ',' + EDGE_B.toFixed(1)+ ',length(vSwp)));')
 .replace('#include <common>','#include <common>\nuniform vec3 uEdgeC;')
+.replace('#include <clipping_planes_fragment>','#include <clipping_planes_fragment>\nif(length(vSwp)>' + EDGE_B.toFixed(1)+ ')discard;')
 .replace(
 '#include <color_fragment>',
 `#include <color_fragment>
@@ -58391,7 +58424,7 @@ const BAKED_EDITS =
 window.__LAYOUT ||
 (()=>{
 const x = new XMLHttpRequest();
-x.open('GET','data/world-layout.6d60bfdc9f.json',false);
+x.open('GET','data/world-layout.79bc3450c0.json',false);
 x.send();
 return JSON.parse(x.responseText);
 })();
@@ -63169,6 +63202,92 @@ cut();
 }catch(e){}
 window.__cutOutside = cut;
 }
+{
+const solidLogs =()=>{
+const ax = new V3(),
+c = new V3(),
+q = new THREE.Quaternion(),
+sc = new V3();
+scene.traverse(o =>{
+if(!o.isMesh || !o.userData.logStump || !o.visible || o.userData.logSolid)return;
+const g = o.geometry,
+pr = g && g.parameters;
+if(!pr || pr.height == null)return;
+o.updateMatrixWorld(true);
+o.matrixWorld.decompose(c,q,sc);
+ax.set(0,1,0).applyQuaternion(q);
+if(Math.abs(ax.y)> 0.7)return;
+const L = pr.height * sc.y,
+r = Math.max(pr.radiusTop || 0,pr.radiusBottom || 0)* Math.max(sc.x,sc.z);
+const a = c.clone().addScaledVector(ax,-L / 2),
+b = c.clone().addScaledVector(ax,L / 2);
+const s2 ={t: 'cap',ax: a.x,az: a.z,ay: a.y,bx: b.x,bz: b.z,by: b.y,r,keepLog: true};
+addSurf(s2,Math.min(a.x,b.x)- 1,Math.min(a.z,b.z)- 1,Math.max(a.x,b.x)+ 1,Math.max(a.z,b.z)+ 1);
+o.userData.logSolid = s2;
+});
+scene.traverse(o =>{
+const s2 = o.userData && o.userData.logSolid;
+if(s2 && o.visible)s2.dead = false;
+});
+};
+for(const ms of[3000,9000,20000,40000])
+setTimeout(()=>{
+try{
+solidLogs();
+}catch(e){}
+},ms);
+}
+{
+const EC = window.__edgeC ||(window.__edgeC ={value: new THREE.Color(0.75,0.82,0.78)});
+let lo = 1e9,
+sum = 0,
+n = 0;
+for(let a = 0;a < 6.283;a += 0.05){
+const h = heightAt(Math.cos(a)*(EDGE_B - 0.5),Math.sin(a)*(EDGE_B - 0.5));
+lo = Math.min(lo,h);
+sum += h;
+n++;
+}
+const floorY = Math.min(lo,sum / n)- 0.6;
+const fm = new THREE.ShaderMaterial({
+uniforms:{uC: EC},
+fog: false,
+depthWrite: true,
+side: THREE.DoubleSide,
+vertexShader: 'void main(){gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+fragmentShader: 'uniform vec3 uC;void main(){gl_FragColor=vec4(uC,1.);}'
+});
+const fg = new THREE.RingGeometry(EDGE_B - 0.4,400,128,1);
+fg.rotateX(-Math.PI / 2);
+const floor = new THREE.Mesh(fg,fm);
+floor.position.y = floorY;
+floor.name = 'edge mist floor';
+floor.renderOrder = -5;
+floor.frustumCulled = false;
+scene.add(floor);
+const H = 14;
+const wm = new THREE.ShaderMaterial({
+uniforms:{uC: EC},
+fog: false,
+transparent: true,
+depthWrite: false,
+side: THREE.DoubleSide,
+vertexShader: 'varying float vY;void main(){vY=uv.y;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+fragmentShader: 'uniform vec3 uC;varying float vY;void main(){gl_FragColor=vec4(uC,(1.-smoothstep(0.,1.,vY))*.82);}'
+});
+for(const[r,a]of[[EDGE_B - 1.5,0.55],[EDGE_B + 3,1]]){
+const wg = new THREE.CylinderGeometry(r,r,H,160,1,true);
+wg.translate(0,H / 2,0);
+const w = new THREE.Mesh(wg,wm.clone());
+w.material.uniforms.uC = EC;
+w.material.fragmentShader = w.material.fragmentShader.replace('*.82','*' +(0.82 * a).toFixed(2));
+w.position.y = floorY - 0.5;
+w.name = 'edge mist wall';
+w.renderOrder = 5;
+w.frustumCulled = false;
+scene.add(w);
+}
+}
 window.__topdown =
 (px = 2048,y0 = 90)=>{
 const oc = new THREE.OrthographicCamera(-WORLD / 2,WORLD / 2,WORLD / 2,-WORLD / 2,1,y0 + 60);
@@ -64298,6 +64417,119 @@ pn.querySelector('#hlX').onclick =()=>{
 LOG.length = 0;
 PANEL.draw();
 };
+const add =()=> document.body.appendChild(pn);
+document.body ? add(): addEventListener('DOMContentLoaded',add);
+}
+}
+{
+const ON =(()=>{
+try{
+return new URLSearchParams(location.search).has('check');
+}catch(e){
+return false;
+}
+})();
+if(ON){
+const go =(x,z)=>{
+window.__camOverride = null;
+if(window.__tp)window.__tp(x,z);
+};
+const season = s =>{
+try{
+if(s === 'winter')window.__snClk = 1;
+window.__CYCLE && window.__CYCLE.setSeason(s,true);
+window.__seasonVis && window.__seasonVis(s);
+}catch(e){}
+};
+let orb = null;
+const high =()=>{
+if(orb){
+orb = null;
+window.__camOverride = null;
+return;
+}
+orb ={t: 0,last: performance.now()};
+window.__camOverride = c =>{
+const now = performance.now();
+orb.t +=(now - orb.last)/ 1000;
+orb.last = now;
+const a = orb.t * 0.08;
+c.position.set(Math.sin(a)* 105,62,Math.cos(a)* 105);
+c.lookAt(0,0,0);
+};
+};
+const firstBridge =()=>(window.__CROSS ||[]).find(c => c.kind === 'bridge');
+const firstLog =()=>{
+for(const s of window.__SURF ||[])if(!s.dead && s.t === 'cap')return[(s.ax + s.bx)/ 2,(s.az + s.bz)/ 2];
+return null;
+};
+const ITEMS =[
+['Midday',()=> window.__CYCLE && window.__CYCLE.jump('midday',0.3)],
+['Winter',()=> season('winter')],
+['Autumn',()=> season('autumn')],
+['Summer',()=> season('summer')],
+['Spring',()=> season('spring')],
+['Beanstalk path',()=> go(29.4,-60)],
+['Bus stop',()=> go(4,24)],
+['Bridge',()=>{
+const b = firstBridge();
+if(b)go(b.x + b.nx *(b.hl + 3),b.z + b.nz *(b.hl + 3));
+}],
+['Fallen log',()=>{
+const l = firstLog();
+if(l)go(l[0]+ 2.5,l[1]+ 2.5);
+}],
+['Farmhouse',()=>{
+try{
+const h = window.__QAPI.place('house');
+go(h.x + 4,h.z + 4);
+}catch(e){}
+}],
+['World edge',()=> go(0,79)],
+['High view (on/off)',high],
+['Make Tink wet',()=>{
+if(window.__wetU)window.__wetU.tink.value = 1;
+}],
+['Corny & Chickum card',()=>{
+try{
+const J = window.__JACK;
+if(J && !J.got.includes('toys'))J.got.push('toys');
+const have =(window.__GIFTS ||[]).length ? window.__GIFTS.filter(g => J.got.includes(g.id)): null;
+let i = 0;
+if(have)i = Math.max(0,have.findIndex(g => g.id === 'toys'));
+else i = Math.max(0,J.got.indexOf('toys'));
+J.viewTreasure(i);
+}catch(e){}
+}]
+];
+const pn = document.createElement('div');
+pn.style.cssText =
+'position:fixed;left:10px;top:30px;width:190px;z-index:9999;background:rgba(24,22,30,.92);color:#f1ece4;font:12px system-ui;border:1px solid #3a3540;border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:4px';
+pn.innerHTML = '<div style="font-weight:600;font-size:13px;margin-bottom:2px">Quick checks</div>';
+for(const ev of['pointerdown','click','keydown','wheel','mousedown'])pn.addEventListener(ev,e => e.stopPropagation());
+for(const[label,fn]of ITEMS){
+const b = document.createElement('button');
+b.textContent = label;
+b.style.cssText = 'background:#3a3540;color:#f1ece4;border:0;border-radius:5px;padding:5px 8px;font:12px system-ui;text-align:left;cursor:pointer';
+b.onclick =()=>{
+try{
+fn();
+}catch(e){}
+b.blur();
+};
+pn.appendChild(b);
+}
+const st = document.createElement('div');
+st.style.cssText = 'font:10px ui-monospace,monospace;color:#cfc8bd;margin-top:4px;white-space:pre-wrap;word-break:break-all';
+pn.appendChild(st);
+setInterval(()=>{
+const w = window.__fadeWhy ||[];
+let p = '';
+try{
+p = 'at ' + Math.round(window.__hitches ? 0 : 0);
+}catch(e){}
+st.textContent = 'fade: ' +(w.some(x => x && x !== '-')? w.map((x,i)=> i + ':' + x).filter(x => !/:-$/.test(x)).join(' | '): 'none');
+},400);
 const add =()=> document.body.appendChild(pn);
 document.body ? add(): addEventListener('DOMContentLoaded',add);
 }
