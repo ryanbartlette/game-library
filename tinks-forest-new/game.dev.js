@@ -15566,10 +15566,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 583;
+const BUILD = 584;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 151;
+const LOOKV = 152;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -48830,9 +48830,18 @@ t = CORNG ? cornyMake(CORNG): null;
 t = null;
 }
 if(!t){
-t = candyCorn();
-t.scale.setScalar(0.11);
-}else t.scale.setScalar(0.1);
+t = new THREE.Group();
+const tt = t;
+corny().then(gl =>{
+try{
+if(!gl)return;
+const r = cornyMake(gl);
+r.scale.setScalar(1);
+tt.add(r);
+}catch(e){}
+});
+}
+t.scale.setScalar(0.1);
 t.rotation.x = -0.08;
 t.position.set(0.06,0,0);
 w.add(t);
@@ -50126,9 +50135,18 @@ t = CORNG ? cornyMake(CORNG): null;
 t = null;
 }
 if(!t){
-t = candyCorn();
-t.scale.setScalar(0.11);
-}else t.scale.setScalar(0.1);
+t = new THREE.Group();
+const tt = t;
+corny().then(gl =>{
+try{
+if(!gl)return;
+const r = cornyMake(gl);
+r.scale.setScalar(1);
+tt.add(r);
+}catch(e){}
+});
+}
+t.scale.setScalar(0.1);
 g.add(t);
 return g;
 };
@@ -50158,9 +50176,18 @@ console.warn('corny',e);
 t = null;
 }
 if(!t){
-t = candyCorn();
-t.scale.setScalar(0.11);
-}else t.scale.setScalar(0.1);
+t = new THREE.Group();
+const tt = t;
+corny().then(gl =>{
+try{
+if(!gl)return;
+const r = cornyMake(gl);
+r.scale.setScalar(1);
+tt.add(r);
+}catch(e){}
+});
+}
+t.scale.setScalar(0.1);
 const w = new THREE.Group();
 w.add(t);
 const Y0 = window.__YARNS[0];
@@ -64505,8 +64532,7 @@ if(window.__wetU)window.__wetU.tink.value = 1;
 try{
 const J = window.__JACK;
 const show =()=> J.showcase({id: 'toys',name: 'Corny & Chickum'},{title: 'His favorite toys',btn: 'Close'});
-if(window.__cornyMesh && window.__chickumMesh)show();
-else if(window.__cornyLoad)window.__cornyLoad().then(show);
+if(window.__cornyLoad)window.__cornyLoad().then(show,show);
 else show();
 }catch(e){}
 }]
