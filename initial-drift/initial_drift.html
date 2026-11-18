@@ -508,7 +508,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=425',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=426',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -1102,7 +1102,7 @@ const whitePaint=new THREE.MeshBasicMaterial({color:0xd3d7d2,side:THREE.DoubleSi
 for(const offset of [-4.33,4.33,0]){
  const v=[],idx=[];for(let i=0;i<=N;i++){
   const p=tougeCenters[i],t=tougeTangents[i],sd=new THREE.Vector3(-t.z,0,t.x);for(const w of (AKINA?[-.1,.1]:[-.065,.065])){const q=p.clone().addScaledVector(sd,offset+Math.sign(offset)*AW(i)+w);v.push(q.x,p.y+(AKINA?.21:.175),q.z)}
-  if(i<N&&!(window.__FR&&offset===0&&i%2)){const j=i*2;idx.push(j,j+1,j+2,j+1,j+3,j+2)}
+  if(i<N&&!window.__FR){const j=i*2;idx.push(j,j+1,j+2,j+1,j+3,j+2)}
  }tougeStrip(v,idx,offset===0?yellowPaint:whitePaint);
 }
 const railMaterial=new THREE.MeshStandardMaterial({color:0xd3d8db,metalness:.52,roughness:.42,side:THREE.DoubleSide}),railPost=mat(0x848b90,.7);
@@ -4055,7 +4055,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 425';
+window.__BUILD='BUILD 426';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5578,9 +5578,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794942960'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794961916'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794942960'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794961916'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -5955,8 +5955,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794942960'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794942960'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794961916'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794961916'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6414,7 +6414,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794942960',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794961916',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6428,7 +6428,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794942960',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794961916',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -18960,7 +18960,29 @@ const animeLocations=window.animeLocations=(()=>{
  grateTex.wrapT=THREE.RepeatWrapping;
  const poleTex=canvasT(8,64,(x,w,h)=>{for(let k=0;k<4;k++){x.fillStyle=k%2?'#f4f4f0':'#d7261e';x.fillRect(0,k*16,w,16)}});
  const MG=mat(grateTex),MP=new THREE.MeshLambertMaterial({map:poleTex}),POLE=new THREE.CylinderGeometry(.05,.05,1.45,6);POLE.translate(0,.72,0);   // stands well over the 0.8 m rail
- const MB=mat(barTex),MY=mat(yelTex,{opacity:.95}),MT=mat(txtTex),MS=mat(skidTex);
+ // (build 424) WORN PAINT: every marking is old paint. Speckled erosion, scuffed through where the tyres run, and each
+ // corner faded by its own amount (some so far gone you can barely read them). One draw call per kind of paint.
+ const rr=(()=>{let q=97531;return ()=>(q=(q*16807)%2147483647)/2147483647})();
+ const wear=(x,w,h,k,tracks)=>{x.save();x.globalCompositeOperation='destination-out';
+  for(let n=0;n<w*h*k/40;n++){x.fillStyle=`rgba(0,0,0,${.25+rr()*.75})`;const r=.6+rr()*2.4;x.beginPath();x.arc(rr()*w,rr()*h,r,0,6.3);x.fill()}
+  for(let n=0;n<k*14;n++){x.fillStyle=`rgba(0,0,0,${.15+rr()*.35})`;x.beginPath();x.ellipse(rr()*w,rr()*h,4+rr()*16,2+rr()*6,rr()*3,0,6.3);x.fill()}
+  if(tracks)for(const u of tracks){const g=x.createLinearGradient((u-.09)*w,0,(u+.09)*w,0);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(.5,'rgba(0,0,0,.6)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,w,h)}
+  x.restore()};
+ // red bars: one ~1.1 m bar per 3.6 m tile, dull brick red, worn hardest in the four wheel tracks
+ const barTex2=canvasT(128,128,(x,w,h)=>{x.clearRect(0,0,w,h);x.fillStyle='#86302b';x.fillRect(0,0,w,40);x.fillStyle='#9b4a40';for(let k=0;k<60;k++)x.fillRect(rr()*w,rr()*40,3,2);wear(x,w,40,3.2,[.24,.4,.62,.78])});
+ barTex2.wrapS=barTex2.wrapT=THREE.RepeatWrapping;
+ // white hatching (zebra): diagonal stripes with an edge line on the lane side
+ // shoulder hatching: one thin 45-degree stripe per 4 m tile (real hatching is sparse: ~35 cm of paint every few metres)
+ const zebTex=canvasT(128,128,(x,w,h)=>{x.clearRect(0,0,w,h);x.fillStyle='#dcdbd4';for(let k=-1;k<=1;k++){x.beginPath();x.moveTo(0,k*h);x.lineTo(w,k*h+w);x.lineTo(w,k*h+w+19);x.lineTo(0,k*h+19);x.closePath();x.fill()}wear(x,w,h,2.8)});
+ zebTex.wrapS=zebTex.wrapT=THREE.RepeatWrapping;
+ const yelTex2=canvasT(32,128,(x,w,h)=>{x.fillStyle='#e8b81c';x.fillRect(0,0,w,h);wear(x,w,h,2.2)});yelTex2.wrapT=THREE.RepeatWrapping;
+ const txtTex2=canvasT(512,512,(x,w,h)=>{x.clearRect(0,0,w,h);x.fillStyle='#ecebe4';x.textAlign='center';x.textBaseline='middle';
+  const word=(s,cy)=>{x.save();x.translate(w/2,cy);x.scale(1,1.9);x.font='bold 118px "Hiragino Sans","Yu Gothic","Noto Sans JP",sans-serif';x.fillText(s,0,0);x.restore()};word('落とせ',128);word('スピード',384);wear(x,w,h,2.6,[.3,.7])});
+ const whTex=canvasT(32,128,(x,w,h)=>{x.fillStyle='#e9e8e2';x.fillRect(0,0,w,h);wear(x,w,h,2.2)});whTex.wrapT=THREE.RepeatWrapping;
+ // speed limit numbers (40 / 30), stretched lengthwise like the real thing
+ const numTex=canvasT(256,512,(x,w,h)=>{x.clearRect(0,0,w,h);x.fillStyle='#e8b81c';x.textAlign='center';x.textBaseline='middle';for(const [t,cy] of [['40',128],['30',384]]){x.save();x.translate(w/2,cy);x.scale(1,2.1);x.font='bold 130px Comic Neue,Arial';x.fillText(t,0,0);x.restore()}wear(x,w,h,2.6,[.35,.65])});
+ const pmat=map=>new THREE.MeshBasicMaterial({map,side:THREE.DoubleSide,transparent:true,depthWrite:false,vertexColors:true,alphaTest:.03,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4});
+ const MB=pmat(barTex2),MY=pmat(yelTex2),MT=pmat(txtTex2),MZ=pmat(zebTex),MW=pmat(whTex),MN=pmat(numTex),MS=mat(skidTex);
  let group=null,key='';
  const keyNow=()=>{try{const C=tougeCenters,n=C.length-1;return n<10?'':[C[0].x,C[0].z,C[n].x,C[n].z,n].map(v=>Math.round(v*10)).join()}catch(e){return ''}};
  const Y=(x,z,fb)=>{try{const y=roadElevation(x,z);return Number.isFinite(y)?y+.16:fb}catch(e){return fb}};   // the drawn asphalt sits ~15 cm over the driving height
@@ -18969,31 +18991,69 @@ const animeLocations=window.animeLocations=(()=>{
   const turn=(a,b)=>{let d=0;for(let j=a;j<b;j+=K(3)){let q=hd(j+K(3))-hd(j);while(q>Math.PI)q-=2*Math.PI;while(q<-Math.PI)q+=2*Math.PI;d+=q}return d};
   // hairpins: >110 degrees within ~70 m; the apex is the middle of the turn
   const pins=[];for(let i=K(80);i<N-K(60);i+=K(4)){const a=turn(i-K(35),i+K(35));if(Math.abs(a)>1.92){const last=pins[pins.length-1];if(last&&(i-last.i)*m<90){if(Math.abs(a)>Math.abs(last.a))Object.assign(last,{i,a});continue}pins.push({i,a})}}
-  const P={b:[],y:[],t:[],s:[],g:[]},I={b:[],y:[],t:[],s:[],g:[]},U={b:[],y:[],t:[],s:[],g:[]},poles=[];
+  const P={b:[],y:[],t:[],s:[],g:[],z:[],w:[],n:[]},I={b:[],y:[],t:[],s:[],g:[],z:[],w:[],n:[]},U={b:[],y:[],t:[],s:[],g:[],z:[],w:[],n:[]},A={b:[],y:[],t:[],z:[],w:[],n:[]},poles=[];let FADE=1;
   const ribbon=(k,i0,i1,l0,l1,lift,vScale,uFn)=>{const base=P[k].length/3;let n=0,v=0;
    for(let i=i0;i<=i1;i+=1){const c=C[i],t=T[i];if(!c||!t)continue;const sx=-t.z,sz=t.x,w=hw(i);if(n)v+=c.distanceTo(C[i-1])/vScale;
-    for(const [q,l] of [[0,l0(i,w)],[1,l1(i,w)]]){const x=c.x+sx*l,z=c.z+sz*l;P[k].push(x,Y(x,z,c.y)+lift,z);U[k].push(uFn?uFn(q,i):q,v)}
+    for(const [q,l] of [[0,l0(i,w)],[1,l1(i,w)]]){const x=c.x+sx*l,z=c.z+sz*l;P[k].push(x,Y(x,z,c.y)+lift,z);U[k].push(uFn?uFn(q,i):q,v);if(A[k])A[k].push(1,1,1,FADE)}
     if(n){const a=base+(n-1)*2;I[k].push(a,a+2,a+1,a+1,a+2,a+3)}n++}};
-  for(const p of pins){const i=p.i,s0=Math.max(1,i-K(55)),s1=Math.min(N-1,i+K(22));
-   // red bars across the road: braking zone to the exit (bars every 2.4 m)
-   ribbon('b',s0,s1,(i,w)=>-w+.25,(i,w)=>w-.25,.035,2.4);
-   // double yellow centre line through the corner (two 15 cm lines, 15 cm apart)
-   for(const o of [-.22,.08])ribbon('y',Math.max(1,i-K(70)),Math.min(N-1,i+K(35)),()=>o,()=>o+.14,.045,10);
+  // (build 424) which corners get what. The road is widened on both sides in corners (__wideAt: 0.8 m each side on the
+  // straights, up to ~3.4 in corners, ~5 in hairpins). Real roads keep the lanes the normal width and paint the extra:
+  //  · extreme hairpins (>140 degrees in 70 m): faded red bars across the two lanes, white hatching on the inside edge
+  //    and a hatched centre island where the road is wide
+  //  · other widened corners: white hatching only (inside edge + centre), no red
+  //  · elsewhere through a hairpin: the worn double yellow centre line
+  // (build 424d) ONE LANE WIDTH FOR THE WHOLE ROAD. Each lane is as wide as at the narrowest point of the run. Wherever
+  // the road is wider than that, the extra is painted off as hatching:
+  //  · on straighter stretches: a hatched island in the middle (the yellow runs through it)
+  //  · round a corner: a hatched shoulder along the INSIDE edge (as wide as it needs to be; in a hairpin it reaches well
+  //    out), and the yellow moves out to stay halfway between the two lanes
+  //  The two blend smoothly into each other, so the lanes never visibly grow or shrink as you drive.
+  const HW=i=>(typeof tougeWidth!=='undefined'?tougeWidth/2:4.85)+(window.__wideAt?__wideAt(i):0);
+  let LS=1e9;for(let i=K(30);i<N-K(30);i++)LS=Math.min(LS,HW(i));
+  // (424e) the lanes may grow a little through the bends (as real ones do); only what's left over is painted off,
+  // and only tight corners and hairpins get an inside shoulder. Every width is smoothed over ~25 m so nothing jumps.
+  const boxs=(A,R)=>{const c=A.slice();for(let i=1;i<N;i++){let t=0,n=0;for(let k=-R;k<=R;k++){const j=i+k;if(j<1||j>=N)continue;t+=c[j];n++}A[i]=t/n}};
+  const CV=new Float32Array(N+1),PT=new Float32Array(N+1);
+  for(let i=1;i<N;i++){CV[i]=turn(Math.max(1,i-K(20)),Math.min(N-1,i+K(20)));const ex=Math.max(0,2*(HW(i)-LS));PT[i]=Math.max(0,ex-(1.6+.35*ex))}
+  boxs(CV,K(15));boxs(PT,K(15));
+  const HA=new Float32Array(N+1),IA=new Float32Array(N+1),SGN=new Int8Array(N+1);
+  for(let i=1;i<N;i++){const t=Math.max(0,Math.min(1,(Math.abs(CV[i])-1.0)/.6)),bc=t*t*(3-2*t);HA[i]=PT[i]*bc;IA[i]=Math.max(0,PT[i]*(1-bc)-1.2);SGN[i]=CV[i]>=0?1:-1}
+  boxs(HA,K(12));boxs(IA,K(12));boxs(HA,K(8));boxs(IA,K(8));
+  const H=j=>HA[j],IW=j=>IA[j],sgOf=j=>SGN[j]||1,yo=j=>sgOf(j)*H(j)/2;   // shoulder width, island width, yellow offset
+  const span=(f,min)=>{const out=[];let i=1;while(i<N){if(f(i)<min){i++;continue}let j=i;while(j<N&&f(j)>=min*.6)j++;if((j-i)*m>10)out.push([i,Math.min(N-1,j)]);i=j+1}return out};
+  // the yellow (single, solid, worn), everywhere
+  for(let a0=1;a0<N-1;){const a1=Math.min(N-1,a0+K(150+rr()*200));FADE=rr()<.15?.3+rr()*.12:.55+rr()*.35;ribbon('y',a0,a1,j=>yo(j)-.09,j=>yo(j)+.09,.046,6);a0=a1}
+  // white edge lines down both sides
+  for(let a0=1;a0<N-1;){const a1=Math.min(N-1,a0+K(120+rr()*200));FADE=rr()<.15?.3+rr()*.15:.55+rr()*.35;ribbon('w',a0,a1,(j,w)=>-w+.25,(j,w)=>-w+.4,.044,6);ribbon('w',a0,a1,(j,w)=>w-.4,(j,w)=>w-.25,.044,6);a0=a1}
+  // hatched centre islands (around the yellow) and inside shoulders
+  for(const [a0,a1] of span(IW,1.1)){if((a1-a0)*m<40)continue;FADE=rr()<.2?.28+rr()*.1:.5+rr()*.35;ribbon('z',a0,a1,j=>yo(j)-IW(j)/2,j=>yo(j)+IW(j)/2,.042,4,(q,j)=>q*IW(j)/4);const F0=FADE;FADE*=.75;ribbon('w',a0,a1,j=>yo(j)-IW(j)/2,j=>yo(j)-IW(j)/2+.12,.044,6);ribbon('w',a0,a1,j=>yo(j)+IW(j)/2-.12,j=>yo(j)+IW(j)/2,.044,6);FADE=F0}
+  const corners=[];
+  for(const [a0,a1] of span(H,.6)){FADE=rr()<.2?.28+rr()*.1:.55+rr()*.35;
+   ribbon('z',a0,a1,(j,w)=>sgOf(j)>0?-w+.15:w-.15-H(j),(j,w)=>sgOf(j)>0?-w+.15+H(j):w-.15,.04,4,(q,j)=>q*H(j)/4);
+   {const F0=FADE;FADE*=.75;ribbon('w',a0,a1,(j,w)=>sgOf(j)>0?-w+H(j):w-H(j)-.12,(j,w)=>sgOf(j)>0?-w+H(j)+.12:w-H(j),.044,6);FADE=F0}   // the line that marks the shoulder off
+   corners.push({i0:a0,i1:a1,i:(a0+a1)>>1,a:turn(a0,a1)})}
+  // extreme hairpins: faded red bars across the two lanes only
+  const pinAt=i=>pins.find(p=>Math.abs(p.i-i)*m<60&&Math.abs(p.a)>2.44);
+  const lanes=(a0,a1)=>{ribbon('b',a0,a1,(j,w)=>(sgOf(j)>0?-w+H(j):-w)+.35,j=>yo(j)-IW(j)/2-.35,.035,3.6);ribbon('b',a0,a1,j=>yo(j)+IW(j)/2+.35,(j,w)=>(sgOf(j)<0?w-H(j):w)-.35,.035,3.6)};
+  for(const c of corners){c.red=!!pinAt(c.i);if(c.red){FADE=rr()<.25?.25+rr()*.1:.5+rr()*.3;lanes(c.i0,c.i1)}}
+  for(const p of pins){const i=p.i,cov=corners.find(c=>i>=c.i0-K(10)&&i<=c.i1+K(10));
+   FADE=rr()<.25?.25+rr()*.1:.5+rr()*.3;
+   if(!cov&&Math.abs(p.a)>2.44)lanes(Math.max(1,i-K(40)),Math.min(N-1,i+K(18)));
    // dark tyre marks round the apex, on the inside half of the road (where everyone clips it)
    {const sg=Math.sign(p.a)||1;ribbon('s',Math.max(1,i-K(28)),Math.min(N-1,i+K(18)),(i,w)=>sg>0?-w*.85:w*.15,(i,w)=>sg>0?-w*.15:w*.85,.05,40)}
    // drain grates on the inside edge (every ~1.2 m), poles round the outside every ~5 m
    {const sg=Math.sign(p.a)||1;ribbon('g',Math.max(1,i-K(32)),Math.min(N-1,i+K(24)),(i,w)=>sg>0?-w+.05:w-.6,(i,w)=>sg>0?-w+.6:w-.05,.06,1.2);
     for(let j=Math.max(1,i-K(30));j<=Math.min(N-1,i+K(26));j+=K(5)){const c=C[j],t=T[j];if(!c||!t)continue;const l=sg*(hw(j)+.3),x=c.x+(-t.z)*l,z=c.z+t.x*l;poles.push([x,Y(x,z,c.y)-.12,z])}}
    // the words in the left lane on the way in, ~70 m before the apex: スピード (nearer), 落とせ (further on)
-   {const a=Math.max(2,i-K(78)),b=Math.min(N-2,a+K(13)),c=C[a],t=T[a];if(c&&t){const base=P.t.length/3,sx=-t.z,sz=t.x,w0=hw(a),l0=-w0+.6,l1=-.5;   // left lane (Japan drives on the left)
-     const pts=[[a,l0,0],[a,l1,1],[b,l0,0],[b,l1,1]];for(const [j,l,u] of pts){const cc=C[j],tt=T[j],qx=cc.x+(-tt.z)*l,qz=cc.z+tt.x*l;P.t.push(qx,Y(qx,qz,cc.y)+.055,qz)}
-     U.t.push(0,0,1,0,0,1,1,1);   // near edge = bottom of the texture (you read スピード first, then 落とせ)
-     I.t.push(base,base+2,base+1,base+1,base+2,base+3)}}}
+   const NUM=rr()<.45,num30=rr()<.5;{const a=Math.max(2,i-K(78)),b=Math.min(N-2,a+K(NUM?6:13)),c=C[a],t=T[a];if(c&&t){const TK=NUM?'n':'t',base=P[TK].length/3,sx=-t.z,sz=t.x,w0=hw(a),l0=-w0+.6,l1=-.5;   // left lane (Japan drives on the left)
+     const pts=[[a,l0,0],[a,l1,1],[b,l0,0],[b,l1,1]];for(const [j,l,u] of pts){const cc=C[j],tt=T[j],qx=cc.x+(-tt.z)*l,qz=cc.z+tt.x*l;P[TK].push(qx,Y(qx,qz,cc.y)+.055,qz)}
+     if(NUM){const v0=num30?0:.5,v1=v0+.5;U.n.push(0,v0,1,v0,0,v1,1,v1)}else U.t.push(0,0,1,0,0,1,1,1);{const f=rr()<.3?.18+rr()*.12:.45+rr()*.45;A[TK].push(1,1,1,f,1,1,1,f,1,1,1,f,1,1,1,f)}   // near edge = bottom of the texture (you read スピード first, then 落とせ)
+     I[TK].push(base,base+2,base+1,base+1,base+2,base+3)}}}
   const g=new THREE.Group();g.name='roadMarks';
   if(poles.length){const im=new THREE.InstancedMesh(POLE,MP,poles.length),M4=new THREE.Matrix4();poles.forEach(([x,y,z],k)=>{M4.makeTranslation(x,y,z);im.setMatrixAt(k,M4)});im.instanceMatrix.needsUpdate=true;im.computeBoundingSphere();im.userData.keep=true;g.add(im)}
-  for(const [k,M] of [['b',MB],['y',MY],['s',MS],['g',MG],['t',MT]]){if(!P[k].length)continue;const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(P[k],3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(U[k],2));geo.setIndex(I[k]);geo.computeBoundingSphere();
+  for(const [k,M] of [['w',MW],['b',MB],['y',MY],['z',MZ],['n',MN],['s',MS],['g',MG],['t',MT]]){if(!P[k].length)continue;const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(P[k],3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(U[k],2));if(A[k]&&A[k].length)geo.setAttribute('color',new THREE.Float32BufferAttribute(A[k],4));geo.setIndex(I[k]);geo.computeBoundingSphere();
    const o=new THREE.Mesh(geo,M);o.renderOrder=2;o.userData.keep=true;g.add(o)}
-  window.__roadMarks={pins:pins.length,at:pins.map(p=>+(p.i/N).toFixed(4))};return g}
+  window.__roadMarks={pins:pins.length,at:pins.map(p=>+(p.i/N).toFixed(4)),corners:corners.map(c=>({f:+(c.i/N).toFixed(4),red:c.red,len:Math.round((c.i1-c.i0)*m)})),isl:span(IW,.5).map(r=>+(((r[0]+r[1])/2)/N).toFixed(4)),LS:+LS.toFixed(2)};return g}
  setInterval(()=>{try{if(typeof tougeWorld==='undefined'||typeof tougeCenters==='undefined'||!window.akinaGround||!tougeWorld.visible)return;const k=keyNow();if(!k||k===key)return;key=k;
    if(group){tougeWorld.remove(group);group.traverse(o=>o.geometry&&o.geometry.dispose())}group=build();tougeWorld.add(group)}catch(e){console.warn('roadMarks',e)}},700);
 })();
