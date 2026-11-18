@@ -508,7 +508,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=429',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=430',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -4055,7 +4055,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 429';
+window.__BUILD='BUILD 430';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5578,9 +5578,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794976979'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794979920'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794976979'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794979920'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -5955,8 +5955,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794976979'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794976979'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794979920'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794979920'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6414,7 +6414,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794976979',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794979920',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6428,7 +6428,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794976979',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794979920',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -14179,6 +14179,118 @@ const id=window.animeCars&&animeCars.player&&animeCars.player.name;return !id||i
     {const cr=document.getElementById('modelCredit');if(cr&&!/grass and weeds/.test(cr.innerHTML))cr.innerHTML+='<br>Grass and weeds: by cizzy7';}
     console.log('AKLOG grass',total,CAP,M.map(x=>x.tris).join('/'))}catch(err){console.warn('grass',err)}})}
   window.frLand.grassPatches=nGP;
+  // ================================================================ cizzy7 broadleaf + grimren13 pines (build 430)
+  // Every tree keeps its generated spot, height, turn and tint (the records the old trees were built from); what is
+  // drawn changes: cizzy7's four painted broadleaf trees (picked per spot) and grimren13's pine. Levels by distance:
+  // High under 200 m, MidBlend to 800 m, a picture card out to 1,900 m, with a dithered cross-fade across each swap
+  // so nothing pops in at speed. One instanced batch per model/level, refilled five times a second. Leaves are
+  // alpha-tested cut-outs; the materials follow the old tree material (season tint, see-through dither, snow cap).
+  // Snow: broadleaf trees go bare (trunks and branches only); pines keep their needles under a snow cap.
+  {const CZD='assets/cizzy/',D1=200,D2=800,DF=1900,B1=15,B2=40;
+   const T3='./assets/lib/three/examples/jsm/';
+   const libs=Promise.all([import(T3+'loaders/GLTFLoader.js'),import(T3+'loaders/DRACOLoader.js'),import(T3+'utils/BufferGeometryUtils.js')]);
+   const ready=new Promise(res=>{const w=()=>{if(window.frLand&&window.frLand.TREE_LIST&&window.frLand.leafMats)res();else setTimeout(w,300)};w()});
+   Promise.all([libs,ready]).then(async([[{GLTFLoader},{DRACOLoader},BGU]])=>{try{
+    const gl=new GLTFLoader();{const dr=new DRACOLoader();dr.setDecoderPath('assets/lib/three/examples/jsm/libs/draco/gltf/');gl.setDRACOLoader(dr)}
+    const load=f=>new Promise(res=>gl.load(f,res,undefined,()=>{console.warn('tree '+f+' not found');res(null)}));
+    const tl=new THREE.TextureLoader(),tex=(k,srgb)=>new Promise(res=>tl.load(CZD+'t/'+k+'.webp',t=>{t.flipY=false;if(srgb)t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=4;res(t)},undefined,()=>res(null)));
+    const CZT=[['Tree_1_Tree1',[.4,.58,.25]],['Tree_2_Tree2',[.45,.6,.26]],['Tree_3_Oak_OakTree2',[.37,.55,.24]],['Tree_4_Brich_Tree4',[.48,.6,.26]]];   // small species-to-species shifts around the base green
+    const [TX,files,pineGl]=await Promise.all([Promise.all([tex('bark',true),tex('birch',true),tex('leaf',false),tex('leafbirch',false)]),Promise.all(CZT.map(([n])=>Promise.all([load(CZD+'Foliage_Trees_'+n+'_High.glb'),load(CZD+'Foliage_Trees_'+n+'_MidBlend.glb')]))),load('assets/models/pine_tree_single_01.glb')]);
+    if(TX.some(t=>!t)||files.some(f=>!f[0]||!f[1])||!pineGl)return;
+    const TEX={bark:TX[0],birch:TX[1],leaf:TX[2],leafbirch:TX[3]};
+    const kindOf=nm=>{nm=(nm||'').toLowerCase();if(/billboard|board|lod/.test(nm)&&!/leaf/.test(nm))return null;if(/leaf birch/.test(nm))return 'leafbirch';if(/^leaf/.test(nm))return 'leaf';if(/birch/.test(nm))return 'birch';if(/bark|default obj/.test(nm))return 'bark';return null};
+    // a cizzy7 file -> {bark, leaf} normalised to unit height, trunk base at the origin (Mid uses the High's frame)
+    const partsOf=(g0,ref)=>{const r0=g0.scene;r0.updateMatrixWorld(true);const by={};
+     r0.traverse(o=>{if(!o.isMesh)return;const k=kindOf(o.material.name);if(!k)return;const g=o.geometry.clone().applyMatrix4(o.matrixWorld);for(const a of Object.keys(g.attributes))if(!/^(position|normal|uv)$/.test(a))g.deleteAttribute(a);(by[k]=by[k]||[]).push(g.index?g.toNonIndexed():g)});
+     const out={};for(const k in by){const g=by[k].length>1?BGU.mergeGeometries(by[k]):by[k][0];out[/leaf/.test(k)?'leaf':'bark']={geo:g,key:k}}
+     const box=new THREE.Box3();for(const k in out){out[k].geo.computeBoundingBox();box.union(out[k].geo.boundingBox)}
+     const bb=out.bark.geo.boundingBox,R=ref||{cx:(bb.min.x+bb.max.x)/2,cz:(bb.min.z+bb.max.z)/2,y0:box.min.y,h:box.max.y-box.min.y};
+     for(const k in out){out[k].geo.translate(-R.cx,-R.y0,-R.cz);out[k].geo.scale(1/R.h,1/R.h,1/R.h);out[k].geo.computeBoundingSphere()}
+     if(out.leaf)roundN(out.leaf.geo,ref?ref.lc:null);out.ref=R;if(!ref&&out.leaf)R.lc=out.leaf.lc;out.tris=Object.values(out).reduce((a,p)=>a+(p&&p.geo?p.geo.attributes.position.count/3:0),0);return out};
+    // leaf cards lit as one soft crown (normals out from the crown's middle, a little upward), like the old trees
+    const roundN=(g,c0)=>{g.computeBoundingBox();const b=g.boundingBox,c=c0||[(b.min.x+b.max.x)/2,(b.min.y+b.max.y)/2,(b.min.z+b.max.z)/2];const P=g.attributes.position,N=g.attributes.normal;
+     for(let i=0;i<P.count;i++){let x=P.getX(i)-c[0],y=P.getY(i)-c[1]+.15*(b.max.y-b.min.y),z=P.getZ(i)-c[2];const l=Math.hypot(x,y,z)||1;N.setXYZ(i,x/l,y/l,z/l)}N.needsUpdate=true;g.lc=c};
+    // ---- materials: painted (lit, textured); they follow the old tree material (tint, see-through, snow) and add the
+    // level cross-fade (role 0 High, 1 Mid, 2 card) and a mip-level boost on the leaf cut-out
+    const tmat=frLand.leafMats[0],MATS=[],TGR=mkGrad([80,135,190,255]);   // the game's tree light steps (keeps the shade side from going black)
+    const fade=(sh,role,leafy)=>{sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying float vTD;').replace('#include <project_vertex>','#include <project_vertex>\nvTD=length((modelMatrix*vec4(instanceMatrix[3].xyz,1.)).xz-cameraPosition.xz);');
+     const a='smoothstep('+(D1-B1).toFixed(1)+','+(D1+B1).toFixed(1)+',vTD)',b='smoothstep('+(D2-B2).toFixed(1)+','+(D2+B2).toFixed(1)+',vTD)';
+     const keep=role===0?'n>='+a:role===1?'(n<'+a+'&&n>='+b+')':'n<'+b;
+     sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying float vTD;').replace('#include <clipping_planes_fragment>','#include <clipping_planes_fragment>\n{float n=fract(52.9829189*fract(dot(gl_FragCoord.xy,vec2(.06711056,.00583715))));if(!('+keep+'))discard;}');
+     if(leafy){const uv=leafy==='a'?'vAlphaMapUv':'vMapUv',ts=leafy==='a'?'alphaMap':'map';sh.fragmentShader=sh.fragmentShader.replace('#include <alphatest_fragment>','{vec2 dd=max(abs(dFdx('+uv+')),abs(dFdy('+uv+')))*vec2(textureSize('+ts+',0));float lv=max(0.,log2(max(max(dd.x,dd.y),1e-4)));diffuseColor.a*=1.+lv*.35;}\n#include <alphatest_fragment>')}};
+    const mkM=(m,role,leafy,base)=>{m.userData.role=role;m.userData.leafy=leafy;m.userData.base=base||new THREE.Color(1,1,1);MATS.push(m);return m};
+    let obc=null;const follow=()=>{for(const m of MATS)m.color.copy(m.userData.base).multiply(tmat.color);
+     if(tmat.onBeforeCompile!==obc){obc=tmat.onBeforeCompile;const o=obc,ck=tmat.customProgramCacheKey.bind(tmat);for(const m of MATS){const role=m.userData.role,lf=m.userData.leafy;m.onBeforeCompile=(sh,r)=>{o.call(m,sh,r);fade(sh,role,lf)};m.customProgramCacheKey=()=>ck()+'|cz'+role+(lf||'');m.needsUpdate=true}}};
+    const TH2=window.__THEME||{};
+    const OLD=window.__leafBase&&window.__leafBase.slice(),CM=[.42,.58,.25];   // the old trees' leaf colour (theme or model), so the forest keeps its greens
+    const leafCol=c=>{const L=TH2.leaf,b=L?[L[0]*1.55,L[1]*1.55,L[2]*1.55]:OLD||CM;return new THREE.Color(b[0]*c[0]/CM[0],b[1]*c[1]/CM[1],b[2]*c[2]/CM[2])};
+    const leafMat=(alpha,c,role)=>mkM(new THREE.MeshToonMaterial({gradientMap:TGR,alphaMap:alpha,alphaTest:.5,side:THREE.DoubleSide}),role,'a',leafCol(c));
+    const barkMat=(map,role)=>mkM(new THREE.MeshToonMaterial({gradientMap:TGR,map}),role,null);
+    // ---- picture cards: the High tree drawn front and side (unlit; the scene light shades the card) on two quads
+    const ren=window.__R&&__R.renderer;
+    const makeCard=(list)=>{if(!ren)return null;const W=256,rt=new THREE.WebGLRenderTarget(W*2,W);rt.texture.colorSpace=THREE.SRGBColorSpace;rt.texture.generateMipmaps=true;rt.texture.minFilter=THREE.LinearMipmapLinearFilter;
+     const sc=new THREE.Scene();sc.add(new THREE.AmbientLight(0xffffff,1));for(const [g,m] of list)sc.add(new THREE.Mesh(g,m));
+     const box=new THREE.Box3().setFromObject(sc),half=Math.max(box.max.x,-box.min.x,box.max.z,-box.min.z,.35),cam=new THREE.OrthographicCamera(-half,half,1.02,0,.01,10);
+     const prev=ren.getRenderTarget(),pc=new THREE.Color();ren.getClearColor(pc);const pa=ren.getClearAlpha();ren.setClearColor(0x000000,0);rt.viewport.set(0,0,W*2,W);rt.scissorTest=false;ren.setRenderTarget(rt);ren.clear();
+     for(const [k,ang] of [[0,0],[1,Math.PI/2]]){cam.position.set(Math.sin(ang)*5,0,Math.cos(ang)*5);cam.lookAt(0,0,0);cam.updateMatrixWorld();rt.viewport.set(k*W,0,W,W);rt.scissor.set(k*W,0,W,W);rt.scissorTest=true;ren.setRenderTarget(rt);ren.render(sc,cam)}
+     rt.scissorTest=false;rt.viewport.set(0,0,W*2,W);ren.setRenderTarget(prev);ren.setClearColor(pc,pa);
+     const P=[],U=[],N=[],I=[];[[0,0],[1,Math.PI/2]].forEach(([k,ang],q)=>{const cx=Math.cos(ang),cz=-Math.sin(ang),b0=q*4;P.push(-half*cx,0,-half*cz,half*cx,0,half*cz,-half*cx,1.02,-half*cz,half*cx,1.02,half*cz);U.push(k*.5,0,k*.5+.5,0,k*.5,1,k*.5+.5,1);for(let v=0;v<4;v++)N.push(0,1,0);I.push(b0,b0+1,b0+2,b0+2,b0+1,b0+3)});
+     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));g.setAttribute('normal',new THREE.Float32BufferAttribute(N,3));g.setIndex(I);g.computeBoundingSphere();
+     return {g,m:mkM(new THREE.MeshToonMaterial({gradientMap:TGR,map:rt.texture,alphaTest:.5,side:THREE.DoubleSide}),2,'m')}};
+    // ---- the four broadleaf species
+    const cardLeaf=new THREE.MeshToonMaterial({gradientMap:TGR,alphaTest:.5,side:THREE.DoubleSide});
+    const SPC=CZT.map(([n,c],s)=>{const PH=partsOf(files[s][0]),PM=partsOf(files[s][1],PH.ref);const bk=PH.bark.key,lk=PH.leaf.key;
+     const lc=leafCol(c);const cl=cardLeaf.clone();cl.alphaMap=TEX[lk];cl.color.copy(lc).multiplyScalar(1.05);const cb=new THREE.MeshToonMaterial({gradientMap:TGR,map:TEX[bk]});
+     return {PH,PM,hb:barkMat(TEX[bk],0),hl:leafMat(TEX[lk],c,0),mb:barkMat(TEX[bk],1),ml:leafMat(TEX[lk],c,1),card:makeCard([[PH.bark.geo,cb],[PH.leaf.geo,cl]]),cardBare:makeCard([[PH.bark.geo,cb]])}});
+    // ---- grimren13's pine (as-is colours): branch cards split in two levels, a simple tapered trunk
+    const PG=(()=>{const r0=pineGl.scene;r0.updateMatrixWorld(true);let trunk=null,br=null;r0.traverse(o=>{if(!o.isMesh)return;if(/bark/i.test(o.material.name))trunk=o;else br=o});
+     const bg=br.geometry.clone().applyMatrix4(br.matrixWorld);for(const a of Object.keys(bg.attributes))if(!/^(position|normal|uv)$/.test(a))bg.deleteAttribute(a);
+     const tg0=trunk.geometry.clone().applyMatrix4(trunk.matrixWorld);tg0.computeBoundingBox();bg.computeBoundingBox();
+     const box=tg0.boundingBox.clone().union(bg.boundingBox),Hh=box.max.y-box.min.y,cx=(tg0.boundingBox.min.x+tg0.boundingBox.max.x)/2,cz=(tg0.boundingBox.min.z+tg0.boundingBox.max.z)/2;
+     bg.translate(-cx,-box.min.y,-cz);bg.scale(1/Hh,1/Hh,1/Hh);
+     const mkTrunk=seg=>{const g=new THREE.CylinderGeometry(.006,.022,1,seg,1,true);g.translate(0,.5,0);return g};
+     const ng=bg.index?bg.toNonIndexed():bg,P=ng.attributes.position,nv=P.count,par=new Int32Array(nv);for(let i=0;i<nv;i++)par[i]=i;const f=x=>{while(par[x]!==x){par[x]=par[par[x]];x=par[x]}return x};
+     const key=new Map();for(let i=0;i<nv;i+=3){par[f(i+1)]=f(i);par[f(i+2)]=f(i)}for(let i=0;i<nv;i++){const k=Math.round(P.getX(i)*1e4)+','+Math.round(P.getY(i)*1e4)+','+Math.round(P.getZ(i)*1e4);const o=key.get(k);if(o==null)key.set(k,i);else{const a=f(i),b=f(o);if(a!==b)par[a]=b}}
+     const cards=new Map();for(let i=0;i<nv;i+=3){const r=f(i);(cards.get(r)||cards.set(r,[]).get(r)).push(i)}const CL=[...cards.values()];
+     const pick=sel=>{const tris=[];CL.forEach((c,k)=>{if(sel(k))tris.push(...c)});const g=new THREE.BufferGeometry();for(const nm of ['position','normal','uv']){const A=ng.attributes[nm];if(!A)continue;const it=A.itemSize,arr=new Float32Array(tris.length*3*it);let o=0;for(const t of tris)for(let q=0;q<3;q++)for(let s=0;s<it;s++)arr[o++]=A.array[(t+q)*it+s];g.setAttribute(nm,new THREE.BufferAttribute(arr,it))}return g};
+     const full1=pick(()=>true),half=pick(k=>k%2===0),extra=full1.clone();extra.rotateY(.7);extra.scale(.9,.97,.9);extra.translate(0,.02,0);const near=BGU.mergeGeometries([full1,extra]);
+     for(const g of [near,half]){const P=g.attributes.position,N=g.attributes.normal;for(let i=0;i<P.count;i++){const x=P.getX(i),y=P.getY(i),z=P.getZ(i),r=Math.hypot(x,z)||1e-3;const nx=x/r,nz=z/r,ny=.55;const l=Math.hypot(nx,ny,nz);N.setXYZ(i,nx/l,ny/l,nz/l)}N.needsUpdate=true}
+     const tmap=trunk.material.map,bmap=(()=>{const src=br.material.map,im=src.image,cv=document.createElement('canvas');cv.width=im.width;cv.height=im.height;const x=cv.getContext('2d');x.drawImage(im,0,0);const d=x.getImageData(0,0,cv.width,cv.height),a=d.data;
+      const PL=TH2.pineLeaf,lo=PL?[PL[0]*200,PL[1]*200,PL[2]*200]:[30,72,52],hi=PL?[PL[0]*560,PL[1]*560,PL[2]*560]:[96,170,112];let mx=1;for(let i=0;i<a.length;i+=4)if(a[i+3]>128)mx=Math.max(mx,.3*a[i]+.59*a[i+1]+.11*a[i+2]);
+      for(let i=0;i<a.length;i+=4){const l=Math.min(1,Math.pow((.3*a[i]+.59*a[i+1]+.11*a[i+2])/mx,.8));for(let c=0;c<3;c++)a[i+c]=Math.min(255,lo[c]+(hi[c]-lo[c])*l)}x.putImageData(d,0,0);
+      const t=new THREE.CanvasTexture(cv);t.flipY=src.flipY;t.colorSpace=THREE.SRGBColorSpace;t.wrapS=src.wrapS;t.wrapT=src.wrapT;t.anisotropy=4;return t})();   // needles repainted in the game's blue-green pine colours (keeps the drawing)
+     const PB=new THREE.Color(1,1,1);   // the needle picture is dark olive: lifted to the game's pine greens
+     const brM=role=>mkM(new THREE.MeshToonMaterial({gradientMap:TGR,map:bmap,alphaTest:.5,side:THREE.DoubleSide}),role,'m',PB),trM=role=>mkM(new THREE.MeshToonMaterial({gradientMap:TGR,map:tmap}),role,null);
+     return {hi:{b:mkTrunk(8),l:near},mid:{b:mkTrunk(5),l:half},hb:trM(0),hl:brM(0),mb:trM(1),ml:brM(1),card:makeCard([[mkTrunk(8),new THREE.MeshToonMaterial({gradientMap:TGR,map:tmap})],[near,new THREE.MeshBasicMaterial({color:PB,map:bmap,alphaTest:.5,side:THREE.DoubleSide})]]),tris:{hi:near.attributes.position.count/3+16,mid:half.attributes.position.count/3+10}}})();
+    // ---- the records (the old trees' lists in REG; near and far chunks share lists)
+    const tlists=()=>{const S=new Set();for(const R of REG)if(R.kind==='broadleaf'||R.kind==='pine')S.add(R);const o=new Map();for(const R of S)if(!o.has(R.list))o.set(R.list,R.kind);return o};
+    const spOf=r=>Math.abs(Math.round(r[0]*5.3+r[2]*2.9))%4;
+    const cntB=[0,0,0,0];let cntP=0;for(const [LL,k] of tlists())for(const r of LL){if(k==='pine')cntP++;else cntB[spOf(r)]++}
+    const B=(g,m,n,shadow,colour)=>{const im=new THREE.InstancedMesh(g,m,Math.max(1,n+64));im.count=0;im.frustumCulled=false;im.castShadow=!!shadow;im.receiveShadow=false;im.userData.keep=true;im.userData.czTree=true;im.userData.shTag=1;if(colour)im.setColorAt(0,new THREE.Color(1,1,1));root.add(im);return im};
+    const leafDepth=a=>new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,alphaMap:a,alphaTest:.5,side:THREE.DoubleSide});
+    const BS=SPC.map((s,i)=>{const n=cntB[i],o={hb:B(s.PH.bark.geo,s.hb,n,1),hl:B(s.PH.leaf.geo,s.hl,n,1,1),mb:B(s.PM.bark.geo,s.mb,n),ml:B(s.PM.leaf.geo,s.ml,n,0,1),card:s.card?B(s.card.g,s.card.m,n,0,1):null,cardBare:s.cardBare?B(s.cardBare.g,s.cardBare.m,n):null};o.hl.customDepthMaterial=leafDepth(s.hl.alphaMap);return o});
+    const BP={hb:B(PG.hi.b,PG.hb,cntP,1),hl:B(PG.hi.l,PG.hl,cntP,1,1),mb:B(PG.mid.b,PG.mb,cntP),ml:B(PG.mid.l,PG.ml,cntP,0,1),card:PG.card?B(PG.card.g,PG.card.m,cntP,0,1):null};
+    BP.hl.customDepthMaterial=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:PG.hl.map,alphaTest:.5,side:THREE.DoubleSide});
+    // ---- swap: the old trees leave (their records stay in REG for the ground editor)
+    for(const p of treeParts){for(const k of ['fN','mA','rA'])if(p[k]){root.remove(p[k]);p[k]=null}}
+    for(const R of REG)if((R.kind==='broadleaf'||R.kind==='pine')&&R.im&&!R.im.isBushProxy&&R.im.parent!==root)R.im={setMatrixAt(){},instanceMatrix:{},isBushProxy:true};
+    const SN=()=>!!window.frLand.bare||(()=>{try{return frLand.leafMats[2].visible===false}catch(e){return false}})();
+    const fw=new THREE.Vector3(),ALL=[...BS.flatMap(o=>Object.values(o)),...Object.values(BP)].filter(Boolean);
+    const add=(im,r,col)=>{const i=im.count;if(i>=im.instanceMatrix.count)return;e.set(0,r[4],0);q.setFromEuler(e);v3.set(r[0],r[1],r[2]);sc.set(r[3],r[3]*r[6],r[3]);m4.compose(v3,q,sc);im.setMatrixAt(i,m4);if(col&&im.instanceColor){cl.setRGB(r[5][0],r[5][1],r[5][2]);im.setColorAt(i,cl)}im.count++};
+    const tick=()=>{follow();const cp=window.__camLock?{x:__camLock[0],z:__camLock[2]}:camera.position;camera.getWorldDirection(fw);const fl=Math.hypot(fw.x,fw.z)||1,fx=fw.x/fl,fz=fw.z/fl,snow=SN();
+     for(const im of ALL)im.count=0;const C2={hi:0,mid:0,card:0};
+     for(const [LL,kind] of tlists())for(const r of LL){if(r.gone)continue;const dx=r[0]-cp.x,dz=r[2]-cp.z,d=Math.hypot(dx,dz);if(d>DF)continue;
+      const behind=d>40&&(dx*fx+dz*fz)<-.3*d;if(behind&&d<D2+B2)continue;   // (cards behind the camera are cheap; near ones are skipped)
+      const o=kind==='pine'?BP:BS[spOf(r)];
+      if(d<D1+B1){add(o.hb,r);if(!(snow&&kind!=='pine'))add(o.hl,r,1);C2.hi++}
+      if(d>=D1-B1&&d<D2+B2){add(o.mb,r);if(!(snow&&kind!=='pine'))add(o.ml,r,1);C2.mid++}
+      if(d>=D2-B2){const c=snow&&kind!=='pine'?o.cardBare:o.card;if(c){add(c,r,c!==o.cardBare);C2.card++}}}
+     for(const im of ALL){im.instanceMatrix.needsUpdate=true;if(im.instanceColor)im.instanceColor.needsUpdate=true}
+     window.frLand.czTreeInfo={levels:C2,tris:{broadleaf:SPC.map(s=>[Math.round(s.PH.tris),Math.round(s.PM.tris)]),pine:PG.tris,card:4}}};
+    {const A=[0,0,0];for(const [,c] of CZT){const L=leafCol(c);A[0]+=L.r/4;A[1]+=L.g/4;A[2]+=L.b/4}window.__leafBase=A}   // the bushes take their greens from the new leaves
+    tick();setInterval(tick,200);window.frLand.czTrees=true;window.frLand.czTreeTick=tick;
+    {const cr=document.getElementById('modelCredit');if(cr&&!/grimren13/.test(cr.innerHTML))cr.innerHTML+='<br>Trees: painted trees by cizzy7 · "Pine Tree Single 01" by grimren13 · CC BY-NC 4.0';}
+    console.log('AKLOG cztrees',JSON.stringify(cntB),cntP,SPC.map(s=>Math.round(s.PH.tris)).join('/'),Math.round(PG.tris.hi))}catch(err){console.warn('cztrees',err)}}).catch(err=>console.warn('cztrees',err))}
   console.log('AKLOG frLand',JSON.stringify(window.frLand.lake),nS,nG,nT,parts.length,'patches',nGP)}
 })();
 
