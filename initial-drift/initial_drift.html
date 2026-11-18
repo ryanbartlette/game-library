@@ -508,7 +508,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=431',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=432',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -4055,7 +4055,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 431';
+window.__BUILD='BUILD 432';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5578,9 +5578,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794987415'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794993699'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794987415'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794993699'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -5955,8 +5955,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794987415'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794987415'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794993699'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794993699'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6414,7 +6414,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794987415',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794993699',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6428,7 +6428,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794987415',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794993699',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -7958,6 +7958,7 @@ const animeTrees=window.animeTrees=(()=>{
   tougeWorld.traverse(o=>{if(o.isMesh&&(o.geometry===cedarTrunk||o.geometry===cedarLeaves))o.visible=false})}
  let GLTFLoader=null,BufferGeometryUtils=null,SimplifyModifier=null;
  const load=f=>new Promise(res=>new GLTFLoader().load(f,g=>res(g),undefined,()=>res(null)));
+ if(!window.__PASS)   /* (build 432) the passes use the cizzy7 / grimren13 trees only: these older models aren't loaded there */
  Promise.all([import('./assets/lib/three/examples/jsm/loaders/GLTFLoader.js'),import('./assets/lib/three/examples/jsm/utils/BufferGeometryUtils.js'),import('./assets/lib/three/examples/jsm/modifiers/SimplifyModifier.js')])
   .then(async([a,b,c])=>{GLTFLoader=a.GLTFLoader;BufferGeometryUtils=b;SimplifyModifier=c.SimplifyModifier;
    const [cg,gg]=await Promise.all([load(FILES.cherry[0]),load(FILES.green[0])]);if(!cg||!gg){console.warn('tree models missing, keeping the old trees');return}
@@ -13944,8 +13945,9 @@ const id=window.animeCars&&animeCars.player&&animeCars.player.name;return !id||i
   const REG=[];const make=(geo,mat,list,kind)=>{const im=new THREE.InstancedMesh(geo,mat,list.length);if(kind)REG.push({im,list,kind});list.forEach((r,k)=>{e.set(0,r[4],0);q.setFromEuler(e);v3.set(r[0],r[1],r[2]);sc.set(r[3],r[3]*r[6],r[3]);m4.compose(v3,q,sc);im.setMatrixAt(k,m4);cl.setRGB(r[5][0],r[5][1],r[5][2]);im.setColorAt(k,cl)});
    im.instanceMatrix.needsUpdate=true;if(im.instanceColor)im.instanceColor.needsUpdate=true;im.computeBoundingSphere&&im.computeBoundingSphere();im.receiveShadow=true;im.userData.keep=true;root.add(im);return im};
   const parts=[];for(const c of chunks.values()){const p={cx:c.cx,cz:c.cz};
-   if(c.shrub.length){p.sn=make(shrubNear,shrubMat,c.shrub,'shrub');p.sf=make(shrubFar,shrubMat,c.shrub,'shrub');p.sf.visible=false}
-   if(c.grass.length)p.g=make(grassGeo,grassMat,c.grass,'grass');if(c.stone.length)p.t=make(stoneGeo,stoneMat,c.stone,'stone');parts.push(p)}
+   // (build 432) bushes and grass are drawn only by the cizzy7 batches below: the chunks just hold their records
+   const PX=()=>({setMatrixAt(){},instanceMatrix:{},isBushProxy:true});if(c.shrub.length)REG.push({im:PX(),list:c.shrub,kind:'shrub'});
+   if(c.grass.length)REG.push({im:PX(),list:c.grass,kind:'grass'});if(c.stone.length)p.t=make(stoneGeo,stoneMat,c.stone,'stone');parts.push(p)}
   // level of detail by distance from the camera (checked a few times a second)
   let lod=()=>{const cp=window.__camLock?{x:__camLock[0],z:__camLock[2]}:camera.position;for(const p of parts){const d=Math.hypot(p.cx-cp.x,p.cz-cp.z);
     if(p.sn){p.sn.visible=d<420;p.sf.visible=d>=420&&d<1200}if(p.g)p.g.visible=d<260;if(p.t)p.t.visible=d<360}};
@@ -13995,13 +13997,15 @@ const id=window.animeCars&&animeCars.player&&animeCars.player.name;return !id||i
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(N,3));g.setAttribute('color',new THREE.Float32BufferAttribute(Cc,3));return g};
    return {full:build('full'),mid:build('mid'),far:build('far')}}
   const BARE={file:'low-poly_trees.glb',br:1,cone:false,bare:true};
-  Promise.all((SNOWY?[BARE,...SPEC]:SPEC).map(loadTree)).then(G0=>{try{
+  Promise.resolve(SPEC.map(()=>null)).then(G0=>{try{   /* (build 432) the old tree models are no longer loaded: the records are built here, the cizzy7 / grimren13 trees draw them */
    // snow: three bare trees in place of the broadleaf one (if the file is missing, the snowy broadleaf trees stay)
    let gls=G0,TYPE=t=>t[7]||0,SP=SPEC;
-   if(SNOWY){const bt=bareTrees(G0[0]);if(bt.length){gls=[...bt,G0[2],G0[3]];SP=[...bt.map(()=>BARE),SPEC[1],SPEC[2]];TYPE=t=>t[7]?bt.length+t[7]-1:(Math.abs(Math.round(t[0]*5.3+t[2]*2.9))%bt.length)}else gls=G0.slice(1);window.frLand.bare=bt.length}
+   if(SNOWY)window.frLand.bare=1;
+   if(false){const bt=bareTrees(G0[0]);if(bt.length){gls=[...bt,G0[2],G0[3]];SP=[...bt.map(()=>BARE),SPEC[1],SPEC[2]];TYPE=t=>t[7]?bt.length+t[7]-1:(Math.abs(Math.round(t[0]*5.3+t[2]*2.9))%bt.length)}else gls=G0.slice(1);window.frLand.bare=bt.length}
    const tmat=(window.__seeThrough||(x=>x))(toon(mkGrad([80,135,190,255]))),tris={};   /* (build 422) trees between the camera and your car dither away */window.frLand.leafMats=[tmat,shrubMat,grassMat];
    const tch=new Map();
-   gls.forEach((gl,s)=>{if(!gl)return;const GEO=buildLOD(gl,SP[s]);tris[SP[s].file+(SP[s].bare?s:'')]={full:GEO.full.attributes.position.count/3,mid:GEO.mid.attributes.position.count/3,far:GEO.far.attributes.position.count/3};
+   gls.forEach((gl,s)=>{if(!gl){const tk=SP[s].cone?'pine':'broadleaf',L=[];for(const t of TREES){if(TYPE(t)!==s)continue;const tn=TINTS[(Math.abs(Math.round(t[0]*7+t[2]*13))%TINTS.length)],v=.9+((Math.abs(Math.round(t[0]*3.1-t[2]*1.7)))%20)/100;L.push([t[0],t[1],t[2],t[3],t[4],[tn[0]*v,tn[1]*v,tn[2]*v],t[5]])}
+     if(L.length)REG.push({im:{setMatrixAt(){},instanceMatrix:{},isBushProxy:true},list:L,kind:tk});return}const GEO=buildLOD(gl,SP[s]);tris[SP[s].file+(SP[s].bare?s:'')]={full:GEO.full.attributes.position.count/3,mid:GEO.mid.attributes.position.count/3,far:GEO.far.attributes.position.count/3};
     const chunks2=new Map();for(const t of TREES){if(TYPE(t)!==s)continue;const k=ck(t[0],t[2]);let c=chunks2.get(k);if(!c)chunks2.set(k,c={near:[],away:[],cx:(Math.floor(t[0]/CH)+.5)*CH,cz:(Math.floor(t[2]/CH)+.5)*CH});
      const tn=TINTS[(Math.abs(Math.round(t[0]*7+t[2]*13))%TINTS.length)],v=.9+((Math.abs(Math.round(t[0]*3.1-t[2]*1.7)))%20)/100;
      (t[6]<90?c.near:c.away).push([t[0],t[1],t[2],t[3],t[4],[tn[0]*v,tn[1]*v,tn[2]*v],t[5]])}
@@ -14011,7 +14015,7 @@ const id=window.animeCars&&animeCars.player&&animeCars.player.name;return !id||i
      if(c.away.length){p.mA=make(GEO.mid,tmat,c.away,tk);p.rA=make(GEO.far,tmat,c.away,tk)}
      for(const k of ['fN','mA','rA'])if(p[k])p[k].visible=false;treeParts.push(p)}});
    keep(root);window.frLand.TREE_LIST=TREES;window.frLand.trees=TREES.length;window.frLand.pines=TREES.filter(t=>t[7]).length;window.frLand.pinesB=TREES.filter(t=>t[7]===2).length;window.frLand.treeTris=tris;lod();
-   const credit=document.getElementById('modelCredit');if(credit&&!/Giant Low Poly Tree/.test(credit.innerHTML))credit.innerHTML+='<br>Trees: "Giant Low Poly Tree" by Sahir Virmani · "Pine tree 1" by andros.spica · "Low Poly Pine" by Afloat Above the World · CC BY 4.0';
+   /* (build 432) the old tree models' credit left with them */
    console.log('AKLOG trees',TREES.length,window.frLand.pines,JSON.stringify(tris),treeParts.length)}catch(e){console.warn('trees',e)}});
   const lod0=lod;lod=()=>{lod0();const cp=window.__camLock?{x:__camLock[0],z:__camLock[2]}:camera.position;
    for(const p of treeParts){const d=Math.hypot(p.cx-cp.x,p.cz-cp.z);
@@ -14223,7 +14227,7 @@ const id=window.animeCars&&animeCars.player&&animeCars.player.name;return !id||i
     let obc=null;const follow=()=>{for(const m of MATS)m.color.copy(m.userData.base).multiply(tmat.color);
      if(tmat.onBeforeCompile!==obc){obc=tmat.onBeforeCompile;const o=obc,ck=tmat.customProgramCacheKey.bind(tmat);for(const m of MATS){const role=m.userData.role,lf=m.userData.leafy;m.onBeforeCompile=(sh,r)=>{o.call(m,sh,r);fade(sh,role,lf)};m.customProgramCacheKey=()=>ck()+'|cz'+role+(lf||'');m.needsUpdate=true}}};
     const TH2=window.__THEME||{};
-    const OLD=window.__leafBase&&window.__leafBase.slice(),CM=[.42,.58,.25];   // the old trees' leaf colour (theme or model), so the forest keeps its greens
+    const OLD=[.0515,.1467,.0021],CM=[.42,.58,.25];   // the old broadleaf model's leaf green (kept: the approved look)   // the old trees' leaf colour (theme or model), so the forest keeps its greens
     const leafCol=c=>{const L=TH2.leaf,b=L?[L[0]*1.55,L[1]*1.55,L[2]*1.55]:OLD||CM;return new THREE.Color(b[0]*c[0]/CM[0],b[1]*c[1]/CM[1],b[2]*c[2]/CM[2])};
     const leafMat=(alpha,c,role)=>mkM(new THREE.MeshToonMaterial({gradientMap:TGR,alphaMap:alpha,alphaTest:.5,side:THREE.DoubleSide}),role,'a',leafCol(c));
     const barkMat=(map,role)=>mkM(new THREE.MeshToonMaterial({gradientMap:TGR,map}),role,null);
@@ -14353,9 +14357,9 @@ const id=window.animeCars&&animeCars.player&&animeCars.player.name;return !id||i
     const m=new THREE.BufferGeometry();m.setAttribute('position',new THREE.BufferAttribute(P,3));m.setAttribute('normal',new THREE.BufferAttribute(Nn,3));if(!gs.some(g=>g.attributes.normal))m.computeVertexNormals();return m};
    const poleM=new THREE.MeshLambertMaterial({color:0x5d646b});headMat=new THREE.MeshBasicMaterial({color:headOff.clone()});headMat.userData.cel=true;
    const poles=new THREE.InstancedMesh(merge(poleGs),poleM,spots.length),heads=headGs.length?new THREE.InstancedMesh(merge(headGs),headMat,spots.length):null;
-   const q=new THREE.Quaternion(),e=new THREE.Euler(),sc=new THREE.Vector3(),v3=new THREE.Vector3(),hy=[];
-   spots.forEach((s,k)=>{const want=Math.hypot(s.ix-s.bx,s.iz-s.bz),kk=want/armLen,ang=Math.atan2(s.ix-s.bx,s.iz-s.bz);e.set(0,ang-armAng,0);q.setFromEuler(e);sc.setScalar(kk);v3.set(s.bx,s.by,s.bz);M.compose(v3,q,sc);
-    poles.setMatrixAt(k,M);if(heads)heads.setMatrixAt(k,M);hy.push(s.by+headH*kk)});
+   const q=new THREE.Quaternion(),e=new THREE.Euler(),sc=new THREE.Vector3(),v3=new THREE.Vector3(),hy=[];const LH=.85;   // (build 432) sized against the car: lamp heads about 8.5-9.5 m up (were 10-11.5), arm reach unchanged
+   spots.forEach((s,k)=>{const want=Math.hypot(s.ix-s.bx,s.iz-s.bz),kk=want/armLen,ang=Math.atan2(s.ix-s.bx,s.iz-s.bz);e.set(0,ang-armAng,0);q.setFromEuler(e);sc.set(kk,kk*LH,kk);v3.set(s.bx,s.by,s.bz);M.compose(v3,q,sc);
+    poles.setMatrixAt(k,M);if(heads)heads.setMatrixAt(k,M);hy.push(s.by+headH*kk*LH)});
    for(const im of [poles,heads]){if(!im)continue;im.instanceMatrix.needsUpdate=true;im.computeBoundingSphere();im.userData.keep=true;root.add(im)}
    placeBeams(hy);addGlows(hy);
    const credit=document.getElementById('modelCredit');if(credit&&!/Tall Street Light/.test(credit.innerHTML))credit.innerHTML+='<br>Street light: "Tall Street Light" by Jampre · CC BY 4.0';
@@ -14618,18 +14622,34 @@ const animeHandling=window.animeHandling=(()=>{
  // CC BY 4.0) on the outside of every corner. Hairpins only, 3 signs each,
  // starting ~30 m before the turn-in, and through the tighter corners the signs keep coming at the same spacing all
  // the way round, so you can see the corner is still going. Uphill and downhill each get their own set.
- if(window.__FR)try{const list=scan(),m=window.M_PER_INDEX||6,C=tougeCenters.map(p=>p.clone()),T=tougeTangents.map(t=>t.clone());
+ // (build 432) corners for the boards, found from the road's own heading: the heading change is summed through each
+// corner, so its sign says which way the road turns (left / right) however far round it goes (hairpins past 180°
+// included), and its size how far it turns
+function scanFR(){const C=tougeCenters,T=tougeTangents,m=window.M_PER_INDEX||6.8,n=N;const h=i=>Math.atan2(T[i].x,T[i].z),wrap=a=>{while(a>Math.PI)a-=2*Math.PI;while(a<-Math.PI)a+=2*Math.PI;return a};
+ const dh=new Float32Array(n+1);for(let i=0;i<n;i++)dh[i]=wrap(h(i+1)-h(i));
+ const k=Math.max(1,Math.round(10/m)),K=new Float32Array(n+1);for(let i=0;i<=n;i++){let s=0,c=0;for(let j=Math.max(0,i-k);j<=Math.min(n-1,i+k);j++){s+=dh[j];c++}K[i]=s/c/m}   // curvature (1/m), signed
+ const out=[];let cur=null;
+ for(let i=0;i<=n;i++){const on=Math.abs(K[i])>1/200,sg=K[i]>0?1:-1;
+  if(on&&cur&&cur.sg===sg){cur.end=i}else if(on){if(cur&&cur.sg===sg&&(i-cur.end)*m<20)cur.end=i;else{if(cur)out.push(cur);cur={start:i,end:i,sg}}}
+  else if(cur&&(i-cur.end)*m>20){out.push(cur);cur=null}}
+ if(cur)out.push(cur);
+ const res=[];for(const c of out){let tot=0,mk=0,ap=c.start;for(let i=c.start;i<=c.end;i++){tot+=dh[i];if(Math.abs(K[i])>mk){mk=Math.abs(K[i]);ap=i}}
+  const L=(c.end-c.start)*m;if(L<15||Math.abs(tot)<.3)continue;res.push({start:c.start,end:c.end,apex:ap,r:1/Math.max(mk,1e-4),ang:Math.abs(tot),sgn:tot>0?1:-1})}
+ return res}
+window.__scanFR=scanFR;
+if(window.__FR)try{const list=scanFR(),m=window.M_PER_INDEX||6,C=tougeCenters.map(p=>p.clone()),T=tougeTangents.map(t=>t.clone());
   const spots={up:[],down:[]};
-  for(const dir of ['up','down']){let lastD=-1e9;const s=dir==='up'?1:-1,ord=dir==='up'?list:list.slice().reverse();
-   for(const c of ord){const g=grade(c);const n=g===0?3:g<=2?2:1;   /* every corner the arrows warn about: 3 boards for a hairpin, 2 for a tight corner, 1 for a bend */const entry=dir==='up'?c.start:c.end,exit=dir==='up'?c.end:c.start;
-    const lead=n===3?48:n===2?28:24,SP=n===3?34:18,from=entry-s*lead/m;
+  for(const dir of ['up','down']){let lastD=-1e9,prevExit=null;const s=dir==='up'?1:-1,ord=dir==='up'?list:list.slice().reverse();
+   for(let ci=0;ci<ord.length;ci++){const c=ord[ci],g=grade(c);const n=g===0?3:g<=2?2:1;
+    {const nx=ord[ci+1];if(n===1&&nx&&Math.abs((dir==='up'?nx.start-c.end:c.start-nx.end))*m<30&&grade(nx)<=2){prevExit=dir==='up'?c.end:c.start;continue}}   /* (build 432) a slight bend running straight into a tight corner: the tight corner's boards say it all */   /* every corner the arrows warn about: 3 boards for a hairpin, 2 for a tight corner, 1 for a bend */const entry=dir==='up'?c.start:c.end,exit=dir==='up'?c.end:c.start;
+    const lead=n===3?48:n===2?28:24,SP=n===3?34:18,from0=entry-s*lead/m,from=prevExit===null?from0:(s>0?Math.max(from0,prevExit+2):Math.min(from0,prevExit-2));prevExit=exit;   /* (build 432) never stand in the corner before (back-to-back hairpins) */
     // tight corners and hairpins: keep going through the corner to its end
-    const reach=(n-1)*SP;   // three signs, no more
-    for(let d=0;d<=reach+.01;d+=SP){const at=Math.round(from+s*d/m);if(at<2||at>N-2)continue;const D=at*m*s;if(Math.abs(D-lastD)<10)continue;lastD=D;
+    const sp=n>1?Math.max(8,Math.min(SP,Math.abs(exit-from)*m/(n-1))):SP,reach=(n-1)*sp;   // three signs, no more, all before this corner's exit (build 432)
+    for(let d=0;d<=reach+.01;d+=sp){const at=Math.round(from+s*d/m);if(at<2||at>N-2)continue;const D=at*m*s;if(Math.abs(D-lastD)<10)continue;lastD=D;
      // travel direction here, and which way the road turns
      const f=T[at].clone().multiplyScalar(s);f.y=0;f.normalize();const a=T[Math.max(0,Math.min(N,c.start))],b=T[Math.max(0,Math.min(N,c.end))];
-     const crs=(a.z*b.x-a.x*b.z)*s;   // > 0: turning left for this direction (left of f is (f.z,-f.x))
-     const left=crs>0,ox=left?-f.z:f.z,oz=left?f.x:-f.x,S={x:-T[at].z,z:T[at].x},sg=Math.sign(ox*S.x+oz*S.z)||1,w=7.5+(window.__wideOrig?__wideOrig(at):0);
+     const left=c.sgn*s>0,   // heading growing (toward +x) is a left turn for this direction (left of f is (f.z,-f.x))
+     ox=left?-f.z:f.z,oz=left?f.x:-f.x,S={x:-T[at].z,z:T[at].x},sg=Math.sign(ox*S.x+oz*S.z)||1,w=7.5+(window.__wideOrig?__wideOrig(at):0);
      const x=C[at].x+ox*w,z=C[at].z+oz*w;let ry=C[at].y+.15,gy;try{ry+=animeBank.at(x,z)}catch(e){}try{gy=roadsideGroundY(at,sg,w)}catch(e){gy=ry}
      // standing in the ground behind the rail; never so low that the board (1.19 m up its posts) drops below the rail top (0.7 m)
      const y=Math.max(gy,ry+.95-1.35);   // (build 421) the board's bottom edge clears the taller rail's top (0.8 m beam + mount)
@@ -19341,7 +19361,7 @@ const animeLocations=window.animeLocations=(()=>{
    const e=Math.atan2(Math.sin(yaw-H),Math.cos(yaw-H)),k=5.2+Math.min(6,Math.abs(e)*9);H+=e*(1-Math.exp(-dt*k));
    window.canyonCamHeading=H;
    const fx=-Math.sin(H),fz=-Math.cos(H),v=Math.abs(speed);
-   const dist=4.9+Math.min(.6,v*.01),hgt=1.72;   /* (424) closer, car low in the frame like Arcade Stage */
+   const dist=4.9+Math.min(.6,v*.01),hgt=1.95;   /* (432) a touch higher: you see over the car to more of the road */   /* (424) closer, car low in the frame like Arcade Stage */
    const cx=pos.x-fx*dist,cz=pos.z-fz*dist;
    // height: follow the car smoothly over crests and dips, never down into the road behind on a climb
    let ground=pos.y;try{const r=roadElevation(cx,cz);if(Number.isFinite(r))ground=Math.max(pos.y-1.2,r)}catch(_){}
