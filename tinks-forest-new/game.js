@@ -1979,9 +1979,9 @@ WC_GLSL
     float lum0=dot(c,vec3(.3,.59,.11));soil*=.75+.6*smoothstep(.05,.4,lum0);c=mix(c,soil*(.9+.2*gran),bare*.85);}}
   /* FOREST 105 (Ryan: the trails showed snowflake-shaped cut-outs): in winter the ground itself turns white under the drifts, and the
      paths get a light, patchy painted dusting; it whitens bit by bit with the season, and trodden snow shows a cool blue */
-  if(uSnowGG>.001){float gm=gmSoft(p);float bare=1.-smoothstep(.07,.14,gm);/* Build 581 (Ryan: the path up to the beanstalk glade, and others, were white): the forest trails aren't bare in the meadow map, so the ground under them was painted snowy while the snow sheet above was clear; the ground now reads the snow map too, which has every trail in it */float bareS=(1.-smoothstep(.12,.45,texture2D(uSnowMG,(p+uWorldG*.5)/uWorldG).r))*step(.5,uSnowMOn);bare=max(bare,bareS);/* FOREST 116 (Ryan: the ground went white all at once): flakes settle first as scattered specks, then gather into patches that join up as the season turns */float thrG=wcN(p*4.1)*.55+wcN(p*.9)*.35+.05;float sgk=smoothstep(thrG-.05,thrG+.18,uSnowGG*1.1)*mix(.55,1.,smoothstep(.3,1.,uSnowGG));
+  if(uSnowGG>.001){float gm=gmSoft(p);float bare=1.-smoothstep(.07,.14,gm);/* (Build 584: the ground's paths are as in 580 again: the trails are already bare in the meadow map, so reading the snow map here only changed the stream banks) *//* FOREST 116 (Ryan: the ground went white all at once): flakes settle first as scattered specks, then gather into patches that join up as the season turns */float thrG=wcN(p*4.1)*.55+wcN(p*.9)*.35+.05;float sgk=smoothstep(thrG-.05,thrG+.18,uSnowGG*1.1)*mix(.55,1.,smoothstep(.3,1.,uSnowGG));
    vec3 sc=mix(vec3(.83,.87,.97),vec3(.965,.975,1.),smoothstep(.3,.7,wcF(p*.35)));sc*=.97+.06*gran;
-   float dust=smoothstep(.38,.62,wcF(p*.7+3.))*.55+.1;/* (Build 572: the wheat field is snow-covered, not a trodden path) */bare*=1.-inWheat(p);float cov=sgk*mix(.97,dust,bare)*(1.-.88*bareS);/* (Build 581: the trails show their earth through a lighter dusting) *//* FOREST 117 (Ryan liked the worn, shadowed trail): every path is the same well-travelled track: a thin patchy dusting in cool shadow */sc=mix(sc,vec3(.5,.56,.75),bare*.5);/* (FOREST 105, Ryan: the Great Tree's hollow stays warm and dry) */if(uGTreeG.z>0.)cov*=smoothstep(uGTreeG.z,uGTreeG.z+.8,length(p-uGTreeG.xy));
+   float dust=smoothstep(.38,.62,wcF(p*.7+3.))*.55+.1;/* (Build 572: the wheat field is snow-covered, not a trodden path) */bare*=1.-inWheat(p);float cov=sgk*mix(.97,dust,bare);/* (Build 584, Ryan: the paths looked better with a bit of snow on them: the usual light dusting again) *//* FOREST 117 (Ryan liked the worn, shadowed trail): every path is the same well-travelled track: a thin patchy dusting in cool shadow */sc=mix(sc,vec3(.5,.56,.75),bare*.5);/* (FOREST 105, Ryan: the Great Tree's hollow stays warm and dry) */if(uGTreeG.z>0.)cov*=smoothstep(uGTreeG.z,uGTreeG.z+.8,length(p-uGTreeG.xy));
    float tr=texture2D(uSnowTG,(p+uWorldG*.5)/uWorldG).r;sc=mix(sc,vec3(.46,.53,.76),smoothstep(.06,.8,tr)*.75*(1.-bare));
    c=mix(c,sc,cov);}
   diffuseColor.rgb=c;}`
@@ -15411,10 +15411,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 584;
+const BUILD = 585;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 152;
+const LOOKV = 153;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -54030,9 +54030,11 @@ const mt = grassU.uMask.value,
 mc = mt && mt.image;
 if(!mc || !mc.width)return;
 const tr = window.__TRAILS ||[];
-if(mt.version === ver && tr.length === nT)return;
+let sig = tr.length;
+for(const fl of tr)for(let i = 0;i < fl.length;i += 7)sig += fl[i]* 0.37 + i;
+if(mt.version === ver && sig === nT)return;
 ver = mt.version;
-nT = tr.length;
+nT = sig;
 sx.save();
 sx.globalCompositeOperation = 'source-over';
 sx.filter = 'blur(7px)';
@@ -59871,19 +59873,24 @@ sh.vertexShader = sh.vertexShader
 '#include <defaultnormal_vertex>',
 '#include <defaultnormal_vertex>\nvSnN=normalize((vec4(transformedNormal,0.)*viewMatrix).xyz);'
 )
-.replace('#include <begin_vertex>','#include <begin_vertex>\nvSnY=position.y;' +(strip ? 'vSnC=position.' + strip.ax + ';' : ''));
-if(strip)sh.vertexShader = sh.vertexShader.replace('varying float vSnY;','varying float vSnY,vSnC;');
+.replace('#include <begin_vertex>','#include <begin_vertex>\nvSnY=position.y;' +(strip ? 'vSnC=position.' + strip.ax + ';vSnL=position.' +(strip.ax === 'x' ? 'z' : 'x')+ ';' : ''));
+if(strip)sh.vertexShader = sh.vertexShader.replace('varying float vSnY;','varying float vSnY,vSnC,vSnL;');
 sh.fragmentShader = sh.fragmentShader
 .replace(
 '#include <common>',
-'#include <common>\nuniform float uSnowK,uSnMinY;varying vec3 vSnN;varying float vSnY;' +(strip ? 'varying float vSnC;' : '')
+'#include <common>\nuniform float uSnowK,uSnMinY;varying vec3 vSnN;varying float vSnY;' +(strip ? 'varying float vSnC,vSnL;' : '')
 )
 .replace(
 '#include <color_fragment>',
 '#include <color_fragment>\n{float sn=smoothstep(' +
 (full ? '-.2,.45' : '.3,.7')+
 ',normalize(vSnN).y)*step(uSnMinY,vSnY)*uSnowK;' +
-(strip ? 'sn*=smoothstep(' +(strip.hw * 0.3).toFixed(3)+ ',' +(strip.hw * 0.5).toFixed(3)+ ',abs(vSnC-(' + strip.c.toFixed(3)+ ')));' : '')+
+(strip
+?
+'{float hw=' + strip.hw.toFixed(3)+ ',L=vSnL;float wob=(sin(L*1.7+.6)*.09+sin(L*4.3+2.1)*.045)*hw;float wd=hw*(.36+.07*sin(L*2.9+1.3)+.05*sin(L*7.7));' +
+'float rag=(fract(sin(dot(floor(vec2(L,vSnC)*9.),vec2(12.9898,78.233)))*43758.5)-.5)*hw*.14;' +
+'sn*=smoothstep(wd*.62,wd*1.08,abs(vSnC-(' + strip.c.toFixed(3)+ ')-wob)+rag);}'
+: '')+
 (full
 ? '/* Build 260: mossy rocks and logs go grey-white under the snow, no green showing through */float lu=dot(diffuseColor.rgb,vec3(.3,.59,.11));diffuseColor.rgb=mix(diffuseColor.rgb,vec3(lu)*vec3(.95,.97,1.04)+.04,uSnowK*.85);'
 : '')+
@@ -61728,6 +61735,48 @@ go(h.x + 4,h.z + 4);
 ['High view (on/off)',high],
 ['Make Tink wet',()=>{
 if(window.__wetU)window.__wetU.tink.value = 1;
+}],
+['Show snow map (on/off)',()=>{
+let ov = document.getElementById('ckSnowMap');
+if(ov){
+ov.remove();
+clearInterval(window.__ckSnowT);
+return;
+}
+ov = document.createElement('div');
+ov.id = 'ckSnowMap';
+ov.style.cssText = 'position:fixed;left:210px;top:30px;z-index:9999;display:flex;gap:6px;background:rgba(24,22,30,.9);padding:6px;border-radius:8px;pointer-events:none';
+const a = document.createElement('canvas'),
+b = document.createElement('canvas');
+a.width = a.height = b.width = b.height = 300;
+ov.append(a,b);
+document.body.appendChild(ov);
+const draw =()=>{
+try{
+const W = WORLD,
+sc = window.__snowMaskCanvas,
+mc = window.__grassU && window.__grassU.uMask.value.image;
+for(const[cv,src]of[[a,sc],[b,mc]]){
+const x = cv.getContext('2d');
+x.fillStyle = '#333';
+x.fillRect(0,0,300,300);
+const px = P.pos.x,
+pz = P.pos.z,
+R = 20;
+if(src)x.drawImage(src,((px - R + W / 2)/ W)* src.width,((pz - R + W / 2)/ W)* src.height,((2 * R)/ W)* src.width,((2 * R)/ W)* src.height,0,0,300,300);
+x.fillStyle = '#f33';
+x.beginPath();
+x.arc(150,150,5,0,7);
+x.fill();
+x.fillStyle = '#fff';
+x.font = '11px system-ui';
+x.fillText(cv === a ? 'snow map' : 'path map',6,14);
+x.fillText(px.toFixed(1)+ ', ' + pz.toFixed(1),6,292);
+}
+}catch(e){}
+};
+draw();
+window.__ckSnowT = setInterval(draw,500);
 }],
 ['Corny & Chickum card',()=>{
 try{
