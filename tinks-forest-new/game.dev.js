@@ -2132,7 +2132,7 @@ WC_GLSL
      paths get a light, patchy painted dusting; it whitens bit by bit with the season, and trodden snow shows a cool blue */
   if(uSnowGG>.001){float gm=gmSoft(p);float bare=1.-smoothstep(.07,.14,gm);/* Build 581 (Ryan: the path up to the beanstalk glade, and others, were white): the forest trails aren't bare in the meadow map, so the ground under them was painted snowy while the snow sheet above was clear; the ground now reads the snow map too, which has every trail in it */float bareS=(1.-smoothstep(.12,.45,texture2D(uSnowMG,(p+uWorldG*.5)/uWorldG).r))*step(.5,uSnowMOn);bare=max(bare,bareS);/* FOREST 116 (Ryan: the ground went white all at once): flakes settle first as scattered specks, then gather into patches that join up as the season turns */float thrG=wcN(p*4.1)*.55+wcN(p*.9)*.35+.05;float sgk=smoothstep(thrG-.05,thrG+.18,uSnowGG*1.1)*mix(.55,1.,smoothstep(.3,1.,uSnowGG));
    vec3 sc=mix(vec3(.83,.87,.97),vec3(.965,.975,1.),smoothstep(.3,.7,wcF(p*.35)));sc*=.97+.06*gran;
-   float dust=smoothstep(.38,.62,wcF(p*.7+3.))*.55+.1;/* (Build 572: the wheat field is snow-covered, not a trodden path) */bare*=1.-inWheat(p);float cov=sgk*mix(.97,dust,bare)*(1.-.55*bareS);/* (Build 581: the trails show their earth through a lighter dusting) *//* FOREST 117 (Ryan liked the worn, shadowed trail): every path is the same well-travelled track: a thin patchy dusting in cool shadow */sc=mix(sc,vec3(.5,.56,.75),bare*.5);/* (FOREST 105, Ryan: the Great Tree's hollow stays warm and dry) */if(uGTreeG.z>0.)cov*=smoothstep(uGTreeG.z,uGTreeG.z+.8,length(p-uGTreeG.xy));
+   float dust=smoothstep(.38,.62,wcF(p*.7+3.))*.55+.1;/* (Build 572: the wheat field is snow-covered, not a trodden path) */bare*=1.-inWheat(p);float cov=sgk*mix(.97,dust,bare)*(1.-.88*bareS);/* (Build 581: the trails show their earth through a lighter dusting) *//* FOREST 117 (Ryan liked the worn, shadowed trail): every path is the same well-travelled track: a thin patchy dusting in cool shadow */sc=mix(sc,vec3(.5,.56,.75),bare*.5);/* (FOREST 105, Ryan: the Great Tree's hollow stays warm and dry) */if(uGTreeG.z>0.)cov*=smoothstep(uGTreeG.z,uGTreeG.z+.8,length(p-uGTreeG.xy));
    float tr=texture2D(uSnowTG,(p+uWorldG*.5)/uWorldG).r;sc=mix(sc,vec3(.46,.53,.76),smoothstep(.06,.8,tr)*.75*(1.-bare));
    c=mix(c,sc,cov);}
   diffuseColor.rgb=c;}`
@@ -6163,6 +6163,7 @@ mesh.scale.setScalar(s);
 mesh.position.set(b.x,top + 0.04 - bb.max.y * s,b.z);
 mesh.castShadow = mesh.receiveShadow = true;
 mesh.userData.noEdit = true;
+mesh.userData.czKind = 'bridge';
 try{
 const ir = mulberry32(71201 + nb * 17),
 pTop = bb.max.y - 0.04,
@@ -15565,10 +15566,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 582;
+const BUILD = 583;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 150;
+const LOOKV = 151;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -48809,7 +48810,7 @@ say = null;
 };
 let CORNG = null,
 cornyP = null;
-const corny =()=>{
+const corny =(window.__cornyLoad =()=>{
 if(!cornyP)
 cornyP = ld('corny.glb')
 .then(g =>{
@@ -48818,7 +48819,7 @@ return g;
 })
 .catch(()=> null);
 return cornyP;
-};
+});
 const toyAt = p =>{
 const w = new THREE.Group();
 const put =()=>{
@@ -62613,7 +62614,7 @@ const SN =
 window.__SNOWU;
 const done = new Set();
 const PRE = new WeakMap();
-const snowify =(mat,minY,full)=>{
+const snowify =(mat,minY,full,strip)=>{
 if(!mat || done.has(mat)|| mat.isShaderMaterial || mat.isMeshBasicMaterial)return;
 done.add(mat);
 const prev = mat.onBeforeCompile;
@@ -62630,17 +62631,19 @@ sh.vertexShader = sh.vertexShader
 '#include <defaultnormal_vertex>',
 '#include <defaultnormal_vertex>\nvSnN=normalize((vec4(transformedNormal,0.)*viewMatrix).xyz);'
 )
-.replace('#include <begin_vertex>','#include <begin_vertex>\nvSnY=position.y;');
+.replace('#include <begin_vertex>','#include <begin_vertex>\nvSnY=position.y;' +(strip ? 'vSnC=position.' + strip.ax + ';' : ''));
+if(strip)sh.vertexShader = sh.vertexShader.replace('varying float vSnY;','varying float vSnY,vSnC;');
 sh.fragmentShader = sh.fragmentShader
 .replace(
 '#include <common>',
-'#include <common>\nuniform float uSnowK,uSnMinY;varying vec3 vSnN;varying float vSnY;'
+'#include <common>\nuniform float uSnowK,uSnMinY;varying vec3 vSnN;varying float vSnY;' +(strip ? 'varying float vSnC;' : '')
 )
 .replace(
 '#include <color_fragment>',
 '#include <color_fragment>\n{float sn=smoothstep(' +
 (full ? '-.2,.45' : '.3,.7')+
 ',normalize(vSnN).y)*step(uSnMinY,vSnY)*uSnowK;' +
+(strip ? 'sn*=smoothstep(' +(strip.hw * 0.3).toFixed(3)+ ',' +(strip.hw * 0.5).toFixed(3)+ ',abs(vSnC-(' + strip.c.toFixed(3)+ ')));' : '')+
 (full
 ? '/* Build 260: mossy rocks and logs go grey-white under the snow, no green showing through */float lu=dot(diffuseColor.rgb,vec3(.3,.59,.11));diffuseColor.rgb=mix(diffuseColor.rgb,vec3(lu)*vec3(.95,.97,1.04)+.04,uSnowK*.85);'
 : '')+
@@ -62651,7 +62654,7 @@ sh.fragmentShader = sh.fragmentShader
 '#include <emissivemap_fragment>\ntotalEmissiveRadiance*=1.-smoothstep(.3,.7,normalize(vSnN).y)*step(uSnMinY,vSnY)*uSnowK;'
 );
 };
-mat.customProgramCacheKey =()=> pk()+ '|snow' + minY.toFixed(2)+(full ? 'f' : '');
+mat.customProgramCacheKey =()=> pk()+ '|snow' + minY.toFixed(2)+(full ? 'f' : '')+(strip ? 's' + strip.ax + strip.c.toFixed(2)+ '_' + strip.hw.toFixed(2): '');
 mat.needsUpdate = true;
 };
 const srcOf = o =>
@@ -62748,7 +62751,15 @@ if(Math.abs(c - cc)< hw * 0.3 && y > deck)deck = y;
 }
 if(deck > -1e8 && top - deck > 0.03 * Math.max(0.2,bb.max.y - bb.min.y))minY = deck +(top - deck)* 0.5;
 }catch(e){}
-if(minY != null)for(const m of mats(o))snowify(m,minY);
+{
+const wx = bb.max.x - bb.min.x,
+wz = bb.max.z - bb.min.z,
+ax2 = wx > wz ? 'z' : 'x',
+cc2 = ax2 === 'z' ?(bb.min.z + bb.max.z)/ 2 :(bb.min.x + bb.max.x)/ 2,
+hw2 =(ax2 === 'z' ? wz : wx)/ 2;
+void minY;
+for(const m of mats(o))snowify(m,-1e9,false,{ax: ax2,c: cc2,hw: hw2});
+}
 return;
 }
 if(lan(o)|| /(^|[^a-z])logs?([^a-z]|$)|fallen|Log_|_log/i.test((o.name || '')+ ' ' +(o.parent && o.parent.name || '')+ ' ' + srcOf(o))|| mats(o).some(m => /^(wellm|lantern|logb)/.test(tagOf(m))))for(const m of mats(o))snowify(m,-1e9);
@@ -64493,12 +64504,10 @@ if(window.__wetU)window.__wetU.tink.value = 1;
 ['Corny & Chickum card',()=>{
 try{
 const J = window.__JACK;
-if(J && !J.got.includes('toys'))J.got.push('toys');
-const have =(window.__GIFTS ||[]).length ? window.__GIFTS.filter(g => J.got.includes(g.id)): null;
-let i = 0;
-if(have)i = Math.max(0,have.findIndex(g => g.id === 'toys'));
-else i = Math.max(0,J.got.indexOf('toys'));
-J.viewTreasure(i);
+const show =()=> J.showcase({id: 'toys',name: 'Corny & Chickum'},{title: 'His favorite toys',btn: 'Close'});
+if(window.__cornyMesh && window.__chickumMesh)show();
+else if(window.__cornyLoad)window.__cornyLoad().then(show);
+else show();
 }catch(e){}
 }]
 ];
