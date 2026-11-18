@@ -15411,10 +15411,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 585;
+const BUILD = 586;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 153;
+const LOOKV = 154;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -54105,7 +54105,11 @@ float snD(vec2 p){
  float rim=clamp((tb-tr0)*2.6,0.,1.)*(1.-smoothstep(.2,.5,tr0));
  float rough=.55+.9*snN(p*6.3)*snN(p*2.1+3.7);
  return .17*grow*cov*drift*dent*gt*edge+.11*rim*rough*grow*cov*gt*edge;}
-float snY(vec2 p){return texture2D(uHeight,snUV(p)).r-.035+snD(p)*1.2;}
+/* (Build 586, Ryan: the beanstalk trail stayed white though the snow map had it clear): where there's no snow the sheet now sinks well
+   under the ground; it used to sit just 3.5 cm below, and on the higher ground out by the glade the height map's rounding put it above
+   the ground, a thin flat blanket over the path */
+float snSink(float d){return .035+.25*(1.-smoothstep(.0,.012,d));}
+float snY(vec2 p){float d=snD(p);return texture2D(uHeight,snUV(p)).r-snSink(d)+d*1.2;}
 `;
 sh.vertexShader = sh.vertexShader
 .replace('#include <common>','#include <common>\n' + FN)
@@ -54123,7 +54127,7 @@ vec3 objectTangent=vec3(1.,0.,0.);
 )
 .replace(
 '#include <begin_vertex>',
-`float sd0=snD(swp);vec3 transformed=vec3(swp.x,texture2D(uHeight,snUV(swp)).r-.035+sd0*1.2,swp.y);vSwp=swp;vStr=snTr(swp);vSd=sd0;`
+`float sd0=snD(swp);vec3 transformed=vec3(swp.x,texture2D(uHeight,snUV(swp)).r-snSink(sd0)+sd0*1.2,swp.y);vSwp=swp;vStr=snTr(swp);vSd=sd0;`
 );
 sh.uniforms.uEdgeC = window.__edgeC ||(window.__edgeC ={value: new THREE.Color(0.75,0.82,0.78)});
 sh.fragmentShader = sh.fragmentShader
@@ -59887,8 +59891,8 @@ sh.fragmentShader = sh.fragmentShader
 ',normalize(vSnN).y)*step(uSnMinY,vSnY)*uSnowK;' +
 (strip
 ?
-'{float hw=' + strip.hw.toFixed(3)+ ',L=vSnL;float wob=(sin(L*1.7+.6)*.09+sin(L*4.3+2.1)*.045)*hw;float wd=hw*(.36+.07*sin(L*2.9+1.3)+.05*sin(L*7.7));' +
-'float rag=(fract(sin(dot(floor(vec2(L,vSnC)*9.),vec2(12.9898,78.233)))*43758.5)-.5)*hw*.14;' +
+'{float hw=' + strip.hw.toFixed(3)+ ',L=vSnL;float wob=(sin(L*1.7+.6)*.09+sin(L*4.3+2.1)*.045)*hw;float wd=hw*(.5+.07*sin(L*2.9+1.3)+.05*sin(L*7.7));/* (Build 586: a bit wider) */' +
+'float rag=(sin(L*11.3+vSnC*5.1)*.5+sin(L*23.7-vSnC*9.3)*.3+sin(L*5.3+2.)*.2)*hw*.06;' +
 'sn*=smoothstep(wd*.62,wd*1.08,abs(vSnC-(' + strip.c.toFixed(3)+ ')-wob)+rag);}'
 : '')+
 (full
