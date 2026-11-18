@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Initial Drift · tree test (cizzy7 trees)</title>
+<style>
+html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:'Arial Black',Arial,sans-serif;color:#fff}
+canvas{display:block}
+#hud{position:fixed;left:12px;top:12px;background:rgba(14,12,22,.86);border-left:4px solid #ffcf1f;padding:10px 14px;font:12px/1.55 ui-monospace,Menlo,monospace;min-width:270px;pointer-events:none}
+#hud b{font:900 26px 'Arial Black',sans-serif;color:#ffcf1f}
+#hud .k{color:#9b97a8}
+#ui{position:fixed;right:12px;top:12px;background:rgba(14,12,22,.9);border-right:4px solid #ffcf1f;padding:10px 14px;font:12px Arial,sans-serif;width:300px}
+#ui h1{font:900 15px 'Arial Black',sans-serif;margin:0 0 6px;letter-spacing:.06em;color:#ffcf1f}
+#ui .row{display:flex;align-items:center;justify-content:space-between;margin:6px 0;gap:6px}
+#ui .seg{display:flex;gap:3px;flex-wrap:wrap;justify-content:flex-end}
+#ui button{font:700 11px Arial,sans-serif;background:#2a2638;color:#ddd;border:1px solid #4a4560;padding:4px 7px;cursor:pointer}
+#ui button.on{background:#ffcf1f;color:#14101c;border-color:#ffcf1f}
+#ui input[type=range]{width:120px}
+#ui .note{color:#9b97a8;font-size:11px;line-height:1.4;margin-top:6px}
+#bench{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);background:rgba(14,12,22,.92);padding:10px 16px;font:12px ui-monospace,Menlo,monospace;display:none;border-top:3px solid #ffcf1f}
+#bench table{border-collapse:collapse}#bench td,#bench th{padding:2px 10px;text-align:right}#bench th{color:#ffcf1f}
+#credit{position:fixed;left:12px;bottom:10px;font:11px Arial,sans-serif;color:#cfcbd8;text-shadow:0 1px 2px #000;max-width:60vw}
+#load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0c0a12;font:900 22px 'Arial Black',sans-serif;letter-spacing:.1em;color:#ffcf1f;z-index:9}
+</style>
+<script type="importmap">{"imports":{"three":"../assets/lib/three/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"}}</script>
+</head><body>
+<div id="load">LOADING TREES…</div>
+<div id="hud"></div>
+<div id="ui">
+ <h1>TREE TEST</h1>
+ <div class="row">Look<div class="seg" id="look"><button data-v="current">Current</button><button data-v="painted">cizzy7 painted</button><button data-v="toon">cizzy7 toon</button></div></div>
+ <div class="row">Pines<div class="seg" id="pine"><button data-v="old">Current pines</button><button data-v="gr">grimren13 as-is</button><button data-v="grt">grimren13 tinted</button></div></div>
+ <div class="row">Season<div class="seg" id="season"><button data-v="summer">Summer</button><button data-v="snowbare">Snow · bare trees</button><button data-v="snowtrunk">Snow · cizzy7 trunks</button></div></div>
+ <div class="row">Camera<div class="seg" id="cam"><button data-v="drive">Drive</button><button data-v="orbit">Free look</button></div></div>
+ <div class="row">Tree shadows<div class="seg" id="shad"><button data-v="off">Off</button><button data-v="near">Near trees</button></div></div>
+ <div class="row">Resolution<div class="seg" id="res"><button data-v="1">1×</button><button data-v="1.5">1.5× (game)</button><button data-v="2">2×</button></div></div>
+ <div class="row">High → Mid <span><input type="range" id="d1" min="40" max="300" step="10" value="120"> <span id="d1v"></span></span></div>
+ <div class="row">Mid → Card <span><input type="range" id="d2" min="150" max="1200" step="25" value="400"> <span id="d2v"></span></span></div>
+ <div class="row">Pine High → Mid <span><input type="range" id="p1" min="30" max="300" step="10" value="100"> <span id="p1v"></span></span></div>
+ <div class="row">Pine Mid → Card <span><input type="range" id="p2" min="150" max="1200" step="25" value="400"> <span id="p2v"></span></span></div>
+ <div class="row"><button id="runBench">Run benchmark (5 combos, 15 s each)</button></div>
+ <div class="note">Same tree counts as Initial Drift: 8,653 broadleaf (2,065 within 90 m of the road) and 7,671 pines. Pines: the game's current pines, or grimren13's pine (as-is or repainted) with its own distance LOD. "Current" uses the game's real broadleaf model and its LOD rule (road trees always full detail). The cizzy7 looks use distance LOD: High near, MidBlend middle, and a 4-triangle picture card beyond.</div>
+</div>
+<div id="bench"></div>
+<div id="credit">Trees (test): painted trees by <b>cizzy7</b> · "Pine Tree Single 01" by <b>grimren13</b> (CC BY-NC 4.0) · Current: "Giant Low Poly Tree" by Sahir Virmani, "Pine tree 1" by andros.spica, "Low Poly Pine" by Afloat Above the World, "Low-poly trees" (snow) · CC BY 4.0</div>
+<script type="module">
+import * as THREE from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
+import {DRACOLoader} from 'three/addons/loaders/DRACOLoader.js';
+
+const CZ='../../tinks-forest-new/cz/',ID='../assets/models/';
+const Q=new URLSearchParams(location.search);
+const S={pine:Q.get('pine')||'old',p1:100,p2:400,look:Q.get('look')||'painted',season:Q.get('season')||'summer',cam:'drive',shad:'off',res:Q.get('res')||'1.5',d1:120,d2:400};
+
+// ---------------------------------------------------------------- renderer, sky, light
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio,+S.res));renderer.setSize(innerWidth,innerHeight);
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.info.autoReset=false;
+document.body.appendChild(renderer.domElement);
+const scene=new THREE.Scene();const SKY=new THREE.Color(0x9cc6e8);scene.background=SKY;scene.fog=new THREE.FogExp2(0xb8cbd0,.0027);
+const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,.3,4000);
+const hemi=new THREE.HemisphereLight(0xdfefff,0x56603a,1.15);scene.add(hemi);
+const sun=new THREE.DirectionalLight(0xfff1d8,2.1);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+Object.assign(sun.shadow.camera,{left:-90,right:90,top:90,bottom:-90,near:1,far:600});sun.shadow.bias=-.0006;scene.add(sun,sun.target);
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+const mkGrad=steps=>{const d=new Uint8Array(steps.length*4);steps.forEach((s,i)=>d.set([s,s,s,255],i*4));const t=new THREE.DataTexture(d,steps.length,1);t.minFilter=t.magFilter=THREE.NearestFilter;t.needsUpdate=true;return t};
+const GRAD=mkGrad([80,135,190,255]);   // Initial Drift's tree colour bands
+
+// ---------------------------------------------------------------- land and road (a 3 km mountain stretch)
+const rs=(()=>{let q=12345;return()=>(q=(q*16807)%2147483647)/2147483647})();
+const H0=(x,z)=>38*Math.sin(x*.0021+.7)*Math.cos(z*.0017)+22*Math.sin(x*.0053+z*.0041)+9*Math.sin(x*.013-z*.011)+4*Math.cos(x*.031+z*.027)+.035*z;
+const ctl=[];for(let k=0;k<=14;k++){const z=-1500+k*215,x=Math.sin(k*1.3)*170+Math.sin(k*.55)*240;ctl.push(new THREE.Vector3(x,0,z))}
+const curve=new THREE.CatmullRomCurve3(ctl,false,'centripetal');const NR=1500;const RP=curve.getSpacedPoints(NR);
+const RL=curve.getLength();
+{const raw=RP.map(p=>H0(p.x,p.z));for(let i=0;i<=NR;i++){let t=0,n=0;for(let k=-25;k<=25;k++){const j=Math.min(NR,Math.max(0,i+k));t+=raw[j];n++}RP[i].y=t/n}}
+// nearest road point (grid lookup)
+const CELL=40,grid=new Map();RP.forEach((p,i)=>{const k=Math.floor(p.x/CELL)+','+Math.floor(p.z/CELL);(grid.get(k)||grid.set(k,[]).get(k)).push(i)});
+function near(x,z,R=200){const cx=Math.floor(x/CELL),cz=Math.floor(z/CELL),r=Math.ceil(R/CELL);let best=1e9,bi=0;
+ for(let a=-r;a<=r;a++)for(let b=-r;b<=r;b++){const L=grid.get((cx+a)+','+(cz+b));if(!L)continue;for(const i of L){const d=(RP[i].x-x)**2+(RP[i].z-z)**2;if(d<best){best=d;bi=i}}}return{d:Math.sqrt(best),i:bi}}
+const HW=4.85;
+function H(x,z){const n=near(x,z,160),h=H0(x,z);if(n.d>150)return h;const ry=RP[n.i].y,t=Math.min(1,Math.max(0,(n.d-HW-1.5)/70));const s=t*t*(3-2*t);return ry-.25+(h-ry+.25)*s}
+// ground
+const GS=3600,GN=180;const gg=new THREE.PlaneGeometry(GS,GS,GN,GN);gg.rotateX(-Math.PI/2);
+{const p=gg.attributes.position,c=[];for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i),y=H(x,z);p.setY(i,y);const v=.85+.15*Math.sin(x*.02+z*.013);c.push(.36*v,.52*v,.21*v)}gg.setAttribute('color',new THREE.Float32BufferAttribute(c,3));gg.computeVertexNormals()}
+const groundMat=new THREE.MeshToonMaterial({vertexColors:true,gradientMap:mkGrad([110,170,220,255])});
+const ground=new THREE.Mesh(gg,groundMat);ground.receiveShadow=true;scene.add(ground);
+// road ribbon
+{const P=[],I=[],C=[];for(let i=0;i<=NR;i++){const p=RP[i],t=curve.getTangentAt(i/NR),sx=-t.z,sz=t.x;for(const [o,c] of [[-HW,.2],[HW,.2]]){P.push(p.x+sx*o,p.y+.04,p.z+sz*o);C.push(c,c,c*1.15)}if(i){const a=(i-1)*2;I.push(a,a+2,a+1,a+1,a+2,a+3)}}
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('color',new THREE.Float32BufferAttribute(C,3));g.setIndex(I);g.computeVertexNormals();
+ const road=new THREE.Mesh(g,new THREE.MeshLambertMaterial({vertexColors:true,side:THREE.DoubleSide}));road.receiveShadow=true;scene.add(road)}
+
+// ---------------------------------------------------------------- tree list (same numbers as Initial Drift)
+const NB=8653,NBN=2065,NP=7671,NPN=1830;
+const TINTS=[[1.08,1.12,.86],[.95,1.04,.92],[.86,.96,.9],[1.15,1.1,.78],[.9,1.02,1.02],[1.02,1.0,.85],[.8,.92,.86],[1.1,1.18,.9]];
+const TREES=[];   // {x,y,z,h,r,s,road(<90m),pine,type,tint}
+function scatter(n,nearRoad,pine){let k=0,guard=0;while(k<n&&guard++<n*80){let x,z;
+  if(nearRoad){const i=Math.floor(rs()*NR),p=RP[i],t=curve.getTangentAt(i/NR),side=rs()<.5?-1:1,d=HW+7+rs()*83;x=p.x-t.z*d*side+(rs()-.5)*6;z=p.z+t.x*d*side+(rs()-.5)*6}
+  else{const i=Math.floor(rs()*NR),p=RP[i],a=rs()*Math.PI*2,d=90+Math.pow(rs(),.8)*1500;x=p.x+Math.cos(a)*d;z=p.z+Math.sin(a)*d}
+  if(Math.abs(x)>GS/2-20||Math.abs(z)>GS/2-20)continue;const nd=near(x,z,120).d;if(nd<HW+6)continue;if(!nearRoad&&nd<90)continue;
+  TREES.push({x,y:H(x,z)-.3,z,h:(pine?9+rs()*8:8+rs()*7)*1.3*(nd<20?.88:1),r:rs()*6.28,s:.8+rs()*.35,road:nearRoad,pine,type:pine?(k%2):Math.floor(rs()*4),tint:TINTS[Math.floor(rs()*TINTS.length)].map(v=>v*(.9+rs()*.2))});k++}}
+scatter(NBN,true,false);scatter(NB-NBN,false,false);scatter(NPN,true,true);scatter(NP-NPN,false,true);
+const BL=TREES.filter(t=>!t.pine),PN=TREES.filter(t=>t.pine);
+
+// ---------------------------------------------------------------- loading
+const loader=new GLTFLoader();{const dr=new DRACOLoader();dr.setDecoderPath('../assets/lib/three/examples/jsm/libs/draco/gltf/');loader.setDRACOLoader(dr)}const load=u=>new Promise((res,rej)=>loader.load(u,res,undefined,rej));
+const tl=new THREE.TextureLoader();const tex=(k,srgb=true)=>{const t=tl.load(CZ+'t/'+k+'.png');t.flipY=false;if(srgb)t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=4;return t};
+const TEX={bark:tex('bark'),birch:tex('birch'),leaf:tex('leaf',false),leafbirch:tex('leafbirch',false)};
+const kindOf=nm=>{nm=(nm||'').toLowerCase();if(/billboard|board|lod/.test(nm)&&!/leaf/.test(nm))return null;if(/leaf birch/.test(nm))return 'leafbirch';if(/^leaf/.test(nm))return 'leaf';if(/birch/.test(nm))return 'birch';if(/bark|default obj/.test(nm))return 'bark';return null};
+const CZT=[['Tree_1_Tree1',0x5f8f3e],['Tree_2_Tree2',0x6f9a44],['Tree_3_Oak_OakTree2',0x557f36],['Tree_4_Brich_Tree4',0x86a64a]];
+// a cizzy7 file -> {bark:{geo,key}, leaf:{geo,key}} normalised to unit height, trunk base at the origin
+function parts(gl,ref){const root=gl.scene;root.updateMatrixWorld(true);const by={};
+ root.traverse(o=>{if(!o.isMesh)return;const k=kindOf(o.material.name);if(!k)return;const g=o.geometry.clone().applyMatrix4(o.matrixWorld);for(const a of Object.keys(g.attributes))if(!/^(position|normal|uv)$/.test(a))g.deleteAttribute(a);(by[k]=by[k]||[]).push(g)});
+ const out={};for(const k in by){const g=by[k].length>1?mergeGeometries(by[k].map(x=>x.index?x.toNonIndexed():x)):by[k][0];out[/leaf/.test(k)?'leaf':'bark']={geo:g,key:k}}   // (non-indexed pieces merge cleanly)
+ const box=new THREE.Box3();for(const k in out){out[k].geo.computeBoundingBox();box.union(out[k].geo.boundingBox)}
+ const bb=out.bark.geo.boundingBox,cx=(bb.min.x+bb.max.x)/2,cz=(bb.min.z+bb.max.z)/2,h=box.max.y-box.min.y;
+ const R=ref||{cx,cz,y0:box.min.y,h};for(const k in out){out[k].geo.translate(-R.cx,-R.y0,-R.cz);out[k].geo.scale(1/R.h,1/R.h,1/R.h);out[k].geo.computeBoundingSphere()}
+ out.ref={cx,cz,y0:box.min.y,h};out.tris=Object.values(out).reduce((a,p)=>a+(p.geo?(p.geo.index?p.geo.index.count:p.geo.attributes.position.count)/3:0),0);return out}
+
+// game's current-tree LOD builder (ported from fr_land.js buildLOD)
+function buildLOD(gl,sp){const sc0=gl.scene;sc0.updateMatrixWorld(true);const box=new THREE.Box3().setFromObject(sc0),hM=box.max.y-box.min.y||1,cx0=(box.min.x+box.max.x)/2,cz0=(box.min.z+box.max.z)/2,y0=box.min.y;
+ const P0=[];sc0.traverse(o=>{if(!o.isMesh)return;const g=o.geometry.clone().applyMatrix4(o.matrixWorld);g.translate(-cx0,-y0,-cz0);g.scale(1/hM,1/hM,1/hM);
+  const c=o.material.color?o.material.color.clone():new THREE.Color(.1,.2,.05);let tx=false;
+  try{const im=o.material.map&&o.material.map.image;if(im){const cv=document.createElement('canvas');cv.width=cv.height=16;const x=cv.getContext('2d');x.drawImage(im,0,0,16,16);const d=x.getImageData(0,0,16,16).data;let r=0,gg=0,b=0,n=0;for(let i=0;i<d.length;i+=4){if(d[i+3]<40)continue;r+=d[i];gg+=d[i+1];b+=d[i+2];n++}if(n){const a=new THREE.Color();a.setRGB(r/n/255,gg/n/255,b/n/255,THREE.SRGBColorSpace);c.multiply(a);tx=true}}}catch(e){}
+  g.computeBoundingSphere();g.computeBoundingBox();const leaf=sp.bare?false:tx?c.g>c.r*1.05:(!/wood|trunk|bark/i.test(o.material.name||'')&&!/Cylinder/i.test(o.name));P0.push({g,c,leaf})});
+ const build=mode=>{const P=[],N=[],C=[];let li=0;
+  for(const pt of P0){const lv=pt.leaf?[1,.9,1.1,.95,1.05,.88][li++%6]:1,col=pt.c.clone().multiplyScalar(sp.bare?1.15:pt.leaf?sp.br*lv:1.2);let g;
+   if(mode==='full'||sp.bare)g=pt.g.index?pt.g.toNonIndexed():pt.g.clone();
+   else if(pt.leaf&&sp.cone){const b=pt.g.boundingBox,w=Math.max(b.max.x-b.min.x,b.max.z-b.min.z),hh=b.max.y-b.min.y;g=new THREE.ConeGeometry(w*.5,hh,mode==='mid'?7:4,1).toNonIndexed();g.translate((b.min.x+b.max.x)/2,b.min.y+hh/2,(b.min.z+b.max.z)/2)}
+   else if(pt.leaf){const s=pt.g.boundingSphere;g=(mode==='mid'?new THREE.IcosahedronGeometry(s.radius*.92,0):new THREE.OctahedronGeometry(s.radius*.95,0)).toNonIndexed();g.translate(s.center.x,s.center.y,s.center.z)}
+   else{const b=pt.g.boundingBox,w=Math.max(b.max.x-b.min.x,b.max.z-b.min.z),hh=b.max.y-b.min.y;g=new THREE.CylinderGeometry(w*.16,w*.26,hh,mode==='mid'?6:3,1,true).toNonIndexed();g.translate((b.min.x+b.max.x)/2,b.min.y+hh/2,(b.min.z+b.max.z)/2)}
+   const p=g.attributes.position,nn=g.attributes.normal,ctr=pt.g.boundingSphere.center;
+   for(let k=0;k<p.count;k++){const x=p.getX(k),y=p.getY(k),z=p.getZ(k);P.push(x,y,z);
+    if(sp.bare){N.push(nn?nn.getX(k):0,nn?nn.getY(k):1,nn?nn.getZ(k):0);C.push(col.r,col.g,col.b)}
+    else if(pt.leaf){const dx=x-ctr.x,dy=y-ctr.y,dz=z-ctr.z,l=Math.hypot(dx,dy,dz)||1;N.push(dx/l,dy/l,dz/l);const t=.75+.45*Math.max(0,dy/l);C.push(col.r*t,col.g*t,col.b*t)}
+    else{const dx=x-ctr.x,dz=z-ctr.z,l=Math.hypot(dx,dz)||1;N.push(dx/l,0,dz/l);C.push(col.r,col.g,col.b)}}}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(N,3));g.setAttribute('color',new THREE.Float32BufferAttribute(C,3));return g};
+ return {full:build('full'),mid:build('mid'),far:build('far')}}
+function bareTrees(gl){const out=[];gl.scene.updateMatrixWorld(true);let src=null;gl.scene.traverse(o=>{if(o.isMesh&&!src)src=o});if(!src)return out;
+ const g=src.geometry.index?src.geometry.toNonIndexed():src.geometry.clone();g.applyMatrix4(src.matrixWorld);const P=g.attributes.position,n=P.count;
+ const par=new Int32Array(n);for(let i=0;i<n;i++)par[i]=i;const f=x=>{while(par[x]!==x){par[x]=par[par[x]];x=par[x]}return x};const u=(a,b)=>{a=f(a);b=f(b);if(a!==b)par[a]=b};
+ for(let i=0;i<n;i+=3){u(i,i+1);u(i+1,i+2)}const key=new Map();for(let i=0;i<n;i++){const k=Math.round(P.getX(i)*100)+','+Math.round(P.getY(i)*100)+','+Math.round(P.getZ(i)*100);const o=key.get(k);if(o==null)key.set(k,i);else u(i,o)}
+ const comp=new Map();for(let i=0;i<n;i+=3){const r=f(i);let c=comp.get(r);if(!c)comp.set(r,c={tri:[],lo:1e9,hi:-1e9});c.tri.push(i);for(let q=0;q<3;q++){const y=P.getY(i+q);c.lo=Math.min(c.lo,y);c.hi=Math.max(c.hi,y)}}
+ const L=[...comp.values()],Hh=Math.max(...L.map(c=>c.hi-c.lo));
+ for(const c of L.filter(c=>c.hi-c.lo>Hh*.45).sort((a,b)=>(b.hi-b.lo)-(a.hi-a.lo)).slice(0,3)){const ng=new THREE.BufferGeometry();
+  for(const nm of Object.keys(g.attributes)){const A=g.attributes[nm],k=A.itemSize,arr=new Float32Array(c.tri.length*3*k);let o=0;for(const t of c.tri)for(let q=0;q<3;q++)for(let s=0;s<k;s++)arr[o++]=A.array[(t+q)*k+s];ng.setAttribute(nm,new THREE.BufferAttribute(arr,k))}
+  ng.computeVertexNormals();const sc=new THREE.Group();sc.add(new THREE.Mesh(ng,src.material));out.push({scene:sc})}
+ return out}
+
+// ---------------------------------------------------------------- materials
+const curMat=new THREE.MeshToonMaterial({color:0xffffff,vertexColors:true,gradientMap:GRAD});
+function leafMats(color){
+ const painted=new THREE.MeshLambertMaterial({color,alphaMap:null,alphaTest:.5,side:THREE.DoubleSide});
+ const toon=new THREE.MeshToonMaterial({color,gradientMap:GRAD,alphaTest:.5,side:THREE.DoubleSide});return {painted,toon}}
+const barkMats={};for(const k of ['bark','birch']){const avg=k==='bark'?new THREE.Color().setRGB(109/255,93/255,76/255,THREE.SRGBColorSpace):new THREE.Color().setRGB(166/255,147/255,130/255,THREE.SRGBColorSpace);
+ barkMats[k]={painted:new THREE.MeshLambertMaterial({map:TEX[k]}),toon:new THREE.MeshToonMaterial({color:avg.multiplyScalar(1.15),gradientMap:GRAD})}}
+
+// ---------------------------------------------------------------- instanced sets
+const holders={current:new THREE.Group(),cz:new THREE.Group(),pines:new THREE.Group(),bare:new THREE.Group()};for(const g of Object.values(holders))scene.add(g);
+function IM(geo,mat,n,shadow){const m=new THREE.InstancedMesh(geo,mat,Math.max(1,n));m.count=0;m.frustumCulled=false;m.castShadow=!!shadow;m.receiveShadow=false;m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);return m}
+const M4=new THREE.Matrix4(),QQ=new THREE.Quaternion(),V3=new THREE.Vector3(),SC=new THREE.Vector3(),UP=new THREE.Vector3(0,1,0),COL=new THREE.Color();
+const mat16=t=>{QQ.setFromAxisAngle(UP,t.r);V3.set(t.x,t.y,t.z);SC.set(t.h*t.s,t.h,t.h*t.s);M4.compose(V3,QQ,SC);return M4.elements.slice()};
+for(const t of TREES)t.m=mat16(t);
+function put(mesh,t){const i=mesh.count++;mesh.instanceMatrix.array.set(t.m,i*16);if(mesh.instanceColor){mesh.instanceColor.array[i*3]=t.tint[0];mesh.instanceColor.array[i*3+1]=t.tint[1];mesh.instanceColor.array[i*3+2]=t.tint[2]}}
+function withColor(m,n){m.instanceColor=new THREE.InstancedBufferAttribute(new Float32Array(Math.max(1,n)*3).fill(1),3);return m}
+
+let CUR=null,PINE=null,BARE=null,CZS=null;
+const stats={};
+
+async function init(){
+ const [gb,p1,p2,bareGl]=await Promise.all([load(ID+'giant_low_poly_tree.glb'),load(ID+'pine_tree_1.glb'),load(ID+'low_poly_pine.glb'),load(ID+'low-poly_trees.glb').catch(()=>null)]);
+ // current broadleaf: road trees always full, others mid (<950 m) / far
+ const G=buildLOD(gb,{br:1.55,cone:false});const n=BL.length;
+ CUR={full:withColor(IM(G.full,curMat,n,true),n),mid:withColor(IM(G.mid,curMat,n),n),far:withColor(IM(G.far,curMat,n),n),tris:{full:G.full.attributes.position.count/3,mid:G.mid.attributes.position.count/3,far:G.far.attributes.position.count/3}};
+ holders.current.add(CUR.full,CUR.mid,CUR.far);
+ const pn=PN.length;PINE=[p1,p2].map((gl,s)=>{const L=buildLOD(gl,{br:s?1.25:1.7,cone:true});const o={full:withColor(IM(L.full,curMat,pn,true),pn),mid:withColor(IM(L.mid,curMat,pn),pn),far:withColor(IM(L.far,curMat,pn),pn)};holders.pines.add(o.full,o.mid,o.far);return o});
+ if(bareGl){const bt=bareTrees(bareGl);BARE=bt.map(b=>{const L=buildLOD(b,{bare:true});const o={full:withColor(IM(L.full,curMat,n,true),n)};holders.bare.add(o.full);return o})}
+ // cizzy7
+ CZS=[];for(const [name,leafCol] of CZT){
+  const [hi,mi]=await Promise.all([load(CZ+'Foliage_Trees_'+name+'_High.glb'),load(CZ+'Foliage_Trees_'+name+'_MidBlend.glb')]);
+  const PH=parts(hi),PM=parts(mi);
+  const LM=leafMats(leafCol),lk=PH.leaf.key;LM.painted.alphaMap=TEX[lk];LM.toon.alphaMap=TEX[lk];
+  const bk=PH.bark.key;
+  const set={name,PH,PM,LM,bk,lk,mesh:{}};
+  for(const look of ['painted','toon']){set.mesh[look]={};
+   for(const lod of ['hi','mid']){const P=lod==='hi'?PH:PM;
+    const b=withColor(IM(P.bark.geo,barkMats[bk][look],n,lod==='hi'),n),l=withColor(IM(P.leaf.geo,LM[look],n,lod==='hi'),n);
+    if(look==='painted')b.instanceColor.array.fill(1);
+    set.mesh[look][lod]={b,l};holders.cz.add(b,l)}}
+  set.card={painted:makeCard(set,'painted',n),toon:makeCard(set,'toon',n)};holders.cz.add(set.card.painted,set.card.toon);
+  // snow: the same picture card with the leaves left off (bare trunks and branches)
+  set.cardBare={painted:makeCard(set,'painted',n,[[PH.bark.geo,barkMats[bk].painted]]),toon:makeCard(set,'toon',n,[[PH.bark.geo,barkMats[bk].toon]])};holders.cz.add(set.cardBare.painted,set.cardBare.toon);
+  set.trunkOnly=null;CZS.push(set)}
+ GR=await initPine(PN.length);
+ stats.czTris=CZS.map(s=>({name:s.name.replace(/Tree_\d_/,''),hi:Math.round(s.PH.tris),mid:Math.round(s.PM.tris)}));
+}
+// a picture card: the High tree photographed from the front and the side into one texture, drawn as two crossed quads
+function makeCard(set,look,n,list){const W=256,rt=new THREE.WebGLRenderTarget(W*2,W,{samples:4});rt.texture.colorSpace=THREE.SRGBColorSpace;
+ const sc=new THREE.Scene();sc.add(new THREE.HemisphereLight(0xdfefff,0x56603a,1.15));const L=new THREE.DirectionalLight(0xfff1d8,2.1);L.position.set(.6,1,.8);sc.add(L);
+ for(const [g,m] of (list||[[set.PH.bark.geo,barkMats[set.bk][look]],[set.PH.leaf.geo,set.LM[look]]]))sc.add(new THREE.Mesh(g,m));
+ const box=new THREE.Box3().setFromObject(sc),half=Math.max(box.max.x,-box.min.x,box.max.z,-box.min.z,.35);
+ const cam=new THREE.OrthographicCamera(-half,half,1.02,0,.01,10);
+ const prev=renderer.getRenderTarget(),pc=new THREE.Color();renderer.getClearColor(pc);const pa=renderer.getClearAlpha();
+ renderer.setClearColor(0x000000,0);rt.viewport.set(0,0,W*2,W);rt.scissorTest=false;renderer.setRenderTarget(rt);renderer.clear();
+ for(const [k,ang] of [[0,0],[1,Math.PI/2]]){cam.position.set(Math.sin(ang)*5,0,Math.cos(ang)*5);cam.lookAt(0,0,0);cam.updateMatrixWorld();
+  rt.viewport.set(k*W,0,W,W);rt.scissor.set(k*W,0,W,W);rt.scissorTest=true;renderer.setRenderTarget(rt);renderer.render(sc,cam)}
+ rt.scissorTest=false;rt.viewport.set(0,0,W*2,W);renderer.setRenderTarget(prev);renderer.setClearColor(pc,pa);
+ const P=[],U=[],I=[];[[0,0],[1,Math.PI/2]].forEach(([k,ang],q)=>{const cx=Math.cos(ang),cz=-Math.sin(ang);const base=q*4;
+  P.push(-half*cx,0,-half*cz, half*cx,0,half*cz, -half*cx,1.02,-half*cz, half*cx,1.02,half*cz);U.push(k*.5,0,k*.5+.5,0,k*.5,1,k*.5+.5,1);I.push(base,base+1,base+2,base+2,base+1,base+3)});
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));g.setIndex(I);g.computeVertexNormals();
+ const m=new THREE.MeshBasicMaterial({map:rt.texture,alphaTest:.5,side:THREE.DoubleSide});
+ return withColor(IM(g,m,n),n)}
+
+// ---------------------------------------------------------------- grimren13 pine: near (simple trunk + doubled branch cards),
+// middle (half the cards), far (picture card). Branches drawn as alpha cut-out (not blended) so they never flicker.
+let GR=null;
+async function initPine(n){const gl=await load('pine_tree_single_01.glb');const root=gl.scene;root.updateMatrixWorld(true);let trunk=null,br=null;
+ root.traverse(o=>{if(!o.isMesh)return;if(/bark/i.test(o.material.name))trunk=o;else br=o});
+ const bg=br.geometry.clone().applyMatrix4(br.matrixWorld);for(const a of Object.keys(bg.attributes))if(!/^(position|normal|uv)$/.test(a))bg.deleteAttribute(a);
+ const tg0=trunk.geometry.clone().applyMatrix4(trunk.matrixWorld);tg0.computeBoundingBox();bg.computeBoundingBox();
+ const box=tg0.boundingBox.clone().union(bg.boundingBox),Hh=box.max.y-box.min.y,cx=(tg0.boundingBox.min.x+tg0.boundingBox.max.x)/2,cz=(tg0.boundingBox.min.z+tg0.boundingBox.max.z)/2;
+ const norm=g=>{g.translate(-cx,-box.min.y,-cz);g.scale(1/Hh,1/Hh,1/Hh);g.computeBoundingSphere();return g};norm(bg);
+ // the trunk: an 8-sided tapered pole (the real 2,360-triangle trunk is almost all hidden inside the branches)
+ const tw=Math.min(tg0.boundingBox.max.x-tg0.boundingBox.min.x,tg0.boundingBox.max.z-tg0.boundingBox.min.z)/Hh;
+ const mkTrunk=seg=>{const g=new THREE.CylinderGeometry(.006,.022,1,seg,1,true);g.translate(0,.5,0);return g};
+ // the branch cards, split into separate cards (connected pieces)
+ const ng=bg.index?bg.toNonIndexed():bg,P=ng.attributes.position,nv=P.count,par=new Int32Array(nv);for(let i=0;i<nv;i++)par[i]=i;const f=x=>{while(par[x]!==x){par[x]=par[par[x]];x=par[x]}return x};
+ const key=new Map();for(let i=0;i<nv;i+=3){par[f(i+1)]=f(i);par[f(i+2)]=f(i)}for(let i=0;i<nv;i++){const k=Math.round(P.getX(i)*1e4)+','+Math.round(P.getY(i)*1e4)+','+Math.round(P.getZ(i)*1e4);const o=key.get(k);if(o==null)key.set(k,i);else{const a=f(i),b=f(o);if(a!==b)par[a]=b}}
+ const cards=new Map();for(let i=0;i<nv;i+=3){const r=f(i);(cards.get(r)||cards.set(r,[]).get(r)).push(i)}const CL=[...cards.values()];
+ const pick=sel=>{const tris=[];CL.forEach((c,k)=>{if(sel(k))tris.push(...c)});const g=new THREE.BufferGeometry();for(const nm of ['position','normal','uv']){const A=ng.attributes[nm];if(!A)continue;const it=A.itemSize,arr=new Float32Array(tris.length*3*it);let o=0;for(const t of tris)for(let q=0;q<3;q++)for(let s=0;s<it;s++)arr[o++]=A.array[(t+q)*it+s];g.setAttribute(nm,new THREE.BufferAttribute(arr,it))}return g};
+ const full1=pick(()=>true),half=pick(k=>k%2===0);
+ // fuller: a second copy of the branch cards turned 40 degrees and pulled in a little, to fill the gaps between tiers
+ const extra=full1.clone();extra.rotateY(.7);extra.scale(.9,.97,.9);extra.translate(0,.02,0);const near=mergeGeometries([full1,extra]);
+ // textures: as-is, and repainted in painted greens (dark olive-brown -> cizzy7/Initial Drift greens)
+ const bm=br.material,bmap=bm.map,tmap=trunk.material.map;
+ const repaint=()=>{const im=bmap.image,cv=document.createElement('canvas');cv.width=im.width;cv.height=im.height;const x=cv.getContext('2d');x.drawImage(im,0,0);const d=x.getImageData(0,0,cv.width,cv.height),a=d.data;
+  const lo=[38,74,40],hi=[150,196,92];let mx=1;for(let i=0;i<a.length;i+=4)if(a[i+3]>128)mx=Math.max(mx,.3*a[i]+.59*a[i+1]+.11*a[i+2]);
+  for(let i=0;i<a.length;i+=4){const l=Math.min(1,Math.pow((.3*a[i]+.59*a[i+1]+.11*a[i+2])/mx,.8));for(let c=0;c<3;c++)a[i+c]=lo[c]+(hi[c]-lo[c])*l}x.putImageData(d,0,0);
+  const t=new THREE.CanvasTexture(cv);t.flipY=bmap.flipY;t.colorSpace=THREE.SRGBColorSpace;t.wrapS=bmap.wrapS;t.wrapT=bmap.wrapT;t.anisotropy=4;return t};
+ const tinted=repaint();
+ const mats={gr:{br:new THREE.MeshLambertMaterial({map:bmap,alphaTest:.5,transparent:false,side:THREE.DoubleSide}),tr:new THREE.MeshLambertMaterial({map:tmap})},
+  grt:{br:new THREE.MeshToonMaterial({map:tinted,gradientMap:GRAD,alphaTest:.5,transparent:false,side:THREE.DoubleSide}),tr:new THREE.MeshToonMaterial({color:0x6b5240,gradientMap:GRAD})}};
+ const out={tris:{hi:near.attributes.position.count/3+16,mid:half.attributes.position.count/3+10,card:4,orig:4560,cards:CL.length},mesh:{}};
+ for(const k of ['gr','grt']){const m=mats[k];out.mesh[k]={hi:{b:withColor(IM(mkTrunk(8),m.tr,n,true),n),l:withColor(IM(near,m.br,n,true),n)},mid:{b:withColor(IM(mkTrunk(5),m.tr,n),n),l:withColor(IM(half,m.br,n),n)},
+  card:makeCard(null,null,n,[[mkTrunk(8),m.tr],[near,m.br]])};
+  if(k==='gr')for(const L of ['hi','mid'])out.mesh[k][L].b.instanceColor.array.fill(1);
+  holders.pines.add(out.mesh[k].hi.b,out.mesh[k].hi.l,out.mesh[k].mid.b,out.mesh[k].mid.l,out.mesh[k].card)}
+ return out}
+
+// ---------------------------------------------------------------- per-frame LOD sorting (every ~120 ms)
+let lodClock=0;const lodCount={};
+function sortLOD(){const cx=camera.position.x,cz=camera.position.z,d1=S.d1*S.d1,d2=S.d2*S.d2,snow=S.season!=='summer';
+ for(const k in lodCount)lodCount[k]=0;
+ // what is actually drawn: snow · bare = the game's bare winter trees (any look); snow · trunks = cizzy7 trunks, no leaves
+ const bareOn=S.season==='snowbare'&&!!(BARE&&BARE.length),eff=bareOn?'bare':S.season==='snowtrunk'?(S.look==='current'?'toon':S.look):S.look;
+ const showCur=eff==='current'||eff==='bare',showCz=!showCur;
+ holders.current.visible=eff==='current';holders.bare.visible=eff==='bare';holders.cz.visible=showCz;
+ // pines: game rule (road trees full, the rest mid inside 950 m, far beyond)
+ for(const P of PINE){P.full.count=P.mid.count=P.far.count=0}
+ if(GR)for(const k of ['gr','grt']){const M=GR.mesh[k];for(const L of ['hi','mid']){M[L].b.count=M[L].l.count=0;M[L].b.visible=M[L].l.visible=S.pine===k}M.card.count=0;M.card.visible=S.pine===k}
+ lodCount.phi=lodCount.pmid=lodCount.pcard=0;
+ if(S.pine==='old'||!GR){for(let i=0;i<PN.length;i++){const t=PN[i],P=PINE[t.type],d=(t.x-cx)**2+(t.z-cz)**2;put(t.road?P.full:d<950*950?P.mid:P.far,t)}}
+ else{const M=GR.mesh[S.pine],q1=S.p1*S.p1,q2=S.p2*S.p2;for(const t of PN){const d=(t.x-cx)**2+(t.z-cz)**2;if(d<q1){put(M.hi.b,t);put(M.hi.l,t);lodCount.phi++}else if(d<q2){put(M.mid.b,t);put(M.mid.l,t);lodCount.pmid++}else{put(M.card,t);lodCount.pcard++}}
+  for(const L of ['hi','mid'])for(const m of [M[L].b,M[L].l]){m.instanceMatrix.needsUpdate=true;m.instanceColor.needsUpdate=true}M.card.instanceMatrix.needsUpdate=true;M.card.instanceColor.needsUpdate=true}
+ for(const P of PINE)for(const k of ['full','mid','far']){P[k].instanceMatrix.needsUpdate=true;P[k].instanceColor.needsUpdate=true}
+ if(showCur){
+  if(eff==='bare'){for(const B of BARE)B.full.count=0;for(const t of BL)put(BARE[t.type%BARE.length].full,t);for(const B of BARE){B.full.instanceMatrix.needsUpdate=true;B.full.instanceColor.needsUpdate=true}lodCount.bare=BL.length}
+  else{CUR.full.count=CUR.mid.count=CUR.far.count=0;for(const t of BL){const d=(t.x-cx)**2+(t.z-cz)**2;const m=t.road?CUR.full:d<950*950?CUR.mid:CUR.far;put(m,t)}
+   for(const k of ['full','mid','far']){CUR[k].instanceMatrix.needsUpdate=true;CUR[k].instanceColor.needsUpdate=true;lodCount['cur_'+k]=CUR[k].count}}}
+ else{const look=eff;
+  for(const s of CZS){for(const lk of ['painted','toon']){for(const lod of ['hi','mid']){const M=s.mesh[lk][lod];M.b.count=M.l.count=0;M.b.visible=lk===look;M.l.visible=lk===look&&!snow}s.card[lk].count=0;s.card[lk].visible=lk===look&&!snow;s.cardBare[lk].count=0;s.cardBare[lk].visible=lk===look&&snow}}
+  for(const t of BL){const s=CZS[t.type],d=(t.x-cx)**2+(t.z-cz)**2;
+   if(d<d1){const M=s.mesh[look].hi;put(M.b,t);if(!snow)put(M.l,t);lodCount.hi=(lodCount.hi||0)+1}
+   else if(d<d2){const M=s.mesh[look].mid;put(M.b,t);if(!snow)put(M.l,t);lodCount.mid=(lodCount.mid||0)+1}
+   else{put(snow?s.cardBare[look]:s.card[look],t);lodCount.card=(lodCount.card||0)+1}}
+  for(const s of CZS){for(const lod of ['hi','mid']){const M=s.mesh[look][lod];for(const m of [M.b,M.l]){m.instanceMatrix.needsUpdate=true;m.instanceColor.needsUpdate=true}}for(const c of [s.card[look],s.cardBare[look]]){c.instanceMatrix.needsUpdate=true;c.instanceColor.needsUpdate=true}}
+  }
+ // tree shadows: only the nearest set casts
+ const sh=S.shad==='near';if(GR)for(const k of ['gr','grt']){GR.mesh[k].hi.b.castShadow=sh;GR.mesh[k].hi.l.castShadow=sh}if(CUR)CUR.full.castShadow=sh;for(const P of PINE)P.full.castShadow=sh;if(BARE)for(const B of BARE)B.full.castShadow=sh;
+ for(const s of CZS)for(const lk of ['painted','toon']){s.mesh[lk].hi.b.castShadow=sh;s.mesh[lk].hi.l.castShadow=sh}}
+
+// ---------------------------------------------------------------- season
+function applySeason(){const snow=S.season!=='summer';const c=gg.attributes.color;for(let i=0;i<c.count;i++){const x=gg.attributes.position.getX(i),z=gg.attributes.position.getZ(i),v=.85+.15*Math.sin(x*.02+z*.013);if(snow)c.setXYZ(i,.86*v+.1,.9*v+.08,.95*v+.05);else c.setXYZ(i,.36*v,.52*v,.21*v)}c.needsUpdate=true;
+ scene.fog.color.set(snow?0xd6dfe6:0xb8cbd0);scene.background.set(snow?0xc9d5de:0x9cc6e8);lodClock=1e9}
+
+// ---------------------------------------------------------------- camera
+const orbit=new OrbitControls(camera,renderer.domElement);orbit.enabled=false;let tDrive=0;
+function driveCam(dt){tDrive=(tDrive+dt*28/RL)%1;const u=tDrive,p=curve.getPointAt(u),t=curve.getTangentAt(u),i=Math.round(u*NR),y=RP[i].y;
+ camera.position.set(p.x-t.x*5.5,y+2.1,p.z-t.z*5.5);const a=curve.getPointAt(Math.min(1,u+30/RL));camera.lookAt(a.x,RP[Math.min(NR,Math.round((u+30/RL)*NR))].y+1.4,a.z);if(u>.985)tDrive=0}
+
+// ---------------------------------------------------------------- UI
+const hud=document.getElementById('hud');
+function seg(id,key,fn){const el=document.getElementById(id);const upd=()=>el.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===String(S[key])));el.onclick=e=>{const v=e.target.dataset&&e.target.dataset.v;if(!v)return;S[key]=v;upd();fn&&fn();lodClock=1e9};upd();return upd}
+const updLook=seg('look','look');const updPine=seg('pine','pine');seg('season','season',applySeason);
+seg('cam','cam',()=>{orbit.enabled=S.cam==='orbit';if(orbit.enabled){orbit.target.copy(camera.position).add(camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(30));orbit.update()}});
+seg('shad','shad');seg('res','res',()=>renderer.setPixelRatio(Math.min(devicePixelRatio,+S.res)));
+for(const k of ['d1','d2','p1','p2']){const el=document.getElementById(k),out=document.getElementById(k+'v');const f=()=>{S[k]=+el.value;out.textContent=el.value+' m';lodClock=1e9};el.oninput=f;f()}
+
+// ---------------------------------------------------------------- benchmark
+const bench=document.getElementById('bench');let BM=null;
+document.getElementById('runBench').onclick=()=>{BM={looks:[['current','old'],['painted','old'],['toon','old'],['painted','gr'],['toon','grt']],i:0,t:0,warm:2,dur:15,frames:[],tris:[],calls:[],res:[]};S.cam='drive';orbit.enabled=false;S.look=BM.looks[0][0];S.pine=BM.looks[0][1];updLook();updPine();tDrive=0;lodClock=1e9;bench.style.display='block';bench.textContent='benchmark running…'};
+function benchStep(dt,ms){if(!BM)return;BM.t+=dt;if(BM.t<BM.warm)return;BM.frames.push(ms);BM.tris.push(renderer.info.render.triangles);BM.calls.push(renderer.info.render.calls);
+ if(BM.t>=BM.warm+BM.dur){const f=BM.frames.slice().sort((a,b)=>a-b),avg=f.reduce((a,b)=>a+b,0)/f.length,p99=f[Math.floor(f.length*.99)];
+  BM.res.push({look:BM.looks[BM.i].join(' + '),fps:(1000/avg).toFixed(1),low:(1000/p99).toFixed(1),tris:Math.round(BM.tris.reduce((a,b)=>a+b,0)/BM.tris.length),calls:Math.round(BM.calls.reduce((a,b)=>a+b,0)/BM.calls.length)});
+  BM.i++;BM.t=0;BM.frames=[];BM.tris=[];BM.calls=[];tDrive=0;
+  if(BM.i>=BM.looks.length){bench.innerHTML='<table><tr><th>look</th><th>avg fps</th><th>1% low fps</th><th>avg triangles</th><th>draw calls</th></tr>'+BM.res.map(r=>`<tr><td>${r.look}</td><td>${r.fps}</td><td>${r.low}</td><td>${(r.tris/1e6).toFixed(2)} M</td><td>${r.calls}</td></tr>`).join('')+'</table>';window.__bench=BM.res;BM=null}
+  else{S.look=BM.looks[BM.i][0];S.pine=BM.looks[BM.i][1];updLook();updPine();lodClock=1e9;bench.textContent=`benchmark running… ${BM.looks[BM.i].join(' + ')}`}}}
+
+// ---------------------------------------------------------------- loop
+let last=performance.now(),acc=0,fr=0,fps=0,ms=0;
+function frame(now){requestAnimationFrame(frame);const dt=Math.min(.1,(now-last)/1000),fms=now-last;last=now;
+ if(S.cam==='drive')driveCam(dt);else orbit.update();
+ sun.position.set(camera.position.x+120,camera.position.y+220,camera.position.z+80);sun.target.position.copy(camera.position);
+ lodClock+=dt*1000;if(lodClock>120){lodClock=0;sortLOD()}
+ renderer.info.reset();renderer.render(scene,camera);
+ acc+=fms;fr++;if(acc>500){fps=fr*1000/acc;ms=acc/fr;acc=0;fr=0}
+ benchStep(dt,fms);
+ const i=renderer.info.render;
+ hud.innerHTML=`<b>${fps.toFixed(0)}</b> fps <span class=k>(${ms.toFixed(1)} ms)</span><br>`+
+  `<span class=k>triangles</span> ${(i.triangles/1e6).toFixed(2)} M · <span class=k>draw calls</span> ${i.calls}<br>`+
+  `<span class=k>textures</span> ${renderer.info.memory.textures} · <span class=k>geometries</span> ${renderer.info.memory.geometries}<br>`+
+  (S.look==='current'?`<span class=k>broadleaf</span> full ${lodCount.cur_full||lodCount.bare||0} · mid ${lodCount.cur_mid||0} · far ${lodCount.cur_far||0}<br><span class=k>model</span> ${CUR?CUR.tris.full:0} / ${CUR?CUR.tris.mid:0} / ${CUR?CUR.tris.far:0} tris`
+   :`<span class=k>broadleaf</span> High ${lodCount.hi||0} · Mid ${lodCount.mid||0} · Card ${lodCount.card||0}<br><span class=k>models</span> ${stats.czTris?stats.czTris.map(s=>s.hi+'/'+s.mid).join(' · '):''} tris (High/Mid), card 4`)+
+  `<br><span class=k>pines</span> `+(S.pine==='old'||!GR?`${PN.length} (game's current pines)`:`High ${lodCount.phi} · Mid ${lodCount.pmid} · Card ${lodCount.pcard}<br><span class=k>pine models</span> ${GR.tris.hi}/${GR.tris.mid}/4 tris (orig ${GR.tris.orig}, ${GR.tris.cards} cards)`)+` · <span class=k>total trees</span> ${TREES.length}`}
+init().then(()=>{applySeason();sortLOD();document.getElementById('load').remove();requestAnimationFrame(frame)}).catch(e=>{document.getElementById('load').textContent='Load failed: '+e.message;console.error(e)});
+window.__S=S;
+</script></body></html>
