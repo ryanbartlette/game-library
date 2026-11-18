@@ -508,7 +508,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=427',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=428',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -4055,7 +4055,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 427';
+window.__BUILD='BUILD 428';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5578,9 +5578,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794972333'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794974841'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794972333'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794974841'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -5955,8 +5955,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794972333'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794972333'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794974841'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1794974841'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6414,7 +6414,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794972333',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794974841',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6428,7 +6428,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794972333',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1794974841',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -13887,7 +13887,7 @@ const id=window.animeCars&&animeCars.player&&animeCars.player.name;return !id||i
   const vnoise=(x,z)=>{const i=Math.floor(x),j=Math.floor(z),fx=x-i,fz=z-j,u=fx*fx*(3-2*fx),v=fz*fz*(3-2*fz),a=hn(i,j),b=hn(i+1,j),c=hn(i,j+1),d=hn(i+1,j+1);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v};
   const CH=300,chunks=new Map(),ck=(x,z)=>Math.floor(x/CH)+','+Math.floor(z/CH);
   const ERASED=(kind,x,z)=>window.__EDS&&__EDS.erased('scn',kind,x,z);
-  const put=(kind,x,y,z,s,ry,col,sy,force)=>{if(!force&&ERASED(kind,x,z))return;const k=ck(x,z);let c=chunks.get(k);if(!c)chunks.set(k,c={shrub:[],grass:[],stone:[],cx:(Math.floor(x/CH)+.5)*CH,cz:(Math.floor(z/CH)+.5)*CH});c[kind].push([x,y,z,s,ry,col,sy||1])};
+  const put=(kind,x,y,z,s,ry,col,sy,force,mdl)=>{if(!force&&ERASED(kind,x,z))return;const k=ck(x,z);let c=chunks.get(k);if(!c)chunks.set(k,c={shrub:[],grass:[],stone:[],cx:(Math.floor(x/CH)+.5)*CH,cz:(Math.floor(z/CH)+.5)*CH});c[kind].push(mdl===undefined?[x,y,z,s,ry,col,sy||1]:[x,y,z,s,ry,col,sy||1,mdl])};
   const TH=window.__THEME||{};const shrubCols=TH.shrubs||[[.44,.66,.27],[.36,.58,.24],[.54,.71,.31],[.30,.50,.22],[.48,.64,.24],[.40,.62,.33],[.58,.68,.28],[.33,.55,.30]];   // natural spring greens, from fresh yellow-green to deep green
   // the road is 9.7 m wide (two 4.85 m lanes, wider in the corners). Bushes and grass only grow in a band about one road
   // width wide either side, just past the rail; trees take over beyond that. Bushes are never bigger than a car
@@ -13905,8 +13905,19 @@ const id=window.animeCars&&animeCars.player&&animeCars.player.name;return !id||i
      for(let r=0;r<3;r++){const off=EDGE+1.5+Math.pow(rnd(),1.5)*19,x=px+nx*side*off+(rnd()-.5)*2,z=pz+nz*side*off+(rnd()-.5)*2;
       const nn=G.near(x,z,12);if(nn&&nn.d<EDGE+1.4)continue;if(L&&lakeE(x,z)<3)continue;if(rnd()>.8)continue;
       const y=H(x,z);if(slope(x,z)>1.1)continue;
-      const g=.85+rnd()*.4,kk=rnd();{const TT=TH.tufts,tc=TT?TT[(kk*TT.length)|0]:(kk<.08?[.58,.68,.3]:kk<.6?[.4,.74,.24]:[.3,.64,.22]);put('grass',x,y-.03,z,.45+rnd()*.5,rnd()*6.28,[tc[0]*g,tc[1]*g,tc[2]*g],.8+rnd()*.5)}nG++;
+      const g=.85+rnd()*.4,kk=rnd();{const TT=TH.tufts,tc=TT?TT[(kk*TT.length)|0]:(kk<.08?[.58,.68,.3]:kk<.6?[.4,.74,.24]:[.3,.64,.22]);put('grass',x,y-.03,z,.45+rnd()*.5,rnd()*6.28,[tc[0]*g,tc[1]*g,tc[2]*g],.8+rnd()*.5,false,kk<.45?0:kk<.8?1:2)}nG++;   /* (build 428) which cizzy7 model: kk, already drawn — 45% Grass0, 35% Grass1, 20% weeds */
       if(rnd()<.05*(TH.stones||1)){const t=.85+rnd()*.25,sx2=x+(rnd()-.5)*3,sz2=z+(rnd()-.5)*3;put('stone',sx2,H(sx2,sz2)-.05,sz2,(.18+Math.pow(rnd(),2)*.6)*((TH.stones||1)>3&&rnd()<.25?2.6:1),rnd()*6.28,[.55*t,.53*t,.5*t],.7+rnd()*.5);nT++}}}}}
+  // (build 428) roadside grass patches: small clumps of 3-7 tufts right at the road's edge, 0.5-4 m past the rail,
+  // one every 15-25 m per side. Their own random stream (mulberry32), so nothing else in the world moves.
+  let nGP=0;{let ms=0x51ED27A3;const r2=()=>{ms|=0;ms=ms+0x6D2B79F5|0;let t=Math.imul(ms^ms>>>15,1|ms);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+   const TT=TH.tufts;for(const side of [-1,1]){let next=r2()*20,acc=0;
+    for(let i=0;i<NN;i++){const a=C[i],b=C[i+1],tx=b.x-a.x,tz=b.z-a.z,tl=Math.hypot(tx,tz)||1;
+     while(next<acc+tl){const u=(next-acc)/tl,px=a.x+tx*u,pz=a.z+tz*u,nx=-tz/tl,nz=tx/tl;next+=15+r2()*10;
+      const off=EDGE+1.4+.5+r2()*3.5,cx=px+nx*side*off,cz=pz+nz*side*off,n=3+((r2()*5)|0);
+      for(let k=0;k<n;k++){const ang=r2()*6.28,rr=Math.sqrt(r2())*1.3,x=cx+Math.cos(ang)*rr,z=cz+Math.sin(ang)*rr,g=.85+r2()*.4,kk=r2(),s0=.45+r2()*.5,ry=r2()*6.28,sy=.8+r2()*.5;
+       const nn=G.near(x,z,12);if(nn&&nn.d<EDGE+1.4)continue;if(L&&lakeE(x,z)<3)continue;if(nearEnd(x,z,40))continue;if(slope(x,z)>1.1)continue;
+       const tc=TT?TT[(kk*TT.length)|0]:(kk<.08?[.58,.68,.3]:kk<.6?[.4,.74,.24]:[.3,.64,.22]);put('grass',x,H(x,z)-.03,z,s0,ry,[tc[0]*g,tc[1]*g,tc[2]*g],sy,false,kk<.45?0:kk<.8?1:2);nGP++}}
+     acc+=tl}}}
   // trees: scattered in forest patches from just past the bushes out to ~750 m from the road
   const TREES=[];let nP=0,YLO=1e9,YHI=-1e9;for(const p of C){YLO=Math.min(YLO,p.y);YHI=Math.max(YHI,p.y)}{const SP=13,M=750;
    for(let z=bz0-M;z<bz1+M;z+=SP)for(let x=bx0-M;x<bx1+M;x+=SP){const jx=x+(rnd()-.5)*SP*.95,jz=z+(rnd()-.5)*SP*.95,cd=G.cd(jx,jz);if(cd>M)continue;
@@ -14024,6 +14035,7 @@ const id=window.animeCars&&animeCars.player&&animeCars.player.name;return !id||i
     const before=REG.length;if(ent.k==='broadleaf'||/^pine/.test(ent.k))placeOne(ent,pt);
     else{const tmp={shrub:[],grass:[],stone:[]};const keepPut=null;const y=H(ent.x,ent.z),s=ent.s||1,ry=ent.ry||0;
      const list=ent.k==='shrub'?[[ent.x,y-.12*s,ent.z,s,ry,shrubCols[2],.75]]:ent.k==='grass'?[[ent.x,y-.03,ent.z,s*.7,ry,[.4,.74,.24],1]]:[[ent.x,y-.05,ent.z,s*.5,ry,[.55,.53,.5],.85]];
+     if(ent.k==='grass'&&window.frLand.grassCz){const px={setMatrixAt(){},instanceMatrix:{},isBushProxy:true};REG.push({im:px,list,kind:'grass'});return px}
      if(ent.k==='shrub'&&window.frLand.bushProxy){const px={setMatrixAt(){},instanceMatrix:{},isBushProxy:true};REG.push({im:px,list,kind:'shrub'});return px}
      made=make(ent.k==='shrub'?shrubNear:ent.k==='grass'?grassGeo:stoneGeo,ent.k==='shrub'?shrubMat:ent.k==='grass'?grassMat:stoneMat,list,ent.k)}
     return made},
@@ -14086,6 +14098,9 @@ const id=window.animeCars&&animeCars.player&&animeCars.player.name;return !id||i
     const CAP=total()+512;
     const batch=(g,m,shadow)=>{const im=new THREE.InstancedMesh(g,m,CAP);im.count=0;im.frustumCulled=false;im.receiveShadow=!!shadow;im.userData.keep=true;im.userData.bush=true;im.setColorAt(0,new THREE.Color(1,1,1));root.add(im);return im};
     const BT={bigHi:batch(Bh.g,mats[0],1),bigMid:batch(Bm.g,mats[0],1),small:batch(Bs.g,mats[0],1),bigCard:Ch?batch(Ch.g,mats[1]):null,smallCard:Cs?batch(Cs.g,mats[Ch?2:1]):null};
+    // shadows: the leafy models cast leaf-shaped shadows (cut-out depth); the far cards cast none (they'd be boards)
+    {const dm=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,alphaMap:mask,alphaTest:.42,side:THREE.DoubleSide});for(const k of ['bigHi','bigMid','small'])BT[k].customDepthMaterial=dm;
+     for(const k of ['bigCard','smallCard'])if(BT[k]){BT[k].userData.shTag=1;BT[k].castShadow=false;BT[k].receiveShadow=true}}
     // swap: the old puff chunks leave; their records stay in REG (editor erase/reseat/unerase keep working on them)
     const proxy={setMatrixAt(){},instanceMatrix:{},isBushProxy:true};
     for(const R of REG)if(R.kind==='shrub'&&R.im&&!R.im.isBushProxy){root.remove(R.im);R.im=proxy}
@@ -14104,7 +14119,67 @@ const id=window.animeCars&&animeCars.player&&animeCars.player.name;return !id||i
     window.frLand.bushProxy=proxy;
     {const cr=document.getElementById('modelCredit');if(cr&&!/cizzy7/.test(cr.innerHTML))cr.innerHTML+='<br>Bushes: painted bushes by cizzy7';}
     console.log('AKLOG bushes',Bh.tris,Bm.tris,Bs.tris,!!Ch,total())}catch(err){console.warn('bushes',err)}})}
-  console.log('AKLOG frLand',JSON.stringify(window.frLand.lake),nS,nG,nT,parts.length)}
+  // ================================================================ cizzy7 grass and weeds (build 428)
+  // The grass tufts keep their generated spots, sizes, turns and tints; what is drawn is cizzy7's Grass0 / Grass1 /
+  // Weed1 (picked by each tuft's own kk) under 30 m, Grass0/Grass1 camera-facing 2-triangle boards from 30 m, faded
+  // out by 78 m (nothing drawn past that). Five instanced batches in all, refilled ten times a second from a 40 m grid
+  // of the records near the car. Cut-outs (alpha test, depth written, both sides), no shadows. The tuft tint is the
+  // instance colour; the material follows the old grass material (season tint, hidden under snow).
+  {const BD='assets/cizzy/',NEAR=30,F0=62,F1=78;
+   const ld=f=>new Promise(res=>import('./assets/lib/three/examples/jsm/loaders/GLTFLoader.js').then(({GLTFLoader})=>new GLTFLoader().load(BD+f,res,undefined,()=>{console.warn('grass '+f+' not found');res(null)})).catch(()=>res(null)));
+   const ldT=f=>new Promise(res=>new THREE.TextureLoader().load(BD+'t/'+f,t=>{t.flipY=false;t.wrapS=t.wrapT=THREE.ClampToEdgeWrapping;t.colorSpace=THREE.SRGBColorSpace;res(t)},undefined,()=>res(null)));
+   // one geometry per model, unit height, base at the origin; normals mostly up (lit like a soft tuft, as before),
+   // light at the tips, darker at the root
+   const build=gl=>{const sc0=gl.scene;sc0.updateMatrixWorld(true);let g=null;sc0.traverse(o=>{if(!g&&o.isMesh){g=o.geometry.clone().applyMatrix4(o.matrixWorld);if(g.index)g=g.toNonIndexed()}});
+    g.computeBoundingBox();const b=g.boundingBox,h=b.max.y-b.min.y,cx=(b.min.x+b.max.x)/2,cz=(b.min.z+b.max.z)/2,ps=g.attributes.position,uv=g.attributes.uv,n=ps.count;
+    const P=new Float32Array(n*3),N=new Float32Array(n*3),U=new Float32Array(n*2),Cc=new Float32Array(n*3);
+    for(let k=0;k<n;k++){const x=(ps.getX(k)-cx)/h,y=(ps.getY(k)-b.min.y)/h,z=(ps.getZ(k)-cz)/h;P.set([x,y,z],k*3);const l=Math.hypot(x*.3,1,z*.3);N.set([x*.3/l,1/l,z*.3/l],k*3);U.set([uv.getX(k),uv.getY(k)],k*2);const t=1.0+.45*y;Cc.set([t,t,t],k*3)}
+    const o=new THREE.BufferGeometry();o.setAttribute('position',new THREE.BufferAttribute(P,3));o.setAttribute('normal',new THREE.BufferAttribute(N,3));o.setAttribute('uv',new THREE.BufferAttribute(U,2));o.setAttribute('color',new THREE.BufferAttribute(Cc,3));o.computeBoundingSphere();return {g:o,tris:n/3}};
+   Promise.all([ld('Foliage_Grass_Weeds_Grass0.glb'),ld('Foliage_Grass_Weeds_Grass1.glb'),ld('Foliage_Grass_Weeds_Weed1V2.glb'),ld('Foliage_Grass_Weeds_Grass0_Low_LOD.glb'),ld('Foliage_Grass_Weeds_Grass1_Low_LOD.glb'),ldT('grass0.webp'),ldT('grass1.webp'),ldT('weed.webp')]).then(([a0,a1,aw,b0,b1,t0,t1,tw])=>{try{
+    if(!a0||!a1||!aw||!t0||!t1||!tw)return;tw.colorSpace=THREE.NoColorSpace;
+    const M=[build(a0),build(a1),build(aw)],BB=[b0&&build(b0),b1&&build(b1)];
+    const grad=mkGrad([110,190,255]);
+    // cut-out alpha: grass textures carry real alpha (map); the weed is a white-on-black mask (alphaMap). The cut-out
+    // alpha is boosted by mip level (so far tufts don't thin to nothing) and eased out from F0 to F1 metres
+    const mk=(tex,isMask,board)=>{const m=toon(grad,Object.assign({side:THREE.DoubleSide,alphaTest:.4},isMask?{alphaMap:tex}:{map:tex}));m.transparent=false;m.depthWrite=true;
+     m.onBeforeCompile=sh=>{
+      sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying float vGD;');
+      if(board)sh.vertexShader=sh.vertexShader.replace('#include <project_vertex>',`
+       vec3 gip=instanceMatrix[3].xyz;float gsx=length(instanceMatrix[0].xyz),gsy=length(instanceMatrix[1].xyz);vec4 gwp=modelMatrix*vec4(gip,1.);
+       vec3 gtc=cameraPosition-gwp.xyz;gtc.y=0.;gtc=normalize(gtc+vec3(1e-5,0.,0.));gwp.xyz+=vec3(gtc.z,0.,-gtc.x)*transformed.x*gsx+vec3(0.,transformed.y*gsy,0.);
+       vec4 mvPosition=viewMatrix*gwp;gl_Position=projectionMatrix*mvPosition;vGD=length(gwp.xz-cameraPosition.xz);`);
+      else sh.vertexShader=sh.vertexShader.replace('#include <project_vertex>','#include <project_vertex>\n{vec4 gw=modelMatrix*instanceMatrix*vec4(transformed,1.);vGD=length(gw.xz-cameraPosition.xz);}');
+      const uv=isMask?'vAlphaMapUv':'vMapUv';
+      sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying float vGD;').replace('#include <alphatest_fragment>',
+       '{vec2 dd=max(abs(dFdx('+uv+')),abs(dFdy('+uv+')))*256.;float lv=max(0.,log2(max(max(dd.x,dd.y),1e-4)));diffuseColor.a*=(1.+lv*.6)*(1.-smoothstep('+F0.toFixed(1)+','+F1.toFixed(1)+',vGD));}\n#include <alphatest_fragment>')};
+     m.customProgramCacheKey=()=>'czgrass'+(isMask?'m':'t')+(board?'b':'');return m};
+    const mats=[mk(t0,false,false),mk(t1,false,false),mk(tw,true,false),mk(t0,false,true),mk(t1,false,true)];
+    // the records, in a 40 m grid (x and z never change; reseat only moves y)
+    const lists=()=>{const S=new Set();for(const R of REG)if(R.kind==='grass')S.add(R.list);return S};
+    const CS=40,grid=new Map(),inGrid=new Set();let total=0;
+    for(const LL of lists()){inGrid.add(LL);for(const r of LL){const k=Math.floor(r[0]/CS)+','+Math.floor(r[2]/CS);let c=grid.get(k);if(!c)grid.set(k,c=[]);c.push(r);total++}}
+    let CAP=256;for(const [k,c] of grid){const [i,j]=k.split(',').map(Number);let n=0;for(let a=-2;a<=2;a++)for(let b=-2;b<=2;b++){const d=grid.get((i+a)+','+(j+b));if(d)n+=d.length}CAP=Math.max(CAP,n+256)}
+    const batch=(g,m)=>{const im=new THREE.InstancedMesh(g,m,CAP);im.count=0;im.frustumCulled=false;im.castShadow=im.receiveShadow=false;im.userData.keep=true;im.userData.grass=true;im.userData.shTag=1;im.setColorAt(0,new THREE.Color(1,1,1));root.add(im);return im};
+    const BT=[batch(M[0].g,mats[0]),batch(M[1].g,mats[1]),batch(M[2].g,mats[2]),BB[0]?batch(BB[0].g,mats[3]):null,BB[1]?batch(BB[1].g,mats[4]):null];
+    // swap: the old tuft chunks leave; their records stay in REG for the ground editor
+    for(const R of REG)if(R.kind==='grass'&&R.im&&!R.im.isBushProxy){root.remove(R.im);R.im={setMatrixAt(){},instanceMatrix:{},isBushProxy:true}}
+    for(const p of parts)if(p.g)p.g=null;
+    const hgt=r=>.3+Math.max(0,Math.min(1,(r[3]*r[6]-.36)/.875))*.3;   // every tuft 0.3-0.6 m tall, keeping its own size order
+    const fw=new THREE.Vector3(),cnt=[0,0,0,0,0];
+    const put1=(r,cp,fx,fz)=>{const dx=r[0]-cp.x,dz=r[2]-cp.z,d=Math.hypot(dx,dz);if(d>F1||r.gone)return;if(d>12&&(dx*fx+dz*fz)<-.35*d)return;
+      let md=r[7];if(md===undefined)md=((Math.abs(r[0]*7.13+r[2]*3.31)%1)*3)|0;let key=md;if(d>=NEAR&&md<2&&BT[3+md])key=3+md;const im=BT[key];if(cnt[key]>=CAP)return;
+      const h=hgt(r);e.set(0,r[4],0);q.setFromEuler(e);v3.set(r[0],r[1],r[2]);sc.set(h*1.5,h,h*1.5);m4.compose(v3,q,sc);im.setMatrixAt(cnt[key],m4);cl.setRGB(r[5][0],r[5][1],r[5][2]);im.setColorAt(cnt[key],cl);cnt[key]++};
+    const tick=()=>{for(const m of mats){m.color.copy(grassMat.color);m.visible=grassMat.visible}
+     const cp=window.__camLock?{x:__camLock[0],z:__camLock[2]}:camera.position;camera.getWorldDirection(fw);const fl=Math.hypot(fw.x,fw.z)||1,fx=fw.x/fl,fz=fw.z/fl;cnt.fill(0);
+     if(grassMat.visible){const i0=Math.floor(cp.x/CS),j0=Math.floor(cp.z/CS);for(let a=-2;a<=2;a++)for(let b=-2;b<=2;b++){const c=grid.get((i0+a)+','+(j0+b));if(c)for(const r of c)put1(r,cp,fx,fz)}
+      for(const LL of lists())if(!inGrid.has(LL))for(const r of LL)put1(r,cp,fx,fz)}   // tufts added in the ground editor since load
+     BT.forEach((im,k)=>{if(!im)return;im.count=cnt[k];im.instanceMatrix.needsUpdate=true;im.instanceColor.needsUpdate=true});
+     window.frLand.grassInfo={counts:cnt.slice(),tris:[M[0].tris,M[1].tris,M[2].tris,BB[0]?BB[0].tris:0,BB[1]?BB[1].tris:0],total,cap:CAP}};
+    tick();setInterval(tick,100);window.frLand.grassTick=tick;Object.defineProperty(window.frLand,'grassRecs',{get(){const o=[];for(const LL of lists())for(const r of LL)o.push(r);return o},configurable:true});window.frLand.grassCz=true;
+    {const cr=document.getElementById('modelCredit');if(cr&&!/grass and weeds/.test(cr.innerHTML))cr.innerHTML+='<br>Grass and weeds: by cizzy7';}
+    console.log('AKLOG grass',total,CAP,M.map(x=>x.tris).join('/'))}catch(err){console.warn('grass',err)}})}
+  window.frLand.grassPatches=nGP;
+  console.log('AKLOG frLand',JSON.stringify(window.frLand.lake),nS,nG,nT,parts.length,'patches',nGP)}
 })();
 
 // ============================================================================================
