@@ -18620,8 +18620,9 @@ if(!x && !z)return null;
 {
 const PD = window.__PAD;
 if(PD && PD.mode && PD.mag > 0 &&(P.povK || 0)> 0.5 && P.povUser){
+if(Math.abs(z)< 0.45)return null;
 const f = new V3(-Math.sin(cam.yaw),0,-Math.cos(cam.yaw));
-return z < -0.35 && Math.abs(x)< 0.6 ? f.negate(): f;
+return z < 0 ? f.negate(): f;
 }
 }
 const f = new V3(-Math.sin(cam.yaw),0,-Math.cos(cam.yaw)),
@@ -61346,11 +61347,11 @@ const on = P.povUser &&(P.povK || 0)> 0.5 && P.mode === 'ground' && !window.__sc
 let tx = 0;
 if(on){
 const lx0 = ax[0]|| 0,
-ly0 = ax[1]|| 0,
-rr = Math.hypot(lx0,ly0),
-rm = rr > DZ ? Math.min(1,(rr - DZ)/(RIM - DZ)): 0,
+ax0 = Math.abs(lx0),
+XDZ = 0.24,
+rm = ax0 > XDZ ? Math.min(1,(ax0 - XDZ)/(RIM - XDZ)): 0,
 cm = rm * rm *(0.35 + 0.65 * rm);
-tx = rr > 0 ?(lx0 / rr)* cm : 0;
+tx = Math.sign(lx0)* cm;
 }
 const k = 1 - Math.exp(-dt / 0.07);
 PAD.lookXL =(PAD.lookXL || 0)+(tx -(PAD.lookXL || 0))* k;
