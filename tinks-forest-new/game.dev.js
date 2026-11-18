@@ -64115,12 +64115,25 @@ rx = PAD.lookX;
 ry = PAD.lookY;
 }
 if(Math.abs(rx)> 0.01 || Math.abs(ry)> 0.01)window.__padLookT = performance.now();
-if(P.povUser &&(P.povK || 0)> 0.5 && P.mode === 'ground' && !window.__sceneOn && lookOK()&& Math.abs(PAD.mx || 0)> 0.02){
-const lx = PAD.mx,
-want = Math.sign(lx)* Math.pow(Math.abs(lx),1.5)* 2.2 *(OPT.padSens ?? 1);
-PAD.povTurn =(PAD.povTurn || 0)+(want -(PAD.povTurn || 0))* Math.min(1,dt * 8);
-}else PAD.povTurn =(PAD.povTurn || 0)* Math.max(0,1 - dt * 10);
-if(Math.abs(PAD.povTurn || 0)> 1e-4)cam.yaw -= PAD.povTurn * dt;
+{
+const on = P.povUser &&(P.povK || 0)> 0.5 && P.mode === 'ground' && !window.__sceneOn && lookOK();
+let tx = 0;
+if(on){
+const lx0 = ax[0]|| 0,
+ly0 = ax[1]|| 0,
+rr = Math.hypot(lx0,ly0),
+rm = rr > DZ ? Math.min(1,(rr - DZ)/(RIM - DZ)): 0,
+cm = rm * rm *(0.35 + 0.65 * rm);
+tx = rr > 0 ?(lx0 / rr)* cm : 0;
+}
+const k = 1 - Math.exp(-dt / 0.07);
+PAD.lookXL =(PAD.lookXL || 0)+(tx -(PAD.lookXL || 0))* k;
+if(on && Math.abs(PAD.lookXL)> 1e-4){
+cam.yaw -= PAD.lookXL * 3.3 *(OPT.padSens ?? 1)* dt;
+window.__padLookT = performance.now();
+}
+PAD.povTurn = 0;
+}
 if((Math.abs(rx)> 1e-4 || Math.abs(ry)> 1e-4)&& lookOK()){
 const cv = v => v;
 const sens = OPT.padSens ?? 1,
