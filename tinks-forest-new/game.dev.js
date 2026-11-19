@@ -15566,10 +15566,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 589;
+const BUILD = 590;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 157;
+const LOOKV = 158;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -22116,7 +22116,7 @@ if(window.__leapReady)summitLeave();
 b.onmousedown = e => e.stopPropagation();
 document.body.appendChild(b);
 }
-b.hidden = false;
+b.hidden = true;
 b.style.opacity = 0;
 window.__leapReady = false;
 setTimeout(()=>{
@@ -22124,6 +22124,7 @@ const J = window.__JACK,
 QA = window.__QAPI;
 if(P.summit && J && J.got.includes('leaf')&& QA && QA.Q.p.leap){
 window.__leapReady = true;
+b.hidden = false;
 b.style.opacity = 1;
 }
 },2500);
