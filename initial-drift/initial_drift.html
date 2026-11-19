@@ -508,7 +508,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=438',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=439',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -722,7 +722,7 @@ function akinaField(C,Nn,ext,wideFn){
   // LB: the lowest the ground may sit here and still fall away from every road at no more than ~55% (the slope from
   // each road's shelf, ~20 m out). Water only goes where that is below the water line, so every road above the lake
   // looks down a steady slope to the shore; roads lower than the water keep it well away (a wide bank instead)
-  const LR=Math.max(A,B)+420,LC=16,LX0=cx-LR,LZ0=cz-LR,LN=Math.ceil(2*LR/LC)+1,LBg=new Float32Array(LN*LN).fill(-1e9),LOW=new Float32Array(LN*LN).fill(1e9);
+  const WB0=(FRC&&FRC.LAKE&&FRC.LAKE[8])||300,LR=Math.max(A,B)+(WB0>300?WB0/.85+1150:420),LC=16,   /* (439) the floor covers all the ground the lake's easing reaches */LX0=cx-LR,LZ0=cz-LR,LN=Math.ceil(2*LR/LC)+1,LBg=new Float32Array(LN*LN).fill(-1e9),LOW=new Float32Array(LN*LN).fill(1e9);
   for(let k=0;k<NS;k+=2){const sx=SX[k],sz=SZ[k],sy=SY[k];if(Math.abs(sx-cx)>LR+400||Math.abs(sz-cz)>LR+400)continue;
    const i0=Math.max(0,Math.floor((sx-400-LX0)/LC)),i1=Math.min(LN-1,Math.ceil((sx+400-LX0)/LC)),j0=Math.max(0,Math.floor((sz-400-LZ0)/LC)),j1=Math.min(LN-1,Math.ceil((sz+400-LZ0)/LC));
    for(let jj=j0;jj<=j1;jj++)for(let ii=i0;ii<=i1;ii++){const dd=Math.hypot(LX0+ii*LC-sx,LZ0+jj*LC-sz),o=jj*LN+ii,v=sy-.3*Math.max(0,dd-20);if(v>LBg[o])LBg[o]=v;
@@ -756,11 +756,11 @@ function akinaField(C,Nn,ext,wideFn){
   // nearest road and never climb faster than ~55% away from it, so no cliffs over the road
   const bg=vn(x/520+3.1,z/520-5.7);let hill=Math.min(150*smooth(20,240,d)*(.12+.88*bg*bg)*(.45+.75*ridged(x*.75+11,z*.75-7)),.55*Math.max(0,d-16));
   // (build 436) Myogi: bare rock crags — sharp, steep, saw-toothed spires — standing up out of the mountain away from the road
-  if(globalThis.__PASS==='myogi'){const rr=ridged(x*1.5+53,z*1.5-17),r2=ridged(x*3.4-21,z*3.4+44),c2=Math.pow(Math.max(0,rr-.22)/.78,4)+.45*Math.pow(Math.max(0,r2-.3)/.7,5);h+=c2*360*smooth(200,700,d)*(.35+.9*up)*(.6+.4*vn(x/700+9,z/700-4))}
+  if(globalThis.__PASS==='myogi'){const rr=ridged(x*1.1+53,z*1.1-17),r2=ridged(x*2.4-21,z*2.4+44),c2=Math.pow(Math.max(0,rr-.22)/.78,2.4)+.3*Math.pow(Math.max(0,r2-.3)/.7,3);h+=c2*210*   /* (439) gentler: broad rocky ridges, not spires */smooth(200,700,d)*(.35+.9*up)*(.6+.4*vn(x/700+9,z/700-4))}
   const L=FRLAKE;if(!L)return h+hill;
   // (build 434) a lake meant to be seen: the mountains round it start well back (gentle ground for ~1 km past the
   // shore, then rising), so no wall of hillside stands right behind the water
-  if(L.WB>300){const k=smooth(L.WB*.8,L.WB+900,L.ell(x,z));if(k<1){const b=L.y+14;h=Math.min(h,b+(h-b)*k);hill*=k}}
+  if(L.WB>300){const k=smooth(L.WB*.8,L.WB+900,L.ell(x,z));if(k<1){const b=L.y+14,lb=L.LB(x,z);h=Math.min(h,Math.max(lb,b+(h-b)*k));hill*=Math.max(k,smooth(-40,0,lb-b))}}   /* (439) ...but never below the gentle slope down from the nearest road (that left cliffs right off the road) */
   // the lake on the plateau at the top: the ground round it is eased onto a gentle shore that rises away from the water
   // (lifting the low side into a plateau, cutting the high side back), and the hills fade out near it
   const e=L.e(x,z,d);if(e<0)return L.y-1.2-Math.min(3,-e*.04);
@@ -769,7 +769,7 @@ function akinaField(C,Nn,ext,wideFn){
   // road's edge down to the shore, so nothing hides the water from a driver
   if(L.WB>300&&e>0){const rY=L.LB(x,z)+.55*Math.max(0,d-20),cap=L.y+.7+(rY-L.y)*(e/(e+Math.max(1,d-14)))+fbm(x*2,z*2)*1.5;const w2=smooth(L.WB,L.WB*.6,L.ell(x,z));out=Math.min(out,out*(1-w2)+Math.max(L.LB(x,z),cap)*w2)}
   // ...and further out the land rises no faster than 12% from there, so the far mountains stay low on the horizon
-  if(L.WB>300)out=Math.min(out,Math.max(L.LB(x,z),L.y+14+.12*Math.max(0,L.ell(x,z)-L.WB*.8)));
+  if(L.WB>300){const cp=Math.max(L.LB(x,z),L.y+14+.12*Math.max(0,L.ell(x,z)-L.WB*.8));if(out>cp)out=cp+(out-cp)*.3}   /* (439) squashed, not sliced flat: slicing left flat-topped mesas with sheer sides */
   // ...and the land never falls away below the lake either (the mountain drops off past the summit): a caldera rim
   // rising gently all round the water, away from the roads, so the lake sits in a bowl, not on a shelf over a void
   if(L.WB>300&&e>0){const el=L.ell(x,z),fl=L.y+2+.1*el+fbm(x*.7,z*.7)*6,wf=smooth(220,560,d)*smooth(L.WB+2600,L.WB+1600,el);if(wf>0)out=Math.max(out,out*(1-wf)+Math.max(out,fl)*wf)}
@@ -848,7 +848,7 @@ function akinaField(C,Nn,ext,wideFn){
   if(f==null)f=far(x,z,n.d);const w=smooth(base+2,base+5,f);
   if(w>.01)return {t:'cut',w,d0:Math.min(n.fl,11),run:5.5,top:base+Math.min(5,f-base)*w,bot:base};return null}
  function H0(x,z){const n=near(x,z,70);if(!n){const d=70+0;return far(x,z,Math.max(70,FRT?bil(CD,x,z):distApprox(x,z)))}
-  const t=FRT?smooth(n.fl,n.fl+((FRLAKE&&FRLAKE.WB>300&&FRLAKE.ell(x,z)<FRLAKE.WB)?14:49),n.d):smooth(FLAT,32,n.d),f=far(x,z,n.d);   /* (434) by a lake meant to be seen the verge is short: the ground falls away to the water */let h=Math.min((n.y-RO)*(1-t)+f*t,n.carve);
+  const t=FRT?smooth(n.fl,n.fl+((FRLAKE&&FRLAKE.WB>300&&FRLAKE.ell(x,z)<FRLAKE.WB)?26:49),n.d):smooth(FLAT,32,n.d),f=far(x,z,n.d);   /* (434) by a lake meant to be seen the verge is short: the ground falls away to the water */let h=Math.min((n.y-RO)*(1-t)+f*t,n.carve);
   if(FRT&&n.d<n.fl+4)h=Math.min(Math.max(h,n.y-RO-Math.max(0,n.d-n.fl)*1.2),n.carve);
   if(FRT&&NWALL){const W=wallOf(n,x,z,f),base=n.y-RO;
    if(W&&W.t==='cut'&&n.d>W.d0){const u=Math.max(0,Math.min(1,(n.d-W.d0)/W.run)),Hw=W.top-W.bot;h=Math.min(W.bot+Hw*u+(f-W.top)*smooth(W.d0+W.run,W.d0+49,n.d),n.carve)}
@@ -4024,7 +4024,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  c.fillStyle=canyon?'rgba(17,24,29,.90)':'#0a1a2a';
  c.fillRect(0,0,w,h);
  const idx=nearestInfo(pos.x,pos.z).index,course=centers;
- if(window.__FR&&window.__miniFixed){__miniFixed(c,w,h,pos,idx,course,N,canyonEvent==='race'?rival.position:null,stageFinishIndex);return}   /* (build 434) fixed course map */
+ if(window.__FR&&window.__miniGPS){__miniGPS(c,w,h,pos,idx,course,N,canyonEvent==='race'?rival.position:null,stageFinishIndex);return}   /* (build 434) fixed course map; (439) back to the GPS view, done right */
  // One enlarged map: follow the player while exposing much more of the winding road.
  // Smooth the heading over a longer road segment so the map doesn't snap on hairpins.
  const ahead=tangents[Math.min(N,idx+Math.round(26*__mk))]||tangents[idx];
@@ -4094,7 +4094,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 438';
+window.__BUILD='BUILD 439';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5617,9 +5617,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795068408'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795073807'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795068408'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795073807'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -5994,8 +5994,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795068408'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795068408'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795073807'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795073807'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6453,7 +6453,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795068408',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795073807',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6467,7 +6467,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795068408',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795073807',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -9808,7 +9808,10 @@ let pad=null,was=[],navT={},toastT=0;
  window.__rumbleHit=(kind,k)=>{if(kind==='start'){if(RM_K[rmMode])startSeq();return}const f=EV[kind];if(!f||!RM_K[rmMode])return;const[s,w,lt,rt,d]=f(Math.max(0,Math.min(1,k==null?1:k)));bursts.push({s,w,lt,rt,t0:performance.now()/1000,d})};
  // (build 415) the engines turning over at the start: the starter cranking (a few pulses), the engine catching (a big
 // thump), then a rough idle settling
-window.__rumbleStart=(k)=>{k=k==null?1:k;const P=window.__padRumble;if(!P)return;[[0,.5],[170,.55],[340,.5],[510,.6]].forEach(([t,s])=>setTimeout(()=>P(s*k,0,130),t));setTimeout(()=>P(.95*k,0,420),720);[1150,1400,1650].forEach((t,i)=>setTimeout(()=>P((.35-.08*i)*k,0,200),t))};
+window.__rumbleStart=(k)=>{k=k==null?1:k;const P=window.__padRumble;if(!P)return;
+ // (build 439) much stronger, both motors: the starter churning hard, a big shudder as it catches, a rough idle shaking down
+ [[0,.75],[150,.8],[300,.75],[450,.85]].forEach(([t,s])=>setTimeout(()=>P(Math.min(1,s*k),.6*k,140),t));setTimeout(()=>P(Math.min(1,1*k),.9*k,650),620);[1250,1500,1750,2000].forEach((t,i)=>setTimeout(()=>P((.6-.1*i)*k,(.4-.07*i)*k,230),t));
+ if(window.__rmStartReplay)return;window.__rmStartAt=performance.now();window.__rmStartPad=0;window.__rmStartK=k};
 window.__padRumble=(s,w,ms)=>bursts.push({s:s||0,w:w||0,lt:0,rt:0,t0:performance.now()/1000,d:(ms||120)/1000});
  let rmLast=0,rmPrev='',rmHB=false,rmCl=1;
  const rumble=(t,race)=>{const a=pad&&pad.vibrationActuator;if(!a||!a.playEffect)return;const K=RM_K[rmMode];
@@ -9881,6 +9884,7 @@ window.__padRumble=(s,w,ms)=>bursts.push({s:s||0,w:w||0,lt:0,rt:0,t0:performance
    if(window.__garageGame){hold('Space',!!B[0]);hold('ArrowDown',!!B[13]);hold('ArrowUp',!!B[12]);if(down(1)||down(9))tap('Escape','Escape')}
    else{if(down(0))tap('Enter','Enter');if(down(1)||down(9))tap('Escape','Escape');}if(down(8))tap('KeyV','v');if(down(11))tap('KeyM','m')}
   {const tq=v=>{const m=Math.max(0,Math.min(1,v||0));return pdMode==='smooth'?curve(m,.5):m};window.__padRaw={lt:V[6]||0,rt:V[7]||0,lx:A[0]||0,steer:stk,gas:tq(V[7]),brk:tq(V[6])}}
+  if(window.__rmStartAt&&!window.__rmStartPad){window.__rmStartPad=1;if(performance.now()-__rmStartAt>300&&performance.now()-__rmStartAt<5000){window.__rmStartReplay=1;window.__rumbleStart(window.__rmStartK||1);window.__rmStartReplay=0}}
   rumble(t,race);
   // keep-alive: a silent nudge every 12 s while nothing else is rumbling (some pads drop their wireless link when idle, e.g. on loading screens)
   if(t-rmLast>12){rmLast=t;try{const va=pad.vibrationActuator;va&&va.playEffect&&va.playEffect('dual-rumble',{duration:15,strongMagnitude:0,weakMagnitude:.01}).catch(()=>{})}catch(e){}}
@@ -11917,7 +11921,7 @@ const animeAudio=(()=>{
   if(window.__v8){__v8.load();}
   const V8=!!(window.__v8&&__v8.ready);
   // racing someone: his engine catches a moment after yours (two drivers, two keys, never in step)
-  const rivalKey=()=>{if(canyonEvent!=='race'||typeof rival==='undefined'||!rival.visible)return;setTimeout(()=>{try{if(audioCtx.state==='running'&&typeof rivalGain!=='undefined'){__v8.startup(1,rivalGain,__rivalSoundId(),false);try{window.__rumbleStart&&__rumbleStart(.5)}catch(e){}}}catch(e){}},700+Math.random()*700)};
+  const rivalKey=()=>{if(canyonEvent!=='race'||typeof rival==='undefined'||!rival.visible)return;setTimeout(()=>{try{if(audioCtx.state==='running'&&typeof rivalGain!=='undefined'){__v8.startup(1,rivalGain,__rivalSoundId(),false);try{window.__rumbleStart&&__rumbleStart(.8)}catch(e){}}}catch(e){}},700+Math.random()*700)};
   if(V8){for(const k in playerVoices)animeEngineDrive(playerVoices[k],t,1000,0,0);for(const k in playerSamples)driveSampleEngine(playerSamples[k],t,1000,0,0);if(sample)sample.g.gain.setTargetAtTime(0,t,.04);animeEngineDrive(player,t,1000,0,0);
    // the bumper camera sits on the nose, by the engine bay: the outside sound, and everything from the car a bit louder.
    // The hood/dash camera (4) and the cockpit (5) hear it from inside the cabin
@@ -13549,11 +13553,11 @@ const akinaGutter=window.akinaGutter=(()=>{
  const SCF=window.__scanFR;
  if(window.__PASS&&SCF){try{const cs=SCF(),m=window.M_PER_INDEX||3,dn=akinaCourse.dir==='down'?-1:1;
   const mk=c=>{const ci=c.apex,sd=c.sgn>0?1:-1;   // inside of a left turn is the left side: left of f is (f.z,-f.x) = -S
-   return {ci,sd:-sd,c:ci,side:-sd,Zi:Math.max(8,Math.round((c.end-c.start)/2)+4)}};   // (the road is still in its traced order when this runs: the numbering the riding logic uses)
+   return {ci,sd:-sd,c:ci,side:-sd,Zi:Math.max(Math.round(12/m),Math.min(Math.round(30/m),Math.round((c.end-c.start)/2)+2))}};   /* (439) never longer than ~30 m either side of the apex: the length of the drain grates there */   // (the road is still in its traced order when this runs: the numbering the riding logic uses)
   const pinsAll=cs.filter(c=>c.ang>2.4);let ride=[];
   if(window.__PASS==='akinanew'){const U=cs.filter(c=>c.ang>2.6);let best=null;for(let k=0;k+4<U.length;k++){const span=U[k+4].end-U[k].start;if(!best||span<best.span)best={span,k}}if(best)ride=U.slice(best.k,best.k+5)}
-  else ride=pinsAll.slice().sort((a,b)=>b.ang-a.ang).slice(0,3);
-  pins.splice(0,pins.length,...ride.map(mk));for(const c of pinsAll)if(!ride.includes(c))GREY.push(mk(c))}catch(e){console.warn('gutters',e)}}
+  else ride=pinsAll.filter(c=>c.r<30).sort((a,b)=>a.r-b.r).slice(0,3);   /* (439) the three tightest real hairpins (by radius: a long merged bend can turn as far without being one) */
+  pins.splice(0,pins.length,...ride.map(mk));window.__gutterInfo=ride.map(c=>({apex:c.apex,r:Math.round(c.r),ang:+c.ang.toFixed(2),len:Math.round((c.end-c.start)*m)}));for(const c of pinsAll)if(!ride.includes(c))GREY.push(mk(c))}catch(e){console.warn('gutters',e)}}
  // ---- the gutters: a concrete channel with slab joints along the inside edge of each hairpin
  {const cv=document.createElement('canvas');cv.width=64;cv.height=256;const g=cv.getContext('2d');
   g.fillStyle='#ff8a1c';g.fillRect(0,0,64,256);g.fillStyle='#e0650a';g.fillRect(14,0,36,256);   // painted bright orange: you can see exactly where each gutter starts and ends
@@ -13564,18 +13568,18 @@ const akinaGutter=window.akinaGutter=(()=>{
   const lip=new THREE.MeshBasicMaterial({side:THREE.DoubleSide,color:0xffc27a,polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-4});
   const bankAt=(x,z)=>{try{return animeBank.at(x,z)}catch(e){return 0}};
   // plain concrete for the gutters you can't ride (and for the riding ones, for the cars that can't)
-  const gcv=document.createElement('canvas');gcv.width=64;gcv.height=256;{const g=gcv.getContext('2d');g.fillStyle='#9d9a93';g.fillRect(0,0,64,256);g.fillStyle='#86837c';g.fillRect(14,0,36,256);g.fillStyle='#4a4743';for(let y=0;y<256;y+=64)g.fillRect(0,y,64,4);for(let k=0;k<700;k++){g.fillStyle=`rgba(0,0,0,${Math.random()*.16})`;g.fillRect(Math.random()*64,Math.random()*256,2,2)}}
+  const gcv=document.createElement('canvas');gcv.width=64;gcv.height=256;{const g=gcv.getContext('2d');g.fillStyle='#77736b';g.fillRect(0,0,64,256);g.fillStyle='#625e57';g.fillRect(12,0,40,256);g.fillStyle='#45423d';for(let y=0;y<256;y+=64)g.fillRect(0,y,64,3);for(let k=0;k<500;k++){g.fillStyle=`rgba(${120+(k%40)},${100+(k%30)},${80+(k%25)},.35)`;g.fillRect(Math.random()*64,Math.random()*256,2,2)}for(let k=0;k<700;k++){g.fillStyle=`rgba(0,0,0,${Math.random()*.16})`;g.fillRect(Math.random()*64,Math.random()*256,2,2)}}
   const gtex=new THREE.CanvasTexture(gcv);gtex.wrapS=gtex.wrapT=THREE.RepeatWrapping;gtex.colorSpace=THREE.SRGBColorSpace;
-  const gmat=new THREE.MeshBasicMaterial({side:THREE.DoubleSide,map:gtex,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3}),glip=new THREE.MeshBasicMaterial({side:THREE.DoubleSide,color:0xc9c5bb,polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-4});
+  const gmat=new THREE.MeshBasicMaterial({side:THREE.DoubleSide,map:gtex,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3}),glip=new THREE.MeshBasicMaterial({side:THREE.DoubleSide,color:0x8c877d,polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-4});
   const CD=(window.__PASS?tougeCenters:C0),TD=(window.__PASS?tougeTangents:T0);
-  const jobs=[...pins.map(p=>[p,'ride']),...pins.map(p=>[p,'twin']),...GREY.map(p=>[p,'grey'])];
-  for(const [p,kind] of jobs){const v=[],uv=[],ix=[],lv=[],li=[];let len=0;const sub=3;const pc=p.ci!=null?p.ci:p.c,pz=p.Zi||Z,ps=p.sd!=null?p.sd:p.side,C0=CD,T0=TD;
+  const jobs=pins.map(p=>[p,'ride']);   /* (439) the plain concrete ones are gone: every hairpin already has its drain grates in the road edge (road_marks), and the orange channel lies right over them */
+  for(const [p,kind] of jobs){const v=[],uv=[],ix=[],lv=[],li=[];let len=0;const sub=3;const pc=p.ci!=null?p.ci:p.c,ps=p.sd!=null?p.sd:p.side,C0=CD,T0=TD,plain=kind!=='ride',pz=kind==='grey'?Math.min(p.Zi||Z,Math.round(11/(window.M_PER_INDEX||3))):(p.Zi||Z);   /* (439) the plain ones: just the apex stretch, a narrow channel in the gravel edge, flush with the road */
    for(let k=0,i0=pc-pz-3;i0+k/sub<=pc+pz+3;k++){const u=i0+k/sub,j=Math.max(0,Math.min(N-1,Math.floor(u))),f=u-j;
     const P=C0[j].clone().lerp(C0[j+1],f),T=T0[j].clone().lerp(T0[j+1],f).normalize(),S=new THREE.Vector3(-T.z,0,T.x);
     if(k)len+=P.distanceTo(v.__last);v.__last=P;
     const wd=window.__wideOrig?__wideOrig(u):0;
-    for(const w of [4.2+wd,5.5+wd]){const q=P.clone().addScaledVector(S,ps*w);v.push(q.x,P.y+.2+bankAt(q.x,q.z),q.z);uv.push(w<4.5+wd?0:1,len/4)}
-    for(const w of [4.12+wd,4.26+wd]){const q=P.clone().addScaledVector(S,ps*w);lv.push(q.x,P.y+.21+bankAt(q.x,q.z),q.z)}
+    for(const w of (plain?[4.8+wd,5.4+wd]:[4.2+wd,5.5+wd])){const q=P.clone().addScaledVector(S,ps*w);v.push(q.x,P.y+.05+bankAt(q.x,q.z),q.z);uv.push(w<(plain?5.1:4.5)+wd?0:1,len/4)}
+    for(const w of (plain?[4.74+wd,4.8+wd]:[4.12+wd,4.26+wd])){const q=P.clone().addScaledVector(S,ps*w);lv.push(q.x,P.y+.055+bankAt(q.x,q.z),q.z)}
     if(k){const a=(k-1)*2;ix.push(a,a+1,a+2,a+1,a+3,a+2);li.push(a,a+1,a+2,a+1,a+3,a+2)}}
    for(const [V,I,M,U] of [[v,ix,kind==='ride'?mat:gmat,uv],[lv,li,kind==='ride'?lip:glip,null]]){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(V,3));if(U)g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));g.setIndex(I);g.computeVertexNormals();
     const m=new THREE.Mesh(g,M);m.receiveShadow=true;m.userData.gk=kind;tougeWorld.add(m);gutterMeshes.push(m)}}}}
@@ -14370,7 +14374,7 @@ const id=window.animeCars&&animeCars.player&&animeCars.player.name;return !id||i
     const add=(im,r,col)=>{const i=im.count;if(i>=im.instanceMatrix.count)return;e.set(0,r[4],0);q.setFromEuler(e);v3.set(r[0],r[1],r[2]);sc.set(r[3],r[3]*r[6],r[3]);m4.compose(v3,q,sc);im.setMatrixAt(i,m4);if(col&&im.instanceColor){cl.setRGB(r[5][0],r[5][1],r[5][2]);im.setColorAt(i,cl)}im.count++};
     const tick=()=>{follow();const cp=window.__camLock?{x:__camLock[0],z:__camLock[2]}:camera.position;camera.getWorldDirection(fw);const fl=Math.hypot(fw.x,fw.z)||1,fx=fw.x/fl,fz=fw.z/fl,snow=SN();
      for(const im of ALL)im.count=0;const C2={hi:0,mid:0,card:0};
-     for(const [LL,kind] of tlists())for(const r of LL){if(r.gone)continue;if(r.lk===undefined){const e=window.__PASS==='akinanew'?lakeE(r[0],r[2]):1e9;r.lk=(e>-5&&e<240&&(Math.abs(Math.round(r[0]*3.7+r[2]*5.1))%100)>=12)||(!!G.FRLOT&&G.FRLOT.d(r[0],r[2])<6)}if(r.lk)continue;   // (build 434) Akina: the slope down to the lake is open meadow (a few trees left), so the water shows from the road
+     for(const [LL,kind] of tlists())for(const r of LL){if(r.gone)continue;if(r.lk===undefined||r.lkv!==(window.__tcV|0)){const e=window.__PASS==='akinanew'?lakeE(r[0],r[2]):1e9;r.lkv=window.__tcV|0;r.lk=(e>-5&&e<240&&(Math.abs(Math.round(r[0]*3.7+r[2]*5.1))%100)>=12)||(!!G.FRLOT&&G.FRLOT.d(r[0],r[2])<6)||!!(window.__treeClear&&__treeClear.some(c=>Math.hypot(r[0]-c.x,r[2]-c.z)<c.r))}if(r.lk)continue;   // (build 434) Akina: the slope down to the lake is open meadow (a few trees left), so the water shows from the road
 const dx=r[0]-cp.x,dz=r[2]-cp.z,d=Math.hypot(dx,dz);if(d>DF)continue;
       const behind=d>40&&(dx*fx+dz*fz)<-.3*d;if(behind&&d<D2+B2)continue;   // (cards behind the camera are cheap; near ones are skipped)
       const o=kind==='pine'?BP:BS[spOf(r)];
@@ -15883,10 +15887,10 @@ window.__mergeStatic=window.__mergeStatic||function(group,ok){group.updateMatrix
    L.forEach(([r,deg],li)=>{const seg=420,P=[],I=[],base=Math.tan(deg*Math.PI/180)*r,pk=[];
     for(let k=0;k<11+li*2;k++){const round=hs(li*91+k)<.55;pk.push([hs(li*31+k)*Math.PI*2,(.06+hs(li*17+k)*.1)*(round?2:1.6)*(1+li*.15),(.5+hs(li*7+k)*.75)*base*(round?.7:.85),round])}
     // (build 436) Myogi: its famous saw-toothed crags — a long run of narrow rock spires above the pass on the summit side
-    const crag=[];if(window.__PASS==='myogi'&&li<2){const c0=bTop-canyonSky.rotation.y;for(let k=0;k<34;k++){const t=k/33;crag.push([c0+(t-.5)*1.5+(hs(li*53+k)-.5)*.05,.012+hs(li*19+k)*.03,base*(li?1.6:1.25)*(.55+.9*hs(li*71+k))*(1-.45*Math.abs(t-.5)*2)])}}
+    const crag=[];if(window.__PASS==='myogi'&&li<2){const c0=bTop-canyonSky.rotation.y;for(let k=0;k<18;k++){const t=k/17;crag.push([c0+(t-.5)*1.5+(hs(li*53+k)-.5)*.06,.04+hs(li*19+k)*.05,base*(li?1.0:.8)*(.6+.6*hs(li*71+k))*(1-.45*Math.abs(t-.5)*2)])}   /* (439) fewer, broader, lower: rugged peaks, not needles */}
     for(let j=0;j<=seg;j++){const a=j/seg*Math.PI*2;let y=base*(.45+.25*Math.sin(a*3+li)+.15*Math.sin(a*7.3-li*2)+.03*Math.sin(a*37+li*3)+.02*Math.sin(a*71-li));
      for(const [c,w,hh,round] of pk){const d=Math.abs(Math.atan2(Math.sin(a-c),Math.cos(a-c)))/w;if(d<1)y=Math.max(y,base*.4+(round?hh*Math.sqrt(1-d*d):hh*Math.pow(1-d*d,2.2)*(1+.06*Math.sin(d*9+c*5))))   /* no knife-edge points: even the sharper peaks have a rounded crest and long shoulders */}
-     for(const [c,w,hh] of crag){const d=Math.abs(Math.atan2(Math.sin(a-c),Math.cos(a-c)))/w;if(d<1)y=Math.max(y,base*.5+hh*Math.pow(1-d,1.15))}   /* sharp rock, steep both sides */
+     for(const [c,w,hh] of crag){const d=Math.abs(Math.atan2(Math.sin(a-c),Math.cos(a-c)))/w;if(d<1){const q=1-d*d;y=Math.max(y,base*.5+hh*q*Math.sqrt(q)*(1-.25*d))}}   /* (439) rounded shoulders, a firm peak */
      if(li<3){const g=Math.exp(-Math.pow(Math.atan2(Math.sin(a-cityA),Math.cos(a-cityA))/.32,2));y*=1-g*.85}
      P.push(Math.sin(a)*r,-150,Math.cos(a)*r,Math.sin(a)*r,y,Math.cos(a)*r);if(j<seg){const q=j*2;I.push(q,q+1,q+2,q+1,q+3,q+2)}}
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setIndex(I);
@@ -19596,6 +19600,35 @@ const animeArcade4=window.animeArcade4=(()=>{
   if(rv)dot(P(rv),'#ff3e39',6,'#111');   // the rival
   dot(P(pos),'#ffe14a',6.5,'#111')};
 })();
+// ==================================================================== GPS map, done right (build 439)
+// Back to the close-up heading-up view (like the arcade), without what made the old one jump about:
+//  · it is never mirrored (the old one flipped top-to-bottom when the road ahead fell "behind" the car)
+//  · "up" is the road's own direction ~60 m ahead of the car (not the car's nose, so a spin doesn't spin the map),
+//    and the map turns towards it smoothly and no faster than ~70 degrees a second, the short way round
+//  · a fixed scale in metres, the car low in the panel so the road ahead fills it
+(()=>{let HD=null,LT=0;
+ window.__miniGPS=(c,w,h,pos,idx,C,N,rv,fin)=>{const m=window.M_PER_INDEX||3,K=d=>Math.max(1,Math.round(d/m));
+  const a=C[Math.max(0,idx-K(15))],b=C[Math.min(N,idx+K(60))];let dx=b.x-a.x,dz=b.z-a.z;if(dx*dx+dz*dz<1){const t=C[Math.min(N,idx+1)];dx=t.x-C[idx].x;dz=t.z-C[idx].z}
+  const want=Math.atan2(dx,dz),now=performance.now(),gap=(now-LT)/1000,dt=Math.min(.1,Math.max(0,gap));LT=now;
+  if(HD==null||gap>.5)HD=want;   /* (a fresh start, or back from a pause/menu: just face the road) */
+  {let d=want-HD;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;{let s=d*(1-Math.exp(-dt*3.2));const lim=1.22*dt;s=Math.max(-lim,Math.min(lim,s));HD+=s}}
+  const co=Math.cos(HD),si=Math.sin(HD),S=(h*.62)/230,ox=w*.5,oy=h*.72;
+  // left of travel (f.z,-f.x) goes to the left of the panel, the road ahead goes up
+  const P=p=>{const X=p.x-pos.x,Z=p.z-pos.z;return [ox-(X*co-Z*si)*S,oy-(X*si+Z*co)*S]};
+  const i0=Math.max(0,idx-K(180)),i1=Math.min(N,idx+K(420)),st=Math.max(1,K(4));
+  const path=[];for(let i=i0;i<=i1;i+=st)path.push(P(C[i]));if((i1-i0)%st)path.push(P(C[i1]));
+  c.lineJoin='round';c.lineCap='round';
+  const line=(arr,col,wd)=>{if(arr.length<2)return;c.strokeStyle=col;c.lineWidth=wd;c.beginPath();arr.forEach((q,i)=>i?c.lineTo(q[0],q[1]):c.moveTo(q[0],q[1]));c.stroke()};
+  line(path,'rgba(156,172,166,.16)',24);line(path,'rgba(0,0,0,.85)',13);line(path,'#eeeac8',8);
+  const done=[];for(let i=i0;i<=idx;i+=st)done.push(P(C[i]));done.push(P(pos));line(done,'#ff4d3a',8);
+  const bar=(i,col)=>{if(i<i0||i>i1)return;const p=C[i],q=C[Math.min(N,i+1)],tx=q.x-p.x,tz=q.z-p.z,l=Math.hypot(tx,tz)||1,L={x:p.x+tz/l*7,z:p.z-tx/l*7},R={x:p.x-tz/l*7,z:p.z+tx/l*7};
+   const A=P(L),B=P(R);c.strokeStyle='#111';c.lineWidth=7;c.beginPath();c.moveTo(A[0],A[1]);c.lineTo(B[0],B[1]);c.stroke();c.strokeStyle=col;c.lineWidth=4;c.stroke()};
+  bar(0,'#4ad66d');bar(Math.max(0,Math.min(N,fin==null?N:fin)),'#fff');
+  if(rv){const q=P(rv);c.fillStyle='#ff3e39';c.beginPath();c.arc(q[0],q[1],6,0,7);c.fill();c.strokeStyle='#111';c.lineWidth=2;c.stroke()}
+  // the car: an arrow pointing where the car is actually facing
+  let yw=null;try{yw=typeof yaw==='number'?yaw:null}catch(e){}
+  const ang=yw==null?0:-((yw+Math.PI)-HD);   /* the car faces (-sin yaw, -cos yaw) */c.save();c.translate(ox,oy);c.rotate(ang);c.fillStyle='#ffe14a';c.strokeStyle='#111';c.lineWidth=2.5;c.beginPath();c.moveTo(0,-11);c.lineTo(8,8);c.lineTo(0,4);c.lineTo(-8,8);c.closePath();c.fill();c.stroke();c.restore()};
+})();
 
 // ==================================================================== Akina's lake dressing (build 434)
 // Swan boats and a little wooden pier on the stretch of Lake Akina's shore nearest the road (the passes only, where a
@@ -19696,14 +19729,16 @@ const animeArcade4=window.animeArcade4=(()=>{
  let tries=0;const wait=setInterval(()=>{if(++tries>200)return clearInterval(wait);try{if(typeof akinaGround==='undefined'||typeof tougeCenters==='undefined'||!window.frLand)return;clearInterval(wait);build()}catch(e){clearInterval(wait);console.warn('myogi dai',e)}},500);
  function build(){const G=akinaGround,C=tougeCenters,H=(x,z)=>G.HM?G.HM(x,z):G.H(x,z),R=[];for(let i=0;i<C.length;i+=12)R.push(C[i]);
   let cx=0,cz=0;for(const p of R){cx+=p.x/R.length;cz+=p.z/R.length}
-  let best=null;for(let a=0;a<Math.PI*2;a+=Math.PI/36)for(let rr=500;rr<=1700;rr+=150){const x=cx+Math.sin(a)*rr,z=cz+Math.cos(a)*rr;let dr=1e9;for(const p of R)dr=Math.min(dr,Math.hypot(p.x-x,p.z-z));if(dr<350||dr>900)continue;
-   const y=H(x,z)+14;let seen=0;for(const p of R){const D=Math.hypot(p.x-x,p.z-z);if(D>1300||y<p.y+30)continue;let ok=true;for(let s=15;s<D-20;s+=15){const u=s/D;if(H(p.x+(x-p.x)*u,p.z+(z-p.z)*u)>p.y+2+(y-p.y-2)*u-2){ok=false;break}}if(ok)seen++}
-   if(!best||seen>best.seen)best={x,z,y,seen}}
+  let best=null;for(let a=0;a<Math.PI*2;a+=Math.PI/36)for(let rr=200;rr<=1500;rr+=100){const x=cx+Math.sin(a)*rr,z=cz+Math.cos(a)*rr;let dr=1e9;for(const p of R)dr=Math.min(dr,Math.hypot(p.x-x,p.z-z));if(dr<220||dr>650)continue;
+   const y=H(x,z)+36;let seen=0,bv=null;for(const p of R){const D=Math.hypot(p.x-x,p.z-z);if(D>1100||y<p.y+25)continue;let ok=true;for(let s=15;s<D-20;s+=15){const u=s/D;if(H(p.x+(x-p.x)*u,p.z+(z-p.z)*u)>p.y+2+(y-p.y-2)*u-2){ok=false;break}}if(ok){const wgt=300/Math.max(250,D);seen+=wgt;if(!bv||wgt>bv.w)bv={w:wgt,x:p.x,z:p.z}}}   /* (439) the nearer the road that sees it, the bigger it reads */
+   if(!best||seen>best.seen)best={x,z,y,seen,bv}}
   if(!best||!best.seen)return;
-  const cv=document.createElement('canvas');cv.width=cv.height=256;const g=cv.getContext('2d');g.fillStyle='#fff';g.font='bold 230px "Hiragino Mincho ProN","Yu Mincho","Noto Serif CJK JP",serif';g.textAlign='center';g.textBaseline='middle';g.fillText('大',128,140);
-  const mt=new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(cv),transparent:true,alphaTest:.3,side:THREE.DoubleSide,color:0xf2efe6,fog:true});
-  const m=new THREE.Mesh(new THREE.PlaneGeometry(36,36),mt);m.position.set(best.x,best.y,best.z);m.lookAt(cx,best.y,cz);m.name='myogiDai';m.userData.keep=true;tougeWorld.add(m);
-  window.__myogiDai={at:[Math.round(best.x),Math.round(best.z)],seenFrom:best.seen*12};console.log('AKLOG myogiDai',JSON.stringify(window.__myogiDai))}
+  const cv=document.createElement('canvas');cv.width=cv.height=256;const g=cv.getContext('2d');g.fillStyle='#fff';g.strokeStyle='#fff';g.lineCap='round';g.lineJoin='round';g.lineWidth=30;   /* (439) painted as three strokes (no font needed): the bar, the left sweep, the right sweep */
+  g.beginPath();g.moveTo(30,92);g.lineTo(226,88);g.stroke();g.beginPath();g.moveTo(128,22);g.lineTo(126,110);g.quadraticCurveTo(110,190,34,236);g.stroke();g.beginPath();g.moveTo(132,112);g.quadraticCurveTo(160,190,228,234);g.stroke();
+  const mt=new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(cv),transparent:true,alphaTest:.3,side:THREE.DoubleSide,color:0xf2efe6,fog:false});   /* (439) bigger (64 m), nearer, and not lost in the haze */
+  const m=new THREE.Mesh(new THREE.PlaneGeometry(64,64),mt);m.position.set(best.x,best.y,best.z);{const V=best.bv||{x:cx,z:cz};m.lookAt(V.x,best.y,V.z)}/* faces the road that sees it */
+  window.__treeClear=[{x:best.x,z:best.z,r:95}];window.__tcV=(window.__tcV|0)+1;   /* no trees standing in front of it */m.name='myogiDai';m.userData.keep=true;tougeWorld.add(m);
+  window.__myogiDai={at:[Math.round(best.x),Math.round(best.z)],score:+best.seen.toFixed(1)};console.log('AKLOG myogiDai',JSON.stringify(window.__myogiDai))}
 })();
 
 // ============================================================================================
