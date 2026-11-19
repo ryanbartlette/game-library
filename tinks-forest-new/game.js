@@ -15411,10 +15411,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 587;
+const BUILD = 588;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 155;
+const LOOKV = 156;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -22530,7 +22530,11 @@ if(t.hit)t.why = 'cam ray: ' +(hh[0].object.name || hh[0].object.type)+ ' @' + h
 if(!t.hit && t === TG[0]&& window.__busBoxes){
 const r = new THREE.Ray(head,camera.position.clone().sub(head).normalize()),
 hp2 = new V3();
-for(const b of window.__busBoxes())if(b.containsPoint(camera.position)||(r.intersectBox(b,hp2)&& hp2.distanceTo(head)< d)){
+for(const b of window.__busBoxes())if(
+b.max.y > head.y + 0.45 &&
+!b.containsPoint(head)&&
+(b.containsPoint(camera.position)||(r.intersectBox(b,hp2)&& hp2.distanceTo(head)< d))
+){
 t.hit = true;
 t.why = 'box ' + b.min.toArray().map(v => v.toFixed(1)).join(',')+ ' / ' + b.max.toArray().map(v => v.toFixed(1)).join(',');
 break;
