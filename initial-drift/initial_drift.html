@@ -508,7 +508,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=436',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=437',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -4094,7 +4094,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 436';
+window.__BUILD='BUILD 437';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5617,9 +5617,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795062523'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795063704'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795062523'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795063704'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -5994,8 +5994,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795062523'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795062523'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795063704'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795063704'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6453,7 +6453,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795062523',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795063704',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6467,7 +6467,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795062523',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795063704',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -14534,6 +14534,13 @@ const dx=r[0]-cp.x,dz=r[2]-cp.z,d=Math.hypot(dx,dz);if(d>DF)continue;
     while(xx<w){const bw=44+((xx*13+row*29)%40);const sh=96+((xx*7+row*11)%38);x.fillStyle=`rgb(${sh+10},${sh+6},${sh})`;x.fillRect(xx+2,y+2,bw-4,rh-4);x.fillStyle='rgba(255,255,255,.08)';x.fillRect(xx+2,y+2,bw-4,4);xx+=bw}
     y+=rh;row++}x.fillStyle='rgba(40,60,30,.25)';for(let k=0;k<60;k++){x.fillRect((k*53)%w,(k*97)%h,6+(k%5)*4,3+(k%3)*3)}});
   stone.wrapS=stone.wrapT=THREE.RepeatWrapping;
+  // (build 437) bare rock: grey stone with uneven slabs, dark cracks and strata, a little lichen
+  const rockTex=canvasTex(256,256,(x,w,h)=>{x.fillStyle='#7c7a76';x.fillRect(0,0,w,h);
+   for(let k=0;k<90;k++){const cx=(k*73)%w,cy=(k*131+k*k*3)%h,r=14+(k%7)*6,sh=100+((k*37)%50);x.fillStyle=`rgb(${sh},${sh-2},${sh-6})`;x.beginPath();x.moveTo(cx-r,cy);x.lineTo(cx-r*.3,cy-r*.8);x.lineTo(cx+r*.9,cy-r*.4);x.lineTo(cx+r,cy+r*.5);x.lineTo(cx-r*.2,cy+r*.9);x.closePath();x.fill()}
+   x.strokeStyle='rgba(30,28,26,.55)';x.lineWidth=2;for(let k=0;k<26;k++){x.beginPath();let px=(k*97)%w,py=(k*59)%h;x.moveTo(px,py);for(let s=0;s<5;s++){px+=((k*13+s*29)%40)-20;py+=8+((k+s)%12);x.lineTo(px,py)}x.stroke()}
+   x.fillStyle='rgba(40,38,36,.25)';for(let y=12;y<h;y+=34)x.fillRect(0,y,w,3);
+   for(let k=0;k<70;k++){x.fillStyle=k%2?'rgba(150,160,90,.35)':'rgba(110,130,70,.3)';x.beginPath();x.arc((k*41)%w,(k*83)%h,2+(k%4)*2,0,6.3);x.fill()}});
+  rockTex.wrapS=rockTex.wrapT=THREE.RepeatWrapping;const rockMat=new THREE.MeshLambertMaterial({map:rockTex,side:THREE.DoubleSide});
   // the walls are built by a function so the course editor can rebuild them after a wall edit (the per-sample wall
   // decisions are worked out once and kept; edits: erase circles, height changes, hand-drawn walls from __EDS.wall)
   const WIC={};let wallMesh=null;
@@ -14541,13 +14548,15 @@ const dx=r[0]-cp.x,dz=r[2]-cp.z,d=Math.hypot(dx,dz);if(d>DF)continue;
   const wErased=(x,z,t)=>{for(const e of EW().erase)if((!t||(e.t||0)>t)&&(x-e.x)**2+(z-e.z)**2<e.r*e.r)return true;return false};
   const wDH=(x,z)=>{let d=0;for(const e of EW().height){const q=Math.hypot(x-e.x,z-e.z)/e.r;if(q<1){const w=1-q;d+=e.dh*w*w*(3-2*w)}}return d};
   const buildWalls=()=>{
-  const P=[],UV=[],I=[];let seg=0;
+  const P=[],UV=[],I=[],IR=[];let seg=0;
+  // (build 437) Myogi: in patches along the road the cut walls are bare rock faces, not laid stone
+  const ROCKY=window.__PASS==='myogi',isRock=(x,z)=>ROCKY&&(Math.sin(x*.0123+1.3)*Math.sin(z*.0109-2.1)+.35*Math.sin((x+z)*.031))>.22;
   if(G.NWALL&&G.wall&&G.near){
    // retaining walls that match the ground the terrain carves for them (akina_terrain wallOf): 'fill' faces drop from
    // a level concrete edge just past the rail down to the ground by the road below; 'cut' faces rise from the foot
    // of the flat shelf into the hillside
    for(const side of [-1,1]){let open=null,u=0,last=null,run=[],prev=null,lastPts=null;
-    const flush=()=>{if(run.length<4){P.length=run.length?run[0].p0:P.length;UV.length=run.length?run[0].u0:UV.length;I.length=run.length?run[0].i0:I.length}run=[]};
+    const flush=()=>{if(run.length<4){P.length=run.length?run[0].p0:P.length;UV.length=run.length?run[0].u0:UV.length;I.length=run.length?run[0].i0:I.length;IR.length=run.length?run[0].r0:IR.length}run=[]};
     const WI=WIC[side]||(WIC[side]=[]),fresh=!WI.length;if(fresh)for(let k=0;k<=NN;k+=2){const p=C[k],t=T[k],sx=-t.z*side,sz=t.x*side,w0=W(k);
      const ptAt=dT=>{let r=w0+dT;for(let it=0;it<3;it++){const n=G.near(p.x+sx*r,p.z+sz*r,70);if(!n)break;r+=dT-n.d}return [p.x+sx*r,p.z+sz*r]};
      let wi=null;if(k>20&&k<NN-20){const q=ptAt(4);wi=G.wall(q[0],q[1]);if(wi&&wi.t==='fill'&&wi.w<.15)wi=null;if(!wi||wi.t!=='fill'){const n=G.near(q[0],q[1],70);const q2=ptAt(Math.min(n?n.fl:13,11)+2);const w2=G.wall(q2[0],q2[1]);wi=w2&&w2.t==='cut'?w2:null}}
@@ -14563,10 +14572,10 @@ const dx=r[0]-cp.x,dz=r[2]-cp.z,d=Math.hypot(dx,dz);if(d>DF)continue;
       if(yt-yb<2.5)return null;   // too low to be a wall: leave the bank (a flat stone stripe looked wrong)
       return [[b[0],yb,b[1]],[c[0],yt,c[1]]]};
      const emit=(pts,t)=>{const n=P.length/3,startRun=!open;
-      if(startRun)run=[{p0:P.length,u0:UV.length,i0:I.length}];else run.push(1);
+      if(startRun)run=[{p0:P.length,u0:UV.length,i0:I.length,r0:IR.length}];else run.push(1);
       if(last)u+=Math.hypot(pts[0][0]-last[0],pts[0][2]-last[1])/3.2;last=[pts[0][0],pts[0][2]];
       let vv=0;for(let j=0;j<pts.length;j++){P.push(...pts[j]);if(j)vv+=Math.hypot(pts[j][0]-pts[j-1][0],pts[j][1]-pts[j-1][1],pts[j][2]-pts[j-1][2])/3.2;UV.push(u,vv)}
-      if(!startRun){const m=pts.length;for(let j=0;j<m-1;j++){const a0=n-m+j,a1=a0+1,b0=n+j,b1=b0+1;I.push(a0,a1,b0, a1,b1,b0)}}
+      if(!startRun){const m=pts.length,TI=isRock(pts[0][0],pts[0][2])?IR:I;for(let j=0;j<m-1;j++){const a0=n-m+j,a1=a0+1,b0=n+j,b1=b0+1;TI.push(a0,a1,b0, a1,b1,b0)}}
       open=t};
      let pts=wi?mk(wi):null;
      // never let a wall face reach over a road: sample across the face, drop it if any point lies on asphalt (a hairpin's
@@ -14608,8 +14617,8 @@ const dx=r[0]-cp.x,dz=r[2]-cp.z,d=Math.hypot(dx,dz);if(d>DF)continue;
     const n=P.length/3;P.push(x+nx,yb,z+nz, x+nx,yt,z+nz, x-nx,yt,z-nz, x-nx,yb,z-nz);const hv=(yt-yb)/3.2;UV.push(u,0,u,hv,u,hv+.16,u,0);
     if(prevOK){const m=n-4;I.push(m,m+1,n, m+1,n+1,n, m+1,m+2,n+1, m+2,n+2,n+1, m+2,m+3,n+2, m+3,n+3,n+2)}prevOK=true}}
   if(wallMesh){root.remove(wallMesh);wallMesh.geometry.dispose()}wallMesh=null;
-  if(I.length){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(UV,2));g.setIndex(I);g.computeVertexNormals();
-   const wall=new THREE.Mesh(g,wallMat);wall.receiveShadow=true;wall.castShadow=false;wall.name='frWalls';root.add(wall);wallMesh=wall;window.__frWalls=P.length/6}};
+  if(I.length||IR.length){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(UV,2));g.setIndex(I.concat(IR));g.addGroup(0,I.length,0);g.addGroup(I.length,IR.length,1);g.computeVertexNormals();
+   const wall=new THREE.Mesh(g,[wallMat,rockMat]);wall.receiveShadow=true;wall.castShadow=false;wall.name='frWalls';root.add(wall);wallMesh=wall;window.__frWalls=P.length/6}};
   const wallMat=new THREE.MeshLambertMaterial({map:stone,side:THREE.DoubleSide});
   buildWalls();window.__frWallsRebuild=buildWalls;
   // ---- rubber marks through the hairpins: pairs of dark arcs swinging from the outside to the inside of the bend
