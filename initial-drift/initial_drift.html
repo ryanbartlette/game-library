@@ -508,7 +508,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=444',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=445',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -4099,7 +4099,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 444';
+window.__BUILD='BUILD 445';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5596,6 +5596,7 @@ const animeCars=window.animeCars=(()=>{
   if(L.lens)c.model.lensRGB=L.lens;
   if(+L.ride){const rd=+L.ride,root=c.model.root;Promise.resolve().then(()=>{root.position.y+=rd})}
   if(L.lights&&L.lights.tx!=null)c.group.userData.tailSpot={tx:+L.lights.tx,ty:+L.lights.ty,tz:+L.lights.tz};   /* tail-light spot (light trails start here) */
+  if(L.exhaust&&L.exhaust.z!=null)c.group.userData.exhaust={...L.exhaust};else delete c.group.userData.exhaust;   /* (445) the tailpipe(s) for the backfire, set in the Car Garage */
   if(L.lights&&L.lights.x!=null&&c.name==='ae86')Promise.resolve().then(()=>{try{const T=L.lights;canyonHeadlights.forEach((l,i)=>{const sd=i?1:-1;l.position.set(sd*T.x,T.y,T.z);l.target.position.set(sd*T.x*.55,-.55,T.z-(T.aim||32))})}catch(e){}});   /* the AE86's own beams */
   if(L.lights)Promise.resolve().then(()=>{const hs=(typeof rivalHeadlightSets!=='undefined'?rivalHeadlightSets:[]).find(h=>h.body===c.group);
    if(hs)hs.lights.forEach((l,i)=>{const sd=i?1:-1,T=L.lights;l.position.set(sd*T.x,T.y,T.z);l.target.position.set(sd*T.x*.55,-.48,T.z-(T.aim||32))})})}
@@ -5627,9 +5628,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795113923'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795116244'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795113923'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795116244'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -6007,8 +6008,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795113923'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795113923'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795116244'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795116244'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6466,7 +6467,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795113923',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795116244',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6480,7 +6481,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795113923',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795116244',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -7117,7 +7118,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  function useAny(key,gltf,spec){try{(window.__glbSrc=window.__glbSrc||{})[key]={g:gltf,spec};const group=new THREE.Group();group.visible=false;rival.add(group);const set=makeSet();
    spec.key=key;const c=install({group,build:()=>buildAnyGLB(gltf,spec,set),set,blur:[spec.blur??0xc3c8d0,.24],name:key});c.mirrorCabin=!!spec.mirrorCabin;c.spec=spec;c.stdCabin=!!spec.stdCabin;
    {rival.updateWorldMatrix(true,true);const M=new THREE.Matrix4().copy(group.matrixWorld).invert().multiply(rival.matrixWorld);groundFD(c,new THREE.Vector3(0,-.035,0).applyMatrix4(M).y);c.model.root.position.y+=c.model.ride||0}
-   c.key=key;c.lensKind=spec.lensName||(spec.lensHex==='#e6efff'?'led':'warm');EXTRA.push(c);try{const L=spec.lights||{};if(L.tx!=null)group.userData.tailSpot={tx:+L.tx,ty:+L.ty,tz:+L.tz}}catch(e){}try{{const L=spec.lights||{};installRivalHeadlights(group,L.x??.6,L.y??.75,L.z??(-spec.len/2+.1),L.aim??32)}}catch(e){}
+   c.key=key;c.lensKind=spec.lensName||(spec.lensHex==='#e6efff'?'led':'warm');EXTRA.push(c);try{const L=spec.lights||{};if(L.tx!=null)group.userData.tailSpot={tx:+L.tx,ty:+L.ty,tz:+L.tz}}catch(e){}try{if(spec.exhaust&&spec.exhaust.z!=null)group.userData.exhaust={...spec.exhaust}}catch(e){}try{{const L=spec.lights||{};installRivalHeadlights(group,L.x??.6,L.y??.75,L.z??(-spec.len/2+.1),L.aim??32)}}catch(e){}
    window.__extraCars=(window.__extraCars||{});__extraCars[key]=c;dispatchEvent(new CustomEvent('extra-car',{detail:key}));return c}catch(e){console.warn('car '+key,e)}}
  // a downloaded car you can drive (Iketani's S13 in the side stories): built the first time it's picked
  // a parked copy of any of the game's cars, in the same anime look (the course editor's placed cars). The copy shares
@@ -15707,15 +15708,21 @@ html body #courseMenu #driftModeChoices #vsBattle strong{position:relative!impor
 // ============================================================================================
 (()=>{if(typeof spawnTailStreak==='undefined')return;
  spawnTailStreak=function(){};                       // the old cone streaks are switched off
- const MAXP=80,LIFE=.5,spot=new WeakMap();
+ const MAXP=80,LIFE=.36,spot=new WeakMap();
  const coreMat=new THREE.MeshBasicMaterial({vertexColors:true,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,toneMapped:false});
  const glowMat=coreMat.clone();coreMat.userData.cel=glowMat.userData.cel=true;
  function ribbon(mat,w,col){const g=new THREE.BufferGeometry(),P=new Float32Array(MAXP*2*3),C=new Float32Array(MAXP*2*3),I=[];
   for(let i=0;i<MAXP-1;i++){const a=i*2;I.push(a,a+1,a+2,a+1,a+3,a+2)}
   g.setAttribute('position',new THREE.BufferAttribute(P,3));g.setAttribute('color',new THREE.BufferAttribute(C,3));g.setIndex(I);g.setDrawRange(0,0);
   const m=new THREE.Mesh(g,mat);m.frustumCulled=false;m.renderOrder=6;scene.add(m);return {m,g,P,C,w,col}}
+ // (445) the car's own tail lamps (the parts set to TAIL / BRAKE in the Car Garage): each side's lamp centre, on its back face
+ const auto=new WeakMap();function autoSpot(act){const c=auto.get(act);if(c&&(c.p||clock-c.t<3))return c.p;const r={t:clock,p:null};auto.set(act,r);
+  try{act.updateMatrixWorld(true);const inv=new THREE.Matrix4().copy(act.matrixWorld).invert(),B=[new THREE.Box3(),new THREE.Box3()],w=new THREE.Vector3();
+   act.traverse(o=>{if(!o.isMesh||!o.geometry||!o.userData||!/^(tail|brake)$/.test(o.userData.role||''))return;for(let q=o;q&&q!==act;q=q.parent)if(!q.visible)return;const P=o.geometry.attributes.position;if(!P)return;const st=Math.max(1,P.count/300|0);
+    for(let i=0;i<P.count;i+=st){w.fromBufferAttribute(P,i).applyMatrix4(o.matrixWorld).applyMatrix4(inv);if(Math.abs(w.x)<.05||w.z<0)continue;B[w.x<0?0:1].expandByPoint(w)}});
+   if(!B[0].isEmpty()&&!B[1].isEmpty())r.p=B.map(b=>{const c=b.getCenter(new THREE.Vector3());c.z=b.max.z;return c})}catch(e){}return r.p}
  const trails=[];   // per lamp: {pts:[{p,t}], core, glow}
- for(let k=0;k<4;k++)trails.push({pts:[],core:ribbon(coreMat,.045,[1,.2,.15]),glow:ribbon(glowMat,.14,[.6,.05,.06])});
+ for(let k=0;k<4;k++)trails.push({pts:[],core:ribbon(coreMat,.026,[.62,.12,.09]),glow:ribbon(glowMat,.075,[.2,.02,.025])});   /* (445) a faint hint of streaming light, not a solid ribbon: thinner, dimmer, shorter */
  const v=new THREE.Vector3(),tan=new THREE.Vector3(),toC=new THREE.Vector3(),side=new THREE.Vector3();let clock=0,last=performance.now();
  function build(T,R,life){const n=T.pts.length;R.g.setDrawRange(0,n>1?(n-1)*6:0);if(n<2)return;
   for(let i=0;i<n;i++){const q=T.pts[i],a=T.pts[Math.max(0,i-1)].p,b=T.pts[Math.min(n-1,i+1)].p;tan.copy(b).sub(a);if(tan.lengthSq()<1e-8)tan.set(0,0,1);tan.normalize();
@@ -15727,13 +15734,14 @@ html body #courseMenu #driftModeChoices #vsBattle strong{position:relative!impor
  (function tick(){requestAnimationFrame(tick);const now=performance.now(),dt=Math.min(.05,(now-last)/1000)*(window.__timeScale||1);last=now;clock+=dt;
   try{const lightsOn=typeof animeCars==='undefined'||animeCars.lightsOn;
    const live=courseChosen&&!storyActive&&(canyonEvent==='race'||canyonEvent==='time')&&lightsOn&&!(window.animeReplay&&animeReplay.active);
-   const storm=typeof weatherMode!=='undefined'&&weatherMode===3,life=storm?.7:LIFE;
+   const storm=typeof weatherMode!=='undefined'&&weatherMode===3,life=storm?.5:LIFE;
    const actors=[car,(canyonEvent==='race'||!!window.__pracRivalOn)&&rival.visible?rival:null];
    for(let a=0;a<2;a++)for(let s=0;s<2;s++){const T=trails[a*2+s],act=actors[a];
     while(T.pts.length&&clock-T.pts[0].t>life)T.pts.shift();
     if(live&&act&&act.visible!==false||live&&act===car){const fast=a===0?Math.abs(speed)>4:Math.abs(typeof rivalSpeed==='number'?rivalSpeed:10)>4;
      if(fast){let p=null;{const c=spot.get(act);let e=c&&clock-c.t<1?c:null;if(!e){e={t:clock,G:null,TS:null};act.traverse(o=>{if(!e.G&&o.userData&&o.userData.tailSpot&&o.visible){let ok=true;for(let q=o;q&&q!==act;q=q.parent)if(!q.visible)ok=false;if(ok){e.G=o;e.TS=o.userData.tailSpot}}});spot.set(act,e)}
       if(e.G)p=e.G.localToWorld(v.set((s===0?-1:1)*e.TS.tx,e.TS.ty,e.TS.tz)).clone()}   /* from the tail-light halo spot set in the Car Garage */
+      if(!p){const A=autoSpot(act);if(A)p=act.localToWorld(v.copy(A[s])).clone()}   /* (445) no spot set: the middle of the car's own tail lamps */
       if(!p)p=act.localToWorld(v.set(s===0?-.66:.66,.86,2.29)).clone();const lp=T.pts[T.pts.length-1];
       if(!lp||lp.p.distanceTo(p)>.18){T.pts.push({p,t:clock});if(T.pts.length>MAXP)T.pts.shift()}else lp.p.copy(p)}}
     else if(!live)T.pts.length=0;
@@ -19173,7 +19181,7 @@ const animeFlames=window.animeFlames=(()=>{
  const pool=[];const live=[];
  function flame(){let f=pool.pop();if(!f){const mk=g=>new THREE.Mesh(g,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,fog:false}));
    const grp=new THREE.Group(),a=mk(geoV),b=mk(geoH),gl=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));
-   grp.add(a,b,gl);grp.renderOrder=5;a.renderOrder=b.renderOrder=gl.renderOrder=5;f={grp,a,b,gl}}return f}
+   grp.add(a,b,gl);grp.renderOrder=8;a.renderOrder=b.renderOrder=gl.renderOrder=8;   /* (445) over the tail-light trails */f={grp,a,b,gl}}return f}
  // where the tailpipe is: the back of the car's own body, low down, a little to one side (measured once per car model)
  const tip=new Map(),_m=new THREE.Matrix4(),_v=new THREE.Vector3();
  function pipe(obj){if(!obj)return null;let r=tip.get(obj.uuid);if(r&&r.n===obj.children.length)return r.p;
@@ -19183,26 +19191,42 @@ const animeFlames=window.animeFlames=(()=>{
     if(Math.abs(_v.x)>3||Math.abs(_v.z)>4||_v.y>3)continue;ok=true;zMax=Math.max(zMax,_v.z);yMin=Math.min(yMin,_v.y);xMin=Math.min(xMin,_v.x);xMax=Math.max(xMax,_v.x)}});
   const p=ok?new THREE.Vector3(xMin+(xMax-xMin)*.3,yMin+.3,zMax-.08):new THREE.Vector3(-.45,.35,2.1);tip.set(obj.uuid,{p,n:obj.children.length});return p}
  // a burst: k ~0.4 (a shift) up to ~1.6 (a big bang on the overrun)
- function fire(obj,k=1){try{if(!obj||!obj.visible||typeof scene==='undefined')return;if(window.__photoOn)return;
-  const p=pipe(obj);if(!p)return;const f=flame(),ws=new THREE.Vector3();obj.getWorldScale(ws);const inv=1/Math.max(.05,ws.x||1);
+ // (445) the Car Garage's EXHAUST setting: {x,y,z (car-local metres, +z = back), twin, tilt (deg, + = down), size}
+ function spec(obj){let S=null,G=null;obj.traverse(o=>{if(!S&&o.userData&&o.userData.exhaust){S=o.userData.exhaust;G=o}});return S?{S,G}:null}
+ // flash: one orange light per car, always in the scene (so the shaders never change), lit for a moment by each bang
+ const flashes=new Map();function flashFor(obj){let L=flashes.get(obj);if(!L&&typeof scene!=='undefined'&&flashes.size<3){L=new THREE.PointLight(0xff7a1a,0,7,1.6);L.userData.keep=true;scene.add(L);flashes.set(obj,L)}return L}
+ try{if(typeof scene!=='undefined'){if(typeof car!=='undefined')flashFor(car);if(typeof rival!=='undefined')flashFor(rival)}}catch(e){}
+ const pend=[];
+ function fire(obj,k=1,follow=true){try{if(!obj||!obj.visible||typeof scene==='undefined')return;if(window.__photoOn)return;
+  const sp=spec(obj),host=sp?sp.G:obj,size=sp?(+sp.S.size||1):1,tilt=sp?(+sp.S.tilt||0)*Math.PI/180:0;
+  const pts=sp?[new THREE.Vector3(+sp.S.x||0,+sp.S.y||.3,+sp.S.z)]:[pipe(obj)];if(!pts[0])return;if(sp&&sp.S.twin)pts.push(new THREE.Vector3(-pts[0].x,pts[0].y,pts[0].z));
+  const ws=new THREE.Vector3();host.getWorldScale(ws);const inv=1/Math.max(.05,ws.x||1);
   // only one flame per pipe at a time: a new pop relights it bigger instead of stacking
-  for(let i=live.length-1;i>=0;i--)if(live[i].obj===obj){const o=live[i];o.obj.remove(o.f.grp);pool.push(o.f);live.splice(i,1)}
-  f.grp.position.copy(p);f.grp.scale.setScalar(inv);obj.add(f.grp);
-  live.push({f,obj,t:0,life:.09+.07*k+Math.random()*.05,L:.35+.45*k,W:.16+.12*k});
-  if(k>.9)try{window.__padRumble&&obj===car&&__padRumble(.08,.25,60)}catch(e){}}catch(e){}}
- window.__exFlame=fire;window.__exFlameTest=k=>{fire(car,k);return live.length};
+  for(let i=live.length-1;i>=0;i--)if(live[i].obj===obj){const o=live[i];o.host.remove(o.f.grp);pool.push(o.f);live.splice(i,1)}
+  // (445) a proper anime bang: a long tongue of fire (about a metre on a big one) that hangs for a quarter of a second
+  const life=.16+.1*k+Math.random()*.06,Lm=(.5+.5*k)*size,Wm=(.2+.16*k)*size;
+  pts.forEach((p,j)=>{const f=flame();f.grp.position.copy(p);f.grp.rotation.set(tilt,0,0);f.grp.scale.setScalar(inv);host.add(f.grp);live.push({f,obj,host,t:0,life,L:Lm,W:Wm,lead:j===0,k})});
+  if(k>.85&&follow){const n=1+(Math.random()<.5?1:0);for(let q=0;q<n;q++)pend.push({obj,k:k*(.55+Math.random()*.25),at:performance.now()+90+q*110+Math.random()*60})}   // a crackle of smaller pops after a big one
+  if(k>.9)try{window.__padRumble&&obj===car&&__padRumble(.1,.3,70)}catch(e){}}catch(e){}}
+ window.__exFlame=fire;window.__exPipeGuess=pipe;window.__exFlameTest=k=>{fire(car,k);return live.length};window.__exFlames={fire,live};
  // shifts: you and the rival
- let pg=null,rg=null,last=performance.now();
+ let pg=null,rg=null,rsp=null,last=performance.now();
  (function tick(now){requestAnimationFrame(tick);const dt=Math.min(.05,(now-last)/1000)*(window.__timeScale||1);last=now;
   try{const racing=typeof courseChosen!=='undefined'&&courseChosen&&!finished&&!(typeof storyActive!=='undefined'&&storyActive)&&countdown<=0;
-   if(typeof gearNumber==='number'){if(racing&&pg!=null&&gearNumber!==pg&&Math.abs(speed)>6)fire(car,gearNumber>pg?.5+.3*Math.random():.65+.35*Math.random());pg=gearNumber}
-   if(typeof rivalGear==='number'&&typeof rival!=='undefined'){if(racing&&rg!=null&&rivalGear!==rg&&rival.visible&&rivalSpeed>6)fire(rival,rivalGear>rg?.5:.7);rg=rivalGear}}catch(e){}
+   if(typeof gearNumber==='number'){if(racing&&pg!=null&&gearNumber!==pg&&Math.abs(speed)>6)fire(car,gearNumber>pg?.55+.3*Math.random():.95+.3*Math.random());pg=gearNumber}   /* downshifts bang */
+   if(typeof rivalGear==='number'&&typeof rival!=='undefined'){if(racing&&rg!=null&&rivalGear!==rg&&rival.visible&&rivalSpeed>6)fire(rival,rivalGear>rg?.6:1.05);rg=rivalGear
+    // his overrun: lifting into a corner at speed
+    if(racing&&rival.visible&&typeof rivalSpeed==='number'){const dv=(rsp==null?0:rsp-rivalSpeed)/Math.max(.001,dt);if(dv>4&&rivalSpeed>12&&Math.random()<dt*2.2)fire(rival,.8+Math.random()*.4)}rsp=typeof rivalSpeed==='number'?rivalSpeed:null}
+   // on the line, holding it on the limiter before the lights: the odd bang
+   {const onLine=typeof courseChosen!=='undefined'&&courseChosen&&typeof countdown!=='undefined'&&countdown>0&&countdown<3.5&&!finished&&typeof engineRPM==='number'&&engineRPM>6300;if(onLine&&Math.random()<dt*2.4)fire(car,.75+Math.random()*.35,false)}
+   for(let i=pend.length-1;i>=0;i--)if(performance.now()>=pend[i].at){const q=pend[i];pend.splice(i,1);fire(q.obj,q.k,false)}}catch(e){}
   for(let i=live.length-1;i>=0;i--){const o=live[i],f=o.f;o.t+=dt;const u=o.t/o.life;
-   if(u>=1||!o.obj.visible){o.obj.remove(f.grp);pool.push(f);live.splice(i,1);continue}
+   if(u>=1||!o.obj.visible){o.host.remove(f.grp);pool.push(f);live.splice(i,1);if(o.lead){const Lf=flashes.get(o.obj);if(Lf&&!live.some(q=>q.obj===o.obj))Lf.intensity=0}continue}
    // shoots out to full length almost at once, flickers, then shrinks back into the pipe
-   const env=u<.18?u/.18:Math.pow(1-(u-.18)/.82,.7),fl=.8+.4*Math.random(),L=o.L*env*fl,Wd=o.W*(.7+.3*env)*(.85+.3*Math.random());
+   const env=u<.12?u/.12:u<.45?1:Math.pow(1-(u-.45)/.55,.8),fl=.82+.36*Math.random(),L=o.L*env*fl,Wd=o.W*(.7+.3*env)*(.85+.3*Math.random());   /* (445) out at once, holds, then dies back */
    f.a.scale.set(1,Wd,L);f.b.scale.set(Wd*.85,1,L*.92);f.a.material.opacity=f.b.material.opacity=Math.min(1,.4+env);
-   f.gl.scale.setScalar(o.W*1.3*(.6+.4*env));f.gl.material.opacity=.6*env;f.gl.position.set(0,0,.04)}})(last);
+   f.gl.scale.setScalar(o.W*2.8*(.6+.4*env));f.gl.material.opacity=.85*env;f.gl.position.set(0,0,.06);
+   if(o.lead){const Lf=flashFor(o.obj);if(Lf){f.grp.getWorldPosition(Lf.position);const day=Math.max(0,Math.min(1,window.__dayK??((typeof animeCars!=='undefined'&&animeCars.lightsOn)?0:1)));Lf.intensity=env*(2+5*(1-day))*Math.min(1.4,o.k)*fl}}}})(last);   /* the bang lights up the bumper and the road */
  return {fire,live}})();
 
 // ============================================================================
