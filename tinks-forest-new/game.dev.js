@@ -15566,10 +15566,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 591;
+const BUILD = 592;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 159;
+const LOOKV = 160;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -18817,7 +18817,10 @@ if(!x && !z)return null;
 {
 const PD = window.__PAD;
 if(PD && PD.mode && PD.mag > 0 &&(P.povK || 0)> 0.5 && P.povUser){
-if(Math.abs(z)< 0.45)return null;
+const fm = Math.abs(z)* PD.mag;
+P.povWalk = P.povWalk ? fm > 0.26 : fm > 0.4;
+PD.povMag = P.povWalk ? clamp(fm,0.2,1): 0;
+if(!P.povWalk)return null;
 const f = new V3(-Math.sin(cam.yaw),0,-Math.cos(cam.yaw));
 return z < 0 ? f.negate(): f;
 }
@@ -19814,7 +19817,7 @@ label = P.dashing ? 'Zoomies!' : 'Run';
 target = T.walk;
 label = 'Walk';
 }else if(window.__PAD && window.__PAD.mode && window.__PAD.mag > 0){
-const m = window.__PAD.mag;
+const m = P.povUser &&(P.povK || 0)> 0.5 && window.__PAD.povMag ? window.__PAD.povMag : window.__PAD.mag;
 if(m < 0.62){
 target = T.walk * lerp(0.3,1,smooth(0.2,0.62,m));
 label = 'Walk';
@@ -64360,17 +64363,17 @@ ry = PAD.lookY;
 }
 if(Math.abs(rx)> 0.01 || Math.abs(ry)> 0.01)window.__padLookT = performance.now();
 {
-const on = P.povUser &&(P.povK || 0)> 0.5 && P.mode === 'ground' && !window.__sceneOn && lookOK();
+const on = P.povUser &&(P.povK || 0)> 0.5 && P.mode !== 'climb' && !window.__sceneOn && lookOK();
 let tx = 0;
 if(on){
 const lx0 = ax[0]|| 0,
 ax0 = Math.abs(lx0),
 XDZ = 0.24,
 rm = ax0 > XDZ ? Math.min(1,(ax0 - XDZ)/(RIM - XDZ)): 0,
-cm = rm * rm *(0.35 + 0.65 * rm);
+cm = rm *(0.7 + 0.3 * rm);
 tx = Math.sign(lx0)* cm;
 }
-const k = 1 - Math.exp(-dt / 0.07);
+const k = 1 - Math.exp(-dt / 0.12);
 PAD.lookXL =(PAD.lookXL || 0)+(tx -(PAD.lookXL || 0))* k;
 if(on && Math.abs(PAD.lookXL)> 1e-4){
 cam.yaw -= PAD.lookXL * 3.3 *(OPT.padSens ?? 1)* dt;
