@@ -15411,10 +15411,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 590;
+const BUILD = 591;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 158;
+const LOOKV = 159;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
