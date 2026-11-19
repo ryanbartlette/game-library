@@ -508,7 +508,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=439',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=440',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -4094,7 +4094,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 439';
+window.__BUILD='BUILD 440';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5617,9 +5617,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795073807'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795077302'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795073807'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795077302'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -5994,8 +5994,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795073807'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795073807'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795077302'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795077302'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6453,7 +6453,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795073807',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795077302',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6467,7 +6467,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795073807',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795077302',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -9778,10 +9778,20 @@ let pad=null,was=[],navT={},toastT=0;
  const inRace=()=>{try{return typeof courseChosen!=='undefined'&&courseChosen&&!finished&&!window.__gamePaused&&!(typeof storyActive!=='undefined'&&storyActive)&&!window.__charSelect&&!(()=>{const m=document.getElementById('manga');return m&&m.style.display==='block'})()&&!(()=>{const c=document.getElementById('ctrlScr');return c&&getComputedStyle(c).display!=='none'&&getComputedStyle(c).visibility!=='hidden'&&c.classList.contains('on')})()}catch(e){return false}};   /* (a story page or the controls screen open: menu buttons) */
  // menu movement from the stick / D-pad: one step, then repeats while held
  const nav=(code,on,t)=>{const n=navT[code];if(!on){navT[code]=null;return}if(n==null){tap(code);navT[code]=t+.38}else if(t>=n){tap(code);navT[code]=t+.12}};
- const toast=msg=>{let d=document.getElementById('padToast');if(!d){d=document.createElement('div');d.id='padToast';d.style.cssText='position:fixed;left:50%;bottom:9%;transform:translateX(-50%);z-index:2147483000;padding:.55em 1.2em;background:#16151bcc;color:#fff;font:400 clamp(14px,1.6vw,22px)/1.2 Bangers,Bangers,Impact,sans-serif;letter-spacing:.08em;border:2px solid #fff;pointer-events:none;transition:opacity .4s';document.body.appendChild(d)}
-  d.textContent=msg;d.style.opacity='1';clearTimeout(toastT);toastT=setTimeout(()=>d.style.opacity='0',2600)};
- addEventListener('gamepadconnected',e=>toast('CONTROLLER CONNECTED · '+((e.gamepad&&e.gamepad.id)||'').replace(/\(.*$/,'').trim().slice(0,40)));
- addEventListener('gamepaddisconnected',()=>{releaseAll();toast('CONTROLLER DISCONNECTED · PRESS ANY BUTTON TO RECONNECT')});
+ const toast=(msg,ms)=>{let d=document.getElementById('padToast');if(!d){d=document.createElement('div');d.id='padToast';d.style.cssText='position:fixed;left:50%;bottom:9%;transform:translateX(-50%);z-index:2147483000;padding:.55em 1.2em;background:#16151bcc;color:#fff;font:400 clamp(14px,1.6vw,22px)/1.2 Bangers,Bangers,Impact,sans-serif;letter-spacing:.08em;border:2px solid #fff;pointer-events:none;transition:opacity .4s';document.body.appendChild(d)}
+  d.textContent=msg;d.style.opacity='1';clearTimeout(toastT);toastT=setTimeout(()=>d.style.opacity='0',ms||2600)};
+ // (build 440) the browser reports pads coming and going in bursts (every page load, and some pads show up twice),
+ // so the toasts follow what the game actually sees, and only once it has settled: "disconnected" only after ~2 s
+ // without the pad, "connected" only when it comes back after a real gap. A pad used before gets a quiet nudge
+ // after each load ("press any button"), since a new page can't see it until you touch it.
+ const nm=p=>((p&&p.id)||'').replace(/\(.*$/,'').trim().slice(0,40);
+ let padIdx=-1,seenAt=-1e9,lostAt=null,announced=false,hinted=false,usedBefore=false;try{usedBefore=localStorage.getItem('idPadSeen')==='1'}catch(e){}
+ const t0=performance.now();
+ let lostN=0;const padState=(p,now)=>{if(p){lostN=0;if(lostAt!=null&&lostAt<0)toast('CONTROLLER CONNECTED · '+nm(p));   /* back after we said it was gone */else if(!announced&&!usedBefore)toast('CONTROLLER CONNECTED · '+nm(p));
+   if(hinted){hinted=false;toast('CONTROLLER READY')}announced=true;lostAt=null;seenAt=now;if(!usedBefore){usedBefore=true;try{localStorage.setItem('idPadSeen','1')}catch(e){}}return}
+  if(announced){lostN++;if(lostAt==null)lostAt=now;else if(lostAt>0&&now-lostAt>2000&&lostN>20){   /* gone for 2 s and 20+ frames (a stalled page isn't a lost pad) */toast('CONTROLLER DISCONNECTED · PRESS ANY BUTTON TO RECONNECT');lostAt=-lostAt}}   /* (negative: told once) */
+  else if(usedBefore&&!hinted&&now-t0>2500&&!document.getElementById('frLoading')&&!window.__padKbd){hinted=true;toast('PRESS ANY BUTTON ON YOUR CONTROLLER TO CONNECT',8000)}};
+ addEventListener('keydown',e=>{if(e.isTrusted)window.__padKbd=1},true);
  addEventListener('blur',releaseAll);
  // a little rumble (the game can call it: window.__padRumble(strong 0-1, weak 0-1, ms))
  // ---- RUMBLE · the big motor (strong) is for weight: hits, landings, the grass; the small one (weak) for texture: tyres
@@ -9849,7 +9859,9 @@ window.__padRumble=(s,w,ms)=>bursts.push({s:s||0,w:w||0,lt:0,rt:0,t0:performance
  addEventListener('keydown',e=>{if(e.isTrusted)setDev(false)},true);addEventListener('mousedown',e=>{if(e.isTrusted)setDev(false)},true);
  let viewT=null;
  function frame(){requestAnimationFrame(frame);
-  const pads=navigator.getGamepads?navigator.getGamepads():[];pad=null;for(const p of pads)if(p&&p.connected&&p.buttons&&p.buttons.length>=12){pad=p;break}
+  const pads=navigator.getGamepads?navigator.getGamepads():[];pad=null;const ok=p=>p&&p.connected&&p.buttons&&p.buttons.length>=12;
+  if(padIdx>=0&&ok(pads[padIdx]))pad=pads[padIdx];else{for(const p of pads)if(ok(p)&&p.mapping==='standard'){pad=p;break}if(!pad)for(const p of pads)if(ok(p)){pad=p;break}padIdx=pad?pad.index:-1}
+  padState(pad,performance.now());
   if(!pad){window.__padRaw=null;if(Object.values(held).some(Boolean))releaseAll();return}
   const t=performance.now()/1000,B=pad.buttons.map(b=>b&&(b.pressed||b.value>.5)),V=pad.buttons.map(b=>b?b.value:0),A=pad.axes||[];
   const ax=i=>{const v=A[i]||0;return Math.abs(v)<DZ?0:(v-Math.sign(v)*DZ)/(1-DZ)};
