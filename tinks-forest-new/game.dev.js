@@ -2130,7 +2130,7 @@ WC_GLSL
     float lum0=dot(c,vec3(.3,.59,.11));soil*=.75+.6*smoothstep(.05,.4,lum0);c=mix(c,soil*(.9+.2*gran),bare*.85);}}
   /* FOREST 105 (Ryan: the trails showed snowflake-shaped cut-outs): in winter the ground itself turns white under the drifts, and the
      paths get a light, patchy painted dusting; it whitens bit by bit with the season, and trodden snow shows a cool blue */
-  if(uSnowGG>.001){float gm=gmSoft(p);float bare=1.-smoothstep(.07,.14,gm);/* (Build 584: the ground's paths are as in 580 again: the trails are already bare in the meadow map, so reading the snow map here only changed the stream banks) *//* FOREST 116 (Ryan: the ground went white all at once): flakes settle first as scattered specks, then gather into patches that join up as the season turns */float thrG=wcN(p*4.1)*.55+wcN(p*.9)*.35+.05;float sgk=smoothstep(thrG-.05,thrG+.18,uSnowGG*1.1)*mix(.55,1.,smoothstep(.3,1.,uSnowGG));
+  if(uSnowGG>.001){float gm=gmSoft(p);float bare=1.-smoothstep(.07,.14,gm);/* (Build 584: the ground's paths are as in 580 again: the trails are already bare in the meadow map, so reading the snow map here only changed the stream banks) *//* FOREST 116 (Ryan: the ground went white all at once): flakes settle first as scattered specks, then gather into patches that join up as the season turns */float thrG=wcN(p*4.1)*.55+wcN(p*.9)*.35+.05;float sgk=smoothstep(0.,1.,uSnowGG);/* (Build 588, Ryan: one smooth crossfade of the whole ground at once, never patchy part-snow part-grass): the ground whitens evenly everywhere together */
    vec3 sc=mix(vec3(.83,.87,.97),vec3(.965,.975,1.),smoothstep(.3,.7,wcF(p*.35)));sc*=.97+.06*gran;
    float dust=smoothstep(.38,.62,wcF(p*.7+3.))*.55+.1;/* (Build 572: the wheat field is snow-covered, not a trodden path) */bare*=1.-inWheat(p);float cov=sgk*mix(.97,dust,bare);/* (Build 584, Ryan: the paths looked better with a bit of snow on them: the usual light dusting again) *//* FOREST 117 (Ryan liked the worn, shadowed trail): every path is the same well-travelled track: a thin patchy dusting in cool shadow */sc=mix(sc,vec3(.5,.56,.75),bare*.5);/* (FOREST 105, Ryan: the Great Tree's hollow stays warm and dry) */if(uGTreeG.z>0.)cov*=smoothstep(uGTreeG.z,uGTreeG.z+.8,length(p-uGTreeG.xy));
    float tr=texture2D(uSnowTG,(p+uWorldG*.5)/uWorldG).r;sc=mix(sc,vec3(.46,.53,.76),smoothstep(.06,.8,tr)*.75*(1.-bare));
@@ -4470,13 +4470,13 @@ if(uSnowG>.01){float thr=.8*rk+.2*gvn(wp*.23);float sG=smoothstep(thr-.12,thr+.1
  float th2=aSn.x+aOff.w+aSn.y*(3.14159/7.)*1.35*(1.-aSn.z);float rr2=R*(1.-aSn.z);
  vec2 q=vec2(cos(th2),sin(th2))*rr2;float u2=clamp(rr2/R,0.,1.);float dome=Hs*(1.-u2*u2)*(1.-.35*u2*u2);
  vec3 sn=vec3(q.x,dome+.004,q.y);
- lp=mix(lp,sn,sG);lp*=mix(1.,smoothstep(.004,.025,Hs),sG);/* FOREST 140 (Ryan's real snow layer): with the snow blanket on, the tuft just sinks away beneath it */if(uSnowLay>.5){lp*=1.-smoothstep(.05,.7,sG);lp*=1.-smoothstep(mix(.14,.04,uScene),mix(.46,.24,uScene),uSnowG);vSG=0.;}/* (Build 581, Ryan: from high up the patch of green round Tink stayed too long once the land was white): the tufts go under sooner, and sooner still in a scene, where the camera is up high *//* (Build 580, Ryan: a square of grass left standing once the ground was white): every tuft is under by the time the snow has settled, wherever it grows *//* FOREST 117 (Ryan: star shapes along the paths): where there's no snow to speak of (a path's edge) the tuft simply isn't there, leaving the ground's own dusting */vSnH=clamp(1.-u2*u2,0.,1.);
+ lp=mix(lp,sn,sG);lp*=mix(1.,smoothstep(.004,.025,Hs),sG);/* FOREST 140 (Ryan's real snow layer): with the snow blanket on, the tuft just sinks away beneath it */if(uSnowLay>.5){lp*=1.-smoothstep(.05,.7,sG);lp*=1.-smoothstep(0.,1.,uSnowG);/* (Build 588, Ryan: the grass goes down evenly as the snow comes in, all in one crossfade) */vSG=0.;}/* (Build 581, Ryan: from high up the patch of green round Tink stayed too long once the land was white): the tufts go under sooner, and sooner still in a scene, where the camera is up high *//* (Build 580, Ryan: a square of grass left standing once the ground was white): every tuft is under by the time the snow has settled, wherever it grows *//* FOREST 117 (Ryan: star shapes along the paths): where there's no snow to speak of (a path's edge) the tuft simply isn't there, leaving the ground's own dusting */vSnH=clamp(1.-u2*u2,0.,1.);
  vColor.rgb=mix(vColor.rgb,vec3(.96,.975,1.),sG);vSW=wp+lp.xz;}}
 vec3 transformed=vec3(wp.x,texture2D(uHeight,tuv).r,wp.y)+lp;/* FOREST 105 (Ryan: on slopes the snow stacked in flat plates): each point of a mound sits on the ground right beneath it, so the drifts follow the slope */if(vSG>.001)transformed.y=mix(transformed.y,texture2D(uHeight,(wp+lp.xz+uWorld*.5)/uWorld).r+lp.y,vSG);vGW=vec3(wp.x,aT,wp.y);vShade=.8+.4*fract(sin(dot(aOff.xy,vec2(12.9898,78.233)))*43758.5);`
 )
 .replace(
 '#include <color_vertex>',
-'#include <color_vertex>\nfloat gsh=.85+.3*fract(sin(dot(aOff.xy,vec2(12.9898,78.233)))*43758.5);vColor.rgb=mix(uGBase,uGTip,pow(aT,.85))*gsh;vColor.rgb=mix(vColor.rgb,mix(vec3(.86,.9,.97),vec3(.98,.99,1.),pow(aT,.5))*(.97+.03*gsh),uSnowLay>.5?uSnowG*.45*pow(aT,1.6):uSnowG);/* (Build 577: under the snow layer the grass keeps its colour, only its tips frosting, and sinks as the snow rises round it) */'
+'#include <color_vertex>\nfloat gsh=.85+.3*fract(sin(dot(aOff.xy,vec2(12.9898,78.233)))*43758.5);vColor.rgb=mix(uGBase,uGTip,pow(aT,.85))*gsh;vColor.rgb=mix(vColor.rgb,mix(vec3(.86,.9,.97),vec3(.98,.99,1.),pow(aT,.5))*(.97+.03*gsh),uSnowLay>.5?0.:uSnowG);/* (Build 577: under the snow layer the grass keeps its colour, only its tips frosting, and sinks as the snow rises round it) */'
 );
 sh.vertexShader = sh.vertexShader.replace(
 '#include <beginnormal_vertex>',
@@ -15566,10 +15566,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 588;
+const BUILD = 589;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 156;
+const LOOKV = 157;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -25482,6 +25482,42 @@ updateWet(dt);
 }catch(e){}
 try{
 DRIPS(dt);
+}catch(e){}
+try{
+const ww = window.__wellWater;
+if(ww){
+const k = Math.min(1,grassU.uSnowG.value);
+if(!ww.userData.c0)ww.userData.c0 =[ww.color.clone(),ww.emissive.clone(),ww.roughness,ww.opacity];
+const[c0,e0,r0,o0]= ww.userData.c0;
+ww.color.copy(c0).lerp(new THREE.Color(0xd6e8f2),k);
+ww.emissive.copy(e0).lerp(new THREE.Color(0x40586a),k);
+ww.roughness = r0 +(0.35 - r0)* k;
+ww.opacity = o0 +(1 - o0)* k;
+}
+}catch(e){}
+try{
+for(const pl of POOLS){
+if(!pl.well)continue;
+for(const PP of[P,typeof comp !== 'undefined' && comp && comp.P]){
+if(!PP || !PP.pos)continue;
+const dx = PP.pos.x - pl.x,
+dz = PP.pos.z - pl.z,
+d = Math.hypot(dx,dz);
+if(d > pl.r + 0.6 || PP.pos.y >(pl.lip ?? pl.lvl + 0.42)- 0.08)continue;
+const lim = Math.max(0.05,pl.r - 0.2);
+if(d > lim){
+PP.pos.x = pl.x +(dx / d)* lim;
+PP.pos.z = pl.z +(dz / d)* lim;
+for(const v of[PP.vel,PP.v,PP.slide])if(v && typeof v.x === 'number'){
+const out =(v.x * dx + v.z * dz)/ d;
+if(out > 0){
+v.x -=(dx / d)* out;
+v.z -=(dz / d)* out;
+}
+}
+}
+}
+}
 }catch(e){}
 const on = false;
 if(!AUD.ctx || !AUD.on){
@@ -36841,13 +36877,14 @@ transparent: true,
 opacity: 0.88
 });
 M.wellWater = wm;
+window.__wellWater = wm;
 const wy = wb.max.y - 0.42;
 const wd = new THREE.Mesh(new THREE.CircleGeometry(rin,32),wm);
 wd.rotation.x = -Math.PI / 2;
 wd.position.set(wc.x,wy,wc.z);
 wd.receiveShadow = true;
 scene.add(wd);
-POOLS.push({x: wc.x,z: wc.z,r: rin,lvl: wy,well: true});
+POOLS.push({x: wc.x,z: wc.z,r: rin,lvl: wy,well: true,lip: wb.max.y});
 }
 }else{
 const stone = tintMat(new THREE.MeshStandardMaterial({color: 0x8c8c80,roughness: 1}),'well');
@@ -52906,16 +52943,22 @@ cy.hold = true;
 const pan =
 t =>{
 const u = clamp((t - 14.4)/ 7.6,0,1);
-const ang = Math.atan2(fw.z,fw.x)+ 0.5 + u * 1.3;
+const inw = new V3(-c.x,0,-c.z);
+if(inw.lengthSq()< 1e-4)inw.set(0,0,1);
+inw.normalize();
+const sdw = new V3(-inw.z,0,inw.x);
 const p = c
 .clone()
-.add(new V3(Math.cos(ang)* 15,6.5 + 2 * Math.sin(u * Math.PI),Math.sin(ang)* 15));
+.addScaledVector(inw,6)
+.addScaledVector(sdw,(u - 0.5)* 12)
+.add(up(15 + 4 * Math.sin(u * Math.PI)));
 return[
 p,
 c
 .clone()
-.add(up(1.2))
-.addScaledVector(sd,Math.sin(u * Math.PI)* 3)
+.addScaledVector(inw,34)
+.addScaledVector(sdw,(u - 0.5)* 6)
+.add(up(-1))
 ];
 };
 D.cut({
@@ -55020,7 +55063,7 @@ float snD(vec2 p){
  grow=max(grow,smoothstep(80.,84.,length(p)));/* (Build 581: the world's edge is round) *//* (Build 578: right at the world's edge it is all snow; Build 580: only the very rim, the beanstalk glade sits out near the edge and was being buried) */
 #endif
  float thr=snN(p*4.1)*.55+snN(p*.9)*.35+.05;
- float cov=smoothstep(thr-.25,thr+.35,uSnowG*1.25)*smoothstep(.0,.8,uSnowG)*mix(.3,1.,smoothstep(.25,1.,uSnowG));/* (Build 577: a thin dusting in patches first, spreading and deepening slowly, with wide soft edges so nothing pops in) */
+ float cov=smoothstep(0.,1.,uSnowG);/* (Build 588, Ryan: the snow fades in evenly everywhere at once, with the ground and the grass) *//* (Build 577: a thin dusting in patches first, spreading and deepening slowly, with wide soft edges so nothing pops in) */
  float drift=.5+.5*snF(p*.33)+.1*snN(p*2.3);
  float trS=(snTr(p)*2.+snTr(p+vec2(.16,0.))+snTr(p-vec2(.16,0.))+snTr(p+vec2(0.,.16))+snTr(p-vec2(0.,.16)))/6.;/* (Build 578: the trench's walls slope over a hand's width, rounded, never a sheer step) */
  float dent=1.-.86*smoothstep(.04,.75,trS);
