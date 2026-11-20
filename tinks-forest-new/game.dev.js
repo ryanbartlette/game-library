@@ -15568,10 +15568,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 595;
+const BUILD = 596;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 163;
+const LOOKV = 164;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -22619,16 +22619,7 @@ cam.yaw += angDiff(cam.yaw,P.yaw + Math.PI)*(1 - Math.exp(-dt * 2.2 * k));
 if(P.povUser && k > 0.5 && !(TR &&(TR.cs || TR.wonder || TR.hes))){
 const rel = angDiff(P.yaw + Math.PI,cam.yaw);
 if(window.__PAD && window.__PAD.mode && P.mode !== 'climb' && !P.script){
-if(!P._povPad){
-P._povPad = true;
-P.povHead = clamp(rel,-0.9,0.9);
-}
-const idle = performance.now()-(window.__padHeadT || 0);
-if(idle > 700){
-const kb = 1 - Math.exp(-dt * 1.6);
-P.povHead =(P.povHead || 0)*(1 - kb);
-if(P.speed > 0.3)P.povPitch = lerp(P.povPitch ?? 0.04,0.04,kb);
-}
+if(!P._povPad)P._povPad = true;
 cam.yaw = P.yaw + Math.PI +(P.povHead || 0);
 }else if(false){
 const lim = 0.7;
@@ -64480,12 +64471,27 @@ inv = OPT.padInv ? -1 : 1;
 const boost = 1 + 0.45 * smooth(0.2,0.6,PAD.rimT || 0);
 const headPov =(P.povK || 0)> 0.5 && P.povUser && P.mode !== 'climb';
 if(headPov){
-if(!window.__sceneOn)P.povHead = clamp((P.povHead || 0)- cv(rx)* 3.3 * sens * dt,-0.9,0.9);
-if(Math.abs(rx)> 0.02 || Math.abs(ry)> 0.02)window.__padHeadT = performance.now();
 }else if(!window.__sceneOn)cam.yaw -= cv(rx)* 3.3 * sens * boost * dt;
-if((P.povK || 0)> 0.5){
+if((P.povK || 0)> 0.5 && !headPov){
 P.povPitch = clamp((P.povPitch ?? 0.04)+ inv * cv(ry)* 2.0 * sens * dt,-1.45,0.72);
 }else cam.pitch = clamp(cam.pitch + inv * cv(ry)* 2.0 * sens * dt,-0.35,1.2);
+}
+{
+const headPov = P.povUser &&(P.povK || 0)> 0.5 && P.mode !== 'climb' && !window.__sceneOn && lookOK();
+const hx0 = headPov ? ax[2]|| 0 : 0,
+hy0 = headPov ? ax[3]|| 0 : 0;
+const hr = Math.hypot(hx0,hy0),
+hm = hr > DZ ? Math.min(1,(hr - DZ)/(RIM - DZ)): 0;
+const hx = hr > 0 ?(hx0 / hr)* hm : 0,
+hy = hr > 0 ?(hy0 / hr)* hm : 0;
+const kh = 1 - Math.exp(-dt / 0.08);
+PAD.headX =(PAD.headX || 0)+(hx -(PAD.headX || 0))* kh;
+PAD.headY =(PAD.headY || 0)+(hy -(PAD.headY || 0))* kh;
+if(headPov){
+P.povHead = -PAD.headX * 0.9;
+const py =(OPT.padInv ? -1 : 1)* PAD.headY;
+P.povPitch = 0.04 +(py > 0 ? py * 0.68 : py * 1.0);
+}
 }
 prevB = btn;
 feel();
