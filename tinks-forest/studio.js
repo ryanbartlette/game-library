@@ -1181,6 +1181,11 @@ PAINT.uniforms.uFar.value = camera.far;
 try{
 PAINT.uniforms.uFocus.value = focusDist();
 }catch(e){}
+{
+const ck = window.__catSight || 0;
+PAINT.uniforms.uFocus.value = lerp(PAINT.uniforms.uFocus.value,Math.min(PAINT.uniforms.uFocus.value,4.5),ck);
+PAINT.uniforms.uDof.value = 0.85 + 0.6 * ck;
+}
 pr(r,w,rd,dt,mk);
 };
 }
@@ -1197,13 +1202,23 @@ uLift:{value: new THREE.Vector3()},
 uGain:{value: new THREE.Vector3(1,1,1)},
 uSat:{value: 1},
 uVig:{value: 0.35},
-uTime:{value: 0}
+uTime:{value: 0},
+uCat:{value: 0},
+uNightV:{value: 0},
+uJack:{value: 0}
 },
 vertexShader: `varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-fragmentShader: `uniform sampler2D tDiffuse;uniform vec3 uLift,uGain,uHi,uLo;uniform float uSat,uVig,uTime,uSplit;varying vec2 vUv;
+fragmentShader: `uniform sampler2D tDiffuse;uniform vec3 uLift,uGain,uHi,uLo;uniform float uSat,uVig,uTime,uSplit,uCat,uNightV,uJack;varying vec2 vUv;
   float hh(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
   float vn2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hh(i),hh(i+vec2(1,0)),f.x),mix(hh(i+vec2(0,1)),hh(i+vec2(1,1)),f.x),f.y);}
-  void main(){vec3 c=texture2D(tDiffuse,vUv).rgb;{float l0=dot(c,vec3(.299,.587,.114));float hk=smoothstep(.25,.85,l0);c*=mix(vec3(1.),mix(uLo,uHi,hk),uSplit);}c=c*uGain+uLift*(1.-clamp(c,0.,1.));float l=dot(c,vec3(.299,.587,.114));c=mix(vec3(l),c,uSat);
+  void main(){vec3 c=texture2D(tDiffuse,vUv).rgb;
+   /* Build 599 (Ryan): holding cat senses, the world as a cat sees it: brighter in the dark (night vision, more the darker it is),
+      and two-colour: blues and yellows stay clear while reds and greens fold into muted yellows and greys, everything a little less
+      vivid. Jack's magical eyes glow a soft green in the dark */
+   if(uCat>.001){vec3 o0=c;vec3 n=c*(1.+uNightV*1.9);n=n/(1.+.18*uNightV*n);
+    vec3 d=mat3(.367322,.280085,-.01182,.860646,.672501,.04294,-.227968,.047413,.968881)*n;float lc=dot(d,vec3(.299,.587,.114));
+    d=mix(vec3(lc),max(d,0.),.78);d=mix(d,vec3(lc*.62,lc*1.12,lc*.66),uJack*(.3+.5*uNightV));c=mix(o0,d,uCat);}
+   {float l0=dot(c,vec3(.299,.587,.114));float hk=smoothstep(.25,.85,l0);c*=mix(vec3(1.),mix(uLo,uHi,hk),uSplit);}c=c*uGain+uLift*(1.-clamp(c,0.,1.));float l=dot(c,vec3(.299,.587,.114));c=mix(vec3(l),c,uSat);
    vec2 d=vUv-.5;c*=1.-uVig*dot(d,d)*1.6;{vec2 q=vUv*vec2(1.6,1.);mat2 rt=mat2(.8,-.6,.6,.8);vec2 b=rt*q;
     float st=vn2(b*vec2(260.,34.))*.6+vn2(rt*rt*q*vec2(90.,520.))*.4;// soft crossing brush streaks
     float pap=vn2(vUv*vec2(700.,420.));// canvas tooth
@@ -1403,7 +1418,7 @@ sh.vertexShader = sh.vertexShader
 )
 .replace(
 '#include <begin_vertex>',
-`vec3 transformed=vec3(position);float fl=aFluff*uLen*mix(1.,.3,uWet);transformed+=normalize(normal)*fl*(uInfl+uShell*(1.-uInfl));transformed.y-=uShell*uShell*fl*.45;transformed.x-=aBack*fl*(uShell*.8+uInfl*.4);transformed+=aComb*fl*uShell;vF=aFluff;vFu=uv;`
+`vec3 transformed=vec3(position);float fl=aFluff*uLen*mix(1.,.85,uWet);float fk=fl*(uInfl+uShell*(1.-uInfl));transformed+=normalize(normal)*fk*(1.-.78*uWet);transformed.y-=fk*uWet*.95;/* (Build 581, Ryan: wet long fur stays long but hangs: heavy with water it no longer stands out, it lies flat along her back and hangs down from her belly, sides and tail, standing back up and fluffing out as she dries) */transformed.y-=uShell*uShell*fl*.45;transformed.x-=aBack*fl*(uShell*.8+uInfl*.4);transformed+=aComb*fl*uShell;vF=aFluff;vFu=uv;`
 );
 sh.fragmentShader = sh.fragmentShader
 .replace(
@@ -1414,9 +1429,9 @@ sh.fragmentShader = sh.fragmentShader
 '#include <map_fragment>',
 `#include <map_fragment>
 if(uShell>0.&&(vF<.002||diffuseColor.a<.5))discard;// no fur shells on bare or see-through parts (whisker and fringe cards, ear tips)
-if(uShell>0.){vec2 c=vFu*uDens+vec2(.35,.22)*uShell*uShell;vec2 id=floor(c);vec2 f=fract(c)-.5;float h=fract(sin(dot(id,vec2(127.1,311.7)))*43758.5453);float L=mix(.45,1.,h);if(uShell>L)discard;float rad=(.5*pow(1.-uShell/L,1.25)+.03)*mix(1.,.72,uWet);if(length(f)>rad)discard;}
+if(uShell>0.){vec2 c=vFu*uDens*mix(1.,.62,uWet)+vec2(.35,.22)*uShell*uShell;/* (Build 581: wet fur gathers into fewer, thicker, pointed clumps, like Ryan's bath-time photos) */vec2 id=floor(c);vec2 f=fract(c)-.5;float h=fract(sin(dot(id,vec2(127.1,311.7)))*43758.5453);float L=mix(.45,1.,h);if(uShell>L)discard;float rad=(.5*pow(1.-uShell/L,1.25+1.4*uWet)+.03)*mix(1.,.8,uWet);if(length(f)>rad)discard;}
 diffuseColor.rgb*=mix(1.-uDark,1.,uShell);
-diffuseColor.rgb*=mix(1.,.58,uWet);`
+diffuseColor.rgb*=mix(1.,.4,uWet);/* (Build 581: much darker when wet) */`
 )
 .replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor=mix(roughnessFactor,.5,uWet*.8);');
 };

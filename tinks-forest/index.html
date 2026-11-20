@@ -429,7 +429,7 @@ body.noPrompt .actP:not(.skipH):not(#jackgo){opacity:0!important;transition:none
 /* FOREST 114 (Ryan): a true widescreen letterbox (about 2.39:1 on a 16:9 screen) */
 :root{--barH:12.8vh}
 
-/* Build 558: prompts rise above the letterbox bar while it shows (the skip hint stays down in the bar) */html body.barLift .actP:not(#cutSkip),html body.barLift #coach,html body.barLift #climbP{bottom:calc(var(--barVis,0px) + 2.4vh)!important;transition:bottom .4s ease,opacity .6s}
+/* Build 558: prompts rise above the letterbox bar while it shows (the skip hint stays down in the bar) */html body.barLift .actP:not(#cutSkip):not(.skipH),html body.barLift #coach,html body.barLift #climbP{bottom:calc(var(--barVis,0px) + 2.4vh)!important;transition:bottom .4s ease,opacity .6s}
 /* Build 559/560 (Ryan): with an Xbox controller the prompts show its own buttons: Zacksly's "Xbox Series Button Icons and Controls"
    (CC BY 3.0, zacksly.itch.io, credited in Credits), recoloured like a real Xbox pad: dark buttons, the A B X Y letters in their own
    colours (green, red, blue, yellow), and the D-pad's pressed direction lit up */
@@ -535,6 +535,9 @@ html body div#cutSkip{left:auto!important;right:34px!important;transform:none!im
 html body div#cutSkip,html body.cut div#cutSkip,html body.barLift div#cutSkip,html body.adv div#cutSkip,html body.adv.cut div#cutSkip,html body div.actP.skipH,html body.cut div.actP.skipH,html body.barLift div.actP.skipH{left:auto!important;transform:none!important;padding-bottom:5px!important;background:linear-gradient(rgba(255,253,244,.85),rgba(255,253,244,.85)) left bottom / calc(var(--skipK,0) * 100%) 1.5px no-repeat!important;font-size:12px!important;right:26px!important;bottom:16px!important;top:auto!important;color:rgba(255,253,244,calc(.22 + var(--skipK,0) * .78))!important;transition:opacity .4s,color .15s!important}
 html body div#cutSkip kbd,html body div.actP.skipH kbd{opacity:calc(.3 + var(--skipK,0) * .7)}
 .actP.skipH .padOnly{display:none}body.pad-mode .actP.skipH .padOnly{display:inline}
+/* Build 581 (Ryan: a hold-to-skip hint showed while Jack was talking at the bus stop bench): while Jack's words are up (his darkening
+   behind them), the only hint is the one to continue; the skip hints step aside. (Not tied to the HUD style: that hid them everywhere) */
+html body.jackSay div#cutSkip,html body.jackSay.cut div#cutSkip,html body.jackSay div.actP.skipH,html body.jackSay.cut div.actP.skipH{opacity:0!important;transition:opacity .2s!important}
 </style>
 
 <div id="app"></div>
@@ -614,7 +617,7 @@ html body div#cutSkip kbd,html body div.actP.skipH kbd{opacity:calc(.3 + var(--s
 <div id="gate">
   <div class="g-shade"></div>
   <div class="g-corner">In loving memory of<b>Jack</b></div>
-  <div class="g-build" id="gBuild">Build 580</div>
+  <div class="g-build" id="gBuild">Build 600</div>
   <div class="g-music" id="gMusic" aria-pressed="false"><i></i>Music</div>
   <header class="g-title">
     <div class="g-small">Tink's Magical</div>
@@ -666,6 +669,6 @@ window.__THEME=(()=>{let done=false;const M=window.__MUS.mk('audio/music/01-the-
  b.addEventListener('click',e=>{e.stopPropagation();if(on){want=false;stop(600)}else{want=true;start()}});
  const tk=setInterval(()=>{if(done||on){if(done)clearInterval(tk);return}start()},300);for(const ev of ['pointerdown','keydown'])addEventListener(ev,start,{capture:true});return {el:null,stop,play:()=>{done=false;want=true;start()},state:()=>({on,want,done,ready:ready()})}})();</script>
 <script type="importmap">{"imports":{"three":"./three.module.js","three/addons/":"./jsm/"}}</script>
-<script>(async()=>{if(/[?&]dev\b/.test(location.search)){location.replace(location.pathname.replace(/[^/]*$/,"")+"dev.html"+location.search+location.hash);return}const lay=fetch("./data/world-layout.9bf0ca4036.json").then(r=>r.ok?r.text():null).catch(()=>null);const u="./game.js?v=1794942782";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
+<script>(async()=>{if(/[?&]dev\b/.test(location.search)){location.replace(location.pathname.replace(/[^/]*$/,"")+"dev.html"+location.search+location.hash);return}const lay=fetch("./data/world-layout.79bc3450c0.json").then(r=>r.ok?r.text():null).catch(()=>null);const u="./game.js?v=1795210007";let txt=null;for(let t=0;t<4&&!txt;t++){try{const r=await fetch(u,t?{cache:"reload"}:undefined);const x=await r.text();if(r.ok&&x.includes("/*GAME-END*/"))txt=x}catch(e){}if(!txt)await new Promise(r=>setTimeout(r,500*(t+1)))}
  if(!txt){const g=document.getElementById("goTxt");if(g)g.textContent="Could not download the game. Please reload";return}
  try{const lt=await lay;if(lt)window.__LAYOUT=JSON.parse(lt)}catch(e){} const sc=document.createElement("script");sc.type="module";sc.src=URL.createObjectURL(new Blob([txt],{type:"text/javascript"}));document.body.appendChild(sc)})()</script>
