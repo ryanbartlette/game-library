@@ -512,7 +512,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=463',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=464',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -4111,7 +4111,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 463';
+window.__BUILD='BUILD 464';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5640,9 +5640,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795216767'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795217217'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795216767'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795217217'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -6023,8 +6023,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795216767'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795216767'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795217217'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795217217'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6482,7 +6482,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795216767',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795217217',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6496,7 +6496,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795216767',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795217217',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -17013,7 +17013,7 @@ const animePractice=window.animePractice=(()=>{
  // specialists and the slow cars lose a little (Bunta stays a hair behind your uphill best too)
  const UPK={12:1.013*1.025,11:1.013*1.05,10:1.013*1.02,5:1.013*1.02,6:1.013*1.025,1:1.013,4:1.013*.99,7:1.013*.99,9:1.013*1.005,2:1.013,8:1.013*.985,3:1.0127};
  const AWD=id=>[3,4,7,8].includes(+id);
- const PDIFF={11:-.07,10:-.06,5:-.04,1:-.015,4:0,6:.005,13:.01,7:.02,12:.02,2:.03,9:.03,8:.04,3:.05};   /* (459) rival vs YOUR learned pace in practice: Itsuki 7% slower ... Bunta 5% faster */
+ const PDIFF={11:-.035,10:-.03,5:-.02,1:-.005,4:0,6:.005,13:.01,7:.015,12:.015,2:.02,9:.02,8:.025,3:.03};   /* (464) tighter: close racing keeps you together, this is his pace on the final stretch */   /* (459) rival vs YOUR learned pace in practice: Itsuki 7% slower ... Bunta 5% faster */
  const paceFor=(id,course,wx)=>{let t=PACE[id]||280;if(course==='up')t*=UPK[id]||1;{const K=window.__gameK||1;if(K!==1)t*=(1+((course==='up'?1.0273:1.0322)-1)*(K-1)/.2)/K}t*=course==='up'?245.82/252.20:243.52/250.23;   /* you got quicker (build 280: 4:03.52 down, 4:05.82 up, was 4:10.23 / 4:12.20): everyone moves with you, same order */   /* faster game pace: real seconds, retuned on your 1.2 runs (4:10.23 down, 4:12.20 up) */
   t*={day:1,night:1.012,moon:1.012,rain:AWD(id)?1.025:1.05,storm:AWD(id)?1.04:1.08,snow:AWD(id)?1.05:1.1}[wx]||1;
   t*=PACEK[(typeof S!=='undefined'&&S.pace)||'normal']||1;return t};
@@ -17196,7 +17196,7 @@ html body #courseMenu #driftModeChoices button .mSub{font-size:clamp(10px,.85vw,
  if(PRAC&&RID){(()=>{const R0=()=>window.animeRivals&&animeRivals.R[RID];window.__pracRivalOn=true;window.__pracRivalId=RID;
   {const iv=setInterval(()=>{if(!window.__opp)return;clearInterval(iv);const o=window.__opp;window.__opp=()=>window.__pracRivalOn?RID:o()},50)}
   {let n=0;const iv=setInterval(()=>{try{selectRivalCar()}catch(e){}if(++n>40)clearInterval(iv)},500)}
-  const TARGET=paceFor(RID,isUp(S.course)?'up':(S.course==='lot'?'lot':'down'),S.wx)*(window.__PASS&&window.COURSE_LEN?COURSE_LEN/16635:1);   /* (build 410) other passes: the same pace over their own length */let hit=0,lastSet=0,prof=null,clock=0,qR=[],qP=[],done=null,hideAt=0;window.__pracRivalTarget=TARGET;const TGP=TARGET*(window.__gameK||1);   // his pace profile runs in game-speed units
+  const TARGET=paceFor(RID,isUp(S.course)?'up':(S.course==='lot'?'lot':'down'),S.wx)*(window.__PASS&&window.COURSE_LEN?COURSE_LEN/16635:1);   /* (build 410) other passes: the same pace over their own length */let pBand=0,hit=0,lastSet=0,prof=null,clock=0,qR=[],qP=[],done=null,hideAt=0;window.__pracRivalTarget=TARGET;const TGP=TARGET*(window.__gameK||1);   // his pace profile runs in game-speed units
   // his character: where he's quick and where he isn't, and this run's mistakes (new ones every run)
   const ST=STYLE[RID]||{c:0,s:0,late:0,err:0,eL:0};window.__pracRivalMistakes=[];
   // the car itself: horsepower wins on the straights (and, with his total time fixed, the bends are where you catch him)
@@ -17252,7 +17252,11 @@ html body #courseMenu #driftModeChoices button .mSub{font-size:clamp(10px,.85vw,
     if(!prof){try{build()}catch(e){console.warn('rival pace',e);window.__pracRivalOn=false;return}}
     if(countdown>0||window.__gamePaused){rivalSpeed=0;return}
     if(rivalProgress>=prof.n){rivalSpeed=Math.max(0,rivalSpeed-dt*12);if(!done)done={t:clock};return}
-    clock+=dt;const i=Math.min(prof.n-1,Math.floor(rivalProgress)),f=rivalProgress-i,vt=prof.v[i]+(prof.v[i+1]-prof.v[i])*f;
+    clock+=dt;const i=Math.min(prof.n-1,Math.floor(rivalProgress)),f=rivalProgress-i;let vt=prof.v[i]+(prof.v[i+1]-prof.v[i])*f;
+    // (464) CLOSE RACING in practice too: inside ±4 m he drives his own run; beyond that he pushes or waits in proportion to
+    // the gap (about +8.5% / -10% at most), so you stay together. The last 12% is his own pace: that's where it's decided.
+    {const gap=(progress-rivalProgress)*(window.M_PER_INDEX||3),e=Math.abs(gap)<4?0:gap>0?gap-4:gap+4,fade=Math.min(1,(prof.n-rivalProgress)/Math.max(1,prof.n*.12));
+     const want=Math.max(-.10,Math.min(.085,e*.0022))*fade;pBand+=(want-pBand)*Math.min(1,dt*1.1);vt*=1+pBand}
     if(lastSet>8&&rivalSpeed<lastSet*.9)hit=1.8;hit=Math.max(0,hit-dt);   // knocked by you: he needs ~2 s to get back on pace
     const cap=hit>0?vt*(.5+.5*(1-hit/1.8)):vt;
     rivalSpeed+=(Math.max(cap,1)-rivalSpeed)*Math.min(1,dt*(hit>0?2.5:8));lastSet=rivalSpeed;let rem=rivalSpeed*dt*(window.__gameK||1),g=0;
@@ -17263,7 +17267,7 @@ html body #courseMenu #driftModeChoices button .mSub{font-size:clamp(10px,.85vw,
   setInterval(()=>{try{if(!prof||countdown>0)return;for(let q=1;q<=4;q++)if(qP[q]==null&&progress>=prof.n*q/4-.5)qP[q]=elapsed}catch(e){}},50);
   // a run (re)starts: side by side on the line, him on the left
   {const iv=setInterval(()=>{if(typeof restart!=='function')return;clearInterval(iv);const o=restart;restart=function(){const r=o.apply(this,arguments);try{if(window.__pracRivalOn){
-   clock=0;qR=[];qP=[];done=null;hideAt=0;hit=0;lastSet=0;prof=null;   /* a fresh run: new mistakes */
+   clock=0;qR=[];qP=[];done=null;hideAt=0;hit=0;lastSet=0;prof=null;pBand=0;   /* a fresh run: new mistakes */
    rivalDone=false;rivalProgress=2;rivalSpeed=0;rivalStraightStart=0;
    const t=tougeTangents[0],right=new THREE.Vector3(t.z,0,-t.x);pos.addScaledVector(right,1.85);car.position.copy(pos);
    rival.position.copy(rivalPoint(2,1.85));rival.rotation.y=Math.atan2(-tougeTangents[2].x,-tougeTangents[2].z)}}catch(e){console.warn(e)}return r}},100)}
