@@ -15413,10 +15413,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 594;
+const BUILD = 595;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 162;
+const LOOKV = 163;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -18612,14 +18612,18 @@ x = PD.mx;
 z = PD.mz;
 }
 }
+P.povBack = false;
 if(!x && !z)return null;
 {
 const PD = window.__PAD;
 if(PD && PD.mode && PD.mag > 0 &&(P.povK || 0)> 0.5 && P.povUser){
-const fm = Math.max(0,z)* PD.mag;
+const fm = Math.max(0,z)* PD.mag,
+bm = Math.max(0,-z)* PD.mag;
 P.povWalk = P.povWalk ? fm > 0.26 : fm > 0.4;
-PD.povMag = P.povWalk ? clamp(fm,0.2,1): 0;
-if(!P.povWalk)return null;
+P.povBack = !P.povWalk &&(P.povBackW ? bm > 0.26 : bm > 0.4);
+P.povBackW = P.povBack;
+PD.povMag = P.povWalk ? clamp(fm,0.2,1): P.povBack ? clamp(bm,0.2,1): 0;
+if(!P.povWalk && !P.povBack)return null;
 return new V3(Math.sin(P.yaw),0,Math.cos(P.yaw));
 }
 }
@@ -19616,7 +19620,10 @@ target = T.walk;
 label = 'Walk';
 }else if(window.__PAD && window.__PAD.mode && window.__PAD.mag > 0){
 const m = P.povUser &&(P.povK || 0)> 0.5 && window.__PAD.povMag ? window.__PAD.povMag : window.__PAD.mag;
-if(m < 0.62){
+if(P.povBack){
+target = T.walk * lerp(0.2,0.5,smooth(0.2,1,m));
+label = 'Walk';
+}else if(m < 0.62){
 target = T.walk * lerp(0.3,1,smooth(0.2,0.62,m));
 label = 'Walk';
 }else{
@@ -19739,6 +19746,10 @@ P.turnRate = damp(P.turnRate,turn / Math.max(dt,1e-4),10,dt);
 const acc = target > P.speed ? T.accel *(label === 'Run' ? 1.1 : 1): T.accel * 1.4;
 P.speed = P.speed < target ? Math.min(target,P.speed + acc * dt): Math.max(target,P.speed - acc * dt);
 const f = fwdOf(P.yaw);
+if(P.povBack){
+f.negate();
+P.backT = performance.now();
+}
 {
 const vx =
 f.x * P.speed,
@@ -21352,7 +21363,8 @@ gwSm.gallop * clamp(vEff / 1.75,0.55,3.6)+
 gwSm.bound *(1.6 + 0.9 * vEff)+
 gwSm.climb * 1.5;
 const fq = lerp(f,0.9 + vEff * 0.9,AP.stalk * gwSm.walk);
-AP.phase =(AP.phase + fq * dt *(vEff > 0.02 || climbing ? 1 : 0.0))% 1;
+AP.phase =(AP.phase +(performance.now()-(P.backT || 0)< 150 ? -1 : 1)* fq * dt *(vEff > 0.02 || climbing ? 1 : 0.0)+ 1)% 1;
+if(!COMP_ON){window.__APph = AP.phase;}
 AP.speedU = vEff / sc;
 AP.strideU = climbing
 ? clamp((P.speed / 1.5 / sc)* 1.6,0,16)
@@ -61658,7 +61670,7 @@ PAD.lookXL =(PAD.lookXL || 0)+(tx -(PAD.lookXL || 0))* k;
 PAD.rimTL = lm > 0.97 && Math.abs(lx)> 0.8 ? Math.min(0.6,(PAD.rimTL || 0)+ dt): 0;
 if(on && Math.abs(PAD.lookXL)> 1e-4){
 const boostL = 1 + 0.45 * smooth(0.2,0.6,PAD.rimTL || 0);
-P.yaw -= PAD.lookXL * 3.3 *(OPT.padSens ?? 1)* boostL * dt;
+P.yaw -=(P.povBack ? -1 : 1)* PAD.lookXL * 3.3 *(OPT.padSens ?? 1)* boostL * dt;
 }
 PAD.povTurn = 0;
 }
