@@ -512,7 +512,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=462',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=463',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -4111,7 +4111,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 462';
+window.__BUILD='BUILD 463';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5640,9 +5640,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795215388'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795216767'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795215388'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795216767'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -5954,9 +5954,12 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   CAB_U.value=(window.__inCockpit||window.__garSeat)?(window.__cabFill??1):0;
   for(const c of cars)if(c&&c.mirrorCabin&&c.model&&c.model.root&&!c.model.root.userData.mirrorDone){c.model.root.userData.mirrorDone=true;try{mirrorCabin(c.model.root,c.group)}catch(e){console.warn('mirror cabin',e)}}
   for(const c of cars)if(c&&c.stdCabin&&c.model&&c.model.root&&!c.model.root.userData.stdCabinDone){c.model.root.userData.stdCabinDone=true;try{if(addStdCabin(c,c.spec&&c.spec.cabinFit)){c._cabinList=null;c._cabin=null;if(window.__onCabinAdded)window.__onCabinAdded(c)}}catch(e){console.warn('standard cabin',e)}}
+  // (463) any camera that sits inside your car (the finish shot, replays from the seat) shows the cabin too
+  function camInside(c){try{if(typeof camera==='undefined'||!c.group)return false;const g=c.group;g.updateMatrixWorld();const e=g.matrixWorld.elements,p=camera.position;
+   const dx=p.x-e[12],dy=p.y-e[13],dz=p.z-e[14];return dx*dx+dz*dz<2.4*2.4&&dy>-.3&&dy<1.7}catch(e){return false}}
   // the cabin is only drawn in the car you're driving, and only from the driver's seat: rivals and the cars around you skip it (it can't be seen through
   // the anime glass); it comes back the moment a car becomes yours
-  for(const c of cars)if(c&&c.model&&c.model.root){const want=(c===player&&(!!window.__inCockpit||!!window.__garSeat))||!!window.__allCabins;   /* (461) and your own car's cabin only in the cockpit view: hiding is instant, nothing reloads */if(c._cabin!==want){c._cabin=want;if(!c._cabinList){c._cabinList=[];c.model.root.traverse(o=>{if(o.isMesh&&(o.userData.interior||isInterior(o)))c._cabinList.push(o)})}for(const o of c._cabinList){if(o.userData.cabinVis==null)o.userData.cabinVis=o.visible;o.visible=want&&o.userData.cabinVis}}}
+  for(const c of cars)if(c&&c.model&&c.model.root){const want=(c===player&&(!!window.__inCockpit||!!window.__garSeat||camInside(c)))||!!window.__allCabins;   /* (461) and your own car's cabin only in the cockpit view: hiding is instant, nothing reloads */if(c._cabin!==want){c._cabin=want;if(!c._cabinList){c._cabinList=[];c.model.root.traverse(o=>{if(o.isMesh&&(o.userData.interior||isInterior(o)))c._cabinList.push(o)})}for(const o of c._cabinList){if(o.userData.cabinVis==null)o.userData.cabinVis=o.visible;o.visible=want&&o.userData.cabinVis}}}
   const nightNow=night==null?stage!==1:night;
   autoOn=night==null?nightNow:(autoOn?night>.4:night>.55);if(window.__pracDusk&&window.__sunGone&&typeof courseChosen!=='undefined'&&courseChosen)autoOn=true;   // dusk run: lights on as soon as the sun's shadows have gone
   LT.clock+=dt;if(LT.clock-LT.lastT>2.5)LT.lag=Math.max(0,LT.lag-dt*.12);
@@ -6020,8 +6023,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795215388'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795215388'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795216767'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795216767'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6479,7 +6482,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795215388',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795216767',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6493,7 +6496,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795215388',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795216767',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -16664,7 +16667,7 @@ window.__mergeStatic=window.__mergeStatic||function(group,ok){group.updateMatrix
 })();
 
 // ============================================================================================
-// AFTER THE LINE · once you cross the finish, the view drops into the driver's seat (the HOOD view) and, as the car rolls
+// AFTER THE LINE · once you cross the finish, the view drops into the driver's seat (the COCKPIT view) and, as the car rolls
 // on into town on its own, you look around like you would in the car: ahead, then out of the left window at the shops,
 // across to the right, up at the lights and the ropeway, and back to the road as it pulls up. Then the choices come up
 // and your own camera comes back when you carry on.
@@ -16679,7 +16682,7 @@ window.__mergeStatic=window.__mergeStatic||function(group,ok){group.updateMatrix
  const ov=()=>document.getElementById('finRoll');
  (function tick(){requestAnimationFrame(tick);frame++;let rolling=false,asking=false;try{const o=ov();rolling=!!o&&o.classList.contains('on');asking=rolling&&o.classList.contains('ask')}catch(e){}
   const replay=window.animeReplay&&animeReplay.active;
-  if(rolling&&!replay&&!on){on=true;t0=performance.now();try{prevCam=camMode;camMode=4}catch(e){}}
+  if(rolling&&!replay&&!on){on=true;t0=performance.now();try{prevCam=camMode;camMode=5}catch(e){}   /* (463) the driver's seat (cockpit), not the bonnet view */}
   if(on&&(!rolling||replay)){on=false;yawO=pitO=0;try{if(prevCam!=null)camMode=prevCam}catch(e){}prevCam=null}
   if(!on)return;const t=(performance.now()-t0)/1000;
   let [y,p]=asking?[0,0]:look(t);const k=asking?.08:.2;yawO+=(y*D-yawO)*k;pitO+=(p*D-pitO)*k;
@@ -20726,12 +20729,12 @@ const animeCutscene=window.animeCutscene=(()=>{
 })();
 
 // ==================================================================== RIVALS THAT LEARN YOUR PACE (build 456)
-// The game quietly learns how fast YOU drive every stretch of every course (in each direction): a speed for each ~30 m of
+// (463: learned from your progress along the road, key idPaceV2) The game quietly learns how fast YOU drive every stretch of every course (in each direction): a speed for each ~30 m of
 // road, an average of your recent runs that leans towards your better ones, kept only in this browser (localStorage
 // 'idPaceV1'). In a race the rival then drives each stretch at your own learned speed there, times his personality
 // (director.js signature) and the race's difficulty (early chapters a bit below your pace, the bosses a bit above).
 // Until a stretch has been driven the rival uses the corner-physics pace. Crashes and stops aren't learned.
-(()=>{const KEY='idPaceV1',BIN=10,NB=Math.ceil(2501/BIN)+1;let DB={};try{DB=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){DB={}}
+(()=>{const KEY='idPaceV2',BIN=10,NB=Math.ceil(2501/BIN)+1;let DB={};try{DB=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){DB={}}
  let dirty=false,lastSave=0;const save=(force)=>{const t=performance.now();if(!dirty||(!force&&t-lastSave<5000))return;lastSave=t;dirty=false;try{localStorage.setItem(KEY,JSON.stringify(DB))}catch(e){}};
  const AC=()=>window.akinaCourse;
  const course=()=>{const P=globalThis.__PASS;if(!P||!AC()||!AC().toOrig||typeof N==='undefined')return null;const a=AC().toOrig(0),b=AC().toOrig(N);return P+(b<a?':d':':u')};
@@ -20757,16 +20760,18 @@ const animeCutscene=window.animeCutscene=(()=>{
    const b=c-c%3;let s=0,w=0;for(let g=0;g<3;g++)if(S.n[b+g]>0){s+=S.r[b+g]*S.n[b+g];w+=S.n[b+g]}
    if(!w)for(let x=0;x<18;x++)if(S.n[x]>0){s+=S.r[x]*S.n[x];w+=S.n[x]}if(!w)return null;q=s/w;n=Math.min(w,4)}
   return {v:F.v[j]*q,w:Math.min(.85,n/12)}}
- let cur=null,cb=-1,acc=0,tim=0,lastI=0;
+ let cur=null,cb=-1,acc=0,tim=0,lastI=0,lastP=null;
  function step(dt){try{
    if(!dt||dt>.25||typeof countdown==='undefined'||countdown>0||finished||window.__gamePaused)return;
-   const k=course();if(!k)return;if(k!==cur){cur=k;cb=-1;acc=0;tim=0}
+   const k=course();if(!k)return;if(k!==cur){cur=k;cb=-1;acc=0;tim=0;lastP=null}
    const o=AC().toOrig(progress),b=Math.floor(o/BIN);const sp=Math.abs(speed);
    if(b!==cb){if(cb>=0&&tim>.12){const binI=lastI;const s=acc/tim,r=rec(k);const old=r.v[cb];
       if(s>6&&(!old||s>old*.55)){r.v[cb]=old?old+(s>old?.45:.18)*(s-old):s;r.n[cb]=Math.min(99,r.n[cb]+1);dirty=true;learnStyle(binI,s)}}
     cb=b;acc=0;tim=0}
-   if(sp<2){tim=0;acc=0;return}           // stopped or spun: this stretch isn't learned this time
-   acc+=sp*dt;tim+=dt;lastI=progress}catch(e){}}
+   // (463) how fast you really move ALONG the road (progress), not the speedometer: a drift's sideways slide isn't distance
+   const dp=lastP==null?0:progress-lastP;lastP=progress;
+   if(sp<2||dp<0||dp>40){tim=0;acc=0;return}           // stopped, spun, or a reset: this stretch isn't learned this time
+   acc+=dp*(window.M_PER_INDEX||3);tim+=dt;lastI=progress}catch(e){}}
  {const o=updatePlayerVehiclePose;updatePlayerVehiclePose=function(dt){const r=o.apply(this,arguments);step(dt);save(false);return r}}
  addEventListener('pagehide',()=>save(true));addEventListener('beforeunload',()=>save(true));
  setInterval(()=>{try{if(typeof finished!=='undefined'&&finished)save(true)}catch(e){}},2000);
