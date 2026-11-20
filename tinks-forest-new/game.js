@@ -15413,10 +15413,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 597;
+const BUILD = 598;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 165;
+const LOOKV = 166;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -20114,7 +20114,7 @@ if(wet)gy = Math.max(gy,wlA - gy > 0.3 ? wlA - 0.27 : wlA - 0.13);
 if(P.pos.y <= gy && P.vel.y <= 0){
 if(wet){
 sfx('water_splash',{
-vol: clamp(0.4 - P.vel.y * 0.08,0.4,0.95),
+vol: clamp(0.4 - P.vel.y * 0.08,0.4,0.95)* AUD.own('splash'),
 rate: 0.95 + Math.random()* 0.1
 });
 P.peakY = undefined;
@@ -20130,14 +20130,14 @@ if(h > 1.3 || P.vel.y < -5.5)
 sfx('thump_big',{
 at: P.pos.clone(),
 maxDist: 16,
-vol: clamp(0.45 + h * 0.06,0.45,0.9),
+vol: clamp(0.45 + h * 0.06,0.45,0.9)* AUD.own('land'),
 rate:(cat.kind === 'tink' ? 1.04 : 0.96)*(0.95 + Math.random()* 0.1)
 });
 else if(h > 0.12 || P.vel.y < -1.2)
 sfx('thump_small',{
 at: P.pos.clone(),
 maxDist: 12,
-vol: clamp(0.25 + h * 0.15,0.25,0.45),
+vol: clamp(0.25 + h * 0.15,0.25,0.45)* AUD.own('land'),
 rate:(cat.kind === 'tink' ? 1.15 : 1.06)*(0.95 + Math.random()* 0.1)
 });
 }
@@ -22279,7 +22279,8 @@ return;
 }
 camera.fov = damp(
 camera.fov,
-(T.fov +(P.lastMove === 'Run' ? 6 : 0))*(1 - 0.38 *(window.__csZoom || 0)),
+(T.fov +(1 -(P.povK || 0))*(P.lastMove === 'Run' ? 6 : 0)+(P.povK || 0)* 9 * smooth(T.walk * 1.4,T.sprint,P.mode === 'ground' ? P.speed : P.povFovS || 0))*
+(1 - 0.38 *(window.__csZoom || 0)),
 window.__csZoom ? 1.6 : 4,
 dt
 );
@@ -22437,13 +22438,60 @@ if(Math.abs(rel2)> 1.25)cam.yaw = P.yaw + Math.PI + Math.sign(rel2)* 1.25;
 if(!(window.__PAD && window.__PAD.mode && P.povUser && k > 0.5 && P.mode !== 'climb' && !P.script))P._povPad = false;
 const padPov = !!(window.__PAD && window.__PAD.mode && P.povUser && !(TR &&(TR.cs || TR.wonder || TR.hes)));
 const f = padPov ? new V3(-Math.sin(cam.yaw),0,-Math.cos(cam.yaw)): fwdOf(P.yaw);
+let headDy = 0;
+try{
+const holder = window.__asJack && window.__jackBody ? window.__jackBody : cat;
+let hb = holder && holder.bones && holder.bones.j_head;
+if(!hb && holder){
+const root = holder.root || holder.catRoot || holder;
+if(root.userData && root.userData.povHB !== undefined)hb = root.userData.povHB;
+else if(root.traverse){
+root.traverse(o =>{
+if(!hb && o.isBone && /(^j_head$|head$)/i.test(o.name || ''))hb = o;
+});
+root.userData &&(root.userData.povHB = hb || null);
+}
+}
+if(hb){
+hb.updateWorldMatrix(true,false);
+const hy = hb.matrixWorld.elements[13]- P.visY;
+if(P.povHB !== hb){
+P.povHB = hb;
+P.povHeadY = hy;
+}
+P.povHeadY = damp(P.povHeadY,hy,7,dt);
+const key = hb.uuid,
+BS =(window.__povBase = window.__povBase ||{});
+if(BS[key]=== undefined)BS[key]= hb ===(cat && cat.bones && cat.bones.j_head)&& cat.kind === 'tink' ? 0.265 : hy;
+if(P.mode === 'ground' && P.speed < 0.6 && !P.crouchOn &&(P.sit || 0)< 0.05 && P.pounceCharge < 0 && P.jumpCharge < 0 && !P.script && P.povSniff < 0.05)
+BS[key]= damp(BS[key],hy,0.4,dt);
+headDy = clamp(P.povHeadY - BS[key],-0.22,0.12);
+}
+}catch(e){}
+const pdt = Math.min(dt,0.05);
+if(P.mode === 'air')P.povAirVy = Math.min(P.povAirVy ?? 0,P.vel ? P.vel.y : 0);
+else{
+if(P.povWasAir && P.mode === 'ground')P.povDipV =(P.povDipV || 0)- clamp(0.3 + 0.27 * Math.abs(P.povAirVy || 0),0.5,2.6);
+P.povAirVy = 0;
+}
+P.povWasAir = P.mode === 'air';
+P.povDipV =((P.povDipV || 0)+(-140 *(P.povDip || 0)- 8.5 *(P.povDipV || 0))* pdt)|| 0;
+P.povDip = clamp((P.povDip || 0)+ P.povDipV * pdt,-0.12,0.04);
+const sc = P.script && P.script.clip ? P.script.clip : '';
+const sniffWant = performance.now()-(window.__sniffPulse || -1e9)< 1100 || /Sniff|Drinking|Eat|pick/i.test(sc)? 1 : P.speed < 0.1 && Math.abs(AP.sniff || 0)> 0.001 ? 0.3 : 0;
+P.povSniff = damp(P.povSniff || 0,sniffWant,sniffWant >(P.povSniff || 0)? 5 : 2.5,dt);
+const yr = angDiff(P.povYawPrev ?? P.yaw,P.yaw)/ Math.max(1e-3,dt);
+P.povYawPrev = P.yaw;
+const leanWant = P.mode === 'ground' ? clamp(yr * 0.03 * smooth(T.walk,T.sprint,P.speed),-0.055,0.055): 0;
+P.povLean = damp(P.povLean || 0,leanWant,5,dt);
+P.povFovS = P.speed;
 const eye = new V3(
-P.pos.x + f.x *(padPov ? 0.12 : 0.22),
-P.visY + 0.29 + Math.sin(AP.phase * Math.PI * 4)*(padPov ? 0.005 : 0.012)* Math.min(1.4,P.speed),
-P.pos.z + f.z *(padPov ? 0.12 : 0.22)
+P.pos.x + f.x *((padPov ? 0.12 : 0.22)+ 0.05 * P.povSniff),
+P.visY + 0.29 + headDy + P.povDip - 0.05 * P.povSniff + Math.sin(AP.phase * Math.PI * 4)*(padPov ? 0.005 : 0.012)* Math.min(1.4,P.speed),
+P.pos.z + f.z *((padPov ? 0.12 : 0.22)+ 0.05 * P.povSniff)
 );
 const pp =
-P.povPitch ?? 0.04;
+(P.povPitch ?? 0.04)+ 0.5 * P.povSniff;
 const dv = new V3(
 -Math.sin(cam.yaw)* Math.cos(pp),
 -Math.sin(pp),
@@ -22452,6 +22500,7 @@ const dv = new V3(
 const look = cam.tgt.clone().lerp(eye.clone().addScaledVector(dv,4),k);
 camera.position.copy(want.lerp(eye,k));
 camera.lookAt(look);
+if(Math.abs(P.povLean)> 1e-4)camera.rotateZ(P.povLean * k);
 }else{
 camera.position.copy(want);
 camera.lookAt(cam.tgt);
@@ -23277,6 +23326,7 @@ if(q < near)near = q;
 near = Math.sqrt(near);
 if(near < 3.5 && typeof sfx === 'function'){
 sfx('scent',{vol: 0.35 *(1 - near / 3.5)+ 0.1,rate: 0.9 + Math.random()* 0.5});
+window.__sniffPulse = performance.now();
 W.sn = 1.6 + Math.random()* 1.8;
 }
 }
@@ -25247,7 +25297,7 @@ src.connect(g).connect(AUD.bus(k));
 src.start(0,Math.random()* b.duration);
 pl = purrs[k]={src,g};
 }
-pl.g.gain.setTargetAtTime(on ? 0.55 * clamp(1.4 - d / 5,0.3,1): 0,AUD.ctx.currentTime,on ? 0.8 : 0.4);
+pl.g.gain.setTargetAtTime(on ? 0.55 * clamp(1.4 - d / 5,0.3,1)*(k === 'purr2' ? AUD.own('purr'): 1): 0,AUD.ctx.currentTime,on ? 0.8 : 0.4);
 }
 }
 const wetCover = p =>{
@@ -25989,16 +26039,16 @@ let d = 0;
 const at = null;
 if(kind === 'meow'){
 d = tink
-? sfx(pick(['tink_meow_1','tink_meow_2','tink_meow_3','tink_meow_4']),{vol: 0.8})
-: sfx(pick(['cat_meow','cat_meow_2','cat_meow_3']),{vol: 0.8});
+? sfx(pick(['tink_meow_1','tink_meow_2','tink_meow_3','tink_meow_4']),{vol: 0.8 * AUD.own('voice')})
+: sfx(pick(['cat_meow','cat_meow_2','cat_meow_3']),{vol: 0.8 * AUD.own('voice')});
 spook(3.5);
 }
 if(kind === 'yowl'){
-d = sfx(pick(['cat_yowl_1','cat_yowl_2','cat_yowl_3']),{vol: 0.8,rate: tink ? 1.12 : 1});
+d = sfx(pick(['cat_yowl_1','cat_yowl_2','cat_yowl_3']),{vol: 0.8 * AUD.own('voice'),rate: tink ? 1.12 : 1});
 spook(7);
 }
 if(kind === 'hiss' && P.mode === 'ground'){
-d = sfx('cat_fight',{vol: 0.8,rate: tink ? 1.1 : 1});
+d = sfx('cat_fight',{vol: 0.8 * AUD.own('voice'),rate: tink ? 1.1 : 1});
 P.hissT = Math.max(1.6,d || 1.6);
 P.speed = 0;
 spook(8);
@@ -26717,6 +26767,13 @@ AUD.buses[name]= b;
 }
 return b;
 };
+const OWN_BOOST ={step: 0.4,land: 0.3,splash: 0.3,voice: 0.25,purr: 0.25,kick: 0.25,jack: 0.25};
+AUD.own = kind =>{
+if(typeof COMP_ON !== 'undefined' && COMP_ON)return 1;
+const k = clamp(P.povK || 0,0,1);
+if(k <= 0)return 1;
+return 1 + k *(OWN_BOOST[kind]|| 0)*(MIX.fp_own ?? 1);
+};
 const GAME_GAIN = 1;
 AUD.setMix =(name,v)=>{
 MIX[name]= v;
@@ -27010,8 +27067,9 @@ const now = performance.now();
 if(now -(AUD['_k' + kind]|| 0)< 260)return;
 AUD['_k' + kind]= now;
 const sp = clamp((P.speed || 0)/ 6,0,1);
-if(kind === 'leaf')sfx('leafkick',{vol: 0.18 + 0.2 * sp,rate: 0.72 + Math.random()* 0.12});
-else sfx('petalkick',{vol: 0.14 + 0.16 * sp,rate: 1.05 + Math.random()* 0.15});
+const ob = AUD.own('kick');
+if(kind === 'leaf')sfx('leafkick',{vol:(0.18 + 0.2 * sp)* ob,rate: 0.72 + Math.random()* 0.12});
+else sfx('petalkick',{vol:(0.14 + 0.16 * sp)* ob,rate: 1.05 + Math.random()* 0.15});
 };
 function stepSfx(name,vol,rate){
 if(!AUD.ctx || !AUD.on)return;
@@ -27077,7 +27135,7 @@ if(now - stepGap < 0.055)return;
 stepGap = now;
 }
 const sp = clamp(P.speed / 4,0,1);
-let vol = cK * lerp(0.16,0.5,sp)*(1 - 0.6 *(P.crouchOn ? 1 : 0))*(leg.front ? 0.85 : 1);
+let vol = cK * lerp(0.16,0.5,sp)*(1 - 0.6 *(P.crouchOn ? 1 : 0))*(leg.front ? 0.85 : 1)* AUD.own('step');
 let rate = lerp(1.35,1.15,sp)*(0.94 + Math.random()* 0.12)*(cat.kind === 'tink' ? 1.06 : 1);
 if(P.onIce && !P.inWater && window.__asJack && !window.__ICE && !COMP_ON){
 sfx('ice',{vol: vol * 1.5,rate: 1.25 + Math.random()* 0.35});
@@ -44854,15 +44912,15 @@ const air = P.mode === 'air',
 pos = P.pos;
 if(air && !FX.wasAir){
 try{
-sfx('sparkle',{vol: 0.45,rate: 1.35 + Math.random()* 0.2});
-sfx('chime',{vol: 0.18,rate: 1.6});
+sfx('sparkle',{vol: 0.45 * AUD.own('jack'),rate: 1.35 + Math.random()* 0.2});
+sfx('chime',{vol: 0.18 * AUD.own('jack'),rate: 1.6});
 }catch(e){}
 spk(pos,30,0.4,0.25);
 FX.flash = Math.max(FX.flash || 0,0.7);
 }
 if(!air && FX.wasAir){
 try{
-sfx('sparkle',{vol: 0.25,rate: 1.7});
+sfx('sparkle',{vol: 0.25 * AUD.own('jack'),rate: 1.7});
 }catch(e){}
 spk(pos,10,0.35,0.06);
 try{
@@ -44879,14 +44937,14 @@ FX.at =(FX.at || 0)- dt;
 if(FX.at <= 0){
 FX.at = 0.5 + Math.random()* 0.3;
 try{
-sfx('sparkle',{vol: 0.14,rate: 1.8 + Math.random()* 0.3});
+sfx('sparkle',{vol: 0.14 * AUD.own('jack'),rate: 1.8 + Math.random()* 0.3});
 }catch(e){}
 }
 }
 if(P.dashing && !FX.wasDash){
 try{
-sfx('shimmer',{vol: 0.55,rate: 1.25});
-sfx('sparkle',{vol: 0.5,rate: 1.1});
+sfx('shimmer',{vol: 0.55 * AUD.own('jack'),rate: 1.25});
+sfx('sparkle',{vol: 0.5 * AUD.own('jack'),rate: 1.1});
 }catch(e){}
 try{
 window.__puffBurst && window.__puffBurst(pos.clone().setY(pos.y + 0.15),'jack');
@@ -44905,7 +44963,7 @@ FX.tw -= dt;
 if(FX.tw <= 0){
 FX.tw = 0.45 + Math.random()* 0.4;
 try{
-sfx('sparkle',{vol: 0.18,rate: 1.5 + Math.random()* 0.4});
+sfx('sparkle',{vol: 0.18 * AUD.own('jack'),rate: 1.5 + Math.random()* 0.4});
 }catch(e){}
 }
 }
@@ -61722,6 +61780,8 @@ window.__P = P;
 window.__cam = cam;
 window.__rend = renderer;
 window.__camera = camera;
+window.__cats = cats;
+window.__AUD = AUD;
 window.__tp =(x,z)=>{
 P.pos.x = x;
 P.pos.z = z;
