@@ -512,7 +512,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=456',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=457',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -4111,7 +4111,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 456';
+window.__BUILD='BUILD 457';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5640,9 +5640,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795170660'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795197540'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795170660'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795197540'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -6020,8 +6020,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795170660'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795170660'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795197540'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795197540'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6479,7 +6479,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795170660',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795197540',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6493,7 +6493,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795170660',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795197540',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -18585,7 +18585,23 @@ const animePerf=window.animePerf=(()=>{
 (()=>{
  const css=document.createElement('style');css.textContent=`
 #ctrlScr{position:fixed;inset:0;z-index:9000;display:none;background:radial-gradient(ellipse at 50% 120%,#3a2a24 0%,#1d1b22 55%,#141318 100%);font-family:'Segoe UI','Helvetica Neue',Comic Neue,Arial,sans-serif;color:#e9e6ef;cursor:pointer}
-#ctrlScr.on{display:block}#ctrlScr .tabs{position:absolute;left:50%;top:5vh;transform:translateX(-50%);display:flex;gap:.4em;z-index:3}#ctrlScr .tabs button{font:700 clamp(11px,1vw,15px) Comic Neue,Arial,sans-serif;letter-spacing:.14em;padding:.55em 1.1em;background:#2a2930;color:#8e8a99;border:1px solid #45444f;border-radius:4px;cursor:pointer}#ctrlScr .tabs button.sel{background:#e9e6ef;color:#16151b;border-color:#e9e6ef}#ctrlScr .padv{position:absolute;left:50%;top:13vh;transform:translateX(-50%);width:min(92vw,1180px);display:none;grid-template-columns:1fr 1fr;gap:2.2vh 4vw;z-index:2}#ctrlScr.pad .padv{display:grid}#ctrlScr .padv .g.gi{background:none;border:none;padding:0;width:2.7em;min-width:2.7em;height:auto;justify-content:center}#ctrlScr .mapv{position:absolute;left:50%;top:11vh;transform:translateX(-50%);width:min(96vw,1280px,165vh);aspect-ratio:1280/640;display:none;z-index:2}#ctrlScr.map .mapv{display:block}#ctrlScr.map .stage{display:none}#ctrlScr .mapv .st{position:absolute;left:10%;top:6%;width:80%;height:84.4%}#ctrlScr .mapv .st>img,#ctrlScr .mapv .st>svg{position:absolute;left:0;top:0;width:100%;height:100%}#ctrlScr .mapv .lb{position:absolute;display:flex;align-items:center;gap:.6em;transform:translateY(-50%);font:700 clamp(11px,1.15vw,16px)/1.15 'Segoe UI','Helvetica Neue',Comic Neue,Arial,sans-serif;text-transform:uppercase;letter-spacing:.05em;color:#e9e6ef;white-space:nowrap}#ctrlScr .mapv .lb small{display:block;font-weight:400;font-size:.8em;text-transform:none;letter-spacing:0;color:#9c99a6}#ctrlScr .mapv .lb.l{right:75%;text-align:right}#ctrlScr .mapv .lb.r{left:75%}#ctrlScr .mapv .lb img{height:2em}#ctrlScr .mapv .hint{position:absolute;left:0;right:0;bottom:-2vh;text-align:center;font:700 clamp(10px,.9vw,13px) Comic Neue,Arial,sans-serif;letter-spacing:.16em;color:#8e8a99}#ctrlScr.pad .stage{display:none}#ctrlScr .padv h3{margin:0 0 .6vh;font:700 clamp(12px,1.05vw,16px) Comic Neue,Arial,sans-serif;letter-spacing:.16em;color:#8e8a99}#ctrlScr .padv .col{display:flex;flex-direction:column;gap:.75vh}#ctrlScr .padv .row{display:flex;align-items:center;gap:.9em;font:600 clamp(13px,1.25vw,19px)/1.25 'Segoe UI','Helvetica Neue',Comic Neue,Arial,sans-serif;text-transform:uppercase;letter-spacing:.02em;color:#e9e6ef}#ctrlScr .padv .row small{display:block;text-transform:none;font-weight:400;font-size:.78em;color:#9c99a6;letter-spacing:0}#ctrlScr .padv .g{flex:none;min-width:2.3em;height:2.3em;padding:0 .5em;box-sizing:border-box;display:flex;align-items:center;justify-content:center;border-radius:.45em;background:#3a3943;border:1px solid #5b5a66;color:#fff;font:800 .8em Comic Neue,Arial,sans-serif;letter-spacing:.04em}#ctrlScr .padv .g.c{border-radius:50%;padding:0;width:2.3em}#ctrlScr .padv .g.a{background:#2f9e4f}#ctrlScr .padv .g.b{background:#c8322f}#ctrlScr .padv .g.x{background:#2f6fd1}#ctrlScr .padv .g.y{background:#d7a91a;color:#1a1a1a}#ctrlScr .padv .row.drive{color:#e9a23b}#ctrlScr .padv .row.look{color:#7fd0f5}#ctrlScr .padv .note{grid-column:1/-1;font:400 clamp(11px,.95vw,14px)/1.5 'Segoe UI',Comic Neue,Arial,sans-serif;color:#8e8a99;text-align:center;margin-top:0}
+#ctrlScr.on{display:block}#ctrlScr .tabs{position:absolute;left:50%;top:5vh;transform:translateX(-50%);display:flex;gap:.4em;z-index:3}#ctrlScr .tabs button{font:700 clamp(11px,1vw,15px) Comic Neue,Arial,sans-serif;letter-spacing:.14em;padding:.55em 1.1em;background:#2a2930;color:#8e8a99;border:1px solid #45444f;border-radius:4px;cursor:pointer}#ctrlScr .tabs button.sel{background:#e9e6ef;color:#16151b;border-color:#e9e6ef}/* (457) one frame for all three pages: the same box, type, line colours and spacing (the box is the keyboard drawing's) */
+#ctrlScr .mapv,#ctrlScr .padv{position:absolute;left:var(--bx);top:var(--by);width:var(--bw);height:var(--bh);display:none;z-index:2;font-size:var(--ls)}
+#ctrlScr.map .mapv{display:block}#ctrlScr.map .stage,#ctrlScr.pad .stage{display:none}#ctrlScr.pad .padv{display:grid}
+#ctrlScr .mapv>img{position:absolute;opacity:.95}#ctrlScr .mapv>svg{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
+#ctrlScr .lab img.pgI{height:1.75em;vertical-align:middle;margin:0 .35em}
+#ctrlScr .hint2{position:absolute;left:0;right:0;top:var(--hy);text-align:center;font:700 clamp(10px,.85vw,13px) Comic Neue,Arial,sans-serif;letter-spacing:.16em;color:#77737f;z-index:3}
+#ctrlScr .padv{grid-template-columns:1fr 1fr;column-gap:6%;align-content:start}
+#ctrlScr .padv h3{margin:0 0 .55em;font:700 .72em Comic Neue,Arial,sans-serif;letter-spacing:.22em;color:#8e8a99}
+#ctrlScr .padv .col{display:flex;flex-direction:column;gap:.32em}
+#ctrlScr .padv .row{display:flex;align-items:center;gap:.6em;font:600 .92em/1.15 'Segoe UI','Helvetica Neue',Comic Neue,Arial,sans-serif;text-transform:uppercase;letter-spacing:.02em;color:#e9e6ef;min-height:1.85em}
+#ctrlScr .padv .row small{display:inline;margin-left:.55em;text-transform:uppercase;font-size:.62em;font-weight:600;color:#d08a1c;letter-spacing:.06em}
+#ctrlScr .padv .row.drive{color:#e9a23b}#ctrlScr .padv .row.look{color:#7fd0f5}#ctrlScr .padv .row.look small{color:#4fb7e8}
+#ctrlScr .padv .g{flex:none;width:2.5em;height:1.75em;box-sizing:border-box;display:flex;align-items:center;justify-content:center;border-radius:.3em;background:#3a3943;border:1px solid #5b5a66;color:#fff;font:800 .62em Comic Neue,Arial,sans-serif;letter-spacing:.04em}
+#ctrlScr .padv .g.gi{background:none;border:none;font-size:1em}#ctrlScr .padv .g.gi img.pgI{height:1.75em;margin:0}
+#ctrlScr .padv .g.wide{width:auto;padding:0 .6em}#ctrlScr .padv .row b{font:inherit;color:#fff}
+#ctrlScr .padv .ptest{grid-column:1/-1;margin-top:.9em;display:grid;grid-template-columns:repeat(3,1fr);gap:4%;font:700 .55em Comic Neue,Arial,sans-serif;color:#8e8a99;letter-spacing:.16em}
+#ctrlScr .padv .note{grid-column:1/-1;font:400 .66em/1.5 'Segoe UI',Comic Neue,Arial,sans-serif;color:#8e8a99;text-align:center;margin-top:.8em}
 #ctrlScr h2{position:absolute;left:4vw;top:4vh;margin:0;font:600 clamp(34px,4.6vw,72px)/1 'Segoe UI','Helvetica Neue',Comic Neue,Arial,sans-serif;color:#a9a6b2;letter-spacing:.01em}
 #ctrlScr .back{position:absolute;right:4vw;top:5vh;font:700 clamp(11px,.95vw,14px) Comic Neue,Arial,sans-serif;letter-spacing:.14em;color:#8e8a99}
 #ctrlScr .stage{position:absolute;left:0;top:0}
@@ -18618,7 +18634,7 @@ const animePerf=window.animePerf=(()=>{
   C:['Camera view','bot'],V:['Watch replay','bot',' after the finish'],N:['Next song','bot',' practice only'],M:['Music off / on','bot'],
   Space:['Handbrake · drift','bot'],Q:['Shift down','top',' manual gears'],B:['Horn','bot'],E:['Shift up','top',' manual gears'],Enter:['Select','bot'],ShiftL:['Brake','bot']};
  const DRIVE=['W','A','S','D'],LOOK=['▲','◀','▼','▶'];
- const scr=document.createElement('div');scr.id='ctrlScr';scr.innerHTML='<h2>Controls</h2><div class="back">ESC · ENTER · CLICK TO GO BACK</div><div class="stage"></div><div class="tabs"><button data-v="kb">KEYBOARD</button><button data-v="map">CONTROLLER</button><button data-v="pad">FULL LIST</button></div><div class="padv"></div><div class="mapv"></div>';document.body.appendChild(scr);
+ const scr=document.createElement('div');scr.id='ctrlScr';scr.innerHTML='<h2>Controls</h2><div class="back">ESC · ENTER · CLICK TO GO BACK</div><div class="stage"></div><div class="tabs"><button data-v="kb">KEYBOARD</button><button data-v="map">CONTROLLER</button><button data-v="pad">FULL LIST</button></div><div class="padv"></div><div class="mapv"></div><div class="hint2">◀ ▶ &nbsp;KEYBOARD · CONTROLLER · FULL LIST</div>';document.body.appendChild(scr);
  const stage=scr.querySelector('.stage');
  function draw(){const W=innerWidth,H=innerHeight,u=Math.min(W*.7/19.2,H*.56/9.2),g=u*.1,x0=(W-19.2*u)/2,y0=H*.47-3.0*u;
   stage.innerHTML='';stage.style.setProperty('--fs',Math.max(9,u*.3)+'px');stage.style.setProperty('--ls',Math.max(11,u*.32)+'px');
@@ -18643,31 +18659,44 @@ const animePerf=window.animePerf=(()=>{
     line([[kx,ky],[kx,ly],[kx+(al==='r'?-u*.18:u*.18),ly]],col);
     lab2(v[0]+(v[2]?' <small style="display:inline;margin-left:.5em">'+v[2].trim()+'</small>':''),kx+(al==='r'?-u*.26:u*.26),ly,al,v[3]==='drive'?'drive':v[3]==='look'?'look':'',null)})}
   // WASD: driving, a callout out to the left of the keyboard
-  {const y=at.A.y+u/2,x=x0-u*.35;line([[at.A.l-4,y],[x,y]],'#d08a1c');lab2('Drive · steer',x-u*.12,y,'r','drive','W gas · S brake')}}
+  {const y=at.A.y+u/2,x=x0-u*.35;line([[at.A.l-4,y],[x,y]],'#d08a1c');lab2('Drive · steer',x-u*.12,y,'r','drive','W gas · S brake')}
+  // (457) the frame every page shares: the keyboard drawing's box, its label size and line style
+  const BX=x0,BY=y0-2.35*u,BW=19.2*u,BH=13.3*u;scr.style.setProperty('--bx',BX+'px');scr.style.setProperty('--by',BY+'px');scr.style.setProperty('--bw',BW+'px');scr.style.setProperty('--bh',BH+'px');
+  scr.style.setProperty('--ls',Math.max(11,u*.32)+'px');scr.style.setProperty('--hy',(BY+BH+u*.3)+'px');
+  drawMap(BW,BH,u)}
+ // CONTROLLER page: the pad drawn in the middle of the frame, callouts out to both sides in the keyboard page's style
+ const PT={LT:[372,128],LB:[398,140],VIEW:[481,201],LS:[400,205],DP:[447,272],RT:[652,128],RB:[626,140],MENU:[543,201],Y:[622,174],X:[594,202],B:[651,202],A:[622,231],RS:[568,267]};
+ const ML=[['LT','Brake · reverse','','drive'],['LB','Shift down','manual gears'],['VIEW','Restart run','hold'],['LS','Steer','','drive'],['UP','Fog lights','cars with fogs','','DP'],['DOWN','Hazards','','','DP'],['LEFT','Music off / on','','','DP'],['RIGHT','Next song','practice only','','DP']];
+ const MR=[['RT','Gas','','drive'],['RB','Shift up','manual gears'],['MENU','Pause'],['Y','Camera view'],['B','Horn','hold'],['X','Headlights'],['A','Handbrake · drift','hold','drive'],['R3','Look back','click','look','RS']];
+ function drawMap(BW,BH,u){const M=scr.querySelector('.mapv');if(!M||!window.__pg||!window.__PADPIC)return;M.innerHTML='';
+  const iw=BW*.56,ih=iw*2160/4096,ix=(BW-iw)/2,iy=(BH-ih)/2-u*.1;
+  const im=document.createElement('img');im.src=__PADPIC;im.style.cssText=`left:${ix}px;top:${iy}px;width:${iw}px;height:${ih}px`;M.appendChild(im);
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('width',BW);svg.setAttribute('height',BH);M.appendChild(svg);
+  const NS='http://www.w3.org/2000/svg',P=(x,y)=>[ix+x/1024*iw,iy+y/540*ih],top=BH*.1,bot=BH*.86;
+  const side=(arr,left)=>arr.forEach((r,i)=>{const [k,t,sub,cls,pt]=r,p=P(...PT[pt||k]),y=top+i*(bot-top)/(arr.length-1),col=cls==='drive'?'#d08a1c':cls==='look'?'#4fb7e8':'#9c99a6';
+   const ex=left?ix-u*.5:ix+iw+u*.5,lx=left?ex-u*.2:ex+u*.2;
+   const pl=document.createElementNS(NS,'polyline');pl.setAttribute('points',`${lx},${y} ${ex},${y} ${p[0]},${p[1]}`);pl.setAttribute('fill','none');pl.setAttribute('stroke',col);pl.setAttribute('stroke-width','1.4');svg.appendChild(pl);
+   const c=document.createElementNS(NS,'circle');c.setAttribute('cx',p[0]);c.setAttribute('cy',p[1]);c.setAttribute('r',Math.max(2.2,u*.05));c.setAttribute('fill',col);svg.appendChild(c);
+   const d=document.createElement('div');d.className='lab'+(cls?' '+cls:'');const sb=sub?` <small style="display:inline;margin:0 .5em">${sub}</small>`:'';
+   d.innerHTML=left?`${t}${sb}${__pg(k)}`:`${__pg(k)}${sb.replace('margin:0 .5em','margin:0 .5em')}${t}`;
+   if(!left)d.innerHTML=`${__pg(k)}${t}${sb}`;
+   d.style.cssText=`left:${lx}px;top:${y}px;transform:${left?'translate(-100%,-50%)':'translateY(-50%)'};text-align:${left?'right':'left'};font-size:var(--ls)`;M.appendChild(d)});
+  side(ML,true);side(MR,false)}
  window.__controlsOpen=false;
 
  // CONTROLLER page (Xbox layout; the Elite's paddles copy whatever buttons you give them)
- {const G=(t,c)=>{const k=window.__padKey&&__padKey(t);if(k)return `<span class="g gi">${__pg(k,1.75)}</span>`;if(t==='D-PAD'&&window.__pg)return `<span class="g gi">${__pg('UP',1.75)}</span>`;return `<span class="g${c?' '+c:''}">${t}</span>`},R=(g,t,sub,cls)=>`<div class="row${cls?' '+cls:''}">${g}<div>${t}${sub?`<small>${sub}</small>`:''}</div></div>`;
+ {const G=(t,c)=>{const k=window.__padKey&&__padKey(t);if(k)return `<span class="g gi">${__pg(k,1.75)}</span>`;if(t==='D-PAD'&&window.__pg)return `<span class="g gi">${__pg('UP',1.75)}</span>`;return `<span class="g${c?' '+c:''}${t.length>3?' wide':''}">${t}</span>`},R=(g,t,sub,cls)=>`<div class="row${cls?' '+cls:''}">${g}<div>${t}${sub?`<small>${sub}</small>`:''}</div></div>`;
   scr.querySelector('.padv').innerHTML=`<div class="col"><h3>IN A RACE</h3>${[
-   R(G('L-STICK'),'Steer','push a little to turn a little','drive'),R(G('RT'),'Gas','squeeze a little for a little','drive'),R(G('LT'),'Brake · reverse','a light touch to slow, all the way to stop','drive'),
+   R(G('L-STICK'),'Steer','push a little to turn a little','drive'),R(G('RT'),'Gas','squeeze a little for a little','drive'),R(G('LT'),'Brake · reverse','light touch to slow','drive'),
    R(G('A','c a'),'Handbrake · drift','hold and steer into the bend','drive'),
    R(G('R3'),'Look back','hold · click the right stick','look'),R(G('B','c b'),'Horn','hold'),
    R(G('Y','c y'),'Camera view'),R(G('X','c x'),'Headlights'),R(G('D-PAD ↑'),'Fog lights','cars with fogs'),R(G('D-PAD ↓'),'Hazards'),R(G('D-PAD ←'),'Music off / on'),R(G('D-PAD →'),'Next song','practice only'),R(G('LB'),'Shift down','manual gears'),R(G('RB'),'Shift up','manual gears'),
    R(G('VIEW'),'Restart run','hold for a second'),R(G('MENU'),'Pause')].join('')}</div>
    <div class="col"><h3>MENUS · STORY PAGES</h3>${[R(G('L-STICK'),'Move'),R(G('D-PAD'),'Move'),R(G('A','c a'),'Select · next page'),R(G('B','c b'),'Back'),R(G('MENU'),'Back · close'),
-   R(G('VIEW'),'Watch the replay','after the finish'),R(G('R3'),'Music off / on')].join('')}<div class="row rmb" style="cursor:pointer">${G('X','c x')}<div>Rumble · <b class="rmv">FULL</b><small>press X here (or click) · full · light · off</small></div></div><div class="row rmt" style="cursor:pointer">${G('RB')}<div>Test rumble motors · <b class="rtv"></b><small>press RB here (or click) · each motor buzzes in turn: left grip, right grip, left trigger, right trigger</small></div></div><div class="row pdm" style="cursor:pointer">${G('LB')}<div>Gas &amp; brake · <b class="pdv">SMOOTH</b><small>press LB here (or click) · smooth: finer in the first half of the squeeze · linear: straight 0-100</small></div></div>
+   R(G('VIEW'),'Watch the replay','after the finish'),R(G('R3'),'Music off / on')].join('')}<div class="row rmb" style="cursor:pointer">${G('X','c x')}<div>Rumble · <b class="rmv">FULL</b><small>X here · full · light · off</small></div></div><div class="row rmt" style="cursor:pointer">${G('RB')}<div>Test rumble motors · <b class="rtv"></b><small>RB here · each motor in turn</small></div></div><div class="row pdm" style="cursor:pointer">${G('LB')}<div>Gas &amp; brake · <b class="pdv">SMOOTH</b><small>LB here · smooth or linear</small></div></div>
    <h3 style="margin-top:2vh">KEYBOARD STILL WORKS</h3>${R(G('W A S D'),'Drive · steer','','drive')}${R(G('ARROWS'),'Look around','','look')}</div>
    <div class="ptest" style="grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:2vw;font:600 clamp(11px,1vw,15px) Comic Neue,Arial,sans-serif;color:#cfcbd8;letter-spacing:.08em">${['BRAKE · LT','GAS · RT','STEER · L-STICK'].map((t,i)=>`<div><div style="display:flex;justify-content:space-between"><span>${t}</span><b class="pv${i}">0%</b></div><div style="position:relative;height:1.1em;background:#2a2930;border:1px solid #45444f;margin-top:.4em"><i class="pb${i}" style="position:absolute;top:0;bottom:0;${i===2?'left:50%;':'left:0;'}width:0;background:${['#c8322f','#2f9e4f','#e9a23b'][i]}"></i>${i===2?'<i style="position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:#fff"></i>':''}</div></div>`).join('')}</div>
-   <div class="note">Switch the controller on and press any button. The game's tips follow whichever you last touched.</div>`;
-  /* (453) CONTROLLER: the pad drawn in line with a red leader line from each button to what it does in a race */
-  try{const PT={LT:[372,128],LB:[398,140],VIEW:[481,201],LS:[400,205],DP:[447,272],RT:[652,128],RB:[626,140],MENU:[543,201],Y:[622,174],X:[594,202],B:[651,202],A:[622,231],RS:[568,267]};
-   const L=[['LT','Brake · reverse','light touch to slow, all the way to stop'],['LB','Shift down','manual gears'],['VIEW','Restart run','hold for a second'],['LS','Steer','push a little to turn a little'],['UP','Fog lights','cars with fogs','DP'],['DOWN','Hazards','','DP'],['LEFT','Music off / on','','DP'],['RIGHT','Next song','practice only','DP']];
-   const Rr=[['RT','Gas','squeeze a little for a little'],['RB','Shift up','manual gears'],['MENU','Pause'],['Y','Camera view'],['B','Horn','hold'],['X','Headlights'],['A','Handbrake · drift','hold and steer into the bend'],['R3','Look back','hold · click the right stick','RS']];
-   let ln='',lb='';const side=(arr,left)=>arr.forEach((r,i)=>{const y=58+i*(424/(arr.length-1)),[k,t,sub,pt]=r,p=PT[pt||k],x=left?250:774;
-    ln+=`<polyline points="${left?x+6:x-6},${y} ${left?x+40:x-40},${y} ${p[0]},${p[1]}" fill="none" stroke="#e8322e" stroke-width="1.5" opacity=".9"/><circle cx="${p[0]}" cy="${p[1]}" r="3.4" fill="#e8322e"/>`;
-    lb+=`<div class="lb ${left?'l':'r'}" style="top:${y/540*100}%">${left?'':__pg(k)}<div>${t}${sub?`<small>${sub}</small>`:''}</div>${left?__pg(k):''}</div>`});
-   side(L,true);side(Rr,false);
-   scr.querySelector('.mapv').innerHTML=`<div class="st"><img src="${window.__PADPIC}" alt=""><svg viewBox="0 0 1024 540" preserveAspectRatio="none">${ln}</svg>${lb}</div><div class="hint">◀ ▶ KEYBOARD · CONTROLLER · FULL LIST (MENUS, RUMBLE, PEDAL TEST)</div>`}catch(e){console.warn('padmap',e)}
+`;
   const tabs=[...scr.querySelectorAll('.tabs button')],view=v=>{scr.classList.toggle('map',v==='map');scr.classList.toggle('pad',v==='pad');tabs.forEach(b=>b.classList.toggle('sel',b.dataset.v===v))};
   tabs.forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();view(b.dataset.v);try{uiSelectSound()}catch(_){}}));
   window.__controlsView=view;
