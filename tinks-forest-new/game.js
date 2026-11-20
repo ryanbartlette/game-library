@@ -4315,9 +4315,9 @@ if(uSnowG>.01){float thr=.8*rk+.2*gvn(wp*.23);float sG=smoothstep(thr-.12,thr+.1
  float th2=aSn.x+aOff.w+aSn.y*(3.14159/7.)*1.35*(1.-aSn.z);float rr2=R*(1.-aSn.z);
  vec2 q=vec2(cos(th2),sin(th2))*rr2;float u2=clamp(rr2/R,0.,1.);float dome=Hs*(1.-u2*u2)*(1.-.35*u2*u2);
  vec3 sn=vec3(q.x,dome+.004,q.y);
- lp=mix(lp,sn,sG);lp*=mix(1.,smoothstep(.004,.025,Hs),sG);/* FOREST 140 (Ryan's real snow layer): with the snow blanket on, the tuft just sinks away beneath it */if(uSnowLay>.5){lp*=1.-smoothstep(.05,.7,sG);lp*=1.-smoothstep(0.,.35,uSnowG);/* (Build 593, Ryan: in the snow scene the grass stood long after the land was white): the snow sheet and the ground read fully white about a third of the way in, so the grass is under by then too */vSG=0.;}/* (Build 581, Ryan: from high up the patch of green round Tink stayed too long once the land was white): the tufts go under sooner, and sooner still in a scene, where the camera is up high *//* (Build 580, Ryan: a square of grass left standing once the ground was white): every tuft is under by the time the snow has settled, wherever it grows *//* FOREST 117 (Ryan: star shapes along the paths): where there's no snow to speak of (a path's edge) the tuft simply isn't there, leaving the ground's own dusting */vSnH=clamp(1.-u2*u2,0.,1.);
+ lp=mix(lp,sn,sG);lp*=mix(1.,smoothstep(.004,.025,Hs),sG);/* FOREST 140 (Ryan's real snow layer): with the snow blanket on, the tuft just sinks away beneath it */if(uSnowLay>.5){lp*=1.-smoothstep(.05,.7,sG);vSG=0.;}/* (Build 581, Ryan: from high up the patch of green round Tink stayed too long once the land was white): the tufts go under sooner, and sooner still in a scene, where the camera is up high *//* (Build 580, Ryan: a square of grass left standing once the ground was white): every tuft is under by the time the snow has settled, wherever it grows *//* FOREST 117 (Ryan: star shapes along the paths): where there's no snow to speak of (a path's edge) the tuft simply isn't there, leaving the ground's own dusting */vSnH=clamp(1.-u2*u2,0.,1.);
  vColor.rgb=mix(vColor.rgb,vec3(.96,.975,1.),sG);vSW=wp+lp.xz;}}
-vec3 transformed=vec3(wp.x,texture2D(uHeight,tuv).r,wp.y)+lp;/* FOREST 105 (Ryan: on slopes the snow stacked in flat plates): each point of a mound sits on the ground right beneath it, so the drifts follow the slope */if(vSG>.001)transformed.y=mix(transformed.y,texture2D(uHeight,(wp+lp.xz+uWorld*.5)/uWorld).r+lp.y,vSG);vGW=vec3(wp.x,aT,wp.y);vShade=.8+.4*fract(sin(dot(aOff.xy,vec2(12.9898,78.233)))*43758.5);`
+/* Build 594 (Ryan: in the snow scene the grass stood long after the land was white): every tuft, whenever its own drift is due, is under by the time the snow sheet and the ground read white, a third of the way in (in 593 this sat inside the per-tuft block, so most tufts never got it) */if(uSnowLay>.5)lp*=1.-smoothstep(0.,.35,uSnowG);vec3 transformed=vec3(wp.x,texture2D(uHeight,tuv).r,wp.y)+lp;/* FOREST 105 (Ryan: on slopes the snow stacked in flat plates): each point of a mound sits on the ground right beneath it, so the drifts follow the slope */if(vSG>.001)transformed.y=mix(transformed.y,texture2D(uHeight,(wp+lp.xz+uWorld*.5)/uWorld).r+lp.y,vSG);vGW=vec3(wp.x,aT,wp.y);vShade=.8+.4*fract(sin(dot(aOff.xy,vec2(12.9898,78.233)))*43758.5);`
 )
 .replace(
 '#include <color_vertex>',
@@ -15413,10 +15413,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 593;
+const BUILD = 594;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 161;
+const LOOKV = 162;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -18616,12 +18616,11 @@ if(!x && !z)return null;
 {
 const PD = window.__PAD;
 if(PD && PD.mode && PD.mag > 0 &&(P.povK || 0)> 0.5 && P.povUser){
-const fm = Math.abs(z)* PD.mag;
+const fm = Math.max(0,z)* PD.mag;
 P.povWalk = P.povWalk ? fm > 0.26 : fm > 0.4;
 PD.povMag = P.povWalk ? clamp(fm,0.2,1): 0;
 if(!P.povWalk)return null;
-const f = new V3(-Math.sin(cam.yaw),0,-Math.cos(cam.yaw));
-return z < 0 ? f.negate(): f;
+return new V3(Math.sin(P.yaw),0,Math.cos(P.yaw));
 }
 }
 const f = new V3(-Math.sin(cam.yaw),0,-Math.cos(cam.yaw)),
@@ -22039,6 +22038,7 @@ const on = sceneOn();
 window.__sceneOn = on;
 if(window.__sceneWas && !on && window.__camKeepOnce)window.__camKeepOnce = false;
 else if(window.__sceneWas && !on && P.mode !== 'climb'){
+if(!window.__camEase)window.__camEase ={p: camera.position.clone(),q: camera.quaternion.clone(),t: 0,dur: 1.3};
 cam.yaw = P.yaw + Math.PI;
 cam.pitch = clamp(cam.pitch,0.2,0.5);
 try{
@@ -22403,9 +22403,18 @@ P.yaw += angDiff(P.yaw,Math.atan2(d.x,d.z)+ off * 0.5)* Math.min(1,dt * 1.1);
 cam.yaw += angDiff(cam.yaw,P.yaw + Math.PI)*(1 - Math.exp(-dt * 2.2 * k));
 if(P.povUser && k > 0.5 && !(TR &&(TR.cs || TR.wonder || TR.hes))){
 const rel = angDiff(P.yaw + Math.PI,cam.yaw);
-if(window.__PAD && window.__PAD.mode && P.mode === 'ground' && !P.script){
-const lim = 1.0;
-if(Math.abs(rel)> lim)P.yaw += Math.sign(rel)*(Math.abs(rel)- lim);
+if(window.__PAD && window.__PAD.mode && P.mode !== 'climb' && !P.script){
+if(!P._povPad){
+P._povPad = true;
+P.povHead = clamp(rel,-0.9,0.9);
+}
+const idle = performance.now()-(window.__padHeadT || 0);
+if(idle > 700){
+const kb = 1 - Math.exp(-dt * 1.6);
+P.povHead =(P.povHead || 0)*(1 - kb);
+if(P.speed > 0.3)P.povPitch = lerp(P.povPitch ?? 0.04,0.04,kb);
+}
+cam.yaw = P.yaw + Math.PI +(P.povHead || 0);
 }else if(false){
 const lim = 0.7;
 if(Math.abs(rel)> lim)P.yaw += Math.sign(rel)*(Math.abs(rel)- lim)*(1 - Math.exp(-dt * 6));
@@ -22413,6 +22422,7 @@ const rel2 = angDiff(P.yaw + Math.PI,cam.yaw);
 if(Math.abs(rel2)> 1.25)cam.yaw = P.yaw + Math.PI + Math.sign(rel2)* 1.25;
 }else if(Math.abs(rel)> 1.05)cam.yaw = P.yaw + Math.PI + Math.sign(rel)* 1.05;
 }
+if(!(window.__PAD && window.__PAD.mode && P.povUser && k > 0.5 && P.mode !== 'climb' && !P.script))P._povPad = false;
 const padPov = !!(window.__PAD && window.__PAD.mode && P.povUser && !(TR &&(TR.cs || TR.wonder || TR.hes)));
 const f = padPov ? new V3(-Math.sin(cam.yaw),0,-Math.cos(cam.yaw)): fwdOf(P.yaw);
 const eye = new V3(
@@ -29613,6 +29623,16 @@ o.userData.noEdit = true;
 }
 });
 window.__RAINVISITOR = th;
+window.__totoFace =(root,show)=>{
+if(!root)return;
+if(!root.userData.face){
+root.userData.face =[];
+root.traverse(o =>{
+if(o.isMesh &&[].concat(o.material).some(m => m && /occhi|naso|baffi/i.test(m.name || '')))root.userData.face.push(o);
+});
+}
+for(const o of root.userData.face)o.visible = show;
+};
 }catch(e){
 console.warn('rain visitor',e);
 }
@@ -29868,6 +29888,7 @@ for(const m of CB.inMats){
 m.transparent = k < 0.995;
 m.opacity = k;
 }
+window.__totoFace && window.__totoFace(CB.inside,k > 0.97);
 };
 window.__CATBUS = CB;
 setTimeout(()=>{
@@ -36760,6 +36781,7 @@ for(const m of RV.userData.mats){
 m.transparent = k < 0.995;
 m.opacity = k;
 }
+window.__totoFace && window.__totoFace(RV,k > 0.97);
 };
 if(E.st === 'idle'){
 if(
@@ -47766,7 +47788,7 @@ held[id]= 0;
 queue.push({id,lines: LINES[id]});
 }
 };
-const talking =()=> !!say && !say.leaving;
+const talking =()=> !!say && !say.leaving && !(say.lastOn && !window.__qOn);
 S.busy =()=>
 talking()|| queue.length > 0 || !!S.fin;
 S.qlen =()=> queue.length +(talking()? 1 : 0);
@@ -47929,6 +47951,7 @@ if(i >= 0 && i !== s.i){
 s.i = i;
 S.quote(L[i][0],L[i][1],0);
 }
+if(s.i === L.length - 1 && window.__qOn)s.lastOn = true;
 if(s.t > tEnd){
 if(!s.body){
 say = null;
@@ -53730,7 +53753,7 @@ return;
 }
 D.lockIdle =
 (D.lockIdle || 0)+ dt;
-if(D.lockT < 75 &&(D.lockIdle < 0.6 || window.__qOn))return;
+if(D.lockT < 75 &&(D.lockIdle < 0.25 || window.__qOn))return;
 D.lockIdle = 0;
 D.lockT = 0;
 D.storyLock = false;
@@ -59610,7 +59633,7 @@ const k = smooth(0,CE.dur || 1.1,CE.t);
 if(k >= 1)window.__camEase = null;
 else{
 camera.position.lerpVectors(CE.p,camera.position,k);
-camera.quaternion.slerpQuaternions(CE.q,camera.quaternion,k);
+camera.quaternion.copy(CE.q.clone().slerp(camera.quaternion,k));
 }
 }
 }
@@ -61624,22 +61647,18 @@ ry = PAD.lookY;
 if(Math.abs(rx)> 0.01 || Math.abs(ry)> 0.01)window.__padLookT = performance.now();
 {
 const on = P.povUser &&(P.povK || 0)> 0.5 && P.mode !== 'climb' && !window.__sceneOn && lookOK();
-let tx = 0;
-if(on){
-const lx0 = ax[0]|| 0,
-ax0 = Math.abs(lx0),
-XDZ = 0.24,
-rm = ax0 > XDZ ? Math.min(1,(ax0 - XDZ)/(RIM - XDZ)): 0,
-cm = rm *(0.7 + 0.3 * rm);
-tx = Math.sign(lx0)* cm;
-}
-const k = 1 - Math.exp(-dt / 0.12);
+const lx = on ? ax[0]|| 0 : 0,
+ly = on ? ax[1]|| 0 : 0;
+const lr = Math.hypot(lx,ly),
+lm = lr > DZ ? Math.min(1,(lr - DZ)/(RIM - DZ)): 0,
+lc = lm * lm *(0.35 + 0.65 * lm);
+const tx = lr > 0 ?(lx / lr)* lc : 0;
+const k = 1 - Math.exp(-dt / 0.07);
 PAD.lookXL =(PAD.lookXL || 0)+(tx -(PAD.lookXL || 0))* k;
+PAD.rimTL = lm > 0.97 && Math.abs(lx)> 0.8 ? Math.min(0.6,(PAD.rimTL || 0)+ dt): 0;
 if(on && Math.abs(PAD.lookXL)> 1e-4){
-const dy = PAD.lookXL * 3.3 *(OPT.padSens ?? 1)* dt;
-cam.yaw -= dy;
-P.yaw -= dy;
-window.__padLookT = performance.now();
+const boostL = 1 + 0.45 * smooth(0.2,0.6,PAD.rimTL || 0);
+P.yaw -= PAD.lookXL * 3.3 *(OPT.padSens ?? 1)* boostL * dt;
 }
 PAD.povTurn = 0;
 }
@@ -61648,7 +61667,11 @@ const cv = v => v;
 const sens = OPT.padSens ?? 1,
 inv = OPT.padInv ? -1 : 1;
 const boost = 1 + 0.45 * smooth(0.2,0.6,PAD.rimT || 0);
-if(!window.__sceneOn)cam.yaw -= cv(rx)* 3.3 * sens * boost * dt;
+const headPov =(P.povK || 0)> 0.5 && P.povUser && P.mode !== 'climb';
+if(headPov){
+if(!window.__sceneOn)P.povHead = clamp((P.povHead || 0)- cv(rx)* 3.3 * sens * dt,-0.9,0.9);
+if(Math.abs(rx)> 0.02 || Math.abs(ry)> 0.02)window.__padHeadT = performance.now();
+}else if(!window.__sceneOn)cam.yaw -= cv(rx)* 3.3 * sens * boost * dt;
 if((P.povK || 0)> 0.5){
 P.povPitch = clamp((P.povPitch ?? 0.04)+ inv * cv(ry)* 2.0 * sens * dt,-1.45,0.72);
 }else cam.pitch = clamp(cam.pitch + inv * cv(ry)* 2.0 * sens * dt,-0.35,1.2);
@@ -61664,6 +61687,10 @@ PAD.used = performance.now();
 {
 const LOG =[];
 window.__hitches = LOG;
+window.__P = P;
+window.__cam = cam;
+window.__rend = renderer;
+window.__camera = camera;
 window.__tp =(x,z)=>{
 P.pos.x = x;
 P.pos.z = z;
