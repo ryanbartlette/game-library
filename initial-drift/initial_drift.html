@@ -512,7 +512,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=453',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=454',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -4111,7 +4111,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 453';
+window.__BUILD='BUILD 454';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5640,9 +5640,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795164411'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795167654'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795164411'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795167654'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -6020,8 +6020,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795164411'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795164411'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795167654'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795167654'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6479,7 +6479,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795164411',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795167654',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6493,7 +6493,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795164411',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795167654',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -9162,12 +9162,12 @@ Object.assign(STORY,{
   {panels:[F(P.seijiAngry,{fx:['gloom','speedDark'],anim:'shiver'})],items:[{sfx:'クソッ!',x:50,y:6,r:8,c:'#e8263b',shake:true,flash:true},{t:'In the RAIN... four-wheel drive... and I LOST?!',who:'SEIJI',x:48,y:52,shout:true,w:46}]},
   {panels:[F(P.seijiDefeated,{fx:'gloom'})],items:[{t:'...Kyoichi\'s going to kill me.',who:'SEIJI',x:52,y:60,w:40,think:true}]},
   {panels:LR(P.kyoichi,P.takumi,{fa:'gloom'}),
-   items:[{cap:'EMPEROR\'S LEADER · KYOICHI SUDO',x:3,y:4},{t:'Seiji lost to an 86. Then I\'ll show you why an 86 has no place on a modern mountain. Akagi. Tomorrow night.',who:'KYOICHI',x:3,y:56,w:44},
+   items:[{cap:'EMPEROR\'S LEADER · KYOICHI SUDO',x:3,y:4},{t:'Seiji lost to an 86. Then I\'ll show you why an 86 has no place on a modern mountain. Irohazaka. Tomorrow night.',who:'KYOICHI',x:3,y:56,w:44},
     {t:'...',who:'TAKUMI',x:62,y:66,think:true}]}],
  lose_seiji:[
   {panels:[F(P.seijiCheer,{fx:'speed',anim:'bounce'})],items:[{t:'Another sticker for the wall. Sayonara, old-timer.',who:'SEIJI',x:48,y:50,w:46}]},
   {panels:[F(P.takumi,{pos:'object-position:50% 40%',fx:['gloom','tone']})],items:[{t:'...Not in the rain. Not here. Again.',who:'TAKUMI',x:54,y:62,think:true,w:40}]}],
- // ===== SECOND STAGE · 2 · KYOICHI · Akagi (you can't win this one)
+ // ===== SECOND STAGE · 2 · KYOICHI · Irohazaka (you can't win this one)
  intro_kyoichi:[
   {panels:[F(P.natsukiMercedes,{pos:'object-position:50% 45%',fx:'gloom'})],
    items:[{cap:'TAKASAKI · STATION FRONT · LATE NIGHT',x:3,y:4},{t:'Isn\'t that... Natsuki?! Getting into a Mercedes... with some old guy?!',who:'ITSUKI',x:52,y:62,w:44,think:true},{sfx:'エッ…?!',x:6,y:22,r:-8,c:'#2f6fd1',shake:true}]},
@@ -9180,13 +9180,13 @@ Object.assign(STORY,{
      {k:'silent',label:'(Say nothing. Walk past.)',reply:'...',think:true,then:[{who:'NATSUKI',t:'...Takumi-kun?',x:3,y:14,w:44,replace:true}]}]},x:3,y:72,w:44,rx:54,ry:78}]},
   {panels:[F(P.takumi,{pos:'object-position:50% 40%',fx:['gloom','tone'],anim:'shiver'})],items:[{t:'...I don\'t want to think about anything. I just want to drive.',who:'TAKUMI',x:52,y:62,think:true,w:42}]},
   {panels:LR(P.buntaSmirk,P.takumiAngry,{fa:'tone'}),
-   items:[{cap:'FUJIWARA TOFU SHOP · BEFORE AKAGI',x:3,y:4},{t:'That engine\'s been making a noise. Don\'t push it too hard tonight.',who:'BUNTA',x:3,y:14,w:40,keep:true},
+   items:[{cap:'FUJIWARA TOFU SHOP · BEFORE IROHAZAKA',x:3,y:4},{t:'That engine\'s been making a noise. Don\'t push it too hard tonight.',who:'BUNTA',x:3,y:14,w:40,keep:true},
     {t:'It\'s fine.',who:'TAKUMI',x:56,y:12,w:24,keep:true},{t:'You haven\'t been listening lately.',who:'BUNTA',x:3,y:60,w:40},{t:'I SAID IT\'S FINE!',who:'TAKUMI',x:56,y:66,w:36,shout:true,shake:true}]},
   {panels:LR(P.kyoichi,P.takumiAngry,{fa:'tone'}),
-   items:[{cap:'AKAGI · THE NEXT NIGHT',x:3,y:4},{t:'Let me explain why you lose. 130 horsepower against 300. Two-wheel drive against four. Akagi has long straights. Physics isn\'t an opinion.',who:'KYOICHI',x:3,y:54,w:46},
+   items:[{cap:'IROHAZAKA · THE NEXT NIGHT',x:3,y:4},{t:'Let me explain why you lose. 130 horsepower against 300. Two-wheel drive against four. Irohazaka is all hard braking and full throttle. Physics isn\'t an opinion.',who:'KYOICHI',x:3,y:54,w:46},
     {t:'...Stop talking about my car like it\'s junk.',who:'TAKUMI',x:56,y:66,w:40,shout:true}]},
   {panels:T3(P.evo3,P.kyoichiSmirk,P.takumi,{h:52}),
-   items:[{cap:'AKAGI · THE REDSUNS\' HOME MOUNTAIN',x:3,y:4},{t:'You should know: your engine is old. You\'ve been riding it to the limit every single morning.',who:'KYOICHI',x:3,y:58,w:46},
+   items:[{cap:'IROHAZAKA · THE EMPEROR\'S HOME COURSE',x:3,y:4},{t:'You should know: your engine is old. You\'ve been riding it to the limit every single morning.',who:'KYOICHI',x:3,y:58,w:46},
     {t:'...It\'s been running fine.',who:'TAKUMI',x:56,y:66,w:40,think:true}]},
   vs(8)],
  lose_kyoichi:[
@@ -9213,10 +9213,10 @@ Object.assign(STORY,{
  // ===== SECOND STAGE · SIDE STORY · RYOSUKE vs KYOICHI · you drive the FC
  intro_ryosuke_kyoichi:[
   {panels:LR(P.ryosukeNotes,P.keisukeShock,{split:56,fb:'tone'}),
-   items:[{cap:'AKAGI · THE SAME NIGHT · THE ROADSIDE',x:3,y:4},{t:'Fujiwara didn\'t lose. His engine did — it was simply old. Kyoichi thinks the machine decides everything. On a mountain, the driver adapts.',who:'RYOSUKE',x:3,y:60,w:50},
+   items:[{cap:'IROHAZAKA · THE SAME NIGHT · THE ROADSIDE',x:3,y:4},{t:'Fujiwara didn\'t lose. His engine did — it was simply old. Kyoichi thinks the machine decides everything. On a mountain, the driver adapts.',who:'RYOSUKE',x:3,y:60,w:50},
     {t:'Keisuke. I\'m racing him. Tonight.',who:'RYOSUKE',x:3,y:12,w:34,keep:true},{t:'Aniki?!',who:'KEISUKE',x:62,y:70,shout:true,w:28}]},
   {panels:LR(P.ryosukeSmirk,P.kyoichi,{fa:'speedDark',fb:'gloom'}),
-   items:[{cap:'AKAGI · RYOSUKE vs KYOICHI',x:3,y:4},{t:'Your theory of the circuit doesn\'t work on a mountain pass, Kyoichi. Let me show you.',who:'RYOSUKE',x:3,y:62,w:44},
+   items:[{cap:'IROHAZAKA · RYOSUKE vs KYOICHI',x:3,y:4},{t:'Your theory of the circuit doesn\'t work on a mountain pass, Kyoichi. Let me show you.',who:'RYOSUKE',x:3,y:62,w:44},
     {t:'...The White Comet. So that\'s the RedSuns\' real ace.',who:'KYOICHI',x:54,y:62,w:42}]},
   {panels:T3(P.fcEvo,P.ryosuke,P.kyoichi,{h:52}),items:[{cap:'SIDE STORY · YOU DRIVE RYOSUKE\'S FC',x:3,y:4},{t:'Emperor took the 86 out because its engine died. I won\'t give them a reason.',who:'RYOSUKE',x:3,y:58,w:44},{t:'A car built for the circuit, driven like the circuit. Watch and learn.',who:'KYOICHI',x:56,y:62,w:40}]},
   vs(8)],
@@ -9321,7 +9321,7 @@ const EP={prologue:{n:1,stage:'FIRST STAGE',title:'THE GHOST OF AKINA',when:'GUN
  ryosuke:{n:10,title:'THE WHITE COMET',when:'THE END OF SUMMER · THE WHOLE DOWNHILL',img:P.fc},
  nakazato_seiji:{n:11,side:true,stage:'SECOND STAGE',title:'EMPEROR INVADES',when:'AUTUMN · TWO MONTHS LATER · MYOGI',img:P.evo4},
  seiji:{n:12,stage:'SECOND STAGE',title:'RAIN ON AKINA',when:'A FEW DAYS LATER · AKINA · LIGHT RAIN',img:P.evo4},
- kyoichi:{n:13,stage:'SECOND STAGE',title:'THE ENGINE\'S LAST CRY',when:'THE NEXT NIGHT · AKAGI',img:P.evo3},
+ kyoichi:{n:13,stage:'SECOND STAGE',title:'THE ENGINE\'S LAST CRY',when:'THE NEXT NIGHT · IROHAZAKA',img:P.evo3},
  ryosuke_kyoichi:{n:14,side:true,stage:'SECOND STAGE',title:'THEORY ON THE MOUNTAIN',when:'LATER THAT WEEK · IROHAZAKA',img:P.fcEvo},
  newengine:{n:15,stage:'SECOND STAGE',title:'ELEVEN THOUSAND RPM',when:'TEN DAYS LATER · FUJIWARA TOFU',img:P.newEngine},
  wataru:{n:16,stage:'SECOND STAGE',title:'ANOTHER 86',when:'ONE WEEK LATER · SHOMARU PASS · SAITAMA',img:P.levin},
@@ -9334,7 +9334,7 @@ const TEASE={keisuke:['KEISUKE','A tofu car beat my FD? Saturday. Akina. This ti
  shingo:['SHINGO','Tape your hand to the wheel, Fujiwara. Then we\'ll see who flinches.'],iketani_mako:['MAKO','The SpeedStars on Usui? Sayuki, let\'s show them our road.'],
  mako:['MAKO','Bring the 86 to Usui. Sayuki calls, I drive. We don\'t lose here.'],keisuke_nakazato:['NAKAZATO','The Takahashi kid wants a rematch? Uphill, then. Grip wins.'],
  training:['BUNTA','The five hairpins. Don\'t touch a single rail. Not one.'],lesson:['ITSUKI','Let me follow you down, Takumi! I\'ll copy everything!'],ryosuke:['RYOSUKE','I\'ve analysed every race he\'s run. Now I\'ll show him the White Comet.'],nakazato_seiji:['SEIJI','Team Emperor. Myogi first. Then every pass in Gunma.'],
- seiji:['SEIJI','Akina\'s 86? A museum piece. I\'ll cut its sticker in half.'],kyoichi:['KYOICHI','An 86 has no place on a modern mountain. I\'ll prove it at Akagi.'],
+ seiji:['SEIJI','Akina\'s 86? A museum piece. I\'ll cut its sticker in half.'],kyoichi:['KYOICHI','An 86 has no place on a modern mountain. I\'ll prove it on Irohazaka.'],
  ryosuke_kyoichi:['KYOICHI','The White Comet himself. Theory against the machine. Fine.'],newengine:['BUNTA','The new engine\'s in. Go learn it. ...And don\'t look at the tach.'],
  wataru:['WATARU','Another 86 in Gunma? Mine\'s got a turbo. Let\'s see whose is real.'],bunta:['TAKUMI','Dad told me to take the car out tonight. In the rain. ...No tofu. Weird.']};
 const FACEOF={keisuke:P.keisukeAngry,nakazato:P.nakazatoSmirk,iketani:P.shingoSmirk,itsuki:P.shingoSmirk,frkiller:P.iketani,kenta:P.ryosukeSmirk,shingo:P.shingoSmirk,iketani_mako:P.mako,mako:P.mako,keisuke_nakazato:P.nakazatoSmirk,
@@ -10325,6 +10325,12 @@ const raceDirector=window.raceDirector=(()=>{
               2:{top:64.8,power:1.05,grip:.945,boost:.08,ease:.04,mistake:.08},
               3:{top:68.5,power:1.36,grip:1.04,boost:.14,ease:.01,mistake:0}};   // Bunta: the hardest, fastest off the line, almost never wrong
  const mpi=()=>window.M_PER_INDEX||5.05;
+ // (454) pace for the new mountains. Rival speed comes from each corner's real radius, so it follows any course; these are the
+ // small corrections that keep each rival exactly as far ahead of (or behind) a good AE86 run as they were on the old 16 km Akina,
+ // worked out by running every rival and a reference 86 over the old sections and the new ones (/home/claude/pace in the build notes).
+ const CHK={"keisuke": 1.015, "nakazato": 1.026, "iketani": 1.007, "frkiller": 1.007, "itsuki": 1.006, "shingo": 1.002, "keisuke_nakazato": 1.01, "kenta": 1.002, "training": 0.996, "ryosuke": 0.998, "nakazato_seiji": 1.008, "lesson": 1.006, "seiji": 1.003, "kyoichi": 1.021, "ryosuke_kyoichi": 1.023, "newengine": 0.986, "wataru": 1.035, "bunta": 0.987},PRK={"akinanew": {"1": 1.028, "2": 0.998, "3": 0.987, "4": 1.024, "5": 1.009, "6": 1.0, "7": 1.006, "8": 1.012, "9": 1.03, "10": 1.008, "11": 1.005, "12": 1.005, "13": 1.009}, "usui": {"1": 1.018, "2": 1.001, "3": 0.992, "4": 1.014, "5": 1.006, "6": 1.002, "7": 1.004, "8": 1.007, "9": 1.018, "10": 1.005, "11": 1.002, "12": 1.006, "13": 1.006}, "myogi": {"1": 1.022, "2": 1.0, "3": 0.991, "4": 1.018, "5": 1.008, "6": 1.001, "7": 1.005, "8": 1.01, "9": 1.023, "10": 1.006, "11": 1.003, "12": 1.006, "13": 1.007}, "akagi": {"1": 1.022, "2": 0.999, "3": 0.99, "4": 1.018, "5": 1.007, "6": 1.001, "7": 1.005, "8": 1.009, "9": 1.023, "10": 1.006, "11": 1.003, "12": 1.005, "13": 1.007}, "irohazaka": {"1": 1.032, "2": 0.997, "3": 0.985, "4": 1.028, "5": 1.01, "6": 1.0, "7": 1.007, "8": 1.014, "9": 1.035, "10": 1.009, "11": 1.005, "12": 1.006, "13": 1.01}, "shomaru": {"1": 1.043, "2": 0.993, "3": 0.977, "4": 1.037, "5": 1.013, "6": 0.998, "7": 1.009, "8": 1.016, "9": 1.046, "10": 1.012, "11": 1.009, "12": 1.005, "13": 1.012}};
+ function paceK(){try{if(window.__storyPrologue)return 1;const k=window.__race&&!window.__pracRivalOn?chapKey():'';if(k)return CHK[k]||1;
+  if(window.__pracRivalOn){const p=PRK[globalThis.__PASS];return (p&&p[OPP()])||1}}catch(e){}return 1}
  let forceT=0,holdT=0,band=0,draftP=0,draftR=0,mistakeT=0,armed=true,react=0,clock=0,lastStage=0,mistakes=0;
  const cfg=()=>window.__storyPrologue?{top:73,power:1.22,grip:.98,boost:.12,ease:.02,mistake:.05}:RIVAL[OPP()]||(window.animeRivals&&animeRivals.R[OPP()]&&animeRivals.R[OPP()].ai)||RIVAL[1];   // the first Ryosuke encounter is beatable
  // ---- Akina: real hairpins, so corner speed comes from the actual radius ahead (v = √(a·r)),
@@ -10405,6 +10411,7 @@ const raceDirector=window.raceDirector=(()=>{
   // the handling got more real in builds 350-363 (wall hits cost speed, understeer, drifts that end) and these paces were
   // set against the old car: everyone backs off a little, and a rival who's got right away waits for you a bit more
   if(!(OPP()===3&&window.__race&&__race.rules&&__race.rules.fatherWins)){v*=.975;if(window.__race&&!window.__pracRivalOn&&window.__storyPaceK)v*=__storyPaceK()}   /* GAME OPTIONS → DIFFICULTY */
+  v*=paceK();
   if(gap>60)v*=1-.06*ss((gap-60)/140)*fade;
   if(window.__rivalHold&&performance.now()<__rivalHold)v*=.18;
   // each rival's signature (story races): how they drive, not just how fast
@@ -12766,7 +12773,7 @@ const animeRivals=window.animeRivals=(()=>{
    lines:{passed:['The R32 got by?! ...Lucky line.','Hmph. Old Skyline, still some fight left.','The R32\'s got some life left.','Hmph. Not bad for a museum piece.','Old Skyline won\'t quit.','Lucky corner, Nakazato.'],back:['Four-wheel drive AND a turbo, Nakazato. You\'re obsolete.','Emperor never loses on an uphill!','Emperor takes Myogi!','Sticker\'s mine, Nakazato!','Four-wheel drive AND turbo!','Too old, too slow!']}},
   {key:'lesson',pass:'akina',opp:11,env:2,run:SEC.lakeside,arc:'SECOND STAGE · TRAINING',title:'FOLLOW THE 86',sub:'AKINA · LAKESIDE · ITSUKI FOLLOWS YOU',rules:{solo:'lesson',rolling:{at:.03,gap:9,speed:14,tail:0,count:true}}},
   {key:'seiji',pass:'akina',opp:7,env:2,light:true,run:SEC.hairpinsLong,arc:'SECOND STAGE',title:'VS SEIJI · EMPEROR',sub:'AKINA · DOWNHILL · LIGHT RAIN'},
-  {key:'kyoichi',pass:'akagi',course:'akagi',prun:[2437,997],opp:8,env:2,run:SEC.sweepDown,arc:'SECOND STAGE',title:'VS KYOICHI · EMPEROR',sub:'AKAGI · DOWNHILL · NIGHT',rules:{blowup:.58}},
+  {key:'kyoichi',pass:'irohazaka',course:'irohazaka',prun:[1300,64],opp:8,env:2,run:SEC.sweepDown,arc:'SECOND STAGE',title:'VS KYOICHI · EMPEROR',sub:'IROHAZAKA · DOWNHILL · NIGHT',rules:{blowup:.58}},
   {quotes:{me:'Your circuit theory won\'t work on a mountain pass.',opp:'An FC against an Evo. Theory will lose to the machine.'},key:'ryosuke_kyoichi',pass:'irohazaka',course:'irohazaka',prun:[2060,690],as:2,opp:8,env:2,run:SEC.sweepDown,arc:'SECOND STAGE · SIDE STORY',title:'RYOSUKE VS KYOICHI',sub:'IROHAZAKA · DOWNHILL · NIGHT · THE FC',
    lines:{passed:['...The White Comet. So that\'s your real pace.','Impossible. An FC can\'t corner like that.','...He found a line I didn\'t calculate.','The FC is faster through here?!','Takahashi... you\'re adapting.','Impossible. My lines are perfect.'],back:['Your theory loses to four-wheel drive, Takahashi.','Circuit lines win. Always.','Theory is useless on a mountain? Watch this.','The Evo is built for this.','Circuit lines win.','Fall back, White Comet.']}},
   {key:'newengine',pass:'akina',opp:3,env:2,run:SEC.upperShort,arc:'SECOND STAGE',title:'ELEVEN THOUSAND RPM',sub:'AKINA · ALONE · THE NEW ENGINE · NO TACH',rules:{solo:true,rolling:{at:.03,gap:40,speed:14,tail:0,count:true,far:true}}},
@@ -12777,7 +12784,10 @@ const animeRivals=window.animeRivals=(()=>{
  // downhill runs go from the higher number to the lower)
  {const NA={lakeside:[2440,2250],upperDown:[2240,1840],upperShort:[2130,1840],fiveHairpins:[1850,1590],hairpinsLong:[1990,1420],sweepDown:[1395,1125],bottomEsses:[470,250],full:[2444,56]};
   const BY={keisuke:'hairpinsLong',nakazato:'sweepDown',iketani:'upperShort',frkiller:'upperDown',itsuki:'bottomEsses',shingo:'fiveHairpins',training:'fiveHairpins',ryosuke:'full',lesson:'lakeside',seiji:'hairpinsLong',newengine:'upperShort',bunta:'full'};
-  for(const c of CH){const k=BY[c.key];if(!k||c.course)continue;c.pass='akinanew';c.course='akinanew';c.prun=NA[k].slice();c.secNew=k}}
+  /* (454) races sized for the new mountain: each Akina section stretched back (same finish) so the race lasts about as long as
+     it did on the old 16 km Akina, and each start sits on a straight */
+  const RUN454={lesson:[2444,2170],iketani:[2440,1840],newengine:[2440,1840],frkiller:[2444,1720],shingo:[2150,1590],training:[2150,1590],keisuke:[2370,1420],seiji:[2370,1420],nakazato:[1765,1125],itsuki:[645,250]};
+  for(const c of CH){const k=BY[c.key];if(!k||c.course)continue;c.pass='akinanew';c.course='akinanew';c.prun=(RUN454[c.key]||NA[k]).slice();c.secNew=k}}
  // a rival in a borrowed model (Kenta's Silvia is the S13 model): his own paint while he's the opponent, the owner's paint otherwise
  {const orig=new Map();setInterval(()=>{try{if(!window.animeCars||!animeCars.EXTRA)return;const o=window.__race&&R[__race.opp];
    for(const c of animeCars.EXTRA){const u=c&&c.set&&c.set.paint&&c.set.paint.uniforms;if(!u||!u.uBase)continue;
@@ -13541,7 +13551,7 @@ const driverProfile=window.driverProfile=(()=>{
  const btn=document.createElement('button');btn.id='dpBtn';btn.type='button';btn.textContent='DRIVER PROFILE · P';document.body.appendChild(btn);
  const dp=document.createElement('div');dp.id='dp';document.body.appendChild(dp);
  const TITLES=[['keisuke','GHOST OF AKINA','Beat the RedSuns\' Keisuke'],['shingo','MYOGI BREAKER','Won the duct-tape death match'],['mako','KING OF USUI','Beat Bangers,Impact Blue on their own road'],
-  ['ryosuke','FIRST STAGE CHAMPION','Beat the White Comet'],['kyoichi','THE ENGINE\'S LAST CRY','Survived Akagi'],['newengine','ELEVEN THOUSAND','Learned the new engine'],
+  ['ryosuke','FIRST STAGE CHAMPION','Beat the White Comet'],['kyoichi','THE ENGINE\'S LAST CRY','Survived Irohazaka'],['newengine','ELEVEN THOUSAND','Learned the new engine'],
   ['wataru','SECOND STAGE CHAMPION','Beat the turbo Levin'],['bunta','THE LEGEND\'S SON','Raced your father to the end']];
  function bond(c){const n=(c.likeDriving==='maybe'?1:0)+(c.nervous==='ready'?1:0)+(c.natsukiAsk==='ask'?2:c.natsukiAsk?0:0);const i=(c.itsuki1==='encourage'?2:c.itsuki1?1:0);const k=(c.iketaniAdvice?1:0);return {nat:Math.min(4,n+1),its:Math.min(4,i+1+(c.nervous?1:0)),ike:Math.min(4,k+2)}}
  function render(){const RV=window.animeRivals;if(!RV)return;const S=RV.state,CH=RV.CH,done=S.done==null?-1:S.done,C=window.__storyChoices||{};
