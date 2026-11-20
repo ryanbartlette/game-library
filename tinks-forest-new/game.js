@@ -15413,10 +15413,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 596;
+const BUILD = 597;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 164;
+const LOOKV = 165;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -19621,7 +19621,7 @@ label = 'Walk';
 }else if(window.__PAD && window.__PAD.mode && window.__PAD.mag > 0){
 const m = P.povUser &&(P.povK || 0)> 0.5 && window.__PAD.povMag ? window.__PAD.povMag : window.__PAD.mag;
 if(P.povBack){
-target = T.walk * lerp(0.2,0.5,smooth(0.2,1,m));
+target = T.walk * lerp(0.25,0.75,smooth(0.2,1,m));
 label = 'Walk';
 }else if(m < 0.62){
 target = T.walk * lerp(0.3,1,smooth(0.2,0.62,m));
@@ -19635,6 +19635,15 @@ target = T.run;
 label = 'Trot';
 }
 }else if(crouching)label = 'Crouch';
+if(P.povBack && dir && P.sit < 0.5){
+const cap = T.walk * 0.75;
+if(target > cap){
+target = cap;
+label = 'Walk';
+}
+P.dashing = false;
+P.dashT = 0;
+}
 {
 try{
 STEP = window.__inFarm || nearBuilding()? 0.4 : 0.24;
@@ -61655,7 +61664,9 @@ ly = on ? ax[1]|| 0 : 0;
 const lr = Math.hypot(lx,ly),
 lm = lr > DZ ? Math.min(1,(lr - DZ)/(RIM - DZ)): 0,
 lc = lm * lm *(0.35 + 0.65 * lm);
-const tx = lr > 0 ?(lx / lr)* lc : 0;
+const XDZ = 0.24,
+lxd = Math.abs(lx)> XDZ ?(Math.sign(lx)*(Math.abs(lx)- XDZ))/(1 - XDZ): 0;
+const tx = lr > 0 ?(lxd / lr)* lc : 0;
 const k = 1 - Math.exp(-dt / 0.07);
 PAD.lookXL =(PAD.lookXL || 0)+(tx -(PAD.lookXL || 0))* k;
 PAD.rimTL = lm > 0.97 && Math.abs(lx)> 0.8 ? Math.min(0.6,(PAD.rimTL || 0)+ dt): 0;
@@ -61685,9 +61696,11 @@ const hr = Math.hypot(hx0,hy0),
 hm = hr > DZ ? Math.min(1,(hr - DZ)/(RIM - DZ)): 0;
 const hx = hr > 0 ?(hx0 / hr)* hm : 0,
 hy = hr > 0 ?(hy0 / hr)* hm : 0;
-const kh = 1 - Math.exp(-dt / 0.08);
-PAD.headX =(PAD.headX || 0)+(hx -(PAD.headX || 0))* kh;
-PAD.headY =(PAD.headY || 0)+(hy -(PAD.headY || 0))* kh;
+const kh = 1 - Math.exp(-dt / 0.11);
+PAD.head1X =(PAD.head1X || 0)+(hx -(PAD.head1X || 0))* kh;
+PAD.head1Y =(PAD.head1Y || 0)+(hy -(PAD.head1Y || 0))* kh;
+PAD.headX =(PAD.headX || 0)+(PAD.head1X -(PAD.headX || 0))* kh;
+PAD.headY =(PAD.headY || 0)+(PAD.head1Y -(PAD.headY || 0))* kh;
 if(headPov){
 P.povHead = -PAD.headX * 0.9;
 const py =(OPT.padInv ? -1 : 1)* PAD.headY;
