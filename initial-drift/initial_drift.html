@@ -390,7 +390,7 @@ body.canyon-mode #launchHint{position:fixed!important;top:68%!important;left:50%
 html:not(.idReady) body{opacity:0!important;pointer-events:none!important}
 html.frBoot:not(.idReady)::after{content:none}
 html.frBoot:not(.idReady) body{opacity:1!important}html.frBoot:not(.idReady) body>*:not(#frLoading){opacity:0!important}
-html:not(.idReady)::after{content:'LOADING';position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);font:400 clamp(22px,3vw,44px)/1 Bangers,Impact,sans-serif;letter-spacing:.2em;color:#fff}</style></head><body><script>window.__gameK=(+(location.search.match(/[?&]pace=([\d.]+)/)||[])[1]||1.2);addEventListener("keydown",e=>{if(window.__edKey&&__edKey(e)){e.stopImmediatePropagation();return}if(e.repeat&&window.__finQuiet&&performance.now()<window.__finQuiet){e.preventDefault();e.stopImmediatePropagation();return}if(window.__keyBlock&&__keyBlock.has(e.code)){e.preventDefault();e.stopImmediatePropagation();return}if(window.__finKeyGuard)window.__finKeyGuard(e)},true);addEventListener("keyup",e=>{if(window.__edKey&&__edKey(e)){e.stopImmediatePropagation();return}if(window.__keyBlock){__keyBlock.delete(e.code);if(!__keyBlock.size&&window.__finQuiet)window.__finQuiet=performance.now()+150}},true);if(/[?&]prac=1(&|$)/.test(location.search)){document.documentElement.classList.add("frBoot");document.write('<div id="frLoading" style="position:fixed;inset:0;z-index:99999;background:#07060c;display:flex;align-items:center;justify-content:center;font:400 clamp(22px,3vw,44px) Bangers,Impact,sans-serif;letter-spacing:.2em;color:#fff;transition:opacity .5s"><span>LOADING<span style="color:#ffcf1f"> · <b id=frLoadName style=font-weight:400>AKINA</b></span></span></div>');try{var p=(new URLSearchParams(location.search).get("pass")||"").toUpperCase(),M={USUI:"USUI",MYOGI:"MYOGI",AKAGI:"AKAGI",IROHAZAKA:"IROHAZAKA",AKINANEW:"AKINA"};if(M[p])document.getElementById("frLoadName").textContent=M[p]}catch(e){}}</script><div id="rivalStory" role="dialog" aria-modal="true" aria-label="Rival story">
+html:not(.idReady)::after{content:'LOADING';position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);font:400 clamp(22px,3vw,44px)/1 Bangers,Impact,sans-serif;letter-spacing:.2em;color:#fff}</style></head><body><script>window.__gameK=(+(location.search.match(/[?&]pace=([\d.]+)/)||[])[1]||1.2);addEventListener("keydown",e=>{if(window.__edKey&&__edKey(e)){e.stopImmediatePropagation();return}if(e.repeat&&window.__finQuiet&&performance.now()<window.__finQuiet){e.preventDefault();e.stopImmediatePropagation();return}if(window.__keyBlock&&__keyBlock.has(e.code)){e.preventDefault();e.stopImmediatePropagation();return}if(window.__finKeyGuard)window.__finKeyGuard(e)},true);addEventListener("keyup",e=>{if(window.__edKey&&__edKey(e)){e.stopImmediatePropagation();return}if(window.__keyBlock){__keyBlock.delete(e.code);if(!__keyBlock.size&&window.__finQuiet)window.__finQuiet=performance.now()+150}},true);if(/[?&]prac=1(&|$)/.test(location.search)){document.documentElement.classList.add("frBoot");document.write('<div id="frLoading" style="position:fixed;inset:0;z-index:99999;background:#07060c;display:flex;align-items:center;justify-content:center;font:400 clamp(22px,3vw,44px) Bangers,Impact,sans-serif;letter-spacing:.2em;color:#fff;transition:opacity .5s"><span>LOADING<span style="color:#ffcf1f"> · <b id=frLoadName style=font-weight:400>AKINA</b></span></span></div>');try{var p=(new URLSearchParams(location.search).get("pass")||"").toUpperCase(),M={USUI:"USUI",MYOGI:"MYOGI",AKAGI:"AKAGI",IROHAZAKA:"IROHAZAKA",AKINANEW:"AKINA",SHOMARU:"SHOMARU"};if(M[p])document.getElementById("frLoadName").textContent=M[p]}catch(e){}}</script><div id="rivalStory" role="dialog" aria-modal="true" aria-label="Rival story">
 <div class="storyPanel"><img id="stageIntroArt" src="assets/images/stage-1.webp" alt="Stage rival introduction. Press Enter to race." tabindex="0" role="button"/><div id="storyBar" class="storyBar">STAGE 1 · CHALLENGER</div>
 <div class="storyContent"><div><img id="storyFace" alt="Rival character portrait"/><img id="storyCar" alt="Rival car"/></div>
 <div><div id="storyName"></div><div id="storyVehicle"></div><div id="storyWeather" class="storyWeather"><img id="storyWeatherImage" src="assets/images/stage-1-sunset.webp" alt="Course weather preview"><div><strong id="storyWeatherTitle">STAGE 1 · SUNSET</strong><span id="storyWeatherDesc">Clear skies and golden-hour roads.</span></div></div><div id="storyQuote"></div></div></div>
@@ -512,7 +512,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=449',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=450',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -582,7 +582,7 @@ function akinaField(C,Nn,ext,wideFn){
  const SX=[],SY=[],SZ=[];
  const SW=[];for(let i=0;i<Nn;i++){const a=C[i],b=C[i+1];for(let k=0;k<3;k++){const u=k/3;SX.push(a.x+(b.x-a.x)*u);SY.push(a.y+(b.y-a.y)*u);SZ.push(a.z+(b.z-a.z)*u);SW.push(wideFn?wideFn(i+u):0)}}
  SX.push(C[Nn].x);SY.push(C[Nn].y);SZ.push(C[Nn].z);SW.push(wideFn?wideFn(Nn):0);
- for(const e of ext||[])for(const p of e){SX.push(p.x);SY.push(p.y);SZ.push(p.z);SW.push(0)}
+ for(const e of ext||[]){let cut=false;for(const p of e){if(!cut&&globalThis.__PASS){for(let i=0;i<=Nn;i+=4){const q=C[i];if(Math.abs(q.y-p.y)>8&&Math.hypot(q.x-p.x,q.z-p.z)<70){cut=true;break}}}if(cut)break;SX.push(p.x);SY.push(p.y);SZ.push(p.z);SW.push(0)}}   /* (450) a run-off road beyond the ends stops before it passes over (or under) another stretch of the course: Shomaru's top run-off crossed a lower bend and left a knife ridge of ground beside it */
  const NS=SX.length;
  // the test course: the last ~160 m at each end (and the run-offs past them) get a wide level apron either side of
  // the road, room for the cars lined up and the crowd at the start and the finish
@@ -856,8 +856,9 @@ function akinaField(C,Nn,ext,wideFn){
    if(w>.01){const gap=n.d+n.lowD;if(globalThis.__PASS){/* (build 414) the other passes: the drop starts at the road edge (just past the rail), and goes as near vertical as it must to clear the road below */const d0=5.45;return {t:'fill',w,d0,run:Math.max(1.2,Math.min(Math.max(4,(base-lf)*.3),gap-d0-6)),top:base,bot:lf}}return {t:'fill',w,d0:1.8,run:Math.max(3.5,Math.min(Math.max(5.5,(base-lf)*.36),gap-1.8-4)),top:base,bot:lf}}}
   if(f==null)f=far(x,z,n.d);const w=smooth(base+2,base+5,f);
   if(w>.01)return {t:'cut',w,d0:Math.min(n.fl,11),run:5.5,top:base+Math.min(5,f-base)*w,bot:base};return null}
- function H0(x,z){const n=near(x,z,70);if(!n){const d=70+0;return far(x,z,Math.max(70,FRT?bil(CD,x,z):distApprox(x,z)))}
-  const t=FRT?smooth(n.fl,n.fl+((FRLAKE&&FRLAKE.WB>300&&FRLAKE.ell(x,z)<FRLAKE.WB)?26:49),n.d):smooth(FLAT,32,n.d),f=far(x,z,n.d);   /* (434) by a lake meant to be seen the verge is short: the ground falls away to the water */let h=Math.min((n.y-RO)*(1-t)+f*t,n.carve);
+ const SHO=globalThis.__PASS==='shomaru';function SHOC(f,n){return SHO?Math.min(f,n.y+3+Math.max(0,n.d-(n.fl||8))*.6):f}   /* (450) Shomaru: no sheer walls over the road, banks rise at about 30 degrees */
+function H0(x,z){const n=near(x,z,70);if(!n){const d=70+0;return far(x,z,Math.max(70,FRT?bil(CD,x,z):distApprox(x,z)))}
+  const t=FRT?smooth(n.fl,n.fl+((FRLAKE&&FRLAKE.WB>300&&FRLAKE.ell(x,z)<FRLAKE.WB)?26:49),n.d):smooth(FLAT,32,n.d),f=SHOC(far(x,z,n.d),n);   /* (434) by a lake meant to be seen the verge is short: the ground falls away to the water */let h=Math.min((n.y-RO)*(1-t)+f*t,n.carve);
   if(FRT&&n.d<n.fl+4)h=Math.min(Math.max(h,n.y-RO-Math.max(0,n.d-n.fl)*1.2),n.carve);
   if(FRT&&NWALL){const W=wallOf(n,x,z,f),base=n.y-RO;
    if(W&&W.t==='cut'&&n.d>W.d0){const u=Math.max(0,Math.min(1,(n.d-W.d0)/W.run)),Hw=W.top-W.bot;h=Math.min(W.bot+Hw*u+(f-W.top)*smooth(W.d0+W.run,W.d0+49,n.d),n.carve)}
@@ -867,7 +868,14 @@ function akinaField(C,Nn,ext,wideFn){
   return h}   /* a shelf never rises over another road */
  function DEL(x,z){if(!ED.size)return 0;const fx=x/EC,fz=z/EC,i=Math.floor(fx),j=Math.floor(fz),u=fx-i,v=fz-j,g=(a,b)=>ED.get(a+','+b)||0;
   return g(i,j)*(1-u)*(1-v)+g(i+1,j)*u*(1-v)+g(i,j+1)*(1-u)*v+g(i+1,j+1)*u*v}
- function H(x,z){const h=Hraw(x,z);if(!ED.size)return h;const d=DEL(x,z);if(!d)return h;const n=near(x,z,8);return h+d*(n?smooth(5.5,6.15,n.d):1)}   // edits never reach inside the guard rails (5.45 m out)
+ // (450) Kegon Falls: the mountainside is cut back into a sheer U-shaped gorge (a cliff ~75 m high at its head) for the falls
+ // to drop down. Lattice edits like the ground editor's, worked out once, the first time the ground is asked for.
+ let KG=false;function kegon(){KG=true;if(globalThis.__PASS!=='irohazaka')return;const LX=-1494,LZ=839,dx=.996,dz=.084,sx=-dz,sz=dx,h0=Hraw(LX,LZ),floor=h0-76;
+  const i0=Math.floor((LX-170)/EC),i1=Math.ceil((LX+170)/EC),j0=Math.floor((LZ-170)/EC),j1=Math.ceil((LZ+170)/EC);
+  for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const X=i*EC,Z=j*EC,A=(X-LX)*dx+(Z-LZ)*dz,S=(X-LX)*sx+(Z-LZ)*sz,hw=28+Math.max(0,A)*.22;
+   if(A<2||A>150||Math.abs(S)>hw+10)continue;const k=smooth(hw+10,hw,Math.abs(S))*(1-smooth(80,150,A));if(k<=0)continue;
+   const hr=Hraw(X,Z),target=Math.min(hr,floor+Math.max(0,A-60)*.35),d=(target-hr)*k;if(d<-.5)ED.set(i+','+j,(ED.get(i+','+j)||0)+d)}}
+ function H(x,z){if(!KG)kegon();const h=Hraw(x,z);if(!ED.size)return h;const d=DEL(x,z);if(!d)return h;const n=near(x,z,8);return h+d*(n?smooth(5.5,6.15,n.d):1)}   // edits never reach inside the guard rails (5.45 m out)
  function Hraw(x,z){let h=H0(x,z);if(globalThis.__PASS){if(FRLOT){const q=FRLOT.d(x,z);if(q<14){const t=smooth(0,14,q);h=FRLOT.y*(1-t)+h*t;const n=near(x,z,24);if(n)h=Math.min(h,n.carve)}}return h}   /* (build 414) the summit car park and shop terrace are Akina's: the other passes have none (they left a dip by the road at the top end) */const s=shopInfo(x,z),q=padInfo(x,z);if(s.d>=16&&q.d>22)return h;
   if(s.d<16){const t=smooth(0,16,s.d);h=(s.y-.2)*(1-t)+h*t}
   if(q.d<=22){const t=smooth(0,22,q.d);h=(q.y-.25)*(1-t)+h*t}
@@ -907,7 +915,7 @@ function akinaField(C,Nn,ext,wideFn){
   // coarse: everything else out to the horizon, tucked just under the fine grid where they overlap
   const cv=[],ci=[],cid=new Int32Array(GW*GH).fill(-1);
   const cvert=(i,j)=>{const o=j*GW+i;if(cid[o]>=0)return cid[o];const x=gx0+i*CS,z=gz0+j*CS,d=CD[o];
-   let y=d<R+40||inLB(x,z)?H(x,z):far(x,z,d);y-=inLB(x,z)?2.2:2.2*(1-smooth(R-10,R+45,d));cid[o]=cv.length/3;cv.push(x,y,z);return cid[o]};
+   if(!KG)kegon();let y=d<R+40||inLB(x,z)?H(x,z):far(x,z,d)+(ED.size?DEL(x,z):0);   /* (450) carved ground (Kegon's gorge) reaches the far mesh too */y-=inLB(x,z)?2.2:2.2*(1-smooth(R-10,R+45,d));cid[o]=cv.length/3;cv.push(x,y,z);return cid[o]};
   for(let j=0;j<GH-1;j++)for(let i=0;i<GW-1;i++){const a=j*GW+i;if(Math.max(CD[a],CD[a+1],CD[a+GW],CD[a+GW+1])<R-14)continue;{const xa=gx0+i*CS,za=gz0+j*CS;if(inLB(xa,za)&&inLB(xa+CS,za+CS))continue}
    const v00=cvert(i,j),v10=cvert(i+1,j),v01=cvert(i,j+1),v11=cvert(i+1,j+1);fi.length;ci.push(v00,v01,v11,v00,v11,v10)}
   CMESHG={gx0,gz0,CS,GW,GH,cid,cv};
@@ -924,7 +932,7 @@ function akinaField(C,Nn,ext,wideFn){
  function dist(x,z){const n=near(x,z,60);const r=n?n.d:60;if(globalThis.__PASS)return r;const q=padInfo(x,z);return Math.min(r,q.d+5)}   // the car park and its road count as road (no trees on them)
  // the ground's colour: lush green up by the lake (the resort everyone drives up to), the usual mountain earth lower down
  function tint(x,z){if(globalThis.__FR)return 0;const rl=Math.hypot(x-LAKE.x,z-LAKE.z),w=smooth(1500,650,rl);return w}
- return {PAD,SHOP,H,HM,ED,EC,Hraw,mesh:()=>MESHG,cmesh:()=>CMESHG,HD,dist,meshes,tint,LK,bounds:[x0,x1,z0,z1],LAKE,FUJI,lakeE,VALLEY,macro,FRLAKE,FRLOT,roadD:x=>0,cd:(x,z)=>bil(CD,x,z),near:(x,z,R)=>near(x,z,R),wall:(x,z)=>NWALL?wallOf(near(x,z,70),x,z):null,NWALL}}
+ return {dbg:(x,z)=>{const n=near(x,z,70);return {n:n&&{d:n.d,y:n.y,fl:n.fl,carve:n.carve,lowY:n.lowY,hiY:n.hiY},f:n?far(x,z,n.d):null,h0:H0(x,z)}},PAD,SHOP,H,HM,ED,EC,Hraw,mesh:()=>MESHG,cmesh:()=>CMESHG,HD,dist,meshes,tint,LK,bounds:[x0,x1,z0,z1],LAKE,FUJI,lakeE,VALLEY,macro,FRLAKE,FRLOT,roadD:x=>0,cd:(x,z)=>bil(CD,x,z),near:(x,z,R)=>near(x,z,R),wall:(x,z)=>NWALL?wallOf(near(x,z,70),x,z):null,NWALL}}
 
 
 const tougePts=[];
@@ -4103,7 +4111,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 449';
+window.__BUILD='BUILD 450';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5632,9 +5640,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795135765'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795149407'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795135765'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795149407'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -6012,8 +6020,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795135765'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795135765'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795149407'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795149407'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6471,7 +6479,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795135765',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795149407',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6485,7 +6493,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795135765',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795149407',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -9552,8 +9560,11 @@ const storyDawn=window.storyDawn=(()=>{
    if(on){try{if(typeof countdown!=='undefined'&&countdown>0)countdown=Math.max(countdown,3.8);elapsed=0}catch(e){}}
    const ready=seen&&performance.now()-seen>900&&(window.__valleyShade||window.__noBake||performance.now()-seen>20000)&&(window.__frameMs||99)<22;
    // ready: turn the key first (behind the loading screen) and lift it once the engine has caught and settled to idle
-   if(ready||el>40000){clearInterval(iv);const hold=setInterval(()=>{if(!document.getElementById('frLoading')||L.style.opacity==='0'){clearInterval(hold);return}try{if(typeof countdown!=='undefined'&&countdown>0)countdown=Math.max(countdown,3.8);elapsed=0}catch(e){}},50);try{if(typeof startAudio==='function')startAudio()}catch(e){}let n=0;
-    const k=setInterval(()=>{n++;const ok=window.__engineStartNow&&__engineStartNow();if(ok){clearInterval(k);setTimeout(done,2300)}else if(window.__v8Started||n>16){clearInterval(k);done()}},125)}},150)}catch(e){}}
+   if(ready||el>40000){clearInterval(iv);const hold=setInterval(()=>{if(!document.getElementById('frLoading')||L.style.opacity==='0'){clearInterval(hold);return}try{if(typeof countdown!=='undefined'&&countdown>0)countdown=Math.max(countdown,3.8);elapsed=0}catch(e){}},50);const turnKey=()=>{try{if(typeof startAudio==='function')startAudio()}catch(e){}let n=0;
+    const k=setInterval(()=>{n++;const ok=window.__engineStartNow&&__engineStartNow();if(ok){clearInterval(k);setTimeout(done,2300)}else if(window.__v8Started||n>16){clearInterval(k);try{window.__rumbleStart&&__rumbleStart(1)}catch(e){}done()}},125)};
+    /* (450) the loading screen waits on PRESS A TO START: the press connects the pad and turns the key */
+    try{const sp=L.querySelector('span');if(sp&&sp.firstChild&&sp.firstChild.nodeType===3)sp.firstChild.textContent='READY'}catch(e){}
+    if(window.__waitPressStart)__waitPressStart(L,turnKey);else turnKey()}},150)}catch(e){}}
  if(PRACU)setTimeout(()=>{try{clear();const m=document.getElementById('courseMenu');m.style.display='none';try{animeCars.setPlayerCar('ae86')}catch(e){}
    startCanyonEvent('time');setTimeout(()=>{try{animeCareer.practice(/[?&]dir=up(&|$)/.test(location.search)?1:0)}catch(e){console.warn(e)}},300);const b=document.createElement('div');b.style.display='none';b.textContent='AKINA · '+(/[?&]dir=up(&|$)/.test(location.search)?'UPHILL ↑':'DOWNHILL ↓')+' · S MENU → SWITCH DIRECTION OR BACK TO THE REAL AKINA';
    b.style.cssText='display:none;position:fixed;left:50%;bottom:1.2vh;transform:translateX(-50%);z-index:40;font:400 clamp(11px,1vw,15px) Bangers,Bangers,Impact,sans-serif;letter-spacing:.14em;color:#fff;background:#111c;padding:.5vh 1vw;border:2px solid #ffcf1f;pointer-events:none';document.body.appendChild(b);
@@ -12657,6 +12668,7 @@ const animeRivals=window.animeRivals=(()=>{
  window.__LAB=LAB;window.__MODELS=MODELS;   /* (read by the car builder: merges)
  */try{window.__steerLab=window.__steerLab||{};for(const k in LAB)if(LAB[k].steer)window.__steerLab[k]={...LAB[k].steer}}catch(e){}
  try{window.__seatLab=window.__seatLab||{ae86:{x:-.1}};for(const k in LAB)if(LAB[k].seat)window.__seatLab[k]={...LAB[k].seat}}catch(e){}
+ try{const RV=window.__revLab=window.__revLab||{s13i:{none:true},s14k:{none:true},s80:{none:true}};for(const k in LAB)if(LAB[k].rev)RV[k]={...(RV[k]||{}),...LAB[k].rev};window.__revSet&&__revSet('ae86',RV.ae86)}catch(e){}   // (450) reverse lamp placement from the Car Garage reaches the game too
  try{window.__lampShapes=window.__lampShapes||{};for(const k in LAB)if(LAB[k].shapes&&LAB[k].shapes.length)window.__lampShapes[k]=LAB[k].shapes.map(q=>({...q}))}catch(e){}   // lamp shapes (fog lamps etc.) set in the Car Garage   // driver's seat nudges set in the Car Garage's COCKPIT VIEW
  for(const k in LAB)if(MODELS[k]){const r={...(MODELS[k].roles||{}),...(LAB[k].roles||{})},pc=[...new Set([...(MODELS[k].pieces||[]),...(LAB[k].pieces||[])])];Object.assign(MODELS[k],LAB[k],{roles:r,pieces:pc})}else (window.__carLab=window.__carLab||{})[k]=LAB[k];
  // how much each rival car slides through corners: the AWD cars (Evos, Impreza, GT-R) grip, the FF Civic hardly slides at all
@@ -15718,7 +15730,7 @@ html body #courseMenu #driftModeChoices #vsBattle strong{position:relative!impor
 // ============================================================================================
 (()=>{if(typeof spawnTailStreak==='undefined')return;
  spawnTailStreak=function(){};                       // the old cone streaks are switched off
- const MAXP=80,LIFE=.36,spot=new WeakMap();
+ const MAXP=80,LIFE=.18,spot=new WeakMap();
  const coreMat=new THREE.MeshBasicMaterial({vertexColors:true,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,toneMapped:false});
  const glowMat=coreMat.clone();coreMat.userData.cel=glowMat.userData.cel=true;
  function ribbon(mat,w,col){const g=new THREE.BufferGeometry(),P=new Float32Array(MAXP*2*3),C=new Float32Array(MAXP*2*3),I=[];
@@ -15732,7 +15744,9 @@ html body #courseMenu #driftModeChoices #vsBattle strong{position:relative!impor
     for(let i=0;i<P.count;i+=st){w.fromBufferAttribute(P,i).applyMatrix4(o.matrixWorld).applyMatrix4(inv);if(Math.abs(w.x)<.05||w.z<0)continue;B[w.x<0?0:1].expandByPoint(w)}});
    if(!B[0].isEmpty()&&!B[1].isEmpty())r.p=B.map(b=>{const c=b.getCenter(new THREE.Vector3());c.z=b.max.z;return c})}catch(e){}return r.p}
  const trails=[];   // per lamp: {pts:[{p,t}], core, glow}
- for(let k=0;k<4;k++)trails.push({pts:[],core:ribbon(coreMat,.026,[.62,.12,.09]),glow:ribbon(glowMat,.075,[.2,.02,.025])});   /* (445) a faint hint of streaming light, not a solid ribbon: thinner, dimmer, shorter */
+ for(let k=0;k<4;k++){const T={pts:[],core:ribbon(coreMat,.026,[.62,.12,.09]),glow:ribbon(glowMat,.075,[.2,.02,.025])};trails.push(T);
+  /* (450) at draw time the newest point is pinned to where the lamp is now, after this frame's car move: no gap between the lamp and its streak */
+  for(const R of [T.core,T.glow])R.m.onBeforeRender=()=>{try{if(T.getP&&T.pts.length){T.pts[T.pts.length-1].p.copy(T.getP());build(T,R,T.life||LIFE)}}catch(e){}}}   /* (445) a faint hint of streaming light, not a solid ribbon: thinner, dimmer, shorter */
  const v=new THREE.Vector3(),tan=new THREE.Vector3(),toC=new THREE.Vector3(),side=new THREE.Vector3();let clock=0,last=performance.now();
  function build(T,R,life){const n=T.pts.length;R.g.setDrawRange(0,n>1?(n-1)*6:0);if(n<2)return;
   for(let i=0;i<n;i++){const q=T.pts[i],a=T.pts[Math.max(0,i-1)].p,b=T.pts[Math.min(n-1,i+1)].p;tan.copy(b).sub(a);if(tan.lengthSq()<1e-8)tan.set(0,0,1);tan.normalize();
@@ -15744,17 +15758,17 @@ html body #courseMenu #driftModeChoices #vsBattle strong{position:relative!impor
  (function tick(){requestAnimationFrame(tick);const now=performance.now(),dt=Math.min(.05,(now-last)/1000)*(window.__timeScale||1);last=now;clock+=dt;
   try{const lightsOn=typeof animeCars==='undefined'||animeCars.lightsOn;
    const live=courseChosen&&!storyActive&&(canyonEvent==='race'||canyonEvent==='time')&&lightsOn&&!(window.animeReplay&&animeReplay.active);
-   const storm=typeof weatherMode!=='undefined'&&weatherMode===3,life=storm?.5:LIFE;
+   const storm=typeof weatherMode!=='undefined'&&weatherMode===3,life=storm?.25:LIFE;
    const actors=[car,(canyonEvent==='race'||!!window.__pracRivalOn)&&rival.visible?rival:null];
    for(let a=0;a<2;a++)for(let s=0;s<2;s++){const T=trails[a*2+s],act=actors[a];
     while(T.pts.length&&clock-T.pts[0].t>life)T.pts.shift();
     if(live&&act&&act.visible!==false||live&&act===car){const fast=a===0?Math.abs(speed)>4:Math.abs(typeof rivalSpeed==='number'?rivalSpeed:10)>4;
-     if(fast){let p=null;{const c=spot.get(act);let e=c&&clock-c.t<1?c:null;if(!e){e={t:clock,G:null,TS:null};act.traverse(o=>{if(!e.G&&o.userData&&o.userData.tailSpot&&o.visible){let ok=true;for(let q=o;q&&q!==act;q=q.parent)if(!q.visible)ok=false;if(ok){e.G=o;e.TS=o.userData.tailSpot}}});spot.set(act,e)}
+     if(fast){const getP=()=>{let p=null;{const c=spot.get(act);let e=c&&clock-c.t<1?c:null;if(!e){e={t:clock,G:null,TS:null};act.traverse(o=>{if(!e.G&&o.userData&&o.userData.tailSpot&&o.visible){let ok=true;for(let q=o;q&&q!==act;q=q.parent)if(!q.visible)ok=false;if(ok){e.G=o;e.TS=o.userData.tailSpot}}});spot.set(act,e)}
       if(e.G)p=e.G.localToWorld(v.set((s===0?-1:1)*e.TS.tx,e.TS.ty,e.TS.tz)).clone()}   /* from the tail-light halo spot set in the Car Garage */
       if(!p){const A=autoSpot(act);if(A)p=act.localToWorld(v.copy(A[s])).clone()}   /* (445) no spot set: the middle of the car's own tail lamps */
-      if(!p)p=act.localToWorld(v.set(s===0?-.66:.66,.86,2.29)).clone();const lp=T.pts[T.pts.length-1];
-      if(!lp||lp.p.distanceTo(p)>.18){T.pts.push({p,t:clock});if(T.pts.length>MAXP)T.pts.shift()}else lp.p.copy(p)}}
-    else if(!live)T.pts.length=0;
+      if(!p)p=act.localToWorld(v.set(s===0?-.66:.66,.86,2.29)).clone();return p};T.getP=getP;T.life=life;const p=getP();const lp=T.pts[T.pts.length-1];
+      if(!lp||lp.p.distanceTo(p)>.18){T.pts.push({p,t:clock});if(T.pts.length>MAXP)T.pts.shift()}else lp.p.copy(p)}else T.getP=null}else T.getP=null;
+    if(!live)T.pts.length=0;
     build(T,T.core,life);build(T,T.glow,life)}}catch(e){}})();
 })();
 
@@ -16471,7 +16485,7 @@ window.__mergeStatic=window.__mergeStatic||function(group,ok){group.updateMatrix
   const y=(yF+yB+yL+yR)/4;if(me){pos.y=y;ST.y=y}o.position.set(x,y+lift,z);
   if(me){o.rotation.order='YXZ';o.rotation.set(Math.atan2(yF-yB,2*HB),h,Math.atan2(yR-yL,2*HT))}else o.rotation.set(0,h,0)}
  function placeStarter(){const s=at(STAND/mpi());let y=s.y+.15;try{if(typeof roadElevation==='function')y=roadElevation(s.x,s.z)+.02}catch(e){}
-  P.obj.position.set(s.x,y,s.z);P.obj.rotation.y=Math.atan2(s.dx,s.dz)}   // on the centre line, facing the cars
+  P.obj.position.set(s.x,y,s.z);P.obj.rotation.y=Math.atan2(s.dx,s.dz);try{if(typeof car!=='undefined'&&car){const ex=s.x-car.position.x,ez=s.z-car.position.z;if(ex*ex+ez*ez<60*60&&ex*s.dx+ez*s.dz>0)P.obj.rotation.y=Math.atan2(s.dx,s.dz);else if(ex*ex+ez*ez<60*60)P.obj.rotation.y=Math.atan2(-s.dx,-s.dz)}}catch(e){}}   // on the centre line, facing the cars (450: whichever way the cars actually sit, so an uphill start can't leave her looking away)
  (function tick(){requestAnimationFrame(tick);let cd=0;try{cd=typeof countdown!=='undefined'?countdown:0}catch(e){}
   const t=(performance.now()-t0)/1000;
   // a new countdown: a new starter, arms up
@@ -19142,6 +19156,9 @@ const animeArcade=window.animeArcade=(()=>{
   A={nb,scrub,whine:{o:wo,f:wf,g:wg},shaper};return A}
  function burst(dur,freq,gain,q,toShaper){if(!A)return;const t=audioCtx.currentTime,s=audioCtx.createBufferSource();s.buffer=A.nb;s.playbackRate.value=.8+Math.random()*.4;const f=audioCtx.createBiquadFilter();f.type='bandpass';f.frequency.value=freq;f.Q.value=q||1.2;const g=audioCtx.createGain();
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(gain,t+.004);g.gain.exponentialRampToValueAtTime(.0005,t+dur);s.connect(f).connect(g).connect(toShaper?A.shaper:audioMaster);s.start(t,Math.random());s.stop(t+dur+.02)}
+ // (450) the body of the bang: a low thump under the crack, so a backfire is heard over the engine
+ function boom(dur,gain){if(!A)return;const t=audioCtx.currentTime,s=audioCtx.createBufferSource();s.buffer=A.nb;s.playbackRate.value=.5+Math.random()*.2;const f=audioCtx.createBiquadFilter();f.type='lowpass';f.frequency.value=150+Math.random()*90;f.Q.value=.9;const g=audioCtx.createGain();
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(gain,t+.006);g.gain.exponentialRampToValueAtTime(.0005,t+dur);s.connect(f).connect(g).connect(A.shaper);s.start(t,Math.random());s.stop(t+dur+.02)}
  let lastGas=0,lastGear=1,popQ=[];
  function sounds(dt){const live=courseChosen&&!storyActive&&!soundMuted&&!window.__gamePaused&&!(typeof finished!=='undefined'&&finished)&&countdown<=0;
   if(!initA())return;const t=audioCtx.currentTime,D=window.__driftState||{},v=Math.abs(speed),g=D.gasv||0,rpm=engineRPM||0;
@@ -19152,9 +19169,10 @@ const animeArcade=window.animeArcade=(()=>{
   A.whine.o.frequency.setTargetAtTime(Math.max(60,(rpm/60)*(rev?9.5:gear===1?7.2:gear===2?6.1:5.2)),t,.03);A.whine.f.frequency.setTargetAtTime(Math.max(120,(rpm/60)*(rev?9.5:gear===1?7.2:gear===2?6.1:5.2)),t,.03);
   A.whine.g.gain.setTargetAtTime(live&&v>1.5?(rev?.03:gear<=2?.014*(.4+.6*g):.006*g):0,t,.05);
   // exhaust crackle: lifting off at high revs, a few pops and bangs over half a second (more after a big rev)
+  {const hb=!!(D.hand||(typeof keys!=='undefined'&&keys.Space));if(live&&hb&&lastGas>.5&&g<.2&&rpm>3600&&v<=8){const n=2+Math.floor(Math.random()*3);for(let i=0;i<n;i++)popQ.push(performance.now()+30+Math.random()*420)}}   // (450) donuts: blip the throttle on the handbrake and lift, and it bangs
   if(live&&lastGas>.6&&g<.2&&rpm>4300&&v>8){const n=2+Math.floor(Math.random()*3+(rpm-4300)/1500);for(let i=0;i<n;i++)popQ.push(performance.now()+40+Math.random()*520)}
   if(live&&g<.1&&rpm>3800&&v>12&&Math.random()<dt*1.2)popQ.push(performance.now()+Math.random()*80);   // the odd crackle on the overrun
-  const now=performance.now();popQ=popQ.filter(at=>{if(at>now)return true;if(live){burst(.05+Math.random()*.05,450+Math.random()*700,.32+Math.random()*.3,1.4,true);try{window.__exFlame&&__exFlame(car,.75+Math.min(.6,Math.max(0,(rpm-4300)/3000))+Math.random()*.25)}catch(e){}}return false});   /* (build 402) every pop shoots a flame out of the exhaust */
+  const now=performance.now();popQ=popQ.filter(at=>{if(at>now)return true;if(live){burst(.06+Math.random()*.05,450+Math.random()*700,.95+Math.random()*.4,1.4,true);boom(.13+Math.random()*.06,1.5+Math.random()*.5);try{window.__exFlame&&__exFlame(car,.75+Math.min(.6,Math.max(0,(rpm-4300)/3000))+Math.random()*.25)}catch(e){}}return false});   /* (build 402) every pop shoots a flame out of the exhaust */
   // a chirp from the rears on a hard 1-2 shift
   if(live&&gear===2&&lastGear===1&&g>.85&&v<22)burst(.14,2600,.12,3);
   lastGas=g;lastGear=gear}
@@ -19291,7 +19309,7 @@ const animeShadow=window.animeShadow=(()=>{
 // ============================================================================
 const animeLocations=window.animeLocations=(()=>{
  const LOC={
-  shomaru:{kanji:'正丸峠',en:'SHOMARU PASS · SAITAMA',fog:0x3b3a33,fogMix:.5,fogK:1.25,grass:null,tree:null,rail:0xe6e6e0,filter:'saturate(.92)',cedar:true,boards:null,mirror:true,lake:false},
+  shomaru:{kanji:'正丸峠',en:'SHOMARU PASS · SAITAMA',fog:0x3b3a33,fogMix:.5,fogK:1.25,grass:null,tree:null,rail:0xe6e6e0,filter:'saturate(.92)',cedar:true,boards:null,mirror:false,lake:false},
   usui:{kanji:'碓氷峠',en:'USUI PASS · ROUTE 18',fog:0x24402f,fogMix:.6,fogK:1.45,grass:null,tree:null,rail:0xd9b81c,filter:'saturate(1.12) hue-rotate(-6deg)',
    cedar:true,arches:true,boards:'C',mirror:false,lake:false},
   myogi:{kanji:'妙義山',en:'MYOGI · GUNMA PREF.',fog:0x3b3a4c,fogMix:.5,fogK:1.2,grass:null,tree:null,rail:null,filter:'saturate(.88) contrast(1.06)',spires:true,lake:false},
@@ -19988,36 +20006,47 @@ const animeArcade4=window.animeArcade4=(()=>{
   // ---- Kegon Falls
   try{falls(root,H,O,N,m)}catch(e){console.warn('kegon',e)}
   window.__iroha={monkeys:nM,troops:troopAt.length,falls:window.__kegon||null};console.log('AKLOG iroha',JSON.stringify(window.__iroha))}
- function falls(root,H,O,N,m){const top=O[N],R=[];for(let i=Math.max(0,N-Math.round(1700/m));i<=N;i+=Math.max(1,Math.round(25/m)))R.push(O[i]);   /* the top ~1.7 km of road */
-  let best=null;for(let a=0;a<360;a+=10){const A=a*Math.PI/180;for(let rr=200;rr<=900;rr+=50){const x=top.x+Math.sin(A)*rr,z=top.z+Math.cos(A)*rr,g=H(x,z);let dmin=1e9;for(let i=0;i<=N;i+=4)dmin=Math.min(dmin,Math.hypot(O[i].x-x,O[i].z-z));if(dmin<170)continue;
-    let seen=0,bv=null;for(const p of R){const D=Math.hypot(p.x-x,p.z-z);if(D>1100)continue;const ty=g+55;let ok=true;for(let s=1;s<14;s++){const f=s/14,qx=p.x+(x-p.x)*f,qz=p.z+(z-p.z)*f,ly=p.y+2+(ty-p.y-2)*f;if(H(qx,qz)>ly-1){ok=false;break}}if(ok){const w=300/Math.max(250,D);seen+=w;if(!bv||w>bv.w)bv={w,x:p.x,z:p.z}}}
-    if(seen>0&&(!best||seen>best.seen))best={x,z,g,seen,bv}}}
-  if(!best)return;const {x,z,g}=best,face=Math.atan2(best.bv.x-x,best.bv.z-z);
-  const grp=new THREE.Group();grp.position.set(x,g-6,z);grp.rotation.y=face;root.add(grp);
-  // the rock face: dark wet stone, a little ragged at the edges
-  const rc=document.createElement('canvas');rc.width=128;rc.height=256;{const c=rc.getContext('2d');c.fillStyle='#3d3a37';c.fillRect(0,0,128,256);let s=3;const r=()=>((s=(s*16807)%2147483647)/2147483647);
-   for(let k=0;k<260;k++){const v=40+r()*40|0;c.fillStyle=`rgb(${v},${v-2},${v-5})`;c.fillRect(r()*128,r()*256,6+r()*24,3+r()*10)}for(let k=0;k<40;k++){c.fillStyle='rgba(70,90,50,.35)';c.fillRect(r()*128,r()*256,8+r()*14,4+r()*8)}}
-  const rt=new THREE.CanvasTexture(rc);rt.wrapS=rt.wrapT=THREE.RepeatWrapping;rt.repeat.set(2,3);
-  // (448) a horseshoe gorge, not a block: a curved, ragged cliff open towards the road, wooded hills either side and behind
-  {const g=new THREE.CylinderGeometry(46,58,124,28,8,true,Math.PI/2,Math.PI);const P=g.attributes.position;let s2=5;const r=()=>((s2=(s2*16807)%2147483647)/2147483647);
-   for(let k=0;k<P.count;k++){const x=P.getX(k),y=P.getY(k),z=P.getZ(k),l=Math.hypot(x,z)||1,j=(r()-.5)*7,top=y>55?(r()-.3)*14:0;P.setXYZ(k,x+x/l*j,y+top,z+z/l*j)}g.computeVertexNormals();
-   const cliff=new THREE.Mesh(g,new THREE.MeshLambertMaterial({map:rt,side:THREE.DoubleSide}));cliff.position.set(0,58,-8);cliff.castShadow=cliff.receiveShadow=true;grp.add(cliff)}
-  {const fc=document.createElement('canvas');fc.width=fc.height=128;const c=fc.getContext('2d');c.fillStyle='#4a3a26';c.fillRect(0,0,128,128);let s3=9;const r=()=>((s3=(s3*16807)%2147483647)/2147483647);
-   const cols=['#a8361e','#c95a1c','#d98b25','#2f4a2a','#6b2a1c','#3b5a2e'];for(let k=0;k<700;k++){c.fillStyle=cols[(r()*cols.length)|0];c.beginPath();c.arc(r()*128,r()*128,2+r()*5,0,6.3);c.fill()}
-   const ft=new THREE.CanvasTexture(fc);ft.wrapS=ft.wrapT=THREE.RepeatWrapping;ft.repeat.set(5,4);const fm=new THREE.MeshLambertMaterial({map:ft});
-   for(const [x,y,z,sx,sy,sz] of [[0,-10,-118,120,126,62],[-62,-30,-20,26,96,40],[62,-30,-20,26,92,40]]){const h=new THREE.Mesh(new THREE.SphereGeometry(1,22,14),fm);h.scale.set(sx,sy,sz);h.position.set(x,y,z);h.receiveShadow=true;grp.add(h)}}   // wooded autumn hills round the gorge
-  // the water: a long white ribbon, its streaks running down
-  const wc=document.createElement('canvas');wc.width=64;wc.height=256;{const c=wc.getContext('2d');c.fillStyle='rgba(235,242,250,.85)';c.fillRect(0,0,64,256);let s=11;const r=()=>((s=(s*16807)%2147483647)/2147483647);
-   for(let k=0;k<160;k++){c.fillStyle=r()<.5?'rgba(255,255,255,.9)':'rgba(170,190,210,.6)';c.fillRect(r()*64,r()*256,1+r()*3,10+r()*50)}}
-  const wt=new THREE.CanvasTexture(wc);wt.wrapS=wt.wrapT=THREE.RepeatWrapping;wt.repeat.set(1,4);
-  const water=new THREE.Mesh(new THREE.PlaneGeometry(10,108,1,1),new THREE.MeshBasicMaterial({map:wt,transparent:true,opacity:.95,fog:true,depthWrite:false}));water.position.set(0,60,-48);grp.add(water);
-  const lip=new THREE.Mesh(new THREE.PlaneGeometry(12,3),new THREE.MeshBasicMaterial({color:0xeaf2fa,transparent:true,opacity:.8}));lip.position.set(0,114,-47.5);grp.add(lip);
-  // spray at its foot
-  const mc=document.createElement('canvas');mc.width=mc.height=64;{const c=mc.getContext('2d'),gr=c.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'rgba(255,255,255,.75)');gr.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=gr;c.fillRect(0,0,64,64)}
-  const mt=new THREE.CanvasTexture(mc),mists=[];for(let k=0;k<5;k++){const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:mt,transparent:true,depthWrite:false,opacity:.55}));sp.scale.setScalar(16+k*4);sp.position.set((k-2)*4,10+k*2,-40);grp.add(sp);mists.push(sp)}
-  (function anim(){requestAnimationFrame(anim);wt.offset.y+=.012;const t=performance.now()/1000;mists.forEach((s,k)=>{s.material.opacity=.35+.2*Math.sin(t*.8+k)})})();
-  window.__treeClear=(window.__treeClear||[]).concat([{x:x+Math.sin(face)*10,z:z+Math.cos(face)*10,r:42}]);window.__tcV=(window.__tcV|0)+1;
-  window.__kegon={at:[Math.round(x),Math.round(z),Math.round(g)],seen:+best.seen.toFixed(1),from:[Math.round(best.bv.x),Math.round(best.bv.z)]}}
+ // (450) Kegon Falls: the white column dropping ~75 m down the head of the gorge cut into the mountainside (akina_terrain
+ // kegon()), a plunge pool and spray at its foot, and the stream running away down the gorge floor
+ function falls(root,H,O,N,m){const LX=-1494,LZ=839,dx=.996,dz=.084,sx=-dz,sz=dx,P=(A,S)=>({x:LX+dx*A+sx*S,z:LZ+dz*A+sz*S});
+  const TH=(x,z)=>{const g=akinaGround;return g.H(x,z)},fl=P(9,0),floor=TH(fl.x,fl.z);
+  // (450) the ground mesh is too coarse to hold a sheer face, so the gorge gets its own rock walls: a U of cliff
+  // round the head and down both sides, each with a cap sloping back to meet the hillside
+  const wA=A=>28+.22*Math.max(0,A),rim=[];
+  const wS=A=>wA(A)+4;for(let A=70;A>=11;A-=6)rim.push([A,wS(A)]);for(let k=0;k<=12;k++){const S=wS(5)*(1-2*k/12);rim.push([5-3*(1-(S/wS(5))**2),S])}for(let A=11;A<=70;A+=6)rim.push([A,-wS(A)]);
+  const rc=document.createElement('canvas');rc.width=128;rc.height=256;{const c=rc.getContext('2d');c.fillStyle='#4a494b';c.fillRect(0,0,128,256);let q=7;const r=()=>((q=(q*16807)%2147483647)/2147483647);
+   for(let k=0;k<140;k++){const x=r()*128,w=2+r()*9;c.fillStyle=['#3a393c','#5d5b5a','#2c2b2e','#6a6662'][k%4];c.fillRect(x,r()*256,w,20+r()*120)}
+   for(let k=0;k<30;k++){c.fillStyle='rgba(40,34,30,.55)';c.fillRect(0,r()*256,128,1+r()*2)}
+   for(let k=0;k<50;k++){c.fillStyle='rgba(64,88,50,.6)';c.fillRect(r()*128,r()*256,3+r()*8,2+r()*5)}}
+  const rt=new THREE.CanvasTexture(rc);rt.wrapS=rt.wrapT=THREE.RepeatWrapping;
+  const rockM=new THREE.MeshLambertMaterial({map:rt,side:THREE.DoubleSide,fog:true});
+  {const Pp=[],UV=[],I=[];let u=0,prev=null;const n=rim.length;
+   rim.forEach(([A,S],k)=>{const sg=Math.abs(S)<1e-6&&A<4?0:Math.sign(S),hd=Math.abs(k-(rim.length-1)/2)<=6,out=hd?[-1,0]:[0,sg],
+    p=P(A,S),po=P(A+out[0]*7,S+out[1]*7),pc=P(A+out[0]*26,S+out[1]*26),b=P(A-out[0]*10,S-out[1]*10);
+    const yb=TH(b.x,b.z)-3,yt=Math.max(TH(po.x,po.z),akinaGround.HM(po.x,po.z))+1.5,yc=akinaGround.HM(pc.x,pc.z)-.6;
+    if(prev)u+=Math.hypot(p.x-prev.x,p.z-prev.z)/24;prev=p;
+    Pp.push(p.x,yb,p.z, p.x,yt,p.z, pc.x,yc,pc.z);UV.push(u,0, u,(yt-yb)/48, u,(yt-yb)/48+.5);
+    if(k){const o=(k-1)*3;I.push(o,o+3,o+1, o+1,o+3,o+4, o+1,o+4,o+2, o+2,o+4,o+5)}});
+   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(Pp,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(UV,2));g.setIndex(I);g.computeVertexNormals();
+   const wall=new THREE.Mesh(g,rockM);wall.name='kegonWalls';root.add(wall)}
+  const hp=P(-5,0),top=Math.max(TH(hp.x,hp.z),akinaGround.HM(hp.x,hp.z))+1.2,lip={x:P(-4,0).x,z:P(-4,0).z};
+  const wc=document.createElement('canvas');wc.width=64;wc.height=256;{const c=wc.getContext('2d');c.fillStyle='rgba(228,238,250,.9)';c.fillRect(6,0,52,256);let s=11;const r=()=>((s=(s*16807)%2147483647)/2147483647);
+   for(let k=0;k<180;k++){c.fillStyle=r()<.5?'rgba(255,255,255,.95)':'rgba(160,185,210,.7)';c.fillRect(6+r()*52,r()*256,1+r()*3,10+r()*50)}
+   const g3=c.createLinearGradient(0,0,64,0);g3.addColorStop(0,'rgba(0,0,0,1)');g3.addColorStop(.2,'rgba(0,0,0,0)');g3.addColorStop(.8,'rgba(0,0,0,0)');g3.addColorStop(1,'rgba(0,0,0,1)');c.globalCompositeOperation='destination-out';c.fillStyle=g3;c.fillRect(0,0,64,256)}
+  const wt=new THREE.CanvasTexture(wc);wt.wrapT=THREE.RepeatWrapping;wt.repeat.set(1,4);const wm=new THREE.MeshBasicMaterial({map:wt,transparent:true,depthWrite:false,fog:true,side:THREE.DoubleSide});
+  // the column: from the lip, falling clear of the rock face, down to the pool
+  {const W=14,a0=P(1.6,0),a1=P(7.5,0),g=new THREE.BufferGeometry(),pts=[];for(const [p,y] of [[a0,top],[a1,floor-.5]])for(const s of [-1,1])pts.push(p.x+sx*s*W/2,y,p.z+sz*s*W/2);
+   g.setAttribute('position',new THREE.Float32BufferAttribute(pts,3));g.setAttribute('uv',new THREE.Float32BufferAttribute([0,1,1,1,0,0,1,0],2));g.setIndex([0,2,1,1,2,3]);root.add(new THREE.Mesh(g,wm))}
+  {const lipM=new THREE.Mesh(new THREE.PlaneGeometry(13,2.2),new THREE.MeshBasicMaterial({color:0xeef4fb,transparent:true,opacity:.85,side:THREE.DoubleSide}));const p=P(1.3,0);lipM.position.set(p.x,top+.2,p.z);lipM.rotation.y=Math.atan2(dx,dz);root.add(lipM)}
+  // the plunge pool and the stream away down the gorge
+  {const p=P(14,0),pool=new THREE.Mesh(new THREE.CircleGeometry(12,24),new THREE.MeshLambertMaterial({color:0x3b5a66,transparent:true,opacity:.92}));pool.rotation.x=-Math.PI/2;pool.position.set(p.x,H(p.x,p.z)+.4,p.z);root.add(pool)}
+  {const Pp=[],UV=[],I=[];let u=0,k=0;for(let A=14;A<=120;A+=4,k++){const c=P(A,Math.sin(A*.06)*4),w=4+Math.sin(A*.2)*.8;for(const s of [-1,1]){const x=c.x+sx*s*w,z=c.z+sz*s*w;Pp.push(x,H(x,z)+.35,z);UV.push(s<0?0:1,u)}u+=.25;if(k){const n=k*2;I.push(n-2,n-1,n,n-1,n+1,n)}}
+   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(Pp,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(UV,2));g.setIndex(I);root.add(new THREE.Mesh(g,new THREE.MeshBasicMaterial({map:wt,transparent:true,depthWrite:false,fog:true,opacity:.5,color:0xb8d0e0})))}
+  const mc=document.createElement('canvas');mc.width=mc.height=64;{const c=mc.getContext('2d'),gr=c.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'rgba(255,255,255,.8)');gr.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=gr;c.fillRect(0,0,64,64)}
+  const mt=new THREE.CanvasTexture(mc),mists=[];for(let k=0;k<6;k++){const p=P(8+k*1.5,(k-2.5)*3),sp=new THREE.Sprite(new THREE.SpriteMaterial({map:mt,transparent:true,depthWrite:false,opacity:.5}));sp.scale.setScalar(12+k*3);sp.position.set(p.x,floor+3+k*1.5,p.z);root.add(sp);mists.push(sp)}
+  (function anim(){requestAnimationFrame(anim);wt.offset.y+=.025;const t=performance.now()/1000;mists.forEach((s,k)=>{s.material.opacity=.32+.2*Math.sin(t*.8+k)})})();
+  const clr=[];for(let A=0;A<=110;A+=12)clr.push({...P(A,0),r:22+A*.18});window.__treeClear=(window.__treeClear||[]).concat(clr);window.__tcV=(window.__tcV|0)+1;
+  window.__kegon={top:Math.round(top),floor:Math.round(floor),drop:Math.round(top-floor)}}
 })();
 
 // ==================================================================== Shomaru (build 449)
@@ -20061,35 +20090,25 @@ const animeArcade4=window.animeArcade4=(()=>{
   window.__tcV=(window.__tcV|0)+1;console.log('AKLOG shomaru',window.__shoFence,window.__shoTea,window.__shoHouses)}
 })();
 
-// ==================================================================== PRESS A TO START (build 444)
-// Once the course has loaded, the run waits on a "PRESS Ⓐ TO START" card. The press is what lets the browser see the
-// controller on this freshly loaded page, so the pad is connected before the lights; and it's the key in the ignition:
-// the engine catches (with its big rumble) and the countdown follows a moment later. Enter / Space / a click work too.
-(()=>{const q=new URLSearchParams(location.search);if(q.get('nogate')==='1'||(navigator.webdriver&&q.get('gate')!=='1'))return;
- let state='wait',el=null,t0=0,goAt=0,padSeen=false;const prevA={};
- const css=document.createElement('style');css.textContent=`#pressStart{position:fixed;left:50%;bottom:17%;transform:translateX(-50%);z-index:9000;pointer-events:auto;cursor:pointer;
-  font:900 italic 44px/1 "Bangers","Bangers,Impact",sans-serif;letter-spacing:.06em;color:#fff;text-shadow:3px 3px 0 #e8263b,6px 6px 0 #111;padding:16px 34px;background:rgba(10,10,14,.72);border:3px solid #ffd23f;
-  transform-origin:center;animation:psPulse 1.1s ease-in-out infinite;white-space:nowrap}
-  #pressStart .btnA{display:inline-block;width:46px;height:46px;border-radius:50%;background:#3bbf5a;color:#fff;font:900 30px/46px Comic Neue,Arial,sans-serif;text-shadow:none;vertical-align:-4px;margin:0 6px;box-shadow:0 3px 0 #1d6b30}
-  #pressStart small{display:block;font:600 14px/1.4 Comic Neue,Arial,sans-serif;letter-spacing:.12em;color:#ddd;text-shadow:none;margin-top:8px;text-align:center;font-style:normal}
-  #pressStart.go{animation:none;opacity:0;transition:opacity .35s}
-  @keyframes psPulse{0%,100%{opacity:1}50%{opacity:.55}}`;document.head.appendChild(css);
- const loaded=()=>!document.getElementById('frLoading')&&typeof courseChosen!=='undefined'&&courseChosen;
- const hold=()=>{try{if(typeof countdown!=='undefined'&&countdown>0)countdown=Math.max(countdown,3.8)}catch(e){}};
- function show(){el=document.createElement('div');el.id='pressStart';el.innerHTML=`PRESS <span class="btnA">A</span> TO START<small>OR PRESS ENTER · SPACE · CLICK</small>`;el.addEventListener('pointerdown',e=>{e.preventDefault();go()});document.body.appendChild(el);
-  // hold the engine off until the key turns
-  window.__v8Started=1;window.__pressGate=true}
- function go(){if(state!=='shown')return;state='go';try{if(typeof audioCtx!=='undefined'&&audioCtx.state!=='running')audioCtx.resume()}catch(e){}
-  if(el){el.classList.add('go');setTimeout(()=>el&&el.remove(),400)}
-  // turn the key: the engine catches (startup sound + the big rumble), then the lights a moment later
-  setTimeout(()=>{window.__v8Started=0;let ok=false;try{ok=window.__engineStartNow&&__engineStartNow()}catch(e){}if(!ok)try{window.__rumbleStart&&__rumbleStart(1)}catch(e){}},60);
-  goAt=performance.now()+1500}
- addEventListener('keydown',e=>{if(state==='shown'&&(e.code==='Enter'||e.code==='Space'||e.code==='NumpadEnter')){e.preventDefault();e.stopPropagation();go()}},true);
- (function tick(){requestAnimationFrame(tick);const now=performance.now();
-  if(state==='wait'){if(!loaded())return;let cd=0;try{cd=countdown}catch(e){}let busy=false;try{busy=!!(typeof storyActive!=='undefined'&&storyActive)}catch(e){}
-   if(cd<=0){state='off';return}if(busy)return;if(!t0)t0=now;if(now-t0<250)return;state='shown';show();return}
-  if(state==='shown'){hold();const pads=navigator.getGamepads?navigator.getGamepads():[];for(const p of pads){if(!p||!p.connected)continue;padSeen=true;const dn=!!(p.buttons&&(p.buttons[0]&&p.buttons[0].pressed||p.buttons[9]&&p.buttons[9].pressed)),was=prevA[p.index];prevA[p.index]=dn;if(dn&&!was){go();break}}return}   /* a fresh press (not A still held from the menu) */
-  if(state==='go'){hold();if(now>=goAt){state='done';window.__pressGate=false}}})();
+// ==================================================================== PRESS A TO START (build 444, onto the loading screen in 450)
+// When the course has finished loading, the loading screen itself waits on "PRESS Ⓐ TO START". The press lets the browser
+// see the controller on this freshly loaded page, and it's the key in the ignition: the engine catches (with its big
+// rumble) and the loading screen lifts into the race. Enter / Space / a click work too.
+(()=>{const q=new URLSearchParams(location.search);const skip=q.get('nogate')==='1'||(navigator.webdriver&&q.get('gate')!=='1');
+ const css=document.createElement('style');css.textContent=`#pressStart{margin-top:4.5vh;display:flex;flex-direction:column;align-items:center;gap:1.4vh;cursor:pointer;animation:psPulse 1.1s ease-in-out infinite}
+  #pressStart .ln{display:flex;align-items:center;gap:.45em;font:400 clamp(30px,3.6vw,56px)/1 Bangers,Bangers,Impact,sans-serif;letter-spacing:.08em;color:#fff;text-shadow:3px 3px 0 #e8263b}
+  #pressStart .btnA{flex:none;display:inline-flex;align-items:center;justify-content:center;width:1.2em;height:1.2em;border-radius:50%;background:#3bbf5a;color:#fff;font:900 .62em/1 Comic Neue,Arial,Helvetica,sans-serif;letter-spacing:0;text-shadow:none;box-shadow:0 .08em 0 #1d6b30}
+  #pressStart small{font:700 clamp(11px,.95vw,15px)/1 Comic Neue,Arial,sans-serif;letter-spacing:.18em;color:#cfcbd8;text-shadow:none}
+  #pressStart.go{animation:none;opacity:.25;transition:opacity .3s}
+  @keyframes psPulse{0%,100%{opacity:1}50%{opacity:.5}}`;document.head.appendChild(css);
+ // show the prompt inside `host` (the loading screen); go() on the first fresh press
+ window.__waitPressStart=(host,go)=>{if(skip||!host){go();return}let done=false;const prevA={};
+  const box=document.createElement('div');box.id='pressStart';box.innerHTML='<div class="ln"><span>PRESS</span><span class="btnA">A</span><span>TO START</span></div><small>OR PRESS ENTER · SPACE · CLICK</small>';
+  host.style.flexDirection='column';host.appendChild(box);
+  const fire=()=>{if(done)return;done=true;box.classList.add('go');removeEventListener('keydown',kd,true);host.removeEventListener('pointerdown',pd);try{if(typeof audioCtx!=='undefined'&&audioCtx.state!=='running')audioCtx.resume()}catch(e){}go()};
+  const kd=e=>{if(e.code==='Enter'||e.code==='Space'||e.code==='NumpadEnter'){e.preventDefault();e.stopPropagation();fire()}};const pd=e=>{e.preventDefault();fire()};
+  addEventListener('keydown',kd,true);host.addEventListener('pointerdown',pd);host.style.pointerEvents='auto';
+  (function poll(){if(done)return;requestAnimationFrame(poll);const pads=navigator.getGamepads?navigator.getGamepads():[];for(const p of pads){if(!p||!p.connected)continue;const dn=!!(p.buttons&&(p.buttons[0]&&p.buttons[0].pressed||p.buttons[9]&&p.buttons[9].pressed)),was=prevA[p.index];prevA[p.index]=dn;if(dn&&!was){fire();break}}})()};
 })();
 
 // ==================================================================== Myogi's giant 大 (build 436)
