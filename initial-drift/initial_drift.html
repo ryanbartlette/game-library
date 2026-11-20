@@ -512,7 +512,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=464',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=465',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -4111,7 +4111,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 464';
+window.__BUILD='BUILD 465';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5640,9 +5640,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795217217'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795218538'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795217217'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795218538'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -6023,8 +6023,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795217217'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795217217'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795218538'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795218538'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6482,7 +6482,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795217217',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795218538',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6496,7 +6496,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795217217',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795218538',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -10409,7 +10409,7 @@ const raceDirector=window.raceDirector=(()=>{
   let v=Math.min(c.top*challenge().top,corner*challenge().corner);
   // (456) a stretch you've driven: the rival goes your own speed there (blended in as it's learned), times the race's difficulty
   const closeR=(window.__race&&!window.__storyPrologue&&!(__race.rules&&(__race.rules.solo||__race.rules.fatherWins)))||window.__pracRivalOn;
-  let LW=0;window.__dirLW=0;if(closeR&&window.__paceLearn){const L=__paceLearn.at(rivalProgress+2);if(L&&L.w>0){LW=L.w;const lv=Math.min(c.top*1.12,L.v*(1+diff()));v=v*(1-LW)+lv*LW;window.__dirLW=LW}}
+  let LW=0;window.__dirLW=0;if(closeR&&window.__paceLearn){const L=__paceLearn.rivalRef?__paceLearn.rivalRef(rivalProgress+2,window.__storyLevel?__storyLevel():'medium'):__paceLearn.at(rivalProgress+2);if(L&&L.w>0){LW=L.w;const lv=Math.min(c.top*1.12,L.v*(1+diff()));v=v*(1-LW)+lv*LW;window.__dirLW=LW}}
   // rubber band (gap > 0: rival is ahead of the player)
   const gap=(rivalProgress-progress)*mpi();
   const remaining=Math.max(0,(stageFinishIndex-Math.max(progress,rivalProgress))/Math.max(1,stageFinishIndex));
@@ -10428,7 +10428,7 @@ const raceDirector=window.raceDirector=(()=>{
   v*=1+band;
   // the handling got more real in builds 350-363 (wall hits cost speed, understeer, drifts that end) and these paces were
   // set against the old car: everyone backs off a little, and a rival who's got right away waits for you a bit more
-  if(!(OPP()===3&&window.__race&&__race.rules&&__race.rules.fatherWins)){v*=1-.025*(1-LW);if(window.__race&&!window.__pracRivalOn&&window.__storyPaceK)v*=__storyPaceK()}   /* GAME OPTIONS → DIFFICULTY */
+  if(!(OPP()===3&&window.__race&&__race.rules&&__race.rules.fatherWins)){v*=1-.025*(1-LW);if(window.__race&&!window.__pracRivalOn&&window.__storyPaceK)v*=1+(__storyPaceK()-1)*(1-LW)}   /* (465) on learned road the difficulty is the cap scheme (pace_learn.js) */   /* GAME OPTIONS → DIFFICULTY */
   v*=1+(paceK()-1)*(1-LW);   /* model corrections only where nothing's been learned */
   if(gap>60&&!close)v*=1-.06*ss((gap-60)/140)*fade;
   if(window.__rivalHold&&performance.now()<__rivalHold)v*=.18;
@@ -17224,10 +17224,10 @@ html body #courseMenu #driftModeChoices button .mSub{font-size:clamp(10px,.85vw,
    // (459) LEARNED: once the game knows your pace on this run (your own laps here, or your driving style for road you
    // haven't driven), his time is YOUR expected time for this run x his difficulty, and his run is shaped like yours.
    // Rebuilt every run, so every rerun uses what you've just taught it.
-   let TG=TGP,LV=null;try{const PL=window.__paceLearn;if(PL){const a=new Float32Array(n+1);let got=0,own=0;for(let i=0;i<=n;i++){const q=PL.at(i);if(q&&q.w>0&&q.v>2){a[i]=q.v;got++}else a[i]=0;const o=PL.atOwn&&PL.atOwn(i);if(o&&o.w>0)own++}
+   let TG=TGP,LV=null;try{const PL=window.__paceLearn;if(PL){const a=new Float32Array(n+1);let got=0,own=0;const LVL={easy:'easy',normal:'medium',hard:'hard'}[S.pace||'normal']||'medium';for(let i=0;i<=n;i++){const q=PL.rivalRef?PL.rivalRef(i,LVL):PL.at(i);if(q&&q.w>0&&q.v>2){a[i]=q.v;got++}else a[i]=0;const o=PL.atOwn&&PL.atOwn(i);if(o&&o.w>0)own++}
      if(got>.6*(n+1)){let rs=0,rn=0;for(let i=0;i<=n;i++)if(a[i]>0&&best.v[i]>2){rs+=a[i]/best.v[i];rn++}const k=rn?rs/rn:1;for(let i=0;i<=n;i++)if(!(a[i]>0))a[i]=best.v[i]*k;
       let ty=0;for(let i=0;i<n;i++)ty+=2*L[i]/Math.max(.5,a[i]+a[i+1]);const d=PDIFF[RID]!=null?PDIFF[RID]:0;
-      TG=ty/(1+d)*((PACEK[S.pace||'normal']||1.035)/1.035);LV=a;window.__pracRivalTarget=TG/(window.__gameK||1);window.__pracLearned={yourPred:ty/(window.__gameK||1),diff:d,cover:got/(n+1),own:own/(n+1)}}}}catch(e){console.warn('learned pace',e)}
+      TG=ty/(1+d);   /* (465) the Easy/Normal/Hard caps are already in the reference (pace_learn.js rivalRef) */LV=a;window.__pracRivalTarget=TG/(window.__gameK||1);window.__pracLearned={yourPred:ty/(window.__gameK||1),diff:d,cover:got/(n+1),own:own/(n+1)}}}}catch(e){console.warn('learned pace',e)}
    if(!LV)window.__pracLearned=null;
    // which kind of road each quarter is (for the "why" at the end)
    const Q=[0,1,2,3].map(q=>{const a=Math.floor(n*q/4),b=Math.floor(n*(q+1)/4);let s=0,tight=0;for(let i=a;i<b;i++){s+=sev[i];if(sev[i]>.55)tight++}const m=s/Math.max(1,b-a),tf=tight/Math.max(1,b-a);
@@ -20280,7 +20280,7 @@ const animeAssists=window.animeAssists=(()=>{
  try{const o=JSON.parse(localStorage.getItem(KEY)||'{}')||{};if(o.v===383){const p=PRESET[o.story]||PRESET.medium;for(const k in p)if(o[k]===undefined)o[k]=p[k];Object.assign(S,o)}}catch(e){}   /* older saves start on MEDIUM */
  const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
  window.__assists=S;
- window.__storyPaceK=()=>PACE[S.story]||1;
+ window.__storyPaceK=()=>PACE[S.story]||1;window.__storyLevel=()=>S.story||'medium';
  const modeName=()=>{const p=PRESET[S.story];return p&&Object.keys(p).every(k=>S[k]===p[k])?S.story:'custom'};
  // ---------------------------------------------------------------- 1 · drift assist
  const STR={off:0,low:1.15,high:2.4};
@@ -20779,15 +20779,33 @@ const animeCutscene=window.animeCutscene=(()=>{
  {const o=updatePlayerVehiclePose;updatePlayerVehiclePose=function(dt){const r=o.apply(this,arguments);step(dt);save(false);return r}}
  addEventListener('pagehide',()=>save(true));addEventListener('beforeunload',()=>save(true));
  setInterval(()=>{try{if(typeof finished!=='undefined'&&finished)save(true)}catch(e){}},2000);
+ // ---- (465) BASELINE: the game's developer's own learned pace (baked in from his exported data), used where this player
+ // hasn't driven yet, scaled by how this player compares with him on the road they HAVE driven (per kind of road)
+ const BASE=/*PACE_BASE*/{};
+ let RAT=null,ratT=0;
+ function ratio(){const t=performance.now();if(RAT&&t-ratT<4000)return RAT;ratT=t;let s=0,n=0;const byK={};
+  for(const k in BASE){const r=DB[k],b=BASE[k];if(!r||!b)continue;for(let i=0;i<NB;i++)if(r.n[i]>0&&b[i]>0){const q=r.v[i]/b[i];if(q>.4&&q<2.5){s+=Math.log(q);n++}}}
+  RAT={q:n?Math.exp(s/n):1,n};return RAT}
+ function atBase(i){const k=course();if(!k||!BASE[k])return null;const b=BASE[k],o=AC().toOrig(i)/BIN-.5,b0=Math.floor(o),f=o-b0;const g=x=>x>=0&&x<NB&&b[x]>0?b[x]:null;
+  const va=g(b0),vc=g(b0+1);if(va==null&&vc==null)return null;const v=(va??vc)+((vc??va)-(va??vc))*f,R=ratio();return {v:v*R.q,w:R.n>30?.8:.65}}
  // the learned speed at a point of the run (index i of this run): {v, w} or null; w is how much it's trusted (0..1)
- function at(i){const own=atOwn(i);if(own&&own.w>=1)return own;const st=styleAt(i);if(!st)return own;if(!own)return st;return {v:own.v*own.w+st.v*(1-own.w),w:Math.max(own.w,st.w)}}
+ function at(i){const own=atOwn(i);if(own&&own.w>=1)return own;const bs=atBase(i),st0=styleAt(i),st=bs&&(!st0||bs.w>=st0.w)?bs:st0;if(!st)return own;if(!own)return st;return {v:own.v*own.w+st.v*(1-own.w),w:Math.max(own.w,st.w)}}
  function atOwn(i){const k=course();if(!k||!DB[k])return null;const r=DB[k],o=AC().toOrig(i)/BIN-.5,b0=Math.floor(o),f=o-b0;
   const g=b=>b>=0&&b<NB&&r.n[b]>0?b:null;const a=g(b0),c=g(b0+1);if(a==null&&c==null)return null;
   const va=a!=null?r.v[a]:r.v[c],vc=c!=null?r.v[c]:r.v[a],na=a!=null?r.n[a]:0,nc=c!=null?r.n[c]:0;
   return {v:va+(vc-va)*f,w:Math.min(1,(na*(1-f)+nc*f)/2)}}
  // how much of this run has been learned (0..1)
  function coverage(){const k=course();if(!k||!DB[k]||typeof N==='undefined')return 0;let h=0,t=0;for(let i=0;i<=N;i+=Math.max(1,N/200|0)){t++;const a=at(i);if(a&&a.w>0)h++}return t?h/t:0}
- window.__paceLearn={at,atOwn,styleAt,style:()=>DB._style,_learn:(i,s)=>learnStyle(i,s),coverage,reset:()=>{DB={};dirty=true;save(true)},db:()=>DB};
+ // (465) DIFFICULTY CAPS against the baseline (the developer = a comfortable MEDIUM driver): rivals follow YOUR pace, but
+ // only between these limits of the baseline pace on that stretch, then x k. A beginner on Medium gets rivals down to 80%
+ // of the baseline; getting faster than the baseline doesn't make Medium rivals faster. Hard keeps them at 95-103% of it
+ // (beatable with a great run), Expert 99-105%.
+ const CAP={easy:{lo:.70,hi:.93,k:.97},medium:{lo:.80,hi:1.0,k:.99},normal:{lo:.80,hi:1.0,k:.99},hard:{lo:.95,hi:1.03,k:1},expert:{lo:.99,hi:1.05,k:1.01}};
+ function rawBase(i){const k=course();if(!k||!BASE[k])return null;const b=BASE[k],o=AC().toOrig(i)/BIN-.5,b0=Math.floor(o),f=o-b0;const g=x=>x>=0&&x<NB&&b[x]>0?b[x]:null;const va=g(b0),vc=g(b0+1);if(va==null&&vc==null)return null;return (va??vc)+((vc??va)-(va??vc))*f}
+ function rivalRef(i,lvl){const P=at(i);if(!P)return null;const M=rawBase(i);if(M==null)return P;const c=CAP[lvl]||CAP.medium;return {v:Math.min(M*c.hi,Math.max(M*c.lo,P.v))*c.k,w:P.w,capped:true}}
+ // (465) everything learned, for the developer's baseline: copied as compact text
+ function exportAll(){const o={v:2,build:window.__BUILD||'',courses:{},style:DB._style||null};for(const k in DB){if(k[0]==='_')continue;const r=DB[k];o.courses[k]={v:r.v.map(x=>+x.toFixed(1)),n:r.n}}return 'INITIAL DRIFT PACE DATA\n'+JSON.stringify(o)}
+ window.__paceLearn={rivalRef,rawBase,CAP,exportAll,ratio,atBase,at,atOwn,styleAt,style:()=>DB._style,_learn:(i,s)=>learnStyle(i,s),coverage,reset:()=>{DB={};dirty=true;save(true)},db:()=>DB};
 })();
 
 // ==================================================================== AI TRACE (build 459)
@@ -20835,8 +20853,13 @@ const animeCutscene=window.animeCutscene=(()=>{
  const btn=document.createElement('button');btn.id='aiTraceBtn';btn.textContent='COPY AI TRACE (T)';btn.style.cssText='position:fixed;left:1.4vw;bottom:2vh;z-index:9500;display:none;font:800 clamp(11px,.9vw,14px) Comic Neue,Arial,sans-serif;letter-spacing:.14em;padding:.7em 1.1em;background:#111;color:#fff;border:2px solid #fff;cursor:pointer';
  const flash=m=>{btn.textContent=m;setTimeout(()=>btn.textContent='COPY AI TRACE (T)',1600)};
  btn.addEventListener('click',e=>{e.stopPropagation();copy(text())});document.body.appendChild(btn);
- setInterval(()=>{try{btn.style.display=(typeof finished!=='undefined'&&finished&&R&&R.pS[NS]!=null)?'block':'none'}catch(e){}},300);
- addEventListener('keydown',e=>{try{if(e.code==='KeyT'&&!e.repeat&&typeof finished!=='undefined'&&finished)copy(text())}catch(_){}});
+ // (465) all of your learned pace (every course, both ways) for the developer's baseline
+ const b2=document.createElement('button');b2.id='paceDataBtn';b2.textContent='COPY PACE DATA (SHIFT+T)';b2.style.cssText=btn.style.cssText+';left:auto;margin-left:0';
+ const copyP=()=>{try{const s=__paceLearn.exportAll();const ok=()=>{b2.textContent='PACE DATA COPIED';setTimeout(()=>b2.textContent='COPY PACE DATA (SHIFT+T)',1600)};
+   try{navigator.clipboard.writeText(s).then(ok,()=>{const t=document.createElement('textarea');t.value=s;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();ok()})}catch(e){}}catch(e){}};
+ b2.addEventListener('click',e=>{e.stopPropagation();copyP()});document.body.appendChild(b2);
+ setInterval(()=>{try{const v=(typeof finished!=='undefined'&&finished&&R&&R.pS[NS]!=null);btn.style.display=v?'block':'none';b2.style.display=v?'block':'none';if(v){const r=btn.getBoundingClientRect();b2.style.left=(r.right+10)+'px'}}catch(e){}},300);
+ addEventListener('keydown',e=>{try{if(e.code==='KeyT'&&!e.repeat&&typeof finished!=='undefined'&&finished){if(e.shiftKey)copyP();else copy(text())}}catch(_){}});
 })();
 
 // ==================================================================== HEADLIGHT BEAMS ON THE ROAD (build 462)
