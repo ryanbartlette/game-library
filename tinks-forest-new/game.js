@@ -1188,6 +1188,11 @@ PAINT.uniforms.uFar.value = camera.far;
 try{
 PAINT.uniforms.uFocus.value = focusDist();
 }catch(e){}
+{
+const ck = window.__catSight || 0;
+PAINT.uniforms.uFocus.value = lerp(PAINT.uniforms.uFocus.value,Math.min(PAINT.uniforms.uFocus.value,4.5),ck);
+PAINT.uniforms.uDof.value = 0.85 + 0.6 * ck;
+}
 pr(r,w,rd,dt,mk);
 };
 }
@@ -1204,13 +1209,23 @@ uLift:{value: new THREE.Vector3()},
 uGain:{value: new THREE.Vector3(1,1,1)},
 uSat:{value: 1},
 uVig:{value: 0.35},
-uTime:{value: 0}
+uTime:{value: 0},
+uCat:{value: 0},
+uNightV:{value: 0},
+uJack:{value: 0}
 },
 vertexShader: `varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-fragmentShader: `uniform sampler2D tDiffuse;uniform vec3 uLift,uGain,uHi,uLo;uniform float uSat,uVig,uTime,uSplit;varying vec2 vUv;
+fragmentShader: `uniform sampler2D tDiffuse;uniform vec3 uLift,uGain,uHi,uLo;uniform float uSat,uVig,uTime,uSplit,uCat,uNightV,uJack;varying vec2 vUv;
   float hh(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
   float vn2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hh(i),hh(i+vec2(1,0)),f.x),mix(hh(i+vec2(0,1)),hh(i+vec2(1,1)),f.x),f.y);}
-  void main(){vec3 c=texture2D(tDiffuse,vUv).rgb;{float l0=dot(c,vec3(.299,.587,.114));float hk=smoothstep(.25,.85,l0);c*=mix(vec3(1.),mix(uLo,uHi,hk),uSplit);}c=c*uGain+uLift*(1.-clamp(c,0.,1.));float l=dot(c,vec3(.299,.587,.114));c=mix(vec3(l),c,uSat);
+  void main(){vec3 c=texture2D(tDiffuse,vUv).rgb;
+   /* Build 599 (Ryan): holding cat senses, the world as a cat sees it: brighter in the dark (night vision, more the darker it is),
+      and two-colour: blues and yellows stay clear while reds and greens fold into muted yellows and greys, everything a little less
+      vivid. Jack's magical eyes glow a soft green in the dark */
+   if(uCat>.001){vec3 o0=c;vec3 n=c*(1.+uNightV*1.9);n=n/(1.+.18*uNightV*n);
+    vec3 d=mat3(.367322,.280085,-.01182,.860646,.672501,.04294,-.227968,.047413,.968881)*n;float lc=dot(d,vec3(.299,.587,.114));
+    d=mix(vec3(lc),max(d,0.),.78);d=mix(d,vec3(lc*.62,lc*1.12,lc*.66),uJack*(.3+.5*uNightV));c=mix(o0,d,uCat);}
+   {float l0=dot(c,vec3(.299,.587,.114));float hk=smoothstep(.25,.85,l0);c*=mix(vec3(1.),mix(uLo,uHi,hk),uSplit);}c=c*uGain+uLift*(1.-clamp(c,0.,1.));float l=dot(c,vec3(.299,.587,.114));c=mix(vec3(l),c,uSat);
    vec2 d=vUv-.5;c*=1.-uVig*dot(d,d)*1.6;{vec2 q=vUv*vec2(1.6,1.);mat2 rt=mat2(.8,-.6,.6,.8);vec2 b=rt*q;
     float st=vn2(b*vec2(260.,34.))*.6+vn2(rt*rt*q*vec2(90.,520.))*.4;// soft crossing brush streaks
     float pap=vn2(vUv*vec2(700.,420.));// canvas tooth
@@ -15413,10 +15428,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 598;
+const BUILD = 599;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 166;
+const LOOKV = 167;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -18793,16 +18808,26 @@ PADLOCK.rc -= dt;
 cam.yaw += angDiff(cam.yaw,P.yaw + Math.PI)* Math.min(1,dt * 10);
 window.__padLookT = performance.now();
 }
-const want = PADLOCK.on &&(P.mode === 'ground' || P.mode === 'air')&& !window.__asJack ? 1 : 0;
+const want = PADLOCK.on &&(P.mode === 'ground' || P.mode === 'air')? 1 : 0;
 PADLOCK.k +=(want - PADLOCK.k)* Math.min(1,dt *(want ? 4 : 3));
 const k = PADLOCK.k;
 if(!PADLOCK.veil){
 const v =(PADLOCK.veil = document.createElement('div'));
 v.style.cssText =
-'position:fixed;inset:0;pointer-events:none;z-index:6;opacity:0;background:radial-gradient(ellipse at 50% 55%,rgba(255,236,200,0) 38%,rgba(70,48,30,.34) 100%);backdrop-filter:saturate(.8);-webkit-backdrop-filter:saturate(.8)';
+'position:fixed;inset:0;pointer-events:none;z-index:6;opacity:0;background:radial-gradient(ellipse at 50% 55%,rgba(255,236,200,0) 45%,rgba(40,34,30,.3) 100%)';
 document.body.appendChild(v);
 }
-PADLOCK.veil.style.opacity = k.toFixed(3);
+PADLOCK.veil.style.opacity =(k * 0.55).toFixed(3);
+window.__catSight = k;
+try{
+const L =(sun.intensity || 0)+(hemi.intensity || 0);
+PADLOCK.nv = damp(PADLOCK.nv || 0,1 - smooth(1.2,3.8,L),2,dt);
+if(typeof GRADE !== 'undefined' && GRADE){
+GRADE.uniforms.uCat.value = k;
+GRADE.uniforms.uNightV.value = PADLOCK.nv;
+GRADE.uniforms.uJack.value = window.__asJack ? 1 : 0;
+}
+}catch(e){}
 try{
 if(typeof AUD !== 'undefined' && AUD.ctx &&(k > 0.002 || PADLOCK.sndOn)){
 PADLOCK.sndOn = k > 0.002;
@@ -18810,7 +18835,8 @@ for(const nm in AUD.buses){
 const base =(AUD.mix && AUD.mix[nm])?? 1;
 let m = 1;
 if(/^music/.test(nm))m = lerp(1,0.05,k);
-else if(/bird|robin|squirrel|crow|owl|frog|woodpecker|rustle|crickets|cicadas|dawn|day|chirp/.test(nm))m = lerp(1,1.7,k);
+else if(/bird|robin|squirrel|crow|owl|woodpecker|chirp/.test(nm))m = lerp(1,2.0,k);
+else if(/frog|rustle|crickets|cicadas|dawn|day/.test(nm))m = lerp(1,1.7,k);
 else if(/wind|rain|drizzle|stream/.test(nm))m = lerp(1,0.55,k);
 AUD.buses[nm].gain.value = base * m;
 }
@@ -18836,6 +18862,13 @@ const tp = new V3(),
 now = performance.now()/ 1000;
 const things =[];
 for(const g of window.__CRITTERS ||[])things.push([g,0.9]);
+try{
+if(typeof comp !== 'undefined' && comp.cat && comp.cat.catRoot && comp.cat.catRoot.visible)things.push([comp.cat.catRoot,1.2,45]);
+}catch(e){}
+try{
+const J = window.__JACK;
+if(!window.__asJack && J && J.k && J.k.holder && J.k.holder.visible &&(J.k.op == null || J.k.op > 0.3))things.push([J.k.holder,1.2,45]);
+}catch(e){}
 for(const Y of window.__YARNS ||[])if(Y.m && Y.held !== 'p')things.push([Y.m,0.7]);
 try{
 const J = window.__JACK,
@@ -19635,6 +19668,10 @@ target = T.run;
 label = 'Trot';
 }
 }else if(crouching)label = 'Crouch';
+if(!P.povBack && dir && performance.now()-(P.backT || 0)< 900 && target > T.walk){
+target = T.walk;
+label = 'Walk';
+}
 if(P.povBack && dir && P.sit < 0.5){
 const cap = T.walk * 0.75;
 if(target > cap){
@@ -21858,6 +21895,7 @@ poseSqTail(s,tailA,curl,flick +(s.state === 'nibble' ? 0.3 : 0),time);
 }
 }
 let camDistSm = 3;
+const povAtEyes =()=> Math.hypot(camera.position.x - P.pos.x,camera.position.z - P.pos.z)< 0.5 && Math.abs(camera.position.y -(P.visY ?? P.pos.y)- 0.25)< 0.4;
 function summitStart(tp){
 const dx = camera.position.x - tp.x,
 dz = camera.position.z - tp.z;
@@ -22245,6 +22283,7 @@ LIFE.swell = 30;
 }
 }
 }
+P.sitT = P.sit > 0.6 && P.speed < 0.1 && P.mode === 'ground' ?(P.sitT || 0)+ dt : 0;
 if(P.watch){
 if(P.speed > 0.1 || P.mode !== 'ground' || P.pounceCharge >= 0 || P.jumpCharge >= 0){
 P.watch = false;
@@ -22280,7 +22319,7 @@ return;
 camera.fov = damp(
 camera.fov,
 (T.fov +(1 -(P.povK || 0))*(P.lastMove === 'Run' ? 6 : 0)+(P.povK || 0)* 9 * smooth(T.walk * 1.4,T.sprint,P.mode === 'ground' ? P.speed : P.povFovS || 0))*
-(1 - 0.38 *(window.__csZoom || 0)),
+(1 - 0.38 *(window.__csZoom || 0))+ 12 *(window.__catSight || 0),
 window.__csZoom ? 1.6 : 4,
 dt
 );
@@ -22513,7 +22552,8 @@ if(hide !== !!P.povHid){
 P.povHid = hide;
 pc.catRoot.visible = true;
 }
-window.__povHead = hide ?(window.__asJack && window.__jackBody ? window.__jackBody : pc.catRoot): null;
+window.__povHeadWant = hide ?(window.__asJack && window.__jackBody ? window.__jackBody : pc.catRoot): null;
+window.__povHead = window.__povHeadWant && povAtEyes()? window.__povHeadWant : null;
 }
 }
 if(P.camBack){
@@ -24830,7 +24870,7 @@ ch = true;
 }
 }
 const G = window.__GLD;
-if(P.watch && NIGHTISH()&& G && G.at && dTo(G.at.x,G.at.z)<(G.R || 4)){
+if((P.watch ||(P.sitT || 0)> 2)&& NIGHTISH()&& G && G.at && dTo(G.at.x,G.at.z)<(G.R || 4)){
 Q.p.ring =(Q.p.ring || 0)+ dt;
 }
 if(P.bedSleep && !NIGHTISH()&& !window.__inFarm && !Q.p.beam){
@@ -24838,7 +24878,7 @@ Q.p.beam = 1;
 ch = true;
 }
 if(isRaining()&& P.inWater)Q.p.splash =(Q.p.splash || 0)+ dt;
-if(P.watch && weather === 'night'){
+if((P.watch ||(P.sitT || 0)> 2)&& weather === 'night'){
 let sg = 99;
 try{
 sg = streamGap(P.pos.x,P.pos.z);
@@ -27272,6 +27312,14 @@ const gh = heightAt(camera.position.x,camera.position.z)+ 0.14;
 if(camera.position.y < gh){
 camera.position.y = gh;
 camera.updateMatrixWorld(true);
+}
+}catch(e){}
+try{
+const w = window.__povHeadWant || null,
+r = w && povAtEyes()? w : null;
+if(r !==(window.__povHead || null)){
+window.__povHead = r;
+window.__DIR && window.__DIR.povHeadFn && window.__DIR.povHeadFn();
 }
 }catch(e){}
 GPUT.begin();
@@ -31692,7 +31740,7 @@ const S = L.sprout,
 near = Math.hypot(P.pos.x - S.g.position.x,P.pos.z - S.g.position.z)< 16;
 if(
 near &&
-P.watch &&
+(P.watch ||(P.sitT || 0)> 2)&&
 P.speed < 0.1 &&
 (!window.__BEANOK || window.__BEANOK())&&
 (!window.__BEANWET || window.__BEANWET())
@@ -31742,7 +31790,7 @@ S.grow < 0.1
 ){
 S.hintT = 40;
 S.hinted = true;
-toast('A tiny glowing sprout… press X to sit and watch beside it a while',4200);
+toast('A tiny glowing sprout… ' +(window.__PAD && window.__PAD.mode ? 'tap B to sit' : 'press X to sit and watch')+ ' beside it a while',4200);
 }
 if(S.g.visible){
 const h = S.grow * 14;
@@ -51575,6 +51623,7 @@ CAR.delete(obj);
 };
 const povPlane =
 new THREE.Plane(new V3(0,-1,0),0);
+const povPlane2 = new THREE.Plane(new V3(0,0,1),0);
 const povHead =()=>{
 const r = window.__povHead;
 const hbOf =
@@ -51603,7 +51652,13 @@ D.povHB = hb;
 }
 if(r){
 renderer.localClippingEnabled = true;
-povPlane.constant =(P.visY ?? P.pos.y)+ 0.13;
+povPlane.constant =(P.visY ?? P.pos.y)+ 0.13 * clamp((P.povHeadY ?? 0.27)/ 0.27,0.45,1);
+{
+const fx = Math.sin(P.yaw),
+fz = Math.cos(P.yaw);
+povPlane2.normal.set(fx,0,fz);
+povPlane2.constant = -(fx * P.pos.x + fz * P.pos.z)- 0.03;
+}
 if(!r.userData.povHooked){
 r.userData.povHooked = 1;
 r.traverse(o =>{
@@ -51615,7 +51670,7 @@ if(window.__povHead === r){
 const ms = Array.isArray(this.material)? this.material :[this.material];
 this.userData.povCP = ms.map(m => m.clippingPlanes);
 ms.forEach(m =>{
-m.clippingPlanes =[povPlane];
+m.clippingPlanes =[povPlane,povPlane2];
 });
 }
 return b0 && b0.apply(this,arguments);
@@ -61243,7 +61298,7 @@ else{
 const prev = el.previousSibling && el.previousSibling.nodeType === 3 ? el.previousSibling.data : '';
 const next = el.nextSibling && el.nextSibling.nodeType === 3 ? el.nextSibling.data : '';
 b = btnFor(t,prev.slice(-6));
-if(t === 'X' && /sit and watch/i.test(next))b = 'Y';
+if(t === 'X' && /sit and watch/i.test(next))b = 'B';
 }
 if(!b && !hide)return;
 const txt = hide ? '' : nm(b);
@@ -61453,7 +61508,7 @@ const row =(b,what)=> '<div class="pm-r"><kbd data-btn="' + b + '" data-pb="' + 
 const draw =()=>{
 const PT ={LT:[372,128],LB:[398,140],VIEW:[481,201],LS:[400,205],L3:[400,205],DP:[447,272],RT:[652,128],RB:[626,140],MENU:[543,201],Y:[622,174],X:[594,202],B:[651,202],A:[622,231],RS:[568,267],R3:[568,267]};
 const L =[['LT','Cat senses · hold to sense critters, tap to look ahead'],['LB','Swat with her left paw'],['VIEW','Quests · skip a scene'],['LS','Move · tilt further to go faster'],['L3','Run · click again for zoomies when they glow'],['UP','Meow','DP'],['DOWN','Groom','DP'],['LEFT','Switch cat','DP'],['RIGHT','Switch cat','DP']];
-const R =[['RT','Stalk · squeeze deeper to sink lower, let go to pounce'],['RB','Swat with her right paw'],['MENU','Pause'],['Y','Sit and watch'],['B','Crouch · back'],['X','Pick up, plant, give, curl up'],['A','Jump and climb · read on'],['RS','Look around'],['R3','Toggle view (press the stick)']];
+const R =[['RT','Stalk · squeeze deeper to sink lower, let go to pounce'],['RB','Swat with her right paw'],['MENU','Pause'],['Y','Switch view: her eyes / behind her'],['B','Tap: sit · hold: crouch · back'],['X','Pick up, plant, give, curl up'],['A','Jump and climb · read on'],['RS','Look around'],['R3','Recenter the camera (press the stick)']];
 const BN ={"LT": "Left Trigger","LB": "Left Bumper","VIEW": "View Button","LS": "Left Stick","L3": "Left Stick Button","UP": "D-Pad Up","DOWN": "D-Pad Down","LEFT": "D-Pad Left","RIGHT": "D-Pad Right","RT": "Right Trigger","RB": "Right Bumper","MENU": "Menu Button","Y": "Y Button","B": "B Button","X": "X Button","A": "A Button","RS": "Right Stick","R3": "Right Stick Button"};
 const y0 = 62,dy = 50.5;
 let lines = '',labs = '';
@@ -61605,6 +61660,7 @@ if(PAD.run &&(P.zCharge || 0)>= 1 && window.__zoomGo && window.__zoomGo()){
 }
 if(PAD.mag > 0.3)PAD.stillT = 0;
 else if((PAD.stillT =(PAD.stillT || 0)+ dt)> 0.35)PAD.run = false;
+if(P.povBack || performance.now()-(P.backT || 0)< 250)PAD.run = false;
 hold('ShiftLeft',!!PAD.run && PAD.mag > 0.3);
 if(pr(BT.LT)&& actOK()){
 PAD.ltDown = true;
@@ -61644,11 +61700,38 @@ if(up(BT.X)&& PAD.xDown){
 PAD.xDown = false;
 send('keyup','KeyE');
 }
-if(pr(BT.B)&& actOK()&& P.mode === 'ground' && !window.__farmCrawl){
-P.crouchOn = !P.crouchOn;
-if(P.crouchOn)PAD.run = false;
+if(pr(BT.B)&& actOK()&& !window.__farmCrawl){
+PAD.bDown = true;
+PAD.bT = 0;
+PAD.bHeld = false;
 }
-if(pr(BT.Y))tap('KeyX');
+if(PAD.bDown && btn[BT.B]){
+PAD.bT += dt;
+if(!PAD.bHeld && PAD.bT > 0.22 && P.mode === 'ground' && actOK()){
+PAD.bHeld = true;
+P.groom = false;
+P.crouchOn = true;
+PAD.run = false;
+}
+}
+if(up(BT.B)&& PAD.bDown){
+PAD.bDown = false;
+if(PAD.bHeld)P.crouchOn = false;
+else if(actOK()){
+if((P.sit || 0)> 0.5 || P.groom || P.watch){
+P.groom = false;
+P.idle = 0;
+P.idleT = 0;
+if(P.watch && !P.watchHold){
+P.watch = false;
+P.autoWatch = false;
+P.camBack ={t: 0,p: camera.position.clone(),q: camera.quaternion.clone()};
+}
+}else P.groom = true;
+}
+PAD.bHeld = false;
+}
+if(pr(BT.Y)&& actOK())tap('KeyI');
 if(pr(BT.LB)&& actOK()){
 P.swatReq = true;
 P.swatReq2 = 'L';
@@ -61668,7 +61751,7 @@ PAD.rt = false;
 mouseDown = false;
 setTimeout(()=>(PAD.rtMax = null),300);
 }
-if(pr(BT.R3))tap('KeyI');
+if(pr(BT.R3)&& !P.povUser)window.__camRecenter && window.__camRecenter();
 if(pr(BT.UP))tap('KeyQ');
 if(pr(BT.DOWN))tap('KeyG');
 if((pr(BT.LEFT)|| pr(BT.RIGHT))&& actOK()){
