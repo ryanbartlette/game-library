@@ -15583,10 +15583,10 @@ setTimeout(()=>{
 if(!locked && PAUSE.allowed()&& performance.now()-(PAUSE.closeT || 0)> 900)PAUSE.open();
 },60);
 });
-const BUILD = 599;
+const BUILD = 600;
 try{
 const gb = document.getElementById('gBuild');
-const LOOKV = 167;
+const LOOKV = 168;
 if(gb)gb.textContent = 'Build ' + BUILD + ' · Look ' + LOOKV;
 window.__LOOKV = LOOKV;
 }catch(e){}
@@ -64308,7 +64308,7 @@ map.hidden = true;
 const row =(b,what)=> '<div class="pm-r"><kbd data-btn="' + b + '" data-pb="' + b + '"></kbd><span>' + what + '</span></div>';
 const draw =()=>{
 const PT ={LT:[372,128],LB:[398,140],VIEW:[481,201],LS:[400,205],L3:[400,205],DP:[447,272],RT:[652,128],RB:[626,140],MENU:[543,201],Y:[622,174],X:[594,202],B:[651,202],A:[622,231],RS:[568,267],R3:[568,267]};
-const L =[['LT','Cat senses · hold to sense critters, tap to look ahead'],['LB','Swat with her left paw'],['VIEW','Quests · skip a scene'],['LS','Move · tilt further to go faster'],['L3','Run · click again for zoomies when they glow'],['UP','Meow','DP'],['DOWN','Groom','DP'],['LEFT','Switch cat','DP'],['RIGHT','Switch cat','DP']];
+const L =[['LT','Cat senses · hold to sense critters, tap to look ahead'],['LB','Swat with her left paw'],['VIEW','Quests · skip a scene'],['LS','Move · tilt further to go faster'],['L3','Run · click again for zoomies when they glow'],['UP','Meow','DP'],['DOWN','Purr-meow','DP'],['LEFT','Switch cat','DP'],['RIGHT','Switch cat','DP']];
 const R =[['RT','Stalk · squeeze deeper to sink lower, let go to pounce'],['RB','Swat with her right paw'],['MENU','Pause'],['Y','Switch view: her eyes / behind her'],['B','Tap: sit · hold: crouch · back'],['X','Pick up, plant, give, curl up'],['A','Jump and climb · read on'],['RS','Look around'],['R3','Recenter the camera (press the stick)']];
 const BN ={"LT": "Left Trigger","LB": "Left Bumper","VIEW": "View Button","LS": "Left Stick","L3": "Left Stick Button","UP": "D-Pad Up","DOWN": "D-Pad Down","LEFT": "D-Pad Left","RIGHT": "D-Pad Right","RT": "Right Trigger","RB": "Right Bumper","MENU": "Menu Button","Y": "Y Button","B": "B Button","X": "X Button","A": "A Button","RS": "Right Stick","R3": "Right Stick Button"};
 const y0 = 62,dy = 50.5;
@@ -64554,7 +64554,15 @@ setTimeout(()=>(PAD.rtMax = null),300);
 }
 if(pr(BT.R3)&& !P.povUser)window.__camRecenter && window.__camRecenter();
 if(pr(BT.UP))tap('KeyQ');
-if(pr(BT.DOWN))tap('KeyG');
+if(pr(BT.DOWN)&& actOK()&& performance.now()-(PAD.pmT || 0)> 700){
+PAD.pmT = performance.now();
+try{
+audioInit();
+const kind = window.__asJack ? 'jack' : typeof cat !== 'undefined' && cat ? cat.kind : 'tink';
+const rate =(kind === 'tink' ? 1.1 : kind === 'luca' ? 0.95 : 1.02)*(0.97 + Math.random()* 0.06);
+sfx('cat_purr_meow',{vol: 0.75 *(AUD.own ? AUD.own('voice'): 1),rate});
+}catch(e){}
+}
 if((pr(BT.LEFT)|| pr(BT.RIGHT))&& actOK()){
 const L =['Digit1'];
 if(window.__jackPlayable)L.push('Digit2');
