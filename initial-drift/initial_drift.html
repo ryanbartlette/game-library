@@ -512,7 +512,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=466',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=468',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -1063,7 +1063,7 @@ if(AKINA){
  akinaGround=akinaField(tougeCenters,N,ext,u=>__wideOrig((()=>{try{return window.akinaCourse&&akinaCourse.toOrig?akinaCourse.toOrig(u):u}catch(e){return u}})()));   /* (451) the widening is in the traced numbering: map this run's index to it, or a hairpin's extra width landed at the wrong place and its edge hung over thin air */window.akinaGround=akinaGround;
  // test course: the road carries on ~330 m past the bottom end into the town (drawn only: the run is over by then),
  // with the same asphalt, lane texture and shoulders, on the level run-off the ground was already flattened for
- if(window.__FR&&!LOOPED){const s=tougeCenters[0].y<tougeCenters[N].y?0:N,t=tougeTangents[s],f=new THREE.Vector3(t.x,0,t.z).normalize().multiplyScalar(s?1:-1),sd=new THREE.Vector3(-f.z,0,f.x).multiplyScalar(s?1:-1),c0=tougeCenters[s];
+ if(window.__FR&&!LOOPED)for(const s of [tougeCenters[0].y<tougeCenters[N].y?0:N,...(['irohazaka'].includes(globalThis.__PASS)?[tougeCenters[0].y<tougeCenters[N].y?N:0]:[])]){const t=tougeTangents[s],f=new THREE.Vector3(t.x,0,t.z).normalize().multiplyScalar(s?1:-1),sd=new THREE.Vector3(-f.z,0,f.x).multiplyScalar(s?1:-1),c0=tougeCenters[s];
   const RV=[],RU=[],RI=[],SV=[],SI=[],hw=tougeWidth/2,v0=s*(window.__frV||.25),L=330,STEP=4;let n=0;
   for(let d=0;d<=L;d+=STEP){const p=c0.clone().addScaledVector(f,d);for(const w of [-hw,hw]){const q=p.clone().addScaledVector(sd,w);RV.push(q.x,c0.y+.15,q.z);RU.push(w/tougeWidth+.5,v0+(s?1:-1)*d/9.7)}
    for(const w of [-hw-.9,-hw+.08,hw-.08,hw+.9]){const q=p.clone().addScaledVector(sd,w);SV.push(q.x,c0.y+.1,q.z)}
@@ -4111,7 +4111,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 466';
+window.__BUILD='BUILD 468';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5640,9 +5640,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795222181'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795238612'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795222181'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795238612'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -6023,8 +6023,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795222181'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795222181'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795238612'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795238612'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6482,7 +6482,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795222181',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795238612',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6496,7 +6496,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795222181',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795238612',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -8164,11 +8164,30 @@ const animeCrowd=window.animeCrowd=(()=>{
   while(m<0&&i>0&&tougeCenters[i]){const d=tougeCenters[i].distanceTo(tougeCenters[i-1]);if(-m<d)return {i:i-1,t:1+m/d,extra:0};m+=d;i--}return {i:0,t:0,extra:m}}
  // (466) the paved surfaces (road, shoulder, start/finish aprons) sit above the ground mesh: anyone standing on them is put
  // on top, found by looking straight down at those meshes
- let PAVE=null;const rcP=new THREE.Raycaster(),dn=new THREE.Vector3(0,-1,0),up3=new THREE.Vector3(0,1,0),o3=new THREE.Vector3();
- function paveY(x,z,y){try{if(!PAVE||!PAVE.length){PAVE=[];tougeWorld.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||o.isSkinnedMesh)return;const m=o.material;if(!m||Array.isArray(m))return;const c=m.color&&m.color.getHex();
-     if(o.name==='frRoadExt'||c===0x77746a||(typeof asphalt!=='undefined'&&m===asphalt))PAVE.push(o)})}
-   // both ways: a face is only hit from its front side, and these strips may face up or down
-   rcP.set(o3.set(x,y+4,z),dn);rcP.far=8;let h=rcP.intersectObjects(PAVE,false)[0];if(!h){rcP.set(o3.set(x,y-3,z),up3);rcP.far=7;h=rcP.intersectObjects(PAVE,false)[0]}return h?h.point.y:null}catch(e){return null}}
+ let PAVE=null;
+ /* (468) the paved meshes' triangles go in an 8 m grid once, so a lookup only tests the few triangles under that spot.
+    Raycasting the whole road for every spectator was stalling the game for a moment at 2.5/6/12/25 s into a run, when
+    everyone is re-seated */
+ let PG=null,PSIG='',PCHK=0;const CS=8;
+ function paveList(){const L=[];try{tougeWorld.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||o.isSkinnedMesh||!o.geometry||!o.geometry.attributes.position)return;const m=o.material;if(!m||Array.isArray(m))return;const c=m.color&&m.color.getHex();
+     if(o.name==='frRoadExt'||c===0x77746a||(typeof asphalt!=='undefined'&&m===asphalt))L.push(o)})}catch(e){}return L}
+ function paveBuild(L){const cells=new Map(),T=[];const v=new THREE.Vector3();
+  for(const o of L){o.updateMatrixWorld(true);const P=o.geometry.attributes.position,I=o.geometry.index,n=I?I.count:P.count,W=[];
+   const get=k=>{const i=I?I.getX(k):k;v.fromBufferAttribute(P,i).applyMatrix4(o.matrixWorld);return [v.x,v.y,v.z]};
+   for(let k=0;k+2<n;k+=3){const a=get(k),b=get(k+1),c=get(k+2),t=T.length;T.push(a[0],a[1],a[2],b[0],b[1],b[2],c[0],c[1],c[2]);
+    const x0=Math.floor(Math.min(a[0],b[0],c[0])/CS),x1=Math.floor(Math.max(a[0],b[0],c[0])/CS),z0=Math.floor(Math.min(a[2],b[2],c[2])/CS),z1=Math.floor(Math.max(a[2],b[2],c[2])/CS);
+    if((x1-x0)*(z1-z0)>400)continue;
+    for(let gx=x0;gx<=x1;gx++)for(let gz=z0;gz<=z1;gz++){const key=gx*100003+gz;let a2=cells.get(key);if(!a2)cells.set(key,a2=[]);a2.push(t)}}}
+  return {cells,T:new Float32Array(T)}}
+ function paveEnsure(force){const now=performance.now();if(PG&&!force&&now-PCHK<1500)return;PCHK=now;const L=paveList(),sig=L.length+':'+L.map(o=>o.id).join(',');
+  if(!PG||sig!==PSIG){PSIG=sig;PG=paveBuild(L)};PAVE=L}
+ function paveY(x,z,y){try{if(!PAVE)paveEnsure(true);else paveEnsure(false);if(!PG)return null;
+   const a=PG.cells.get(Math.floor(x/CS)*100003+Math.floor(z/CS));if(!a)return null;const T=PG.T;let best=null;
+   for(const t of a){const ax=T[t],ay=T[t+1],az=T[t+2],bx=T[t+3],by=T[t+4],bz=T[t+5],cx=T[t+6],cy=T[t+7],cz=T[t+8];
+    const d=(bz-cz)*(ax-cx)+(cx-bx)*(az-cz);if(Math.abs(d)<1e-9)continue;
+    const l1=((bz-cz)*(x-cx)+(cx-bx)*(z-cz))/d,l2=((cz-az)*(x-cx)+(ax-cx)*(z-cz))/d,l3=1-l1-l2;if(l1<-1e-4||l2<-1e-4||l3<-1e-4)continue;
+    const h=l1*ay+l2*by+l3*cy;if(h<y-4||h>y+4)continue;if(best==null||h>best)best=h}
+   return best}catch(e){return null}}
  function place(f){const base=f.kind==='finish'?finishIdx():f.kind==='start'?0:f.at;const w=walk(base,f.along),i=w.i,T=tougeTangents[i];
   v.copy(tougeCenters[i]).lerp(tougeCenters[Math.min(N,i+1)],w.t).addScaledVector(T,w.extra);sd.set(-T.z,0,T.x).normalize();
   const fd=f.dist+(window.__wideAt?__wideAt(i):0);{const px=v.x+sd.x*f.sign*fd,pz=v.z+sd.z*f.sign*fd;let py=roadsideGroundY(i,f.sign,fd)+(v.y-tougeCenters[i].y)*(w.extra?1:0)-.03;
@@ -8257,7 +8276,7 @@ const animeCrowd=window.animeCrowd=(()=>{
     files:()=>models.map(m=>m.file),
     fisher:i=>window.__fanKit.person(null,'fish',i)};
    const credit=document.getElementById('modelCredit');if(credit)credit.innerHTML+='<br>Spectators: anime character models by samiibrahem614 · CC BY 4.0';
-   window.__paveDbg=()=>({n:PAVE?PAVE.length:-1});window.__paveY=(x,z,y)=>{PAVE=null;return paveY(x,z,y)};window.__crowd={n:fans.length,models:models.length,start:fans.filter(f=>f.kind==='start').length,finish:fans.filter(f=>f.kind==='finish').length,course:fans.filter(f=>f.kind==='course').length,
+   window.__paveDbg=()=>({n:PAVE?PAVE.length:-1,list:PAVE,cells:PG?PG.cells.size:0});window.__paveY=(x,z,y)=>paveY(x,z,y);window.__crowd={n:fans.length,models:models.length,start:fans.filter(f=>f.kind==='start').length,finish:fans.filter(f=>f.kind==='finish').length,course:fans.filter(f=>f.kind==='course').length,
     groups:[...new Set(fans.filter(f=>f.kind==='course').map(f=>f.group))].length,adjacentSame:fans.filter(f=>fans.some(g=>g!==f&&g.group===f.group&&g.m===f.m&&Math.abs(g.along-f.along)<4.2)).length}})
   .catch(e=>console.warn('crowd',e));
  // keep them on the ground when the stage changes the hills, and follow the finish line
@@ -11889,7 +11908,7 @@ registerProcessor('engine-voices',EngineVoices);`;
  // the key turned: the recorded start-up (crank, catch, settle), then the idle loop takes over under it
  function startup(c,out,id,inside){loadShots();const T=__engineTunes[id]||__engineTunes.ae86,ch=chains[c],t=audioCtx.currentTime;if(!ch)return;
   const ks=inside?['interior']:['exh','eng'];let any=false;
-  for(const k of ks){const b=shots[k];if(!b)continue;any=true;const s=audioCtx.createBufferSource(),g=audioCtx.createGain();s.buffer=b;g.gain.value=(k==="exh"?T.exh:k==="eng"?T.eng:1)*1.8;s.connect(g).connect(out);s.start(t)}
+  for(const k of ks){const b=shots[k];if(!b)continue;any=true;const s=audioCtx.createBufferSource(),g=audioCtx.createGain();s.buffer=b;g.gain.value=(k==="exh"?T.exh:k==="eng"?T.eng:1)*(c===0?3.4:2.4);s.connect(g).connect(out);s.start(t)}   /* (467) the start-up is the race starting: much louder (was 1.8) */
   if(any)ch.wait=t+.9;if(c===0)try{window.__rumbleHit&&__rumbleHit('start',1)}catch(e){}}   // feel it fire up on the controller
  function drive(c,out,id,rpm,load,level,inside){if(state!=='ready')return;loadShots();const T=__engineTunes[id]||__engineTunes.ae86,ch=chains[c],t=audioCtx.currentTime;
   ch.ld=(ch.ld==null?load:ch.ld)+(load-(ch.ld==null?load:ch.ld))*(load>ch.ld?.28:.14);load=ch.ld;   // the throttle eases on and off, as on the bench
@@ -13893,6 +13912,12 @@ const id=window.animeCars&&animeCars.player&&animeCars.player.name;return !id||i
     const gap=top-gnd;
     if(gap>.3){const bot=gnd-.6;const k=P.length/3;P.push(x,top,z,x,bot,z);UV.push(i*.25,0,i*.25,(top-bot)/4);
      if(prev!=null&&prev===i-1){const a=k-2;I.push(a,a+1,k,a+1,k+1,k)}prev=i}else prev=null}}
+  // (467) where the road simply stops (the top of a pass with no road beyond), close the end too: a face across the full
+  // width, shoulder to shoulder, down into the ground, so the asphalt never ends in mid-air
+  const ext=[];tougeWorld.traverse(o=>{if(o.name==='frRoadExt'&&o.geometry){const p=o.geometry.attributes.position;for(let k=0;k<p.count;k+=8)ext.push([p.getX(k),p.getZ(k)])}});
+  for(const e of [0,n]){const p=C[e],t=T[e];if(ext.some(([x,z])=>(x-p.x)**2+(z-p.z)**2<64))continue;const sx=-t.z,sz=t.x,hw=(typeof tougeWidth!=='undefined'?tougeWidth/2:4.85)+aw(e)+.9,dir=e?1:-1;
+   let prev=-1;for(let k=0;k<=12;k++){const w=-hw+2*hw*k/12,x=p.x+sx*w+t.x*dir*.05,z=p.z+sz*w+t.z*dir*.05,top=p.y+.1+bank(x,z),g=Math.min(G.HM(x+t.x*dir*.8,z+t.z*dir*.8),G.HM(x+t.x*dir*2,z+t.z*dir*2));
+    if(top-g>.3){const kk=P.length/3;P.push(x,top,z,x,g-.6,z);UV.push(k*.25,0,k*.25,(top-g+.6)/4);if(prev===k-1){const a2=kk-2;I.push(a2,a2+1,kk,a2+1,kk+1,kk)}prev=k}else prev=-1}}
   for(let q=0;q<I.length;q+=6)faces++;
   if(!faces){window.__skirt={faces:0};return}
   const c=document.createElement('canvas');c.width=64;c.height=64;{const g=c.getContext('2d');g.fillStyle='#7a766e';g.fillRect(0,0,64,64);let s=5;const r=()=>((s=(s*16807)%2147483647)/2147483647);
@@ -16145,7 +16170,7 @@ window.__mergeStatic=window.__mergeStatic||function(group,ok){group.updateMatrix
    document.body.appendChild(gl);const g0=gl.querySelector('.g'),s0=gl.querySelector('.s'),rs=[...gl.querySelectorAll('.r')];
    const sp=new THREE.Vector3(),cf=new THREE.Vector3(),d=new THREE.Vector3();let I=0,was=0,flash=0,clk=0,last=performance.now();
    (function tick(){requestAnimationFrame(tick);const now=performance.now(),dt=Math.min(.05,(now-last)/1000);last=now;clk+=dt;
-    let want=0;try{const up=!window.__lampsOn&&sunsetSun.visible&&(sunsetSun.material.opacity||0)>.3&&courseChosen&&!(typeof weatherMode!=='undefined'&&weatherMode===3);   /* no sun glare once it's dark */
+    let want=0;try{const up=!window.__lampsOn&&!(typeof animeCars!=='undefined'&&animeCars.lightsOn)&&!((window.__dayK??1)<.45)&&!(window.__nightDark>0)&&sunsetSun.visible&&(sunsetSun.material.opacity||0)>.3&&courseChosen&&!(typeof weatherMode!=='undefined'&&weatherMode===3);   /* no sun glare once it's dark */
      if(up){sunsetSun.getWorldPosition(sp);d.copy(sp).sub(camera.position).normalize();camera.getWorldDirection(cf);const dot=d.dot(cf),elev=Math.asin(Math.max(-1,Math.min(1,d.y)));
       if(dot>.6&&elev>.05){// is the hillside in the way? march out along the line to the sun over the terrain
        let clear=true;const GH=(x,z)=>akinaGround.HD?akinaGround.HD(x,z):akinaGround.HM?akinaGround.HM(x,z):akinaGround.H(x,z);   /* the drawn ground, the far hills included */for(let r=4;r<=3200&&clear;r+=4+r*.025){const x=camera.position.x+d.x*r,z=camera.position.z+d.z*r,yy=camera.position.y+d.y*r;if(GH(x,z)+1.5>yy)clear=false}   // fine steps over the drawn ground: even a thin ridge or a cliff edge hides it
@@ -19297,7 +19322,7 @@ const animeArcade=window.animeArcade=(()=>{
   const loopNoise=(f,q,type)=>{const s=audioCtx.createBufferSource();s.buffer=nb;s.loop=true;const fl=audioCtx.createBiquadFilter();fl.type=type||'bandpass';fl.frequency.value=f;fl.Q.value=q;const g=audioCtx.createGain();g.gain.value=0;s.connect(fl).connect(g).connect(audioMaster);s.start();return {s,fl,g}};
   const scrub=loopNoise(2300,2.2);
   const wo=audioCtx.createOscillator();wo.type='triangle';const wf=audioCtx.createBiquadFilter();wf.type='bandpass';wf.Q.value=9;const wg=audioCtx.createGain();wg.gain.value=0;wo.connect(wf).connect(wg).connect(audioMaster);wo.start();
-  const shaper=audioCtx.createWaveShaper();{const c=new Float32Array(1024);for(let i=0;i<1024;i++){const x=i/511.5-1;c[i]=Math.tanh(3*x)}shaper.curve=c}shaper.connect(audioMaster);
+  const shaper=audioCtx.createWaveShaper();{const c=new Float32Array(1024);for(let i=0;i<1024;i++){const x=i/511.5-1;c[i]=Math.tanh(3*x)}shaper.curve=c}const popOut=audioCtx.createGain();popOut.gain.value=3.2;shaper.connect(popOut).connect(audioMaster);   /* (467) backfires on their own loud bus after the crunch (the crunch capped them at full scale; the engine buried them) */
   A={nb,scrub,whine:{o:wo,f:wf,g:wg},shaper};return A}
  function burst(dur,freq,gain,q,toShaper){if(!A)return;const t=audioCtx.currentTime,s=audioCtx.createBufferSource();s.buffer=A.nb;s.playbackRate.value=.8+Math.random()*.4;const f=audioCtx.createBiquadFilter();f.type='bandpass';f.frequency.value=freq;f.Q.value=q||1.2;const g=audioCtx.createGain();
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(gain,t+.004);g.gain.exponentialRampToValueAtTime(.0005,t+dur);s.connect(f).connect(g).connect(toShaper?A.shaper:audioMaster);s.start(t,Math.random());s.stop(t+dur+.02)}
@@ -19317,7 +19342,7 @@ const animeArcade=window.animeArcade=(()=>{
   {const hb=!!(D.hand||(typeof keys!=='undefined'&&keys.Space));if(live&&hb&&lastGas>.5&&g<.2&&rpm>3600&&v<=8){const n=2+Math.floor(Math.random()*3);for(let i=0;i<n;i++)popQ.push(performance.now()+30+Math.random()*420)}}   // (450) donuts: blip the throttle on the handbrake and lift, and it bangs
   if(live&&lastGas>.6&&g<.2&&rpm>4300&&v>8){const n=2+Math.floor(Math.random()*3+(rpm-4300)/1500);for(let i=0;i<n;i++)popQ.push(performance.now()+40+Math.random()*520)}
   if(live&&g<.1&&rpm>3800&&v>12&&Math.random()<dt*1.2)popQ.push(performance.now()+Math.random()*80);   // the odd crackle on the overrun
-  const now=performance.now();popQ=popQ.filter(at=>{if(at>now)return true;if(live){burst(.06+Math.random()*.05,450+Math.random()*700,.95+Math.random()*.4,1.4,true);boom(.13+Math.random()*.06,1.5+Math.random()*.5);try{window.__exFlame&&__exFlame(car,.75+Math.min(.6,Math.max(0,(rpm-4300)/3000))+Math.random()*.25)}catch(e){}}return false});   /* (build 402) every pop shoots a flame out of the exhaust */
+  const now=performance.now();popQ=popQ.filter(at=>{if(at>now)return true;if(live){burst(.06+Math.random()*.05,450+Math.random()*700,.95+Math.random()*.4,1.4,true);boom(.13+Math.random()*.06,1.5+Math.random()*.5);burst(.035+Math.random()*.02,2200+Math.random()*1400,.8,2.2,true);try{window.__exFlame&&__exFlame(car,.75+Math.min(.6,Math.max(0,(rpm-4300)/3000))+Math.random()*.25)}catch(e){}}return false});   /* (build 402) every pop shoots a flame out of the exhaust */
   // a chirp from the rears on a hard 1-2 shift
   if(live&&gear===2&&lastGear===1&&g>.85&&v<22)burst(.14,2600,.12,3);
   lastGas=g;lastGear=gear}
@@ -19369,7 +19394,14 @@ const animeFlames=window.animeFlames=(()=>{
    const L=k&&(((window.__carLab||{})[k]||{}).exhaust||((window.__MODELS||{})[k]||{}).exhaust||((window.__LAB||{})[k]||{}).exhaust);if(L)S=L}catch(e){}
   return S?{S,G}:null}   /* (446) the car on show (a car swap leaves the old body hidden in the same group) */
  // flash: one orange light per car, always in the scene (so the shaders never change), lit for a moment by each bang
- const flashes=new Map();function flashFor(obj){let L=flashes.get(obj);if(!L&&typeof scene!=='undefined'&&flashes.size<3){L=new THREE.PointLight(0xff7a1a,0,7,1.6);L.userData.keep=true;scene.add(L);flashes.set(obj,L)}return L}
+ const flashes=new Map();/* 468: the flash lights are made up front (two, dark) so the scene's light count never changes mid-race: adding a light on the
+    first backfire made three.js rebuild every material's shader, a visible hitch the first time each car popped */
+ const PRE=[];function prewarm(){try{if(PRE.length||flashes.size||typeof scene==='undefined'||!scene)return;for(let k=0;k<2;k++){const L=new THREE.PointLight(0xff7a1a,0,7,1.6);L.userData.keep=true;scene.add(L);PRE.push(L)}}catch(e){}}
+ (function pw(){try{prewarm()}catch(e){}if(!PRE.length&&!flashes.size)setTimeout(pw,400)})();
+ function flashFor(obj){let L=flashes.get(obj);if(L)return L;prewarm();
+  for(const [o,l] of flashes){if(o!==obj&&!o.parent){flashes.delete(o);l.intensity=0;flashes.set(obj,l);return l}}
+  if(PRE.length){L=PRE.shift();flashes.set(obj,L);return L}
+  if(!L&&typeof scene!=='undefined'&&flashes.size<3){L=new THREE.PointLight(0xff7a1a,0,7,1.6);L.userData.keep=true;scene.add(L);flashes.set(obj,L)}return L}
  try{if(typeof scene!=='undefined'){if(typeof car!=='undefined')flashFor(car);if(typeof rival!=='undefined')flashFor(rival)}}catch(e){}
  const pend=[];
  function fire(obj,k=1,follow=true){try{if(!obj||!obj.visible||typeof scene==='undefined')return;if(window.__photoOn)return;
@@ -20773,7 +20805,7 @@ const animeCutscene=window.animeCutscene=(()=>{
    REF={n,cls,v}}catch(e){REF=null}return REF}
  function learnStyle(i,s){const F=ref();if(!F)return;const j=Math.max(0,Math.min(F.n,Math.round(i))),rv=F.v[j];if(!(rv>3))return;const q=s/rv,c=F.cls[j],S=sty();
   if(q<.3||q>2.5)return;const o=S.r[c];S.r[c]=o?o+(q>o?.3:.12)*(q-o):q;S.n[c]=Math.min(999,S.n[c]+1);dirty=true}
- function styleAt(i){const F=ref(),S=DB._style;if(!F||!S)return null;const j=Math.max(0,Math.min(F.n,Math.round(i))),c=F.cls[j];let q=S.r[c],n=S.n[c];
+ function styleAt(i){const F=ref(),S=DB._style||BASE_STYLE;if(!F||!S)return null;const j=Math.max(0,Math.min(F.n,Math.round(i))),c=F.cls[j];let q=S.r[c],n=S.n[c];
   if(!(n>0)){// that kind of road not seen yet: borrow the same tightness on another grade, then the overall average
    const b=c-c%3;let s=0,w=0;for(let g=0;g<3;g++)if(S.n[b+g]>0){s+=S.r[b+g]*S.n[b+g];w+=S.n[b+g]}
    if(!w)for(let x=0;x<18;x++)if(S.n[x]>0){s+=S.r[x]*S.n[x];w+=S.n[x]}if(!w)return null;q=s/w;n=Math.min(w,4)}
@@ -20795,7 +20827,10 @@ const animeCutscene=window.animeCutscene=(()=>{
  setInterval(()=>{try{if(typeof finished!=='undefined'&&finished)save(true)}catch(e){}},2000);
  // ---- (465) BASELINE: the game's developer's own learned pace (baked in from his exported data), used where this player
  // hasn't driven yet, scaled by how this player compares with him on the road they HAVE driven (per kind of road)
- const BASE=/*PACE_BASE*/{};
+ /* (468) the baseline: Ryan's own runs on every course (build 466, medium), so a new player's rivals start at a pace a
+    medium driver actually manages; each player's own driving then shifts it (ratio) and replaces it bin by bin as they learn */
+ const BASE=/*PACE_BASE*/{"akinanew:d":[0,0,0,0,0,0,0,57.2,55.9,53.5,52.8,49.5,47.8,46.9,49.8,51.1,54.7,55.8,55.3,53.9,50.3,47.1,45.6,46.9,51.1,48.7,44.4,38.7,33.9,43.7,45.7,48.8,49.4,54.3,55.9,53.5,51.7,48.8,45.7,40.9,40.2,39.9,31.7,46.1,49.4,49.5,48.7,51.1,51.7,52.8,50.9,49.4,47.4,47.8,52.6,53.8,52.6,50,46.9,43.9,38.7,34.9,46.3,43.6,39.1,30.6,31.4,64.4,49.7,51.3,55.2,59.2,59.1,57.2,55.9,57.1,54.7,52.8,51.7,55.9,55.3,52.9,51,47.2,43.6,41.9,42.4,45.2,51,45.2,42.4,41.9,49,44.8,46.3,52.7,51.4,47.4,50,49.4,45,44.8,44.1,42.6,41.3,43.3,41.1,41,37.4,36.2,49.4,45.6,43.6,47.9,51.7,55.8,56.2,55.5,56.9,57.7,56.9,57.5,56.4,54.8,55.3,53.5,54.7,55.1,53.8,50.1,48.3,51.1,51.4,49.9,46.9,42.6,40.2,34.6,41.3,60.4,52.8,52.1,48.7,45,44.6,45.7,46.6,44.9,47.4,52.7,52.7,51,46.8,45.5,45.9,48.4,52.9,50.2,46.4,43.5,38.1,33.4,37.2,42.5,72,52.9,37.5,35,43.2,43.2,75.5,63.5,46.3,46.3,46.9,43.7,38.5,40.5,66.4,57.6,36.9,43,53.5,50,50,47.8,44.1,40.8,46.7,53.9,49.4,50,46.3,41.4,36.3,41.3,59.9,58.1,59.9,59.3,59.1,58.1,58,55.3,54.7,52,48.9,45.5,43.7,46.9,51.1,49.4,47.2,45.7,43.5,43.1,45.4,47.8,51,46.3,44.2,46.9,48.7,49.8,46.3,43.1,41.7,45.4,50.9,50.2,47.9,46.1,41.7,40.4,45.7,48,46.6,44.1,40.5,41.2,46.9,44.1,36.8,27.4,10.6,0,0,0,0,0,0,0],"akinanew:u":[0,0,0,13.5,31.1,38.1,45.3,47.6,52.4,52.5,52.5,54,56.4,56.4,55.8,52.5,47.9,44.8,49.1,50.8,52.5,56.4,54,56.4,50.8,46.1,46.1,47.9,52.5,41.2,34.2,40.1,43.5,44.1,42.3,46.5,49.1,52.5,54,54.4,56.4,49.3,47.6,33.5,31.1,39,44.1,47.6,49.1,47.9,50.8,50.8,54,54.5,50.7,44.8,47.6,49.3,50.9,54.3,52.5,49,38.1,35.5,40,45.3,56.4,29.9,34.9,40,43.5,46.5,47.7,52.3,52.5,54.4,55.8,56.5,56.3,52.3,47.6,49.3,50.9,52.4,54,52.5,52.5,52.3,49.1,40.9,37.1,41.2,44,40.1,40.1,39.9,42.3,42.3,46.6,43.4,44.1,46.1,50.8,49.3,49.1,50.8,45.3,43.6,44,46.1,37.1,34.9,39,43.5,44.1,46.1,44.8,49.2,50.8,50.8,52.6,52.4,54,54.4,56.4,55.9,54.3,54.1,54.3,50.8,52.4,49.1,47.6,49.3,50.8,54.4,54,50.8,46.5,35.4,39,43,44.9,49.1,47.8,50.8,45.3,42.3,41.2,40.9,42.2,46.1,47.9,49.1,44.8,44.1,43.5,43,46.1,49.1,46.5,58.6,33.1,38.9,41.2,30.5,35.4,66.4,57.8,35.4,38.1,38,37.1,40.9,44.8,46.2,46.6,46.1,72.3,47.9,29.9,35.4,35.7,38,41.9,46.1,49.1,49.3,54.4,43.5,39.9,43.4,46.5,49.1,50.8,49.3,39,37.1,41.9,44.8,50.8,50.9,54.3,54.1,56.3,56.4,57.8,58.6,56.5,55.8,50.8,45.2,43.5,46.1,46.6,46.1,46.1,41.9,38.1,35.5,44.1,46.1,42.9,42.4,42.2,45.3,50.8,50.8,43,41.1,43,44.8,46.2,54,50.7,39,39.9,44.8,47.9,47.5,44.8,40.9,40.1,0,0,0,0,0,0,0,0,0],"usui:d":[0,0,53.3,53.1,50.1,50,49.8,44.5,44.4,42.1,40,38.1,36.3,40,42,42.2,47.1,50,50,50,50,44.4,46.2,40.1,41.9,44.5,47,47,47,50,50,44.4,47,46.9,47,47.2,49.8,53.5,53.3,57.1,61.5,56.9,57.3,57.1,57.1,57.1,53.3,56.9,53.5,50,53.3,46.9,47.2,50,50,50,50,50,47,47,41.9,40,42,42.2,44.4,44.4,44.3,53.5,53.3,50,53.3,57.1,57.1,57.1,57.1,57.1,56.9,57.2,53.4,53.3,53.3,50,50,47,47,47,50,50,47,47,47,46.9,47,50.1,53.4,53.3,56.9,53.5,57.1,53.3,53.3,53.3,50,47,47.1,42.1,42.1,40,40,38.1,34.7,32,29.5,32,38.1,42.2,40,36.3,36.3,38.1,46.9,53.5,61.5,57.1,57,57.2,53.1,57.3,57.1,53.3,53.3,57.1,53.2,50,49.9,50.1,49.9,44.4,44.3,44.4,42.2,44.3,47,47.1,47.1,50,53.3,53.1,50.1,46.9,50,47.2,44.4,44.4,42.1,39.9,36.4,36.3,36.2,47.2,56.9,57.2,50,49.9,49.9,50.1,50,47,47,42.1,44.4,44.4,44.4,42.1,47,53.3,57,57.2,53.3,53.3,56.9,53.3,53.5,53.1,53.5,53.3,53.3,53.1,53.5,56.9,53.2,53.4,57.2,53.3,53.3,50,53.1,50.1,46.9,47.2,44.4,42.1,40,36.3,40,40,41.9,40.1,40,40,44.4,42.1,44.4,44.4,44.4,46.9,42.2,44.4,40,42.1,40,40,40,38.1,47,61.5,53.2,50,53.3,53.2,53.3,50,46.9,50.1,47,50,49.8,50.1,53.2,53.4,47,49.8,47.1,49.9,38,40.1,36.3,32,25.8,14.3,0,0],"myogi:d":[0,0,0,0,0,0,48.6,46.4,47.2,47.7,53.5,57.3,55.1,55.3,51.8,50.1,46.5,47.2,51.9,51.7,51.7,46.4,44.5,47.8,53.5,53.4,53.6,53.5,50.1,50.1,46.4,45.8,46.4,48.5,52,53.5,49,44.6,40,40.1,57.3,53.5,59.3,57,55.3,53.5,51.7,48.5,44.1,39.2,41,57.3,46.4,43.4,39.3,32.1,44.5,53.6,50,47.7,50.1,50.4,55.2,53.6,51.9,47.2,51.8,53.5,51.9,48.6,45.2,45.8,45.8,49,47.2,46.4,45.8,45.2,45.9,47.6,51.8,55.2,53.5,51.7,49,47.2,46.4,45.8,43,43.4,50.1,51.8,55.4,58.8,57.3,56.8,57.3,53.5,53.5,50.1,46.4,42.2,41,44.6,51.9,53.5,55,55.3,53.6,53.5,53.5,47.7,47.2,50.4,51.7,53.5,51.7,51.7,49,48.6,50.4,51.7,47.7,45.8,42.2,45.2,51.7,46.5,43.3,44.1,47.2,41,42.2,44.5,44.1,42.2,45.2,45.9,43,44.6,44,47.2,50.2,51.9,50,45.3,43.3,41.1,42.2,55.1,44.5,40.2,39.2,45.8,40.1,38.2,47.7,43.3,41.1,41.1,42.2,47.7,50,52,53.5,49,50,50.5,48.5,48.7,53.5,53.5,50.4,47.2,44.1,47.2,58.8,57.2,55.4,56.8,55.3,51.9,50.2,44,43.4,45.2,45.8,44.6,46.4,53.5,55.1,51.7,50.4,50.1,50.2,46.4,45.8,46.4,51.7,50.4,47.2,42,45.8,64.2,58.8,53.4,55.1,51.7,49,44.6,40.1,37.3,50,52,48.6,47.7,48.6,50.4,50.1,51.9,47.2,47.2,47.7,45.8,43,43.4,49,45.8,43,45.8,48.6,53.5,59.4,58.8,59.4,58.8,59.4,55.1,55.3,53.5,50.3,45.9,40.1,31.4,13.8,0,0,0,0,0,0,0],"myogi:u":[0,0,0,14,31.1,39.4,45.6,50.6,52.3,52.2,52.3,48.1,47.5,52.1,53.9,53.9,55.8,55.6,55.9,48.9,45.7,46.2,50.8,49,47.6,44.4,46.3,48.9,45.6,44.9,47.6,52.3,52.2,47.6,44.5,44.8,48.1,50.5,52.2,49.4,38.5,37.6,40.4,46.3,50.4,52.3,54,55.6,55.7,53.8,55.8,41.4,36.8,41.4,44.9,47.6,46.8,34.4,37.7,42.3,47.6,50.6,48,50.5,52.2,55.6,50.5,48.2,47.5,50.5,50.8,50.5,50.5,45.6,42.6,44.9,49.4,49,49,48.1,44.9,43.4,44.9,49,50.8,50.6,48.9,45.6,47.6,44.9,50.9,41.4,40.4,44.5,49,50.8,52.2,55.9,55.5,55.8,57.9,57.3,53.9,49,41.4,40.4,43.7,49.4,49,48.2,53.8,52.2,53.9,55.8,47.7,45.5,47.6,49,49.4,52.2,49,48.1,49,50.5,52.3,52.2,50.8,42.6,42.6,43.4,43.7,41.5,40.4,41.5,43.7,45.6,44.9,39.4,41.4,42.6,42.4,42.6,42.6,40.4,42.6,44.9,50.8,50.5,50.6,61.2,47.6,42.6,44.4,40.4,38.7,42.6,43.7,38.7,39.4,43.7,44.5,46.2,42.5,42.4,41.5,43.7,48.1,43.7,44.5,46.2,49,49.4,49,52.2,52.3,50.5,52.2,43.4,43.7,47.6,48.1,52.2,52.3,52.2,52.2,50.8,46.2,43.7,45.6,46.2,44.9,48.1,50.5,52.2,53.9,52.2,55.6,55.8,50.5,46.8,47.6,49,50.8,62.2,52.2,44.5,46.2,49,50.8,53.9,55.8,52.4,53.8,39.5,40.4,43.7,44.5,46.2,49,50.8,52.2,55.8,52.3,49,49,45.6,44.9,43.4,41.5,42.6,44.5,43.7,43.7,40.4,40.4,44.9,48.1,52.1,53.9,55.7,55.7,57.4,57.8,57.8,0,0,0,0,0,0,0,0],"akagi:d":[0,0,0,0,0,0,0,44.2,44,45.4,44,45.4,48.3,40.8,42.7,48.3,51.7,49.7,49.9,51.5,49.9,45.6,39.1,37,40.3,51.4,41.4,38.8,37.2,44.3,49.9,46.9,48.3,46.9,41.4,38.8,38.1,43.1,43.8,38.9,38.1,46.8,50.1,53,51.7,51.5,53.5,53.2,53.7,51.7,51.4,55.7,54.9,53.5,55.1,51.6,51.4,51.7,53.2,48.3,46.8,44,39.8,36.2,37.9,41.4,46.9,48.3,51.4,49.9,51.4,48.3,45.5,41.4,37.9,45.3,54.9,57.9,58.9,58.1,59,57.9,54.8,55.8,51.3,50,45.5,43.9,38.9,43.9,51.4,45.3,44.3,40.2,37.9,57.9,53,51.8,54.9,53.6,54.9,53.6,51.3,50,45.5,49.8,51.4,51.8,49.8,51.7,49.8,45.3,41.9,35.3,36.2,53.7,53.1,48.3,49.8,51.7,48.3,49.9,46.9,41.3,35.4,34.5,54.9,45.3,45.5,48.3,44.3,51.7,45.5,45.3,46.9,50,49.8,49.9,48.4,48.2,51.5,51.7,54.9,55.7,51.4,48.3,46.9,46.7,46.9,49.9,51.4,55.7,53.1,49.9,46.9,41.4,39.8,38.1,45.3,45.5,45.3,51.4,55.7,54.9,53.6,54.9,55.7,54.9,55.7,53.1,53.6,53.1,49.9,48.3,46.7,39.8,35.3,39.8,41.4,38.8,35.4,53.1,42.6,40.9,41.4,43.1,38.1,35.4,42.6,43.1,42.6,38.9,37.1,41.9,39.1,39.8,40.2,37.1,42.6,56.9,55.7,56.9,53.6,53.1,53.6,51.4,48.3,45.5,42.6,44.2,48.3,48.3,46.7,43.1,38.1,33.9,46.7,49.8,53.5,53.2,49.8,46.9,48.3,51.4,57.9,56.9,60.3,59,57.9,61.3,60.3,61.3,60.3,59,57.9,56.9,55.7,53.1,51.7,48.3,45.3,39.8,31.5,14,0,0,0,0,0,0,0,0],"akagi:u":[0,0,0,13.1,31.1,38.3,44.3,45.7,42.3,41.8,46,43.1,41.7,40.2,38.5,41.2,41.7,41.8,37.4,43.1,45.6,48.7,52.2,50.3,54.2,41.8,36.6,38.5,40.3,45.6,38.5,37.5,40.6,44.7,48.6,50.4,55.5,42.9,35.7,38.5,43,40.2,38.5,39.2,44.3,45.7,48.7,50.5,51.8,52.2,56.1,55.5,54.2,53.6,54.2,54.2,53.6,54.2,55.5,54.3,52.1,53.6,50.4,52.3,51.8,47.3,42.2,43,43,43.5,47.2,47.4,48.6,52.2,53.6,50.4,38.3,38.4,41.8,44.7,48.7,50.3,54.3,54.1,55.5,58.6,57.3,54.2,52.3,59.3,47.2,39.2,40.7,42.9,47.3,44.2,36.6,39.5,43.1,47.3,50.4,50.4,53.7,54.1,57.4,54.2,47.2,44.7,43,44.8,47.1,50.4,51.9,50.4,48.7,37.5,36.6,41.2,43.1,42.3,43,45.8,47.2,48.7,50.3,47.2,38.5,37.5,41.7,42.3,40.6,45.8,44.6,50.4,46,48.7,45.7,44.7,48.7,48.7,47.3,47.2,48.7,48.7,48.8,50.3,52.2,53.6,54.2,54.2,50.3,44.2,44.7,47.2,48.7,51.9,50.4,53.6,44.3,38.5,40.2,41.8,41.3,41.8,47.1,48.7,52.2,53.6,56.2,54.3,53.5,54.3,53.5,54.2,54.3,53.6,52.1,48.8,34.8,37.4,44.8,40.6,34,38.3,45.8,40.2,40.6,42.9,50.4,33.2,36.6,41.8,47.2,43.5,37.5,38.4,37.4,36.6,37.4,37.5,39.3,42.9,45.7,50.3,52.1,53.7,54,56.2,55.5,54.3,50.2,44.4,42.9,41.2,44.3,47.4,52.2,32.5,36.6,38.5,44.4,47.2,48.7,51.9,50.4,47.2,47.3,48.7,51.9,54.3,56.3,53.5,60.9,57.4,56.2,58.6,57.3,58.5,57.5,58.5,60.9,59.6,56.3,0,0,0,0,0,0,0,0,0],"irohazaka:d":[0,0,0,0,0,0,0,55,51.9,52.8,48.4,48.4,52.7,51.9,49,51.8,55.2,55.9,57.4,55.9,52.8,51.9,52.8,50.1,46.9,42.6,41.5,38.8,42.8,41.2,39.3,31.4,36.3,50.8,39.3,36.7,36.3,39.3,38.8,35.5,30,33,33,29.6,42.6,33,43.9,40.4,37.7,44,48.4,38.9,35.4,31.4,33,34.8,31.6,28.1,20.5,25.4,48.4,55.8,52.9,51.8,49,48.4,45.5,44,38.8,29.7,31.4,44,42.6,45.4,33.8,28.1,40.4,33.9,39.3,50.8,42.7,40,35.4,33,40.4,41.3,34.6,33.8,44,48.4,45.5,41.5,35.7,34.6,45.5,53.8,55,51.9,47.2,45.4,40.4,40,35.4,38.8,50,47.3,50.1,47.1,44.1,40,66.1,88.1,51.8,48.5,50.8,50.1,47.2,40.4,37.7,35.4,49,48.4,50.8,51.9,47.2,45.4,38.2,36.7,33.8,41.3,60.6,44,46.9,45.5,42.8,40,34.6,40.4,50.8,46.9,44,38.2,35.7,38.2,44,46.9,48.9,45.4,40,35.4,33.8,33.9,46.9,44,43.9,36.7,29.6,25.9,53.8,57.4,53.8,52.8,51.9,46.9,47.2,42.7,40.1,35.4,40,50.1,41.2,40.4,35.7,37.3,55,48.4,48.4,48.9,45.4,45.5,45.5,50.8,45.4,48.9,55.9,55,53.9,50.7,50.2,46.8,42.7,37.3,28.1,18.4,47.2,50.1,54.9,50.2,48.8,44,40.3,34.8,38.2,48.8,48.5,47.2,48.3,47.3,46.8,52.8,53.9,50.9,53.8,51.9,50.8,48.4,48.9,50.1,50.8,55.8,55.2,58.1,57.3,60.7,60,60.4,58.3,60,58.1,60,60.5,59.9,60.5,57.6,55.8,57.5,53.7,52.8,50.2,46.9,44,36.3,28.1,12,0,0,0,0,0,0,0,0],"irohazaka:u":[0,0,0,12.7,29.7,37.7,43.2,46.1,50.8,47.8,56.5,49.6,55.8,54.5,51.5,52.6,53.5,49.5,50.8,51.5,52.6,51.5,51.5,50.7,51.5,52.6,58.2,53.5,56.6,39.4,39.8,38.2,40.6,35,37.2,42.1,47.7,33.4,36.2,37.2,52.6,38.2,35,23.5,22.7,40.9,30.4,34.2,38.2,49.6,38.8,35.2,39.8,60.8,34.3,36.8,35.2,30.7,39.4,35.2,35.9,37.2,36.8,41.8,46.1,49.1,49.5,52.6,47.8,58.2,43.3,32.7,40.8,33.4,36.2,40.8,34.3,36.8,33.4,31.9,35,38.2,44.6,41.8,31.9,37.7,40.6,52.6,31.1,34.3,37.7,41.9,42,53.5,37.7,34.3,39.4,38.7,41.8,43.3,51.4,51.5,52.6,53.6,35,34.3,39.4,43.3,46.2,50.7,51.5,40.6,32,37.2,43.3,44.6,49.6,44.6,47.8,54.5,36.2,32.6,39.8,39.4,39.8,43.2,46.2,52.6,46.1,46,34.3,35.2,38.7,43.2,46,49.6,53.5,50.8,26.2,35,39.4,43.2,46,51.5,35,36.2,38.7,44.7,44.5,52.6,47.8,52.6,34.3,36.2,39.8,44.6,43.3,55.7,44.7,32,40.6,40.9,46.1,49.6,50.7,51.5,58.9,51.5,58.2,34.2,34.3,39.8,41.8,49.6,36.8,35.2,37.7,40.5,49.6,42.1,47.8,44.6,40.6,39.4,40.9,46.1,47.5,49.5,53.5,54.5,55.7,54.5,53.5,55.8,32,32.6,37.7,37.2,40.5,43.3,47.8,49.1,51.4,35,36.2,41.9,42,44.6,45.9,44.7,46.1,46,49.5,50.9,53.4,53.5,50.7,47.8,49.1,49.7,51.3,50.8,49.6,50.7,53.5,53.5,56.6,58.3,56.5,58.2,58.2,56.6,60.8,59,60.7,60.8,58.9,60.8,61.3,60.8,60.8,61.3,60.8,0,0,0,0,0,0,0,0,0],"shomaru:d":[0,0,0,0,0,0,0,0,51.1,50.5,51.1,46.5,47.3,44,44.7,49.1,48.3,47.4,42.5,40.1,37.6,41.2,48.4,42.6,41.5,39.9,44,48.4,39.9,38.8,42.5,45.7,41.5,39.9,37.5,42.6,44,41.5,41.2,39.9,43,45.7,48.4,44.1,39.9,40,41.2,43,41.1,44.1,43.1,41.2,46.5,47.3,45.5,44.8,49.1,53.2,55.3,55.5,55.3,53.1,51.2,55.3,49.2,48.4,49.1,45.6,46.4,38.7,43,42.6,40,38.6,45.7,44,44.6,38.8,40,39.9,40.1,35.1,40,41.5,38.7,41.2,46.4,42.6,41.5,44,49.1,46.6,42.6,39.9,38.8,34.5,41.5,57.9,40,41.4,45.7,46.5,42.6,42.6,44.6,45.7,41.4,42.7,42.6,46.5,49.1,42.6,46.5,47.3,58,51.2,51,50.6,44.1,43,41.2,37.6,40.1,38.7,38.7,40,38.7,40.1,33.6,29.7,43,63.9,50.5,55.5,53.2,50.5,51.2,46.3,42.7,41.2,41.4,40,41.2,41.4,44.1,38.7,39.9,40,42.9,44.1,50.4,49.2,47.2,46.5,47.4,46.5,49.2,47.3,48.3,41.3,45.5,41.5,39.9,41.5,36.5,34.5,40.1,45.6,43,42.6,41.2,44.7,47.4,43,45.6,47.3,46.5,47.3,44,41.4,44.1,52.6,47.3,42.6,46.5,49.1,50.5,47.3,49.1,44.7,42.6,42.9,42.6,40,43,45.5,44.1,44.7,47.3,48.3,49,49.2,50.5,51.1,46.5,51.1,45.6,46.5,44.1,41.5,37.6,45.5,48.4,49.4,47.2,41.6,44.1,50.5,53.1,47.4,48.3,45.7,44.7,44,42.7,38.7,40,50.5,51.1,44,43,42.5,42.6,46.4,44,41.5,38.8,35.4,37.5,44.1,37.5,29,12.9,0,0,0,0,0,0,0,0,0],"shomaru:u":[0,0,0,12.2,27.4,35.1,40.7,46.4,45.4,40.7,40.6,42.2,43.2,43.7,43.4,47.2,44.7,42.2,42.2,44.7,43.7,49.9,43.8,38.1,38.1,42.2,44.9,47.1,41.9,39.3,43.3,45.5,40.5,38.1,40.8,43.2,39.4,37,39.4,43.3,47.2,40.7,48.2,43.7,43.3,43.8,44.8,43.6,38.2,38.2,40.6,42,43.6,33.3,35.7,40.6,39.4,27.5,30.2,35.8,39.4,45.5,44.7,49.3,51.8,49.2,49.2,48.1,51.4,44.8,45.3,46.4,42.2,42.2,52.1,38,38.2,38.1,41.9,49.1,43.4,42.1,38.2,34.1,40.7,30.2,25.1,34.2,42.2,43.3,45.5,40.7,39.3,43.8,48,49.2,46.4,34.8,36.8,41.9,43.7,41.9,39.3,38.2,40.7,46.4,43.7,51.2,44.8,43.7,42,40.7,38.1,47.3,42.1,38.2,36.9,38.2,42.2,44.8,47.2,54.1,51.4,40.6,40.6,43.7,52,38.1,38.2,38.1,43.7,38.3,35.7,34.2,36.9,39.4,42.2,44.8,42.2,45.4,48.1,45.4,43.3,43.7,44.8,42.2,38.1,40.6,39.4,41.9,42.2,39.4,40.7,43.3,43.7,49.2,46.3,40.7,48.1,43.7,43.3,47.2,43.3,42.2,42.2,56.5,69.6,54,38.1,39.4,38,39.4,44.7,47.3,44.7,43.7,41.9,42.2,46.4,49.2,49.2,44.8,42.2,43.3,47.2,44.8,45.4,43.7,43.3,47.2,43.3,45.4,50,43.8,46.3,51.3,45.4,40.5,43.7,43.3,40.7,43.4,40.6,42.2,48.1,49.3,40.5,42.2,39.3,39.4,50,56.2,35.8,36.1,38.1,40.6,42.2,40.6,40.7,39.4,42.2,43.7,44.8,43.7,41.9,43.7,52,47.2,36.9,37.1,40.7,44.8,47.2,46.4,40.7,42,43.6,45.4,54.1,59,41.9,35.8,0,0,0,0,0,0,0,0,0,0]};
+ const BASE_STYLE={"r":[0,0,0,1.9246,2.0257,2.055,1.4479,1.3607,1.3325,1.2227,1.0995,1.0781,0.9854,0.8618,0.8002,0.8697,0.8903,0.7588],"n":[0,0,0,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12]};
  let RAT=null,ratT=0;
  function ratio(){const t=performance.now();if(RAT&&t-ratT<4000)return RAT;ratT=t;let s=0,n=0;const byK={};
   for(const k in BASE){const r=DB[k],b=BASE[k];if(!r||!b)continue;for(let i=0;i<NB;i++)if(r.n[i]>0&&b[i]>0){const q=r.v[i]/b[i];if(q>.4&&q<2.5){s+=Math.log(q);n++}}}
@@ -20898,7 +20933,7 @@ const animeCutscene=window.animeCutscene=(()=>{
   // second pass on the same geometry: the road's own colour brightened (dst x (1+light)), so asphalt, paint and leaves show through
   const mul=new THREE.Mesh(g,new THREE.MeshBasicMaterial({vertexColors:true,transparent:true,blending:THREE.CustomBlending,blendSrc:THREE.DstColorFactor,blendDst:THREE.OneFactor,blendEquation:THREE.AddEquation,depthWrite:false,side:THREE.DoubleSide,fog:false,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4,toneMapped:false}));
   mul.frustumCulled=false;mul.renderOrder=2;m.add(mul);return m}
- const B={me:null,him:null};
+ const B={me:null,him:null};let fr468=0;
  const ry=(x,z)=>{let y=null;try{const r=roadElevation(x,z);if(Number.isFinite(r))y=r}catch(e){}let g=null;try{const A=window.akinaGround;if(A&&A.HM)g=A.HM(x,z)}catch(e){}
   if(y==null)return {y:g,on:g!=null};if(g==null)return {y,on:true};return Math.abs(y-g)<.7?{y:Math.max(y,g),on:true}:{y:g,on:Math.abs(y-g)<2.5,off:true}};
  function lay(m,o,k,col){const e=o.matrixWorld.elements,fx=-e[8],fz=-e[10],fl=Math.hypot(fx,fz)||1,Fx=fx/fl,Fz=fz/fl,Rx=-Fz,Rz=Fx,ox=e[12]+Fx*1.9,oz=e[14]+Fz*1.9;
@@ -20912,7 +20947,9 @@ const animeCutscene=window.animeCutscene=(()=>{
    // you
    {const L=typeof canyonHeadlights!=='undefined'?canyonHeadlights:null,lit=L&&L[0]&&window.__headsLit&&L[0].intensity>0&&car&&car.visible;
     if(lit){col.copy(L[0].color);const k=Math.min(1.25,L[0].intensity/32)*.13;car.updateMatrixWorld();lay(B.me,car,k,col)}else B.me.visible=false}
-   // the rival
+   // the rival: (468) every other frame, and only when he's near enough to see, since each update samples ~550 ground points
+   fr468=(fr468+1)|0;let near=true;try{const cp=typeof camera!=='undefined'?camera.position:null;if(cp&&typeof rival!=='undefined')near=Math.hypot(rival.position.x-cp.x,rival.position.z-cp.z)<170}catch(e){}
+   if(!near){if(B.him)B.him.visible=false}else if(fr468&1){}else
    {let lit=false,lamp=null;try{if(typeof rival!=='undefined'&&rival.visible&&typeof rivalHeadlightSets!=='undefined')for(const s of rivalHeadlightSets)for(const l of s.lights)if(l.intensity>0){let p=l;let ok=true;for(;p;p=p.parent)if(!p.visible){ok=false;break}if(ok){lit=true;lamp=l}}}catch(e){}
     if(lit&&lamp){col.copy(lamp.color);const k=Math.min(1.25,lamp.intensity/32)*.11;rival.updateMatrixWorld();lay(B.him,rival,k,col)}else if(B.him)B.him.visible=false}
   }catch(e){}}
