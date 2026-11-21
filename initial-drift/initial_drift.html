@@ -512,7 +512,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=476',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=477',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -4111,7 +4111,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 476';
+window.__BUILD='BUILD 477';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5640,9 +5640,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795252070'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795286334'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795252070'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795286334'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -6023,8 +6023,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795252070'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795252070'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795286334'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795286334'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6482,7 +6482,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795252070',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795286334',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6496,7 +6496,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795252070',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795286334',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -10768,15 +10768,48 @@ const animePrologue=window.animePrologue=(()=>{
 @keyframes amSpin{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}
 @keyframes amSlide{to{background-position:180px 0}}
 @keyframes amDrift{from{transform:scale(1.04) translateX(0)}to{transform:scale(1.1) translateX(-2%)}}
-@media(max-width:760px){#amHint{display:none}#courseMenu #arcadeExitButton{right:3vw!important;bottom:auto!important;top:2vh!important}#amBg .rivals,#amBg .kanji{display:none}#amBg .hero{width:104vw;clip-path:none}#amBg .hero .in{clip-path:none}#courseMenu #driftModeChoices{right:auto!important;left:50%!important;transform:translate(-50%,-50%)!important;width:84vw!important}#courseMenu #initialDriftLogo{width:80vw!important}}`;
+@media(max-width:760px){#amHint{display:none}#courseMenu #arcadeExitButton{right:3vw!important;bottom:auto!important;top:2vh!important}#amBg .rivals,#amBg .kanji{display:none}#amBg .hero{width:104vw;clip-path:none}#amBg .hero .in{clip-path:none}#courseMenu #driftModeChoices{right:auto!important;left:50%!important;transform:translate(-50%,-50%)!important;width:84vw!important}#courseMenu #initialDriftLogo{width:80vw!important}}
+/* (477) the title screen: Takumi, and a strip with the eyes of whoever is waiting for the ghost of Akina next */
+#amBg .rivals,#amBg .kanji{display:none!important}
+#amBg .ttR{position:absolute;right:0;top:0;bottom:0;width:36vw;pointer-events:none}
+#amBg .eyesP{position:absolute;right:1.6vw;top:3.4vh;width:31vw;height:22vh;background:#ee1c25;clip-path:polygon(7% 0,100% 0,93% 100%,0 100%);filter:drop-shadow(6px 6px 0 #14101c)}
+#amBg .eyesP .in{position:absolute;inset:4px;clip-path:polygon(7% 0,100% 0,93% 100%,0 100%);overflow:hidden;background:#000}
+#amBg .eyesP .ef{position:absolute;inset:0;background-repeat:no-repeat;background-size:150% auto;background-position:50% 31%;filter:grayscale(.45) contrast(1.35) brightness(.85)}
+#amBg .eyesP .dk{position:absolute;inset:0;background:linear-gradient(180deg,#000 0%,rgba(0,0,0,.12) 36%,rgba(0,0,0,.12) 60%,#000 100%),linear-gradient(90deg,rgba(0,0,0,.9),transparent 35%,transparent 72%,rgba(0,0,0,.9))}
+#amBg .eyesP .tone{position:absolute;inset:0;background:radial-gradient(circle,rgba(0,0,0,.35) 1.2px,transparent 1.6px) 0 0/6px 6px}
+#amBg .eyesP .cap{position:absolute;left:3.2vw;bottom:2.4vh;z-index:2;font:400 clamp(15px,1.5vw,25px)/1.05 Bangers,Bangers,Impact,sans-serif;letter-spacing:.06em;color:#fff;-webkit-text-stroke:2px #14101c;paint-order:stroke fill;text-shadow:3px 3px 0 #ee1c25;max-width:25vw}
+#amBg .eyesP .pl{position:absolute;right:3vw;top:1.6vh;z-index:2;font:900 italic clamp(9px,.75vw,12px) Bangers,Impact,Comic Neue,'Arial Black',sans-serif;letter-spacing:.24em;color:#e8e3ef}
+#amBg .hero2{position:absolute;right:.6vw;top:29vh;bottom:3vh;width:33vw;background:#fff;clip-path:polygon(9% 0,100% 0,91% 100%,0 100%);filter:drop-shadow(7px 7px 0 #ee1c25)}
+#amBg .hero2 .in{position:absolute;inset:5px;clip-path:polygon(9% 0,100% 0,91% 100%,0 100%);overflow:hidden;background:#111}
+#amBg .hero2 img{width:100%;height:100%;object-fit:cover;object-position:50% 26%}
+#amBg .hero2 .sh{position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(13,11,18,.92) 88%)}
+#amBg .hero2 b{position:absolute;left:4vw;bottom:6.4vh;z-index:2;font:400 clamp(22px,2.6vw,44px) Bangers,Bangers,Impact,sans-serif;letter-spacing:.05em;color:#fff;-webkit-text-stroke:2px #14101c;paint-order:stroke fill;text-shadow:3px 3px 0 #ee1c25}
+#amBg .hero2 small{position:absolute;left:4.2vw;bottom:3.6vh;z-index:2;font:900 italic clamp(9px,.8vw,13px) Bangers,Impact,Comic Neue,'Arial Black',sans-serif;letter-spacing:.24em;color:#e8e3ef}
+@media(max-width:760px){#amBg .ttR{display:none}}`;
  document.head.appendChild(css);
  const R=[['Keisuke','KEISUKE','#ffcf1f'],['Ryosuke','RYOSUKE','#9d5cff'],['Bunta','BUNTA','#3d7bff']];
  const bg=document.createElement('div');bg.id='amBg';
  bg.innerHTML=`<div class="rays"></div><div class="dots"></div>
   <div class="hero"><div class="in"><img src="assets/images/background.webp" alt=""><div class="tone"></div><div class="speed"></div><div class="shade"></div></div></div>
-  <div class="rivals">${R.map(([f,n,a])=>`<div class="rv" style="--a:${a}"><div class="in"><img src="assets/images/${f}.webp" alt=""><div class="tone"></div><div class="eyes"></div></div><b>${n}</b></div>`).join('')}</div>
+  <div class="ttR"><div class="eyesP"><div class="in"><div class="ef"></div><div class="dk"></div><div class="tone"></div></div><span class="cap"></span><span class="pl"></span></div>
+   <div class="hero2"><div class="in"><img src="assets/images/Takumi-serious.webp" alt="" onerror="this.src='assets/images/Takumi.webp'"><div class="sh"></div></div><b>FUJIWARA TAKUMI</b><small>AE86 TRUENO · FUJIWARA TOFU · AKINA</small></div></div>
   <div class="kanji"><span>峠</span><span>の</span><span>伝</span><span>説</span></div><div class="tag">THE MOUNTAIN DOES NOT FORGIVE · ${window.__BUILD||''}</div>`;
  inner.insertBefore(bg,inner.firstChild);
+ /* who's waiting: the next story chapter with a rival, his eyes and a line for the ghost of Akina */
+ const NEXT={keisuke:['Keisuke',"I'M COMING FOR YOU, GHOST OF AKINA",'50% 31%'],nakazato:['Nakazato',"MYOGI'S CALLING YOU OUT, GHOST",'50% 33%'],
+  iketani:['Shingo',"THE GHOST? I'LL SCRAPE HIM OFF THE RAIL",'50% 33%'],shingo:['Shingo',"TAPE YOUR RIGHT HAND, GHOST. LET'S PLAY",'50% 33%'],
+  iketani_mako:['Mako',"USUI'S SILHOUETTE IS WAITING, GHOST",'50% 33%'],mako:['Mako',"USUI'S SILHOUETTE IS WAITING, GHOST",'50% 33%'],
+  keisuke_nakazato:['Nakazato',"THE NIGHT KIDS AREN'T DONE WITH AKINA",'50% 33%'],kenta:['Kenta',"RYOSUKE-SAN'S GHOST? I'LL TAKE HIM FIRST",'50% 32%'],
+  ryosuke:['Ryosuke',"I'VE STUDIED YOU LONG ENOUGH, GHOST",'50% 31%'],nakazato_seiji:['Seiji',"ONE HAND IS ALL I NEED, GHOST",'50% 32%'],seiji:['Seiji',"ONE HAND IS ALL I NEED, GHOST",'50% 32%'],
+  kyoichi:['Kyoichi',"THE GHOST'S STORY ENDS ON IROHAZAKA",'50% 34%'],ryosuke_kyoichi:['Kyoichi',"THE GHOST'S STORY ENDS ON IROHAZAKA",'50% 34%'],
+  wataru:['Wataru',"SO YOU'RE THE GHOST? SHOW ME, 86",'50% 32%'],bunta:['Bunta',"THINK YOU CAN CATCH YOUR OLD MAN?",'50% 31%']};
+ let lastK='';
+ function nextUp(){try{const L=(window.__storyAhead&&__storyAhead())||[{key:'keisuke',sub:'AKINA · DOWNHILL · NIGHT'}];
+   let n=L.find(c=>NEXT[c.key]);const all=!n;if(!n)n={key:'_done',sub:'GUNMA'};
+   const e=all?['Bunta','THE GHOST OF AKINA · UNBEATEN IN GUNMA','50% 31%']:NEXT[n.key];if(n.key===lastK)return;lastK=n.key;
+   const P=bg.querySelector('.eyesP');if(!P)return;const ef=P.querySelector('.ef');ef.style.backgroundImage=`url(assets/images/${e[0]}.webp)`;ef.style.backgroundPosition=e[2];
+   P.querySelector('.cap').textContent=e[1];P.querySelector('.pl').textContent=(n.sub||'').split('·').map(x=>x.trim()).filter(x=>x&&!/DRIVES|SIDE|SPEEDSTARS|'/.test(x)).slice(0,3).join(' · ')}catch(err){}}
+ nextUp();setInterval(()=>{const m=document.getElementById('courseMenu');if(m&&m.style.display!=='none')nextUp()},1500);
  const hint=document.createElement('div');hint.id='amHint';hint.innerHTML='<b>↑ ↓</b> SELECT &nbsp; <b>ENTER</b> CONFIRM';inner.appendChild(hint);
 })();
 // ============================================================================
@@ -12879,6 +12912,7 @@ const animeRivals=window.animeRivals=(()=>{
     if(c.__teamLogo)for(const d of c.__teamLogo)d.visible=mine}}catch(e){}},400)}
  // ---- story progress (this browser): which chapters you've cleared, and the new engine
  const KEY='initialDriftStory';let S={done:-1,engine:false,beaten:{}};
+ window.__storyAhead=()=>{try{return CH.slice(Math.max(0,S.done+1)).map(c=>({key:c.key,sub:c.sub||''}))}catch(e){return []}};   /* (477) the title screen's 'next rival' strip */
  try{S=Object.assign(S,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){}
  // the chapter list grows as side stories are added: progress follows the chapter, not its position
  if(S.order&&S.done>=0){const k=S.order[Math.min(S.done,S.order.length-1)],ni=CH.findIndex(c=>c.key===k);if(ni>=0)S.done=ni}
