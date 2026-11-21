@@ -512,7 +512,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=472',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=473',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -2947,7 +2947,7 @@ const flareCtx=windshieldFlare.getContext('2d');
 const flareSunWorld=new THREE.Vector3(),flareProjected=new THREE.Vector3(),flareForward=new THREE.Vector3();
 let flareOpacity=0;
 function updateWindshieldFlare(dt){
- const active=canyonEvent==='time'&&((typeof canyonEvent!=='undefined'&&(canyonEvent==='time'||window.__storyPrologue)&&window.__tofuWeather)||'sunset')==='sunset'||canyonEvent==='race'&&canyonStage===1;
+ const active=(canyonEvent==='time'&&((typeof canyonEvent!=='undefined'&&(canyonEvent==='time'||window.__storyPrologue)&&window.__tofuWeather)||'sunset')==='sunset'||canyonEvent==='race'&&canyonStage===1)&&!window.__lampsOn&&!(typeof animeCars!=='undefined'&&animeCars.lightsOn)&&!((window.__dayK??1)<.45)&&!(window.__nightDark>0)&&!(typeof sunsetSun!=='undefined'&&!sunsetSun.visible);   /* (473) never at night: the set sun's glare was drawn on the road */
  const fraction=canyonEvent==='race'&&canyonStage===1?Math.max(0,Math.min(1,progress/Math.max(1,stageFinishIndex)))*.56:Math.max(0,Math.min(1,progress/N));   // stage 1 follows its own sunset
  // In Time Trial the glare must disappear when the descending sun slips
  // behind the distant mountain skyline, even while the sky remains bright.
@@ -4111,7 +4111,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 472';
+window.__BUILD='BUILD 473';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5640,9 +5640,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795243154'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795244431'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795243154'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795244431'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -6023,8 +6023,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795243154'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795243154'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795244431'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795244431'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6482,7 +6482,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795243154',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795244431',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6496,7 +6496,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795243154',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795244431',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -17155,7 +17155,17 @@ const animePractice=window.animePractice=(()=>{
  // (build 411) the course preview: the road's shape, the start (green) and finish (chequered), the climb, its length
  function drawMap(){try{const box=root.querySelector('.cmap');if(!box)return;const cv=box.querySelector('canvas');{const r=cv.getBoundingClientRect(),d=Math.min(2,devicePixelRatio||1);if(r.width>10&&r.height>10){cv.width=Math.round(r.width*d);cv.height=Math.round(r.height*d)}}
    const x=cv.getContext('2d');if(S.course==='lot')return drawLot(box,cv,x);const key=passOf(S.course)||'akina',P=(window.__COURSE_SHAPES||{})[key];if(!P||P.length<3)return;
-   const up=isUp(S.course)||(key==='usui'),Q=up?P:P.slice().reverse();let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9;for(const p of Q){x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);z0=Math.min(z0,p[1]);z1=Math.max(z1,p[1])}
+   const up=isUp(S.course)||(key==='usui'),Q0=up?P:P.slice().reverse();
+   /* (473) turned to whichever angle lets the road fill the card the most (a wide course stood on end, a tall one left as it
+      is), then flipped so the high end of the mountain is at the top; the same turn for both directions of a course */
+   const Q=(()=>{const W0=cv.width,H0=cv.height,st=Math.max(1,Math.floor(P.length/400));let best=0,bk=-1;
+     for(let d=0;d<180;d++){const a=d*Math.PI/180,c=Math.cos(a),s=Math.sin(a);let a0=1e9,a1=-1e9,b0=1e9,b1=-1e9;
+      for(let i=0;i<P.length;i+=st){const u=P[i][0]*c-P[i][1]*s,v=P[i][0]*s+P[i][1]*c;if(u<a0)a0=u;if(u>a1)a1=u;if(v<b0)b0=v;if(v>b1)b1=v}
+      const k=Math.min(W0/(a1-a0||1),H0/(b1-b0||1));if(k>bk*1.0001){bk=k;best=a}}
+     let c=Math.cos(best),s=Math.sin(best);const rot=p=>[p[0]*c-p[1]*s,p[0]*s+p[1]*c,p[2]];
+     let lo=P[0],hi=P[P.length-1];if(lo[2]>hi[2]){const t=lo;lo=hi;hi=t}if(key!=='usui'&&rot(hi)[1]>rot(lo)[1]){c=-c;s=-s}
+     return Q0.map(rot)})();
+   let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9;for(const p of Q){x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);z0=Math.min(z0,p[1]);z1=Math.max(z1,p[1])}
    const W=cv.width,H=cv.height,pad=Math.round(Math.min(W,H)*.08),k=Math.min((W-2*pad)/(x1-x0||1),(H-2*pad)/(z1-z0||1)),ox=(W-(x1-x0)*k)/2,oz=(H-(z1-z0)*k)/2,X=p=>ox+(p[0]-x0)*k,Z=p=>oz+(p[1]-z0)*k;
    x.clearRect(0,0,W,H);x.lineJoin=x.lineCap='round';
    const sc=Math.max(1,Math.min(W,H)/300);for(const [w,c] of [[11*sc,'#14101c'],[7*sc,'#f6db7a'],[3*sc,'#fffbe9']]){x.strokeStyle=c;x.lineWidth=w;x.beginPath();Q.forEach((p,i)=>i?x.lineTo(X(p),Z(p)):x.moveTo(X(p),Z(p)));x.stroke()}
@@ -20987,7 +20997,7 @@ const animeCutscene=window.animeCutscene=(()=>{
 // own draw call) are taken out.
 // ============================================================================================================
 (()=>{try{
- try{for(const m of tireTracks){m.visible=false;if(m.parent)m.parent.remove(m)}tireTracks.length=0}catch(e){}
+ try{for(const m of tireTracks){m.visible=false;if(m.parent)m.parent.remove(m)}}catch(e){}   /* (473) taken out of the scene but left in the list: the old stamping still writes to them (emptying the list broke it) */
  const MAX=6000,V=MAX*4;
  const P=new Float32Array(V*3),Cl=new Float32Array(V*4),ix=new Uint32Array(MAX*6);
  for(let q=0;q<MAX;q++){const v=q*4,o=q*6;ix[o]=v;ix[o+1]=v+1;ix[o+2]=v+2;ix[o+3]=v+2;ix[o+4]=v+1;ix[o+5]=v+3}
