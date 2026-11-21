@@ -512,7 +512,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=477',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=478',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -4111,7 +4111,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 477';
+window.__BUILD='BUILD 478';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5640,9 +5640,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795286334'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795287588'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795286334'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795287588'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -6023,8 +6023,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795286334'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795286334'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795287588'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795287588'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6482,7 +6482,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795286334',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795287588',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6496,7 +6496,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795286334',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795287588',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -10828,6 +10828,38 @@ window.uiSelectSound=(()=>{const pool=[...Array(4)].map(()=>{const a=new Audio('
  check();setTimeout(()=>{ready=true},800);
  btns.forEach(b=>b.addEventListener('click',()=>uiSelectSound()));})();
 
+// (478) title screen polish: one slant everywhere (the red divider, both mode buttons and both right-hand panels lean at the
+// same ~15.5 degrees, so their edges run parallel), light text links top-left instead of heavy boxes, and a quiet footer line
+(()=>{try{const ex=document.getElementById('arcadeExitButton');if(ex)ex.innerHTML='✕ EXIT'}catch(e){}
+ const K=.28;   // the slant: sideways per unit of height
+ const st=document.createElement('style');st.textContent=`
+#amBg .hero{clip-path:polygon(0 0,100% 0,calc(100% - ${104*K}vh) 100%,0 100%)!important}
+#amBg .hero .in{clip-path:polygon(0 0,100% 0,calc(100% - ${104*K}vh) 100%,0 100%)!important}
+#amBg .eyesP{right:1.4vw;top:3.4vh;width:33vw;height:22vh;clip-path:polygon(${22*K}vh 0,100% 0,calc(100% - ${22*K}vh) 100%,0 100%)!important}
+#amBg .eyesP .in{clip-path:polygon(${22*K}vh 0,100% 0,calc(100% - ${22*K}vh) 100%,0 100%)!important}
+#amBg .eyesP .cap{left:calc(${22*K}vh + 1.4vw)}
+#amBg .hero2{right:-${(68*K)/2}vh;top:28.6vh;bottom:3.4vh;width:calc(33vw + ${68*K*.75}vh);clip-path:polygon(${68*K}vh 0,100% 0,calc(100% - ${68*K}vh) 100%,0 100%)!important}
+#amBg .hero2 .in{clip-path:polygon(${68*K}vh 0,100% 0,calc(100% - ${68*K}vh) 100%,0 100%)!important}
+#amBg .hero2 img{object-position:40% 26%}
+#amBg .hero2 b{left:calc(${68*K*.18}vh + 2.4vw)}#amBg .hero2 small{left:calc(${68*K*.18}vh + 2.6vw)}
+#courseMenu #driftModeChoices #driftRace,#courseMenu #driftModeChoices #pracBtn,#courseMenu #driftModeChoices #driftTimeTrial{clip-path:polygon(clamp(24.6px,3.64vh,35.8px) 0,100% 0,calc(100% - clamp(24.6px,3.64vh,35.8px)) 100%,0 100%)!important}
+/* top-left: plain lettering, a red tick on the one you point at */
+#courseMenu #arcadeExitButton,#dpBtn,#optBtn,#ctlBtn{background:transparent!important;border:0!important;box-shadow:none!important;padding:.35vh .2vw .35vh .9vw!important;font:400 clamp(14px,1.15vw,19px)/1 Bangers,Bangers,Impact,sans-serif!important;letter-spacing:.16em!important;color:#e6e1ee!important;text-shadow:2px 2px 0 #14101c,0 0 8px rgba(0,0,0,.8)!important;border-left:3px solid transparent!important;border-radius:0!important}
+#courseMenu #arcadeExitButton{left:1.2vw!important;top:2.2vh!important}
+/* one row along the top, clear of the logo */
+
+#courseMenu #arcadeExitButton:hover,#courseMenu #arcadeExitButton:focus-visible,#courseMenu #arcadeExitButton.arcadeSelected,#dpBtn:hover,#dpBtn:focus-visible,#optBtn:hover,#optBtn:focus-visible,#ctlBtn:hover,#ctlBtn:focus-visible{background:transparent!important;color:#fff!important;border-left-color:#ee1c25!important}
+#courseMenu #arcadeExitButton,#courseMenu #arcadeExitButton *{-webkit-text-fill-color:currentColor!important}
+/* the footer: one quiet line */
+#amBg .tag{left:2vw;bottom:2.2vh;background:none!important;border:0!important;box-shadow:none!important;transform:none!important;padding:0!important;font:900 italic clamp(9px,.72vw,12px) Comic Neue,Arial,sans-serif!important;letter-spacing:.42em!important;color:rgba(236,232,244,.55)!important}
+#amHint{color:rgba(236,232,244,.7)!important}`;
+ document.head.appendChild(st);
+ /* the four links in one row along the top: each placed just after the one before (measured, so any font fits) */
+ const row=()=>{try{const ex=document.getElementById('arcadeExitButton');if(!ex)return;let x=ex.getBoundingClientRect().right;const gap=Math.max(14,innerWidth*.014);
+   for(const id of ['dpBtn','optBtn','ctlBtn']){const b=document.getElementById(id);if(!b||getComputedStyle(b).display==='none')continue;b.style.setProperty('left',(x+gap)+'px','important');b.style.setProperty('top',ex.getBoundingClientRect().top+'px','important');x=b.getBoundingClientRect().right}}catch(e){}};
+ setInterval(()=>{const m=document.getElementById('courseMenu');if(m&&m.style.display!=='none')row()},700);addEventListener('resize',row);
+ try{const tag=document.querySelector('#amBg .tag');if(tag){const b=window.__BUILD||'';tag.innerHTML='THE MOUNTAIN DOES NOT FORGIVE'+(b?` <span style="opacity:.6;margin-left:1.2em">${b}</span>`:'')}}catch(e){}})();
+
 // ============================================================================
 // TOFU RUN · finish screen
 // DELIVERED! (or NEW RECORD! when you beat your best), your time vs your best, your
@@ -13667,7 +13699,7 @@ const driverProfile=window.driverProfile=(()=>{
 #dp .bar{height:1.2vh;background:#2a2733;margin-top:.6vh}#dp .bar i{display:block;height:100%;background:#ff4f93}
 #dp .close{position:fixed;right:3vw;top:3vh;font:400 clamp(16px,1.4vw,22px) Bangers,Bangers,Impact;letter-spacing:.14em;background:#e8263b;color:#fff;border:2px solid #fff;padding:.8vh 1.2vw;cursor:pointer}
 @media (max-width:700px){#dp .grid{grid-template-columns:1fr}}`;document.head.appendChild(css);
- const btn=document.createElement('button');btn.id='dpBtn';btn.type='button';btn.textContent='DRIVER PROFILE · P';document.body.appendChild(btn);
+ const btn=document.createElement('button');btn.id='dpBtn';btn.type='button';btn.textContent='DRIVER PROFILE';document.body.appendChild(btn);
  const dp=document.createElement('div');dp.id='dp';document.body.appendChild(dp);
  const TITLES=[['keisuke','GHOST OF AKINA','Beat the RedSuns\' Keisuke'],['shingo','MYOGI BREAKER','Won the duct-tape death match'],['mako','KING OF USUI','Beat Bangers,Impact Blue on their own road'],
   ['ryosuke','FIRST STAGE CHAMPION','Beat the White Comet'],['kyoichi','THE ENGINE\'S LAST CRY','Survived Irohazaka'],['newengine','ELEVEN THOUSAND','Learned the new engine'],
