@@ -512,7 +512,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=475',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=476',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -4111,7 +4111,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 475';
+window.__BUILD='BUILD 476';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5640,9 +5640,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795248096'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795252070'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795248096'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795252070'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -6023,8 +6023,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795248096'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795248096'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795252070'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795252070'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6482,7 +6482,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795248096',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795252070',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6496,7 +6496,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795248096',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795252070',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -7577,7 +7577,11 @@ Object.assign(LEAD_LINES,{
 // the dawn run home: Keisuke has no idea who's in the 86 yet, so to him it's just "the ghost"
 const GHOST_LINES={passed:['WHAT?! Some ghost in an 86 just passed me?!','No no no — my brother is gonna hear about this!','That 86 is NOT supposed to corner like that!!','Who IS this ghost?!','My hair can\'t handle this kind of stress!','An 86 on MY mountain?!','He\'s not even sliding wide!','A tofu delivery car?! No way!'],
  back:['HA! Too slow, ghost!','Should\'ve taken that turn smarter, ghost!','See ya! Enjoy the view of my tail lights!','That\'s what 255 horsepower sounds like!','Go haunt somebody else, ghost!','Ha! Spooked, ghost?','The FD\'s back on top!','Rest in peace, ghost!']};
-function showLead(stage,playerLeads,text,sub){if(!text&&window.__cutLock&&performance.now()<window.__cutLock)return;
+/* (476) one message at a time: nothing in the first 10 s after GO, then at least 8 s between lines. Scripted story beats
+   (a line passed in by the chapter: bumps, crashes, the engine) still always show */
+window.__msgOK=(force)=>{const now=performance.now();if(force){window.__msgLast=now;return true}
+  const el=typeof elapsed==='number'?elapsed:99;if(typeof countdown!=='undefined'&&countdown>0)return false;if(el<10)return false;if(now-(window.__msgLast||0)<8000)return false;window.__msgLast=now;return true};
+function showLead(stage,playerLeads,text,sub){if(!text&&window.__cutLock&&performance.now()<window.__cutLock)return;if(!window.__msgOK(!!text))return;
  if(!text){text=(window.__talkNext&&__talkNext(stage,playerLeads))||pickNew(((window.__storyPrologue&&stage===1&&GHOST_LINES)||(window.__race&&window.animeRivals&&animeRivals.CH[__race.chap]&&animeRivals.CH[__race.chap].lines)||LEAD_LINES[stage]||LEAD_LINES[1])[playerLeads?'passed':'back']);if(!text)return}   // a scripted moment is playing: no random pass chatter over it
  clearCut();const R=rivalCut(stage);if(!R)return;
  const wr=panel((playerLeads?R.shock:R.smug)||R.img,{fb:R.img,left:'73vw',top:'1.5vh',w:'26vw',h:'24vh',from:'115%',clip:'polygon(14% 0,100% 0,100% 100%,0 100%)',accent:R.accent,name:R.name.split(' ')[0],sub:sub||(playerLeads?'OVERTAKEN!!':'TAKES THE LEAD!')});
@@ -7598,7 +7602,7 @@ function showLead(stage,playerLeads,text,sub){if(!text&&window.__cutLock&&perfor
 function hideCut(){for(const p of cut.querySelectorAll('.wrap'))p.style.opacity=0;cut.classList.remove('vsOn');for(const s of cut.querySelectorAll('.say'))s.style.opacity=0;setTimeout(clearCut,300)}
 window.animeShowLead=(stage,leads,text,sub,secs)=>{showLead(stage,leads,text,sub);if(secs)cutTimer=secs};
 // your own driver's cut-in: the same big panel and bubble as a rival's, sliding in from the left, and the race slows down for it
-function showSelf(text,o={}){clearCut();const me=window.__asMe;
+function showSelf(text,o={}){if(!window.__msgOK(!!o.force))return;clearCut();const me=window.__asMe;
  const face=o.face||(me?me.img:'assets/images/Takumi.webp'),name=o.who||(me?me.name.split(' ')[0]:'TAKUMI');
  const wr=panel(face,{fb:'assets/images/Takumi.webp',left:'-1vw',top:'1.5vh',w:'26vw',h:'24vh',from:'-115%',clip:'polygon(0 0,100% 0,86% 100%,0 100%)',accent:o.accent||(me?me.acc:'#ff5a4a'),name,sub:o.sub||'...!'});
  const pnl=wr.querySelector('.panel');if(o.shout){pnl.insertAdjacentHTML('beforeend','<div class="gloomV"></div>'+[[22,18,0],[74,22,.3],[60,12,.22]].map(([x,y,d])=>`<i class="sweat" style="left:${x}%;top:${y}%;animation-delay:${d}s"></i>`).join(''));pnl.classList.add('nervous')}
@@ -8276,7 +8280,7 @@ const animeCrowd=window.animeCrowd=(()=>{
     files:()=>models.map(m=>m.file),
     fisher:i=>window.__fanKit.person(null,'fish',i)};
    const credit=document.getElementById('modelCredit');if(credit)credit.innerHTML+='<br>Spectators: anime character models by samiibrahem614 · CC BY 4.0';
-   window.__paveDbg=()=>({n:PAVE?PAVE.length:-1,list:PAVE,cells:PG?PG.cells.size:0});window.__paveY=(x,z,y)=>paveY(x,z,y);window.__crowd={n:fans.length,models:models.length,start:fans.filter(f=>f.kind==='start').length,finish:fans.filter(f=>f.kind==='finish').length,course:fans.filter(f=>f.kind==='course').length,
+   window.__paveDbg=()=>({n:PAVE?PAVE.length:-1,list:PAVE,cells:PG?PG.cells.size:0});window.__paveY=(x,z,y)=>paveY(x,z,y);window.__crowdFans=fans;window.__crowd={n:fans.length,models:models.length,start:fans.filter(f=>f.kind==='start').length,finish:fans.filter(f=>f.kind==='finish').length,course:fans.filter(f=>f.kind==='course').length,
     groups:[...new Set(fans.filter(f=>f.kind==='course').map(f=>f.group))].length,adjacentSame:fans.filter(f=>fans.some(g=>g!==f&&g.group===f.group&&g.m===f.m&&Math.abs(g.along-f.along)<4.2)).length}})
   .catch(e=>console.warn('crowd',e));
  // keep them on the ground when the stage changes the hills, and follow the finish line
@@ -9552,8 +9556,8 @@ const storyDawn=window.storyDawn=(()=>{
     the page reloads onto it and carries straight on */
  const toNewAkina=what=>{if((window.__PASS||null)==='akinanew')return false;try{document.body.insertAdjacentHTML('beforeend','<div style="position:fixed;inset:0;z-index:2147483600;background:#0b0a10;color:#fff;display:flex;align-items:center;justify-content:center;font:400 clamp(28px,4vw,60px) Bangers,Bangers,Impact,sans-serif;letter-spacing:.1em">AKINA</div>')}catch(e){}
    location.href=location.pathname+'?pass=akinanew&story='+what;return true};
- {const q=new URLSearchParams(location.search).get('story');if(q==='dawn'||q==='home'){const iv=setInterval(()=>{const m=document.getElementById('courseMenu');if(!m||!document.documentElement.classList.contains('idReady'))return;clearInterval(iv);
-   setTimeout(()=>{try{history.replaceState(null,'',location.pathname+'?pass=akinanew')}catch(e){}try{m.style.display='none'}catch(e){}courseChosen=true;if(q==='dawn')begin();else startRunHome()},400)},250)}}
+ {const q=new URLSearchParams(location.search).get('story');if(q==='dawn'||q==='home'){const cov=document.createElement('div');cov.style.cssText='position:fixed;inset:0;z-index:2147483000;background:#0b0a10;color:#fff;display:flex;align-items:center;justify-content:center;font:400 clamp(28px,4vw,60px) Bangers,Bangers,Impact,sans-serif;letter-spacing:.1em;transition:opacity .5s';cov.textContent='AKINA';(document.body||document.documentElement).appendChild(cov);const uncover=()=>{cov.style.opacity='0';setTimeout(()=>cov.remove(),600)};setTimeout(uncover,30000);const iv=setInterval(()=>{const m=document.getElementById('courseMenu');if(!m||!document.documentElement.classList.contains('idReady'))return;clearInterval(iv);
+   setTimeout(()=>{try{history.replaceState(null,'',location.pathname+'?pass=akinanew')}catch(e){}try{m.style.display='none'}catch(e){}courseChosen=true;if(q==='dawn')begin();else startRunHome();setTimeout(uncover,700)},400)},250)}}
  function begin(){if(toNewAkina('dawn'))return;try{localStorage.removeItem('initialDriftStoryAt')}catch(e){}clear();rematch=false;window.__storyDelivery=true;window.__musicMuted=false;   /* the story starts with its music on (practice's radio settings never carry over) */try{animeCars.setPlayerCar('ae86')}catch(e){}
   document.getElementById('courseMenu').style.display='none';courseChosen=true;canyonEvent='time';window.__storyMusic='opening';
   mangaStory.play('prologueOpen','PROLOGUE · DAWN','START DELIVERY',null,()=>{courseChosen=false;startCanyonEvent('time')})}
@@ -12835,9 +12839,9 @@ const animeRivals=window.animeRivals=(()=>{
   {quotes:{me:'Look at me, Takumi! I\'m drifting! ...I think!',opp:'An 86 on Akina at night... the ghost? Let\'s find out.'},key:'itsuki',pass:'akina',as:11,opp:5,env:2,run:SEC.bottomEsses,arc:'FIRST STAGE · SIDE STORY',title:'ITSUKI\'S HACHI-GO',sub:'AKINA · NIGHT · THE AE85 LEVIN',rules:{rolling:{at:.1,gap:120,speed:16,tail:40,count:true,far:true},bump:true,crash:.45,ramLine:'An 86... the ghost of Akina? Let\'s see you dodge THIS!',ramSfx:'RAM!!'},
    lines:{passed:['Huh? This 86 is... slow?','What kind of ghost drives like THAT?'],back:['Wobbling all over the road! Some legend!','Is this really the Akina 86?!']}},
   {moments:[[.42,'...I\'m not thinking about winning. I just want to catch him.',{shout:true}]],key:'shingo',pass:'akina',opp:5,env:2,run:SEC.fiveHairpins,arc:'FIRST STAGE',title:'DUCT-TAPE DEATH MATCH',sub:'AKINA · FIVE HAIRPINS · HAND TAPED',rules:{bump:true,spin:true}},
-  {quotes:{me:'Just... stay with her.',opp:'Follow us if you can. Usui is OUR road.'},key:'iketani_mako',pass:'usui',course:'usui',prun:[1560,60],as:10,opp:6,env:2,run:SEC.upperDown,arc:'FIRST STAGE · SIDE STORY',title:'SPEEDSTARS VS IMPACT BLUE',sub:'"USUI" · SUMMER NIGHT · THE S13',rules:{outrun:true,outrunLine:'Sayuki, the S13\'s gone. ...Too easy.'},
+  {quotes:{me:'Just... stay with her.',opp:'Follow us if you can. Usui is OUR road.'},key:'iketani_mako',pass:'usui',course:'usui',prun:[2100,60],as:10,opp:6,env:2,run:SEC.upperDown,arc:'FIRST STAGE · SIDE STORY',title:'SPEEDSTARS VS IMPACT BLUE',sub:'"USUI" · SUMMER NIGHT · THE S13',rules:{outrun:true,outrunLine:'Sayuki, the S13\'s gone. ...Too easy.'},
    lines:{passed:['Sayuki, the S13 got past?! ...Then we go faster.','Not bad... but this is OUR road.','Sayuki, he\'s actually holding on!','Persistent, aren\'t you?','He\'s braver than I thought.','...He\'s not bad.'],back:['Bye bye, SpeedStars!','Sayuki, call the next one. He can\'t follow.','Usui doesn\'t forgive hesitation.','Left, then right. Too slow!','Sayuki, faster!','This is our home road.']}},
-  {key:'mako',pass:'usui',course:'usui',prun:[1560,60],opp:6,env:2,run:SEC.upperDown,arc:'FIRST STAGE',title:'VS IMPACT BLUE',sub:'"USUI" · SUMMER NIGHT'},
+  {key:'mako',pass:'usui',course:'usui',prun:[2100,60],opp:6,env:2,run:SEC.upperDown,arc:'FIRST STAGE',title:'VS IMPACT BLUE',sub:'"USUI" · SUMMER NIGHT'},
   {quotes:{me:'Lost to the 86 too, huh? Tonight the loser gets nothing!',opp:'My GT-R\'s grip against your FD. Uphill.'},key:'keisuke_nakazato',pass:'myogi',course:'myogi',prun:[60,1331],as:1,opp:4,env:2,run:SEC.upperUp,arc:'FIRST STAGE · SIDE STORY',title:'KEISUKE VS NAKAZATO · REMATCH',sub:'"MYOGI" · UPHILL · NIGHT · THE FD',
    lines:{passed:['The FD?! On the uphill?!','Tch... RedSuns power.','The FD\'s pulling on the climb?!','Rotary power... damn it!','Not on the uphill too!','Tch... Takahashi brothers!'],back:['Grip beats drift, Takahashi!','The GT-R was built for this climb!','The GT-R climbs like a rocket!','Grip and torque. That\'s all you need.','Uphill is MY territory!','Feel that four-wheel drive bite!']}},
   {key:'kenta',opp:13,env:3,pass:'myogi',course:'myogi',prun:[1846,685],run:SEC.hairpinsLong,arc:'FIRST STAGE',title:'VS KENTA · RAIN ON MYOGI',sub:'"MYOGI" · DOWNHILL · RAIN',moments:[[.56,'...Headlights behind us? A white FC...? Ryosuke...? ...No. Focus.']]},   // episode 23
@@ -12851,7 +12855,7 @@ const animeRivals=window.animeRivals=(()=>{
   {quotes:{me:'Your circuit theory won\'t work on a mountain pass.',opp:'An FC against an Evo. Theory will lose to the machine.'},key:'ryosuke_kyoichi',pass:'irohazaka',course:'irohazaka',prun:[2060,690],as:2,opp:8,env:2,run:SEC.sweepDown,arc:'SECOND STAGE · SIDE STORY',title:'RYOSUKE VS KYOICHI',sub:'IROHAZAKA · DOWNHILL · NIGHT · THE FC',
    lines:{passed:['...The White Comet. So that\'s your real pace.','Impossible. An FC can\'t corner like that.','...He found a line I didn\'t calculate.','The FC is faster through here?!','Takahashi... you\'re adapting.','Impossible. My lines are perfect.'],back:['Your theory loses to four-wheel drive, Takahashi.','Circuit lines win. Always.','Theory is useless on a mountain? Watch this.','The Evo is built for this.','Circuit lines win.','Fall back, White Comet.']}},
   {key:'newengine',pass:'akina',opp:3,env:2,run:SEC.upperShort,arc:'SECOND STAGE',title:'ELEVEN THOUSAND RPM',sub:'AKINA · ALONE · THE NEW ENGINE · NO TACH',rules:{solo:true,rolling:{at:.03,gap:40,speed:14,tail:0,count:true,far:true}}},
-  {moments:[[.5,'Turbo or not... power isn\'t everything.']],key:'wataru',pass:'shomaru',course:'shomaru',prun:[2428,1500],opp:9,env:2,run:SEC.upperDown,arc:'SECOND STAGE',title:'VS WATARU · TURBO LEVIN',sub:'"SHOMARU PASS" · SAITAMA · NIGHT'},
+  {moments:[[.5,'Turbo or not... power isn\'t everything.']],key:'wataru',pass:'shomaru',course:'shomaru',prun:[2428,1040],opp:9,env:2,run:SEC.upperDown,arc:'SECOND STAGE',title:'VS WATARU · TURBO LEVIN',sub:'"SHOMARU PASS" · SAITAMA · NIGHT'},
   {key:'bunta',pass:'akina',opp:3,env:3,run:[TOPI,BOTI],arc:'FINAL STAGE',title:'THE BLUE CAR IN THE RAIN',sub:'AKINA · THE WHOLE PASS · RAIN',rules:{fatherWins:true,rolling:{at:.45,gap:8,speed:24,tail:25,cut:'bunta'}}}];
  // (build 447) the Akina chapters run on the new Akina (akinanew). The old map stays as a practice source. Each race is the
  // same stretch of mountain it was on the old map, found again on the new road (index along the new road, bottom 56 → top 2444;
@@ -12860,7 +12864,8 @@ const animeRivals=window.animeRivals=(()=>{
   const BY={keisuke:'hairpinsLong',nakazato:'sweepDown',iketani:'upperShort',frkiller:'upperDown',itsuki:'bottomEsses',shingo:'fiveHairpins',training:'fiveHairpins',ryosuke:'full',lesson:'lakeside',seiji:'hairpinsLong',newengine:'upperShort',bunta:'full'};
   /* (454) races sized for the new mountain: each Akina section stretched back (same finish) so the race lasts about as long as
      it did on the old 16 km Akina, and each start sits on a straight */
-  const RUN454={lesson:[2444,2170],iketani:[2440,1840],newengine:[2440,1840],frkiller:[2444,1720],shingo:[2150,1590],training:[2150,1590],keisuke:[2370,1420],seiji:[2370,1420],nakazato:[1765,1125],itsuki:[645,250]};
+  /* (476) no story race under ~3 km (about two minutes): the short ones were over before they started, with every scripted moment piled on top of each other */
+  const RUN454={lesson:[2444,1720],iketani:[2440,1440],newengine:[2440,1440],frkiller:[2444,1420],shingo:[2150,1150],training:[2150,1150],keisuke:[2370,1420],seiji:[2370,1420],nakazato:[1765,800],itsuki:[1250,250]};
   for(const c of CH){const k=BY[c.key];if(!k||c.course)continue;c.pass='akinanew';c.course='akinanew';c.prun=(RUN454[c.key]||NA[k]).slice();c.secNew=k}}
  // a rival in a borrowed model (Kenta's Silvia is the S13 model): his own paint while he's the opponent, the owner's paint otherwise
  {const orig=new Map();setInterval(()=>{try{if(!window.animeCars||!animeCars.EXTRA)return;const o=window.__race&&R[__race.opp];
@@ -12934,7 +12939,7 @@ const animeRivals=window.animeRivals=(()=>{
    // a warning first: the check-engine light starts flashing next to the tach
    celWarn(!blown&&f>blowAt()-.11);
    if(!blown&&f>blowAt()){blown=true;blowT=0;blowStart=performance.now();try{anime.impact(1)}catch(e){}window.__engineBlown=true;dispatchEvent(new CustomEvent('engine-blown'));
-    try{raceSlow.start(3.4,{scale:.22})}catch(e){}try{syncCanyonTrack()}catch(e){}}
+    try{raceSlow.start(3.4,{scale:.22,beat:true})}catch(e){}try{syncCanyonTrack()}catch(e){}}
    if(blown){blowT=(performance.now()-blowStart)/1000;window.__blowT=blowT;celWarn(true,true);if(blowT>11.5&&!finished){   // 4.6 s of drama, then the quiet beat (race_talk.js), then the pages
     window.__blowT=0;finished=true;speed=0;celWarn(false);openRivalStory('result',false)}}}catch(e){}},100);
  // ---- the check-engine light
@@ -12988,7 +12993,7 @@ const animeRivals=window.animeRivals=(()=>{
  const SHADOW=9;let shadow=false;const trail=[];
  function hunt(dt){huntT+=dt;const m=window.M_PER_INDEX||6,want=progress-SHADOW/m,d=want-rivalProgress,gapm=Math.abs(d)*m;rivalSpeed=Math.max(8,Math.abs(speed));
   if(shadow||gapm<2){shadow=true;const w=progress-(SHADOW+1.6*Math.sin(huntT*.45)+.8*Math.sin(huntT*.17+1))/m;rivalProgress+=(w-rivalProgress)*Math.min(1,dt*3);return}
-  const step=(gapm<40?30:gapm<160?45:250)*dt/m;rivalProgress+=Math.max(-step,Math.min(step,d))}
+  const step=(gapm<40?5:gapm<160?9:22)*dt/m;   /* (476) he reels you in over a while (was 45-250 m/s: there in a blink) */rivalProgress+=Math.max(-step,Math.min(step,d))}
  // your path: every position your car passed through and which way it pointed, by distance driven
  let trailD=0,lastX=null,lastZ=null;
  {const o=updatePlayerVehiclePose;updatePlayerVehiclePose=function(dt){const r=o.apply(this,arguments);try{if(canyonEvent==='race'&&courseChosen&&countdown<=0){
@@ -13022,11 +13027,11 @@ const animeRivals=window.animeRivals=(()=>{
    if(!bump)bump={state:'wait',t:0};
    const mpi=window.M_PER_INDEX||6,f=progress/N,gap=(rivalProgress-progress)*mpi;
    // 1 · Shingo comes up behind and really hits the 86 (slow motion at the moment of contact)
-   if(bump.state==='wait'&&f>.34&&f<.78){const R0=relTo();if((R0.back>3&&R0.back<20&&Math.abs(R0.lat)<10&&-gap>2&&-gap<22)||f>.6){bump={state:'approach',t:0,d0:Math.max(4.5,Math.min(20,R0.back>0?R0.back:12)),lat0:Math.max(-9,Math.min(9,R0.lat))};window.__cutLock=performance.now()+9000}}
+   if(bump.state==='wait'&&f>.34&&f<.78&&(typeof elapsed!=='number'||elapsed>35)){   /* (476) never in the first 35 s */const R0=relTo();if((R0.back>3&&R0.back<20&&Math.abs(R0.lat)<10&&-gap>2&&-gap<22)||f>.6){bump={state:'approach',t:0,d0:Math.max(4.5,Math.min(20,R0.back>0?R0.back:12)),lat0:Math.max(-9,Math.min(9,R0.lat))};window.__cutLock=performance.now()+9000}}
    if(bump.state==='approach'){bump.t+=dt;bump.dist=Math.max(4,bump.d0-bump.t*7);rivalProgress=progress-bump.dist/mpi;
     if(bump.dist<=4){bump={state:'spin',t:0};speed*=.7;
      try{const fx=-Math.sin(yaw),fz=-Math.cos(yaw);showBumpFlash(pos.x-fx*1.9,pos.z-fz*1.9)}catch(e){}
-     try{anime.impact(1)}catch(e){}try{raceSlow.start(2.6,{scale:.3})}catch(e){}
+     try{anime.impact(1)}catch(e){}try{raceSlow.start(2.6,{scale:.3,beat:true})}catch(e){}
      window.__noSlowOnce=true;try{animeShowLead(5,false,'Ha! Take THAT!','BUMP!!',2.4)}catch(e){}
      hitBlend();rivalProgress=progress-2/mpi;rivalSpeed=Math.abs(speed)*1.25}}
    if(bump.state==='spin'){bump.t+=dt;const k=Math.min(1,bump.t/1.15),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;   // one full turn, eased
@@ -13037,7 +13042,7 @@ const animeRivals=window.animeRivals=(()=>{
     let inPin=false,outDir=1;try{const ri=Math.max(0,Math.min(N-6,Math.floor(rivalProgress))),u=akinaCourse.toOrig(ri);const ta=tangents[ri],tb=tangents[Math.min(N,ri+Math.max(3,Math.round(25/(window.M_PER_INDEX||6))))];inPin=AKINA_HP.some(h=>Math.abs(u-h)<10)||Math.acos(Math.max(-1,Math.min(1,ta.x*tb.x+ta.z*tb.z)))>.7;   // a hairpin or any really tight corner
       const t0=tangents[ri],t1=tangents[ri+5],sx=-t0.z,sz=t0.x;outDir=((t1.x-t0.x)*sx+(t1.z-t0.z)*sz)>0?-1:1}catch(e){}
     if((bump.shingoT<=0&&inPin&&gap>6&&gap<70)||bump.t>40){bump={state:'crash',t:0,dir:outDir};window.__rivalHold=performance.now()+5200;window.__cutLock=performance.now()+7000;
-     try{raceSlow.start(2.4,{scale:.35})}catch(e){}window.__noSlowOnce=true;try{animeShowLead(5,true,'I can do that too— WHOA— the WALL!!','CRASH!!',2.6)}catch(e){}}}
+     try{raceSlow.start(2.4,{scale:.35,beat:true})}catch(e){}window.__noSlowOnce=true;try{animeShowLead(5,true,'I can do that too— WHOA— the WALL!!','CRASH!!',2.6)}catch(e){}}}
    if(bump.state==='crash'){bump.t+=dt;
     if(bump.t>1.25&&!bump.hit){bump.hit=true;try{const g=rival.position,y=rival.rotation.y;showBumpFlash(g.x-Math.sin(y)*2,g.z-Math.cos(y)*2)}catch(e){}try{anime.impact(.7)}catch(e){}try{animeAudio.railHit(.8)}catch(e){}}
     if(bump.t>4.2)bump.state='over'}
@@ -13097,7 +13102,7 @@ const animeRivals=window.animeRivals=(()=>{
  // the crash side stories: Shingo hunts you. He sits on your bumper (sometimes pulling alongside,
  // sometimes dropping back a few lengths), never disappearing up the road, until he makes his move
  {const o=advanceRivalRace;advanceRivalRace=function(dt){const p0=rivalProgress;const r=o.apply(this,arguments);try{
-   const on=!finished&&countdown<=0&&((rule('crash')&&!side&&progress/N>.1)||(spinRule()&&bump&&bump.state==='wait'&&progress/N>.12));
+   const on=!finished&&countdown<=0&&(typeof elapsed!=='number'||elapsed>22)&&((rule('crash')&&!side&&progress/N>.1)||(spinRule()&&bump&&bump.state==='wait'&&progress/N>.12));   /* (476) he only starts hunting you after ~20 s on your own */
    // hunting: his own race pace is ignored, he matches you and drifts toward his spot behind you
    if(on){rivalProgress=p0+Math.abs(speed)*dt/(window.M_PER_INDEX||6);hunt(dt)}}catch(e){}return r}}
  // (build 406) RYOSUKE STUDIES YOU before the real race: he sits a few car lengths behind through your first drifts,
@@ -13140,7 +13145,7 @@ const animeRivals=window.animeRivals=(()=>{
      if(side.dist<=4){side.phase='spin';side.t=0;side.y0=yaw;window.__scriptedCrash=true;
       // the hit: a bump flash at the contact point, the impact frame, then slow motion
       try{const fx=-Math.sin(yaw),fz=-Math.cos(yaw);showBumpFlash(pos.x-fx*1.9,pos.z-fz*1.9)}catch(e){}
-      try{anime.impact(1)}catch(e){}try{raceSlow.start(3.6,{scale:.3})}catch(e){}
+      try{anime.impact(1)}catch(e){}try{raceSlow.start(3.6,{scale:.3,beat:true})}catch(e){}
       window.__noSlowOnce=true;try{animeShowLead(__race.opp,false,__race.rules.ramLine||'Heh. Slow S13. Let\'s see how it likes a little NUDGE!',__race.rules.ramSfx||'RAM!!',3.4)}catch(e){}
       // he carries on past; the S13 goes for the rail on its own side, nose first
       hitBlend();rivalProgress=progress-2/mpi;rivalSpeed=Math.abs(speed)*1.2;
@@ -13168,7 +13173,7 @@ const animeRivals=window.animeRivals=(()=>{
     if(side&&side.phase==='wreck'){yaw=side.ry;car.position.x=pos.x;car.position.z=pos.z;car.rotation.y=side.ry+side.rel;speed=0;sideVel=0;keys.ArrowUp=false;keys.KeyW=false}}
    if(rule('outrun')){
     rivalProgress+=Math.max(0,rivalSpeed)*dt*(gap<0?.75:gap<40?.32:.1)/mpi;   // Bangers,Impact Blue knows every corner of Usui: as in the anime, Iketani never beats her (if he's ahead or close, she simply blows past)
-    if(!side&&gap>115){side={k:'outrun',t:0};try{raceSlow.start(2.6,{scale:.3})}catch(e){}
+    if(!side&&gap>115){side={k:'outrun',t:0};try{raceSlow.start(2.6,{scale:.3,beat:true})}catch(e){}
      window.__noSlowOnce=true;try{animeShowLead(__race.opp,false,__race.rules.outrunLine||'...Gone.','GONE!!',3)}catch(e){}endSide(4200,false)}}
   }catch(e){}return r}}
  // the new engine (after Kyoichi): the story 86 revs to 11,000 and pulls harder
@@ -13177,7 +13182,10 @@ const animeRivals=window.animeRivals=(()=>{
  // every story chapter after Kyoichi's has the new engine (even if you jumped straight to it); elsewhere it follows your save
  window.__newEngine=()=>window.__race?((__race.opp===9||__race.chap>blowIdx())&&!(CH[__race.chap]&&CH[__race.chap].as)):!!S.engine;
  // ?chap=i: carry on into that chapter once the game has loaded (after a pass change)
- {const q=new URLSearchParams(location.search).get('chap');if(q!=null){const i=+q;const iv=setInterval(()=>{const m=document.getElementById('courseMenu');if(!m||!document.documentElement.classList.contains('idReady'))return;clearInterval(iv);setTimeout(()=>{try{window.__storyClear&&__storyClear()}catch(e){}try{m.style.display='none'}catch(e){}window.__pickJump=true;window.__musicMuted=false;try{history.replaceState(null,'',location.pathname+(window.__PASS?'?pass='+__PASS:''))}catch(e){}start(i)},400)},250)}}
+ {const q=new URLSearchParams(location.search).get('chap');if(q!=null){const i=+q;
+   /* (476) a dark cover with the road's name over the main menu while the page reloads onto the next pass (it flashed up between races) */
+   const cov=document.createElement('div');cov.id='chapCover';cov.style.cssText='position:fixed;inset:0;z-index:2147483000;background:#0b0a10;color:#fff;display:flex;align-items:center;justify-content:center;font:400 clamp(28px,4vw,60px) Bangers,Bangers,Impact,sans-serif;letter-spacing:.1em;transition:opacity .5s';cov.textContent=((window.__THEME&&__THEME.name)||(window.__PASS||'AKINA')).toUpperCase();(document.body||document.documentElement).appendChild(cov);
+   const uncover=()=>{cov.style.opacity='0';setTimeout(()=>cov.remove(),600)};setTimeout(uncover,30000);const iv=setInterval(()=>{const m=document.getElementById('courseMenu');if(!m||!document.documentElement.classList.contains('idReady'))return;clearInterval(iv);setTimeout(()=>{try{window.__storyClear&&__storyClear()}catch(e){}try{m.style.display='none'}catch(e){}window.__pickJump=true;window.__musicMuted=false;try{history.replaceState(null,'',location.pathname+(window.__PASS?'?pass='+__PASS:''))}catch(e){}start(i);setTimeout(uncover,700)},400)},250)}}
  return {R,byKey,CH,start,cleared,get state(){return S},showBody,MODELS,tape,get blown(){return blown},save,
   beaten:id=>id===1||!!S.beaten[id],opp:raceOpp};
 })();
@@ -13201,13 +13209,16 @@ const raceSlow=window.raceSlow=(()=>{
  document.head.appendChild(css);
  const el=document.createElement('div');el.id='raceSlow';el.innerHTML='<div class="bars"></div><div class="slo">SLOW · MOTION</div>';document.body.appendChild(el);
  // start (or stretch) a slow-motion beat: hold = real seconds at the slowest point
- function start(hold=2.4,{scale=.36,force=false,bars=true}={}){
+ function start(hold=2.4,{scale=.36,force=false,bars=true,beat=false}={}){
   if(!force&&!live())return false;
+  /* (476) slow motion is rare: never in the first 15 s after GO, and 20 s at least between slow-downs (story beats excepted) */
+  if(!force&&!beat&&!st){const el=typeof elapsed==='number'?elapsed:99;if(el<15)return false;if(performance.now()-lastEnd<20000)return false}
   if(window.__slowOwner&&window.__slowOwner!=='race')return false;   // the prologue fly-by and Ryosuke's pass run their own
   if(window.__prologue)return false;                                   // Ryosuke's warm-up and pass: leave his slow motion exactly as it was
   if(st){st.hold=Math.max(st.hold,st.t+hold);st.scale=Math.min(st.scale,scale);return true}
   st={t:0,hold:Math.max(1,hold),scale,bars};window.__slowOwner='race';el.classList.toggle('on',bars);return true}
- function stop(){if(!st)return;st=null;if(window.__slowOwner==='race'){window.__timeScale=1;window.__slowOwner=null}el.classList.remove('on');safeUntil=performance.now()+1600}
+ let lastEnd=-1e9;
+ function stop(){if(!st)return;st=null;lastEnd=performance.now();if(window.__slowOwner==='race'){window.__timeScale=1;window.__slowOwner=null}el.classList.remove('on');safeUntil=performance.now()+1600}
  let last=performance.now();
  (function loop(now){requestAnimationFrame(loop);const dt=Math.min(.1,(now-last)/1000);last=now;if(!st)return;
   if(window.__gamePaused)return;
@@ -13409,7 +13420,7 @@ body.silentBeat #hud,body.silentBeat #minimap,body.silentBeat #speed,body.silent
  const SUB={hairpin:'IN THE HAIRPIN!!',drift:'WHAT A DRIFT!',far:'PULLING AWAY',recover:'STILL COMING!',lead:'LAST STRETCH!',oops:'TOO HOT!'};
  let said={},lastSay=0,driftT=0,farT=0,hist=[],incident=null,mist=0,clock=0;
  const talkOk=()=>{const ch=chap();return ch&&!ch.as&&!rules().solo&&!window.__prologue&&!window.__storyPrologue&&!window.__engineBlown};
- function say(kind,leads){const opp=__race.opp,L=TALK[opp]&&TALK[opp][kind];if(!L||said[kind])return false;
+ function say(kind,leads){const opp=__race.opp,L=TALK[opp]&&TALK[opp][kind];if(!L||said[kind])return false;if(window.__msgOK&&!window.__msgOK(false))return false;
   if(performance.now()-lastSay<15000||(window.__cutLock&&performance.now()<window.__cutLock))return false;
   said[kind]=true;lastSay=performance.now();try{animeShowLead(opp,leads,L,SUB[kind],2.6)}catch(e){}return true}
  // an overtake in a hairpin gets its own line (the game's pass chatter asks here first)
@@ -15872,14 +15883,14 @@ html body #courseMenu #driftModeChoices #vsBattle strong{position:relative!impor
  function ribbon(mat,w,col){const g=new THREE.BufferGeometry(),P=new Float32Array(MAXP*2*3),C=new Float32Array(MAXP*2*3),I=[];
   for(let i=0;i<MAXP-1;i++){const a=i*2;I.push(a,a+1,a+2,a+1,a+3,a+2)}
   g.setAttribute('position',new THREE.BufferAttribute(P,3));g.setAttribute('color',new THREE.BufferAttribute(C,3));g.setIndex(I);g.setDrawRange(0,0);
-  const m=new THREE.Mesh(g,mat);m.frustumCulled=false;m.renderOrder=6;scene.add(m);return {m,g,P,C,w,col}}
+  const m=new THREE.Mesh(g,mat);m.frustumCulled=false;m.renderOrder=6;m.userData.keep=true;scene.add(m);return {m,g,P,C,w,col}}
  // (445) the car's own tail lamps (the parts set to TAIL / BRAKE in the Car Garage): each side's lamp centre, on its back face
  const auto=new WeakMap();function autoSpot(act){const c=auto.get(act);if(c&&(c.p||clock-c.t<3))return c.p;const r={t:clock,p:null};auto.set(act,r);
   try{act.updateMatrixWorld(true);const inv=new THREE.Matrix4().copy(act.matrixWorld).invert(),B=[new THREE.Box3(),new THREE.Box3()],w=new THREE.Vector3();
    act.traverse(o=>{if(!o.isMesh||!o.geometry||!o.userData||!/^(tail|brake)$/.test(o.userData.role||''))return;for(let q=o;q&&q!==act;q=q.parent)if(!q.visible)return;const P=o.geometry.attributes.position;if(!P)return;const st=Math.max(1,P.count/300|0);
     for(let i=0;i<P.count;i+=st){w.fromBufferAttribute(P,i).applyMatrix4(o.matrixWorld).applyMatrix4(inv);if(Math.abs(w.x)<.05||w.z<0)continue;B[w.x<0?0:1].expandByPoint(w)}});
    if(!B[0].isEmpty()&&!B[1].isEmpty())r.p=B.map(b=>{const c=b.getCenter(new THREE.Vector3());c.z=b.max.z;return c})}catch(e){}return r.p}
- const trails=[];   // per lamp: {pts:[{p,t}], core, glow}
+ const trails=[];window.__trails=trails;window.__trailClock=()=>clock;   // per lamp: {pts:[{p,t}], core, glow}
  for(let k=0;k<4;k++){const T={pts:[],core:ribbon(coreMat,.045,[.95,.18,.12]),glow:ribbon(glowMat,.13,[.34,.035,.04])};trails.push(T);
   /* (450) at draw time the newest point is pinned to where the lamp is now, after this frame's car move: no gap between the lamp and its streak */
   for(const R of [T.core,T.glow])R.m.onBeforeRender=()=>{try{if(T.getP&&T.pts.length){T.pts[T.pts.length-1].p.copy(T.getP());build(T,R,T.life||LIFE)}}catch(e){}}}   /* (445) a faint hint of streaming light, not a solid ribbon: thinner, dimmer, shorter */
@@ -15895,6 +15906,7 @@ html body #courseMenu #driftModeChoices #vsBattle strong{position:relative!impor
   try{const lightsOn=typeof animeCars==='undefined'||animeCars.lightsOn;
    const live=courseChosen&&!storyActive&&(canyonEvent==='race'||canyonEvent==='time')&&lightsOn&&!(window.animeReplay&&animeReplay.active);
    const storm=typeof weatherMode!=='undefined'&&weatherMode===3,life=storm?.4:LIFE;
+   window.__trailDbg={live,lightsOn,cc:courseChosen,sa:storyActive,ev:canyonEvent,sp:speed,n:trails.map(T=>T.pts.length)};
    const actors=[car,(canyonEvent==='race'||!!window.__pracRivalOn)&&rival.visible?rival:null];
    for(let a=0;a<2;a++)for(let s=0;s<2;s++){const T=trails[a*2+s],act=actors[a];
     while(T.pts.length&&clock-T.pts[0].t>life)T.pts.shift();
@@ -15905,6 +15917,7 @@ html body #courseMenu #driftModeChoices #vsBattle strong{position:relative!impor
       if(!p)p=act.localToWorld(v.set(s===0?-.66:.66,.86,2.29)).clone();return p};T.getP=getP;T.life=life;const p=getP();const lp=T.pts[T.pts.length-1];
       if(!lp||lp.p.distanceTo(p)>.18){T.pts.push({p,t:clock});if(T.pts.length>MAXP)T.pts.shift()}else lp.p.copy(p)}else T.getP=null}else T.getP=null;
     if(!live)T.pts.length=0;
+    /* (476) back in the scene if a course change swept it out (the streams had vanished) */for(const R of [T.core,T.glow])if(!R.m.parent&&typeof scene!=='undefined')scene.add(R.m);
     build(T,T.core,life);build(T,T.glow,life)}}catch(e){}})();
 })();
 
@@ -16665,7 +16678,7 @@ window.__mergeStatic=window.__mergeStatic||function(group,ok){group.updateMatrix
  function fansPlace(){const F=window.__fanKit;if(!F||!F.person||typeof tougeWorld==='undefined')return false;
   for(const f of FANS.list)f.p.obj.parent&&f.p.obj.parent.remove(f.p.obj);FANS.list=[];
   const AN=['cheer','cheer','idle','cheer','still','cheer','idle','cheer','cheer','idle'],seed=Math.floor(Math.random()*997);
-  const spots=[[-1,-5.5,6.6],[-1,-2.2,7.6],[-1,1.4,6.8],[-1,4.6,7.9],[-1,8.2,6.9],[1,-4.4,7.2],[1,-.8,6.5],[1,2.8,7.7],[1,6.3,6.8],[1,9.6,7.4]];
+  const spots=[[-1,-5.5,8.3],[-1,-2.2,9.3],[-1,1.4,8.5],[-1,4.6,9.6],[-1,8.2,8.6],[1,-4.4,8.9],[1,-.8,8.2],[1,2.8,9.4],[1,6.3,8.5],[1,9.6,9.1]];
   spots.forEach(([side,along,dist],k)=>{const g=atS(along),j=(Math.random()-.5)*.6,x=g.x+g.lx*side*(dist+j),z=g.z+g.lz*side*(dist+j);
    let y=g.y;try{const AG=window.akinaGround;y=AG&&AG.HM?AG.HM(x,z):(typeof roadElevation==='function'?roadElevation(x,z):g.y)}catch(e){}
    try{const sy=window.__paveY&&__paveY(x,z,y);if(sy!=null&&sy>y)y=sy}catch(e){}   /* (466) standing on the shoulder/apron: on top of it, not in it */
@@ -16689,7 +16702,7 @@ window.__mergeStatic=window.__mergeStatic||function(group,ok){group.updateMatrix
   for(const f of FIN.list)f.p.obj.parent&&f.p.obj.parent.remove(f.p.obj);FIN.list=[];
   const AN=['cheer','cheer','cheer','idle','cheer','cheer','cheer','still','cheer','cheer','cheer','idle','cheer','cheer'],seed=Math.floor(Math.random()*997),F0=stageFinishIndex*mpi(),S=window.__finStopM;
   // around where the car comes to rest: some just ahead of it (in view through the windscreen), some level with it, a few behind
-  const spots=[[-1,S-14,6.8],[-1,S-6,7.6],[-1,S+1,6.6],[-1,S+7,7.4],[-1,S+13,6.9],[-1,S+20,7.8],[-1,S+27,6.7],[1,S-11,7.2],[1,S-3,6.5],[1,S+4,7.6],[1,S+10,6.8],[1,S+16,7.5],[1,S+23,6.6],[1,S+30,7.3]];
+  const spots=[[-1,S-14,8.5],[-1,S-6,9.3],[-1,S+1,8.3],[-1,S+7,9.1],[-1,S+13,8.6],[-1,S+20,9.5],[-1,S+27,8.4],[1,S-11,8.9],[1,S-3,8.2],[1,S+4,9.3],[1,S+10,8.5],[1,S+16,9.2],[1,S+23,8.3],[1,S+30,9.0]];
   spots.forEach(([side,along,dist],k)=>{const g=atS(F0+along),j=(Math.random()-.5)*.6,x=g.x+g.lx*side*(dist+j),z=g.z+g.lz*side*(dist+j);
    let y=g.y;try{const AG=window.akinaGround;y=AG&&AG.HM?AG.HM(x,z):(typeof roadElevation==='function'?roadElevation(x,z):g.y)}catch(e){}
    try{const sy=window.__paveY&&__paveY(x,z,y);if(sy!=null&&sy>y)y=sy}catch(e){}   /* (466) standing on the shoulder/apron: on top of it, not in it */
@@ -18985,7 +18998,10 @@ html body #speed #arcadeTach{position:relative;z-index:1;overflow:visible}
      const mpi=window.M_PER_INDEX||3,L=7+Math.min(v,30)*.55,j=Math.max(0,Math.min(M,i+sg*Math.round(L/mpi))),q=C[j],tj=tangents[j]||t,rest=Math.max(0,L-Math.abs(j-i)*mpi);
      const ax=q.x+tj.x*sg*rest+(-tj.z)*offT,az=q.z+tj.z*sg*rest+tj.x*offT,want=Math.atan2(-(ax-pos.x),-(az-pos.z));
      let d=want-yaw;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;yaw+=d*Math.min(1,dt*3.2);
-     try{sideVel*=Math.exp(-dt*6)}catch(e){}}}
+     try{sideVel*=Math.exp(-dt*6)}catch(e){}
+     /* (476) a car that crosses the line in a drift straightens up: the drift angle eases out and the drift is let go (it was
+        still being held, so the car carried on rotating and spun round) */
+     try{canyonVisualYaw*=Math.exp(-dt*3.5);const S=window.__driftState;if(S){S.latch=false;S.dir=0;S.beta*=Math.exp(-dt*3.5)}if(window.__donut)__donut.on=false}catch(e){}}}
    if(phase==='roll'&&(speed===0&&performance.now()-t0>(window.__FR?9500:1600)||performance.now()-t0>(window.__FR?14000:6500))&&performance.now()-t0>1600){phase='ask';ov.classList.add('ask');window.__coastOn=false;window.__finishMusic=1;try{syncCanyonTrack()}catch(e){}}
   }catch(e){}})()};
  function choose(){if(phase!=='ask')return;try{uiSelectSound()}catch(e){}
@@ -19469,7 +19485,7 @@ const animeFlames=window.animeFlames=(()=>{
  const pend=[];
  function fire(obj,k=1,follow=true){try{if(!obj||typeof scene==='undefined')return;if(window.__photoOn)return;
    /* (471) every flame is heard: yours at full level (even from the cockpit, where your car's body is hidden), the rival's fading with distance */
-   try{let vol=1;if(typeof car==='undefined'||obj!==car){vol=.75;try{const cp=camera.position,p=new THREE.Vector3();obj.getWorldPosition(p);vol=.75*Math.max(0,1-p.distanceTo(cp)/140)}catch(e){}}window.__bangSnd&&__bangSnd(vol*Math.min(1.2,.7+.4*k))}catch(e){}
+   try{let vol=1;if(typeof car==='undefined'||obj!==car){vol=.5;try{const cp=camera.position,p=new THREE.Vector3();obj.getWorldPosition(p);vol=.5*Math.max(0,1-p.distanceTo(cp)/120)}catch(e){}}window.__bangSnd&&__bangSnd(vol*Math.min(1.2,.7+.4*k))}catch(e){}
    if(!obj.visible)return;
   const sp=spec(obj),host=sp?sp.G:obj,size=sp?(+sp.S.size||1):1,tilt=sp?(+sp.S.tilt||0)*Math.PI/180:0;
   const pts=sp?[new THREE.Vector3(+sp.S.x||0,+sp.S.y||.3,+sp.S.z)]:[pipe(obj)];if(!pts[0])return;if(sp&&sp.S.twin)pts.push(new THREE.Vector3(-pts[0].x,pts[0].y,pts[0].z));
@@ -20807,7 +20823,10 @@ const animeCutscene=window.animeCutscene=(()=>{
   if(vid.duration)bar.style.width=(100*t/vid.duration)+'%';if(song)song.volume=songVol()})();
  // ---------------------------------------------------------------- ROLLING START
  let rollT=-1,lastCd=0,waiting=false;
- function rollingStart(R){try{const n=centers.length-1,k=Math.max(5,Math.min(n-40,Math.round(n*(R.at||.45)))),p=centers[k],t=tangents[k],m=window.M_PER_INDEX||5;
+ function rollingStart(R){try{const n=centers.length-1;let k=Math.max(5,Math.min(n-40,Math.round(n*(R.at||.45))));
+   /* (476) start the roll on a straight: look a little way on for the least-curving stretch (a start mid-bend aimed the car at the wall) */
+   {let best=k,bc=1e9;for(let j=k;j<Math.min(n-40,k+Math.round(120/(window.M_PER_INDEX||3)));j+=2){const a=tangents[Math.max(0,j-4)],b=tangents[Math.min(n,j+14)];const c=1-(a.x*b.x+a.z*b.z);if(c<bc-1e-4){bc=c;best=j}if(bc<.002)break}k=best}
+   const p=centers[k],t=tangents[k],m=window.M_PER_INDEX||5;
    const lx=t.z,lz=-t.x;pos.set(p.x+lx*.9,typeof roadElevation==='function'?roadElevation(p.x+lx*.9,p.z+lz*.9):p.y,p.z+lz*.9);yaw=Math.atan2(-t.x,-t.z);
    speed=R.speed||24;sideVel=0;steer=0;try{steerVelocity=0;smoothedGas=.7}catch(e){}
    car.position.copy(pos);car.rotation.set(0,yaw,0);progress=k;try{gearNumber=3;engineRPM=5200}catch(e){}
@@ -20816,7 +20835,16 @@ const animeCutscene=window.animeCutscene=(()=>{
    countdown=0;elapsed=0;rollT=performance.now();
    if(R.count){try{raceSlow.start(5.9,{scale:.3,force:true,bars:true})}catch(e){}rollCount()}   /* (build 407) settle in for a couple of seconds, then the count */
    else if(!R.calm)try{raceSlow.start(2.8,{scale:.28,force:true,bars:true})}catch(e){}
+   rollHold={until:performance.now()+(R.count?6400:3000),v:R.speed||24};
    window.__padRumble&&__padRumble(.35,.5,400)}catch(e){console.warn('rolling start',e)}}
+ /* (476) through the slow-motion roll-in the car keeps rolling at the start speed and follows the road by itself; touch the gas,
+    brake or steering and it's yours straight away */
+ let rollHold=null;
+ (function hold(){requestAnimationFrame(hold);try{if(!rollHold)return;if(performance.now()>rollHold.until||typeof canyonEvent==='undefined'||finished){rollHold=null;return}
+   const D=window.__driftState||{},inp=Math.abs(D.inp||0);if((D.brk||0)>.15||inp>.12){rollHold=null;return}
+   if(Math.abs(speed)<rollHold.v)speed=rollHold.v;
+   const i=nearestInfo(pos.x,pos.z).index,M=centers.length-1,j=Math.min(M,i+6),q=centers[j],t=tangents[i],nx=-t.z,nz=t.x,off=(pos.x-centers[i].x)*nx+(pos.z-centers[i].z)*nz;
+   const ax=q.x-nx*off*.4,az=q.z-nz*off*.4,want=Math.atan2(-(ax-pos.x),-(az-pos.z));let d=want-yaw;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;yaw+=d*.12;try{sideVel*=.9}catch(e){}}catch(e){}})();
  // (build 406) a rolling count: 3 · 2 · 1 · GO over the slow-motion roll, then full speed
  function rollCount(){let d=document.getElementById('rollCount');if(!d){d=document.createElement('div');d.id='rollCount';
    d.style.cssText='position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);z-index:60;pointer-events:none;font:400 clamp(70px,13vw,170px)/1 Bangers,Bangers,Impact,sans-serif;letter-spacing:.06em;color:#fff;-webkit-text-stroke:5px #14101c;paint-order:stroke fill;text-shadow:8px 8px 0 #e8263b;transition:transform .25s,opacity .25s';document.body.appendChild(d)}
@@ -21048,11 +21076,11 @@ const animeCutscene=window.animeCutscene=(()=>{
  for(let q=0;q<MAX;q++){const v=q*4,o=q*6;ix[o]=v;ix[o+1]=v+1;ix[o+2]=v+2;ix[o+3]=v+2;ix[o+4]=v+1;ix[o+5]=v+3}
  const g=new THREE.BufferGeometry(),pa=new THREE.BufferAttribute(P,3),ca=new THREE.BufferAttribute(Cl,4);
  pa.setUsage(THREE.DynamicDrawUsage);ca.setUsage(THREE.DynamicDrawUsage);g.setAttribute('position',pa);g.setAttribute('color',ca);g.setIndex(new THREE.BufferAttribute(ix,1));g.setDrawRange(0,0);
- const mat=new THREE.MeshBasicMaterial({vertexColors:true,transparent:true,depthWrite:false,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-6,fog:true});
+ const mat=new THREE.MeshBasicMaterial({vertexColors:true,transparent:true,depthWrite:false,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-8,fog:true});
  const mesh=new THREE.Mesh(g,mat);mesh.frustumCulled=false;mesh.renderOrder=1;mesh.userData.keep=true;mesh.name='tyreMarks';
  let head=0,used=0,lo=1e9,hi=-1;
  const RUB=[.045,.043,.047];
- const ry=(x,z)=>{try{const r=roadElevation(x,z);if(Number.isFinite(r))return r+.165}catch(e){}return null};
+ const ry=(x,z)=>{try{const r=roadElevation(x,z);if(Number.isFinite(r))return r+.215}catch(e){}return null};
  function strip(a,b,w,al0,al1){const dx=b.x-a.x,dz=b.z-a.z,l=Math.hypot(dx,dz)||1,nx=-dz/l*w,nz=dx/l*w,q=head,v=q*4;
   const S=(k,x,y,z,al)=>{P[k*3]=x;P[k*3+1]=y;P[k*3+2]=z;Cl[k*4]=RUB[0];Cl[k*4+1]=RUB[1];Cl[k*4+2]=RUB[2];Cl[k*4+3]=al};
   S(v,a.x-nx,a.y,a.z-nz,al0);S(v+1,a.x+nx,a.y,a.z+nz,al0);S(v+2,b.x-nx,b.y,b.z-nz,al1);S(v+3,b.x+nx,b.y,b.z+nz,al1);
@@ -21090,7 +21118,7 @@ const animeCutscene=window.animeCutscene=(()=>{
     const spin=gas>.8&&rpm>4300&&v<15&&gear<=1?cl(1.1-v/15):0;            // burnout / wheelspin launch
     const lock=brk>.75&&v>9?cl((brk-.75)*3)*cl(v/25)*.75:0;               // hard braking
     const rear=Math.max(drift,hb,spin,lock),front=Math.max(lock*.9,drift*.35);
-    lay(car,[rear,rear,front,front])}
+    window.__skidDbg={v,sv,gas,brk,hb:!!D.hand,drift,rear,front,off:!!D.off,used};lay(car,[rear,rear,front,front])}else window.__skidDbg={skip:true,off:!!D.off,car:typeof car}
    // the rival: from how far his heading and his actual motion disagree (he slides, he leaves marks), when he's near
    if(typeof rival!=='undefined'&&rival&&rival.visible){const now=performance.now(),p=rival.position;let near=true;try{near=Math.hypot(p.x-camera.position.x,p.z-camera.position.z)<220}catch(e){}
     if(rLast&&near){const dt=(now-rT)/1000,dx=p.x-rLast.x,dz=p.z-rLast.z,sp=Math.hypot(dx,dz)/Math.max(.001,dt);
