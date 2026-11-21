@@ -512,7 +512,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=474',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=475',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -4111,7 +4111,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 474';
+window.__BUILD='BUILD 475';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5640,9 +5640,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795247625'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795248096'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795247625'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795248096'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -5959,7 +5959,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
    const dx=p.x-e[12],dy=p.y-e[13],dz=p.z-e[14];return dx*dx+dz*dz<2.4*2.4&&dy>-.3&&dy<1.7}catch(e){return false}}
   // the cabin is only drawn in the car you're driving, and only from the driver's seat: rivals and the cars around you skip it (it can't be seen through
   // the anime glass); it comes back the moment a car becomes yours
-  for(const c of cars)if(c&&c.model&&c.model.root){const want=(c===player&&(!!window.__inCockpit||!!window.__garSeat||camInside(c)))||!!window.__allCabins;   /* (461) and your own car's cabin only in the cockpit view: hiding is instant, nothing reloads */if(c._cabin!==want){c._cabin=want;if(!c._cabinList){c._cabinList=[];c.model.root.traverse(o=>{if(o.isMesh&&(o.userData.interior||isInterior(o)))c._cabinList.push(o)})}for(const o of c._cabinList){if(o.userData.cabinVis==null)o.userData.cabinVis=o.visible;o.visible=want&&o.userData.cabinVis}}}
+  for(const c of cars)if(c&&c.model&&c.model.root){const want=(c===player&&(!!window.__inCockpit||!!window.__garSeat||camInside(c)))||!!window.__allCabins;   /* (461) and your own car's cabin only in the cockpit view: hiding is instant, nothing reloads */if(c._cabin!==want){c._cabin=want;if(!c._cabinList){c._cabinList=[];c.model.root.traverse(o=>{if(o.isMesh&&(o.userData.interior||isInterior(o)))c._cabinList.push(o)})}for(const o of c._cabinList){if(o.userData.cabinVis==null)o.userData.cabinVis=o.visible;o.visible=want&&o.userData.cabinVis&&!o.userData.hidden&&!(c.spec&&c.spec.roles&&c.spec.roles[o.userData.part||o.userData.mn0]==='hide')}   /* (474) never brings back a part set to HIDE in the garage (the AE86's roll cage) */}}
   const nightNow=night==null?stage!==1:night;
   autoOn=night==null?nightNow:(autoOn?night>.4:night>.55);if(window.__pracDusk&&window.__sunGone&&typeof courseChosen!=='undefined'&&courseChosen)autoOn=true;   // dusk run: lights on as soon as the sun's shadows have gone
   LT.clock+=dt;if(LT.clock-LT.lastT>2.5)LT.lag=Math.max(0,LT.lag-dt*.12);
@@ -6023,8 +6023,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795247625'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795247625'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795248096'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795248096'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6482,7 +6482,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795247625',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795248096',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6496,7 +6496,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795247625',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795248096',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -9615,20 +9615,23 @@ const storyDawn=window.storyDawn=(()=>{
  window.__storyDelivered=()=>{document.getElementById('center').style.display='none';song('opening');
   if(typeof animeTofu!=='undefined'&&animeCareer)animeTofu.scene(animeCareer.homePages(),startRunHome);else startRunHome()};
  // 4: the run home, a race against a rival who isn't there yet
+ /* (474) the run home on the new Akina: from the summit down past the upper hairpins (~3 km), so there's time to drive it alone
+    before the yellow FD turns up */
+ function homeRun(){try{if((window.__PASS||null)==='akinanew')akinaCourse.setRace(2440,1420);else akinaCourse.home()}catch(e){try{akinaCourse.home()}catch(e2){}}}
  function startRunHome(){if(toNewAkina('home'))return;try{localStorage.setItem('initialDriftStoryAt','home')}catch(e){}window.__storyDelivery=false;window.__storyPrologue=true;window.__storyMusic='runhome';
   try{animeCars.setPlayerCar('ae86')}catch(e){}
   configureRivalStage(1);startCanyonEvent('race');window.__tofuWeather='morning';
-  akinaCourse.home();   // Keisuke's FD, on the road back DOWN Akina (top → CP2)
+  homeRun();   // Keisuke's FD, on the road back DOWN Akina (top → CP2)
   restart()}
  // the FD is already out on the road ahead, cruising: you catch it naturally
  //  0 · cruising down the road ahead at an easy pace (always moving, never parked)
  //  1 · it comes into view: "A YELLOW FD?!"
  //  2 · you reach it: slow motion as you fly past it, "Who IS that?!"
  //  3 · back to full speed with Keisuke right on your tail: race him the rest of the way down
- let phase=0,flyT=null;
+ let phase=0,flyT=null,homeT0=0;
  {const o=restart;restart=function(){const r=o.apply(this,arguments);if(window.__storyPrologue&&canyonEvent==='race'){hidden=true;phase=0;revealT=0;song('runhome');window.__tofuWeather='morning';
    clearTimeout(flyT);window.__timeScale=1;fly.classList.remove('on');
-   akinaCourse.home();rivalProgress=Math.round(N*.09);rivalSpeed=14;try{rival.position.copy(rivalPoint(rivalProgress,1.85))}catch(e){}}return r}}
+   homeRun();rivalProgress=Math.round(Math.min(N*.3,420/mpi()));rivalSpeed=14;homeT0=performance.now();try{rival.position.copy(rivalPoint(rivalProgress,1.85))}catch(e){}}return r}}
  const mpi=()=>window.M_PER_INDEX||6;
  let backUntil=0;
  {const o=advanceRivalRace;advanceRivalRace=function(dt,sev){if(!(window.__storyPrologue&&hidden)){const r=o.apply(this,arguments);if(window.__storyPrologue&&performance.now()<backUntil)rivalSpeed=Math.min(rivalSpeed,Math.abs(speed)*.98);return r}   /* for a few seconds after the pass he only keeps pace (no rocket back past you) */
@@ -9642,7 +9645,7 @@ const storyDawn=window.storyDawn=(()=>{
   const want=phase===2?Math.min(tgt,v*.72):Math.max(18,Math.min(tgt,Math.max(24,v*.8)));   /* in the slow-motion pass he's caught napping: you go by him for real */
   rivalSpeed+=(want-rivalSpeed)*Math.min(1,dt*1.5);
   rivalProgress=Math.min(stageFinishIndex-30,rivalProgress+rivalSpeed*dt/mpi());
-  if(phase===0&&gap<160)seen();
+  if(phase===0&&gap<140&&performance.now()-homeT0>20000)seen();   /* (474) a while on your own first (at least 20 s) */
   if(phase<2&&gap<9)flyby()}}
  // no contact while the slow-motion pass plays, nor for a moment after it (no crash flash, no spin)
  let noHitUntil=0;
@@ -12384,8 +12387,10 @@ const animeReplay=window.animeReplay=(()=>{
  const CAMS=['AUTO','TRACKSIDE','HELI','CHASE','SIDE','FRONT'];
  const v1=new THREE.Vector3(),v2=new THREE.Vector3(),q1=new THREE.Quaternion(),q2=new THREE.Quaternion(),fw=new THREE.Vector3(),rt=new THREE.Vector3(),up=new THREE.Vector3(0,1,0);
  // ---------------------------------------------------------------- recording
- function recording(){return typeof canyonEvent!=='undefined'&&(canyonEvent==='race'||canyonEvent==='time')&&courseChosen&&countdown<=.6&&!finished&&!window.__gamePaused&&!active}
- function capture(dt){if(!recording())return;acc+=dt;if(acc<STEP)return;acc=Math.min(acc-STEP,STEP);
+ function recording(){return typeof canyonEvent!=='undefined'&&(canyonEvent==='race'||canyonEvent==='time')&&courseChosen&&countdown<=.6&&(!finished||postFin())&&!window.__gamePaused&&!active}
+ /* (474) recording runs on 1.5 s past your finish, so a photo finish has the other car crossing too */
+ let finAt=0;function postFin(){if(!finAt)finAt=performance.now();return performance.now()-finAt<1500}
+ function capture(dt){if(typeof finished!=='undefined'&&!finished)finAt=0;if(!recording())return;acc+=dt;if(acc<STEP)return;acc=Math.min(acc-STEP,STEP);
   const r=typeof rival!=='undefined'&&rival.visible;
   rec.push({p:car.position.toArray(),q:car.quaternion.toArray(),rv:r,rp:r?rival.position.toArray():null,rq:r?rival.quaternion.toArray():null,v:Math.abs(speed),i:progress,ri:typeof rivalProgress==='number'?rivalProgress:0})}
  {const o=restart;restart=function(){if(!active){rec=[];acc=0}return o.apply(this,arguments)}}
@@ -12466,7 +12471,7 @@ const animeReplay=window.animeReplay=(()=>{
   v1.fromArray(a.p).lerp(v2.fromArray(b.p),k);q1.fromArray(a.q).slerp(q2.fromArray(b.q),k);return {p:v1.clone(),q:q1.clone(),v:a.v+(b.v-a.v)*k,i:a.i}}
  let autoT=0,autoCam=null,heliA=0,camPos=new THREE.Vector3(),camLook=new THREE.Vector3(),camFov=50,first=true;
  function place(dt){
-  const sp=hold?hold*2.5:paused?0:(slow?.25:1)*rate;head=Math.max(0,Math.min(len(),head+sp*dt));if(head>=len()&&!hold)paused=true;
+  const sp=hold?hold*2.5:paused?0:(slow?.25:1)*rate;head=Math.max(0,Math.min(len(),head+sp*dt));if(photoOpt&&head>=photoOpt.t1-.001){const cb=photoOpt.done;photoOpt=null;try{exit()}catch(e){}try{cb&&cb()}catch(e){}return}if(head>=len()&&!hold)paused=true;
   scrub.value=String(Math.round(head/Math.max(.001,len())*1000));timeEl.textContent=fmtT(head)+' / '+fmtT(len());
   const me=sample(head,'me'),rv=sample(head,'rival');
   car.position.copy(me.p);car.quaternion.copy(me.q);
@@ -12489,7 +12494,8 @@ const animeReplay=window.animeReplay=(()=>{
   if(first||snapCam||mode==='TRACKSIDE'){if(first||snapCam){camPos.copy(pos);camLook.copy(look);camFov=fov}else camPos.copy(pos);first=false}
   else camPos.lerp(pos,1-Math.exp(-dt*6));
   camLook.lerp(look,1-Math.exp(-dt*(mode==='TRACKSIDE'?9:7)));camFov+=(fov-camFov)*(1-Math.exp(-dt*4));
-  camera.position.copy(camPos);camera.up.copy(up);camera.lookAt(camLook);camera.fov=camFov;camera.updateProjectionMatrix();camera.updateMatrixWorld()}
+  camera.position.copy(camPos);camera.up.copy(up);camera.lookAt(camLook);camera.fov=camFov;camera.updateProjectionMatrix();camera.updateMatrixWorld();
+   if(photoOpt){camera.position.copy(photoOpt.p);camera.up.set(0,1,0);camera.lookAt(photoOpt.l);camera.fov=photoOpt.fov;camera.updateProjectionMatrix();camera.updateMatrixWorld()}}
  // ---------------------------------------------------------------- hook into the frame
  let lastNow=performance.now();
  {const o=anime.render;anime.render=function(dt){const now=performance.now(),rdt=Math.min(.05,(now-lastNow)/1000);lastNow=now;
@@ -12498,7 +12504,11 @@ const animeReplay=window.animeReplay=(()=>{
    if(active&&snap){snap=false;try{const url=renderer.domElement.toDataURL('image/png'),a=document.createElement('a');a.href=url;a.download='initial-drift-'+Date.now()+'.png';document.body.appendChild(a);a.click();a.remove();
      const f=ui.querySelector('.flashSnap');f.classList.remove('go');void f.offsetWidth;f.classList.add('go')}catch(e){console.warn('photo',e)}}
    return r}}
- return {_pad:n=>{const L=rec.length;for(let i=0;i<n;i++)rec.push(rec[i%L])},enter,exit,get active(){return active},get frames(){return rec.length}};
+ /* (474) PHOTO FINISH: the last moments before the line again, in slow motion, from a fixed camera beside the line; ends on
+    its own and goes back to the finish */
+ let photoOpt=null;
+ function photo(back,o,done){if(active||rec.length<HZ*2)return false;enter();head=Math.max(0,len()-back);slow=true;hideUI=true;try{ui.classList.remove('on')}catch(e){}photoOpt={p:o.p.clone(),l:o.l.clone(),fov:o.fov||30,t1:len(),done};return true}
+ return {photo,get photoOn(){return !!photoOpt},_pad:n=>{const L=rec.length;for(let i=0;i<n;i++)rec.push(rec[i%L])},enter,exit,get active(){return active},get frames(){return rec.length}};
 })();
 
 // ============================================================================
@@ -19903,7 +19913,11 @@ const animeArcade4=window.animeArcade4=(()=>{
   wasFin=finished;wasRD=rivalDone}
  function startPhoto(sub){try{const fi=Math.min(N,stageFinishIndex),fp=tougeCenters[fi],ft=tougeTangents[fi],lx=-ft.z,lz=ft.x;
    photoCam.p.set(fp.x+lx*11,fp.y+1.4,fp.z+lz*11);photoCam.l.set(fp.x,fp.y+.7,fp.z);photoCam.on=true;photoCam.t=0}catch(e){}
-  say('PHOTO FINISH!',sub,2600);try{raceSlow.start(1.6,{scale:.12,force:true,bars:true})}catch(e){}window.__padRumble&&__padRumble(.7,.7,400)}
+  say('PHOTO FINISH!',sub,2600);window.__padRumble&&__padRumble(.7,.7,400);
+  /* (474) both cars over the line, then the crossing again in slow motion from beside the line (the replay drives the camera,
+     so nothing else moves it) */
+  photoCam.on=false;const t0=performance.now();const go=()=>{try{if(!(finished&&rivalDone)&&performance.now()-t0<2500){setTimeout(go,100);return}
+    setTimeout(()=>{try{if(window.animeReplay&&animeReplay.photo){const v=photoCam;animeReplay.photo(1.9,{p:v.p,l:v.l,fov:30},()=>{say('PHOTO FINISH!',sub,2200)})}}catch(e){}},500)}catch(e){}};go()}
  {const o=anime.render;anime.render=function(dt){try{if(photoCam.on){photoCam.t+=Math.min(.05,dt||.016);if(photoCam.t>2.6||(window.animeReplay&&animeReplay.active))photoCam.on=false;else{camera.position.copy(photoCam.p);camera.up.set(0,1,0);camera.lookAt(photoCam.l);camera.fov=30;camera.updateProjectionMatrix();camera.updateMatrixWorld()}}}catch(e){}return o.apply(this,arguments)}}
  {const o=restart;restart=function(){neckDone=false;photo=null;photoCam.on=false;wasFin=false;wasRD=false;ban.classList.remove('on');banT=0;rub=0;return o.apply(this,arguments)}}
  // ---------------------------------------------------------------- every frame
@@ -20992,10 +21006,10 @@ const animeCutscene=window.animeCutscene=(()=>{
  const B={me:null,him:null};let fr468=0;
  const ry=(x,z)=>{let y=null;try{const r=roadElevation(x,z);if(Number.isFinite(r))y=r}catch(e){}let g=null;try{const A=window.akinaGround;if(A&&A.HM)g=A.HM(x,z)}catch(e){}
   if(y==null)return {y:g,on:g!=null};if(g==null)return {y,on:true};return Math.abs(y-g)<.7?{y:Math.max(y,g),on:true}:{y:g,on:Math.abs(y-g)<2.5,off:true}};
- function lay(m,o,k,col){const e=o.matrixWorld.elements,fx=-e[8],fz=-e[10],fl=Math.hypot(fx,fz)||1,Fx=fx/fl,Fz=fz/fl,Rx=-Fz,Rz=Fx,ox=e[12]+Fx*1.9,oz=e[14]+Fz*1.9;
+ function lay(m,o,k,col,blk){const e=o.matrixWorld.elements,fx=-e[8],fz=-e[10],fl=Math.hypot(fx,fz)||1,Fx=fx/fl,Fz=fz/fl,Rx=-Fz,Rz=Fx,ox=e[12]+Fx*1.9,oz=e[14]+Fz*1.9;
   const P=m.geometry.attributes.position.array,Cl=m.geometry.attributes.color.array;
   for(let r=0;r<ROWS;r++){const d=D(r),hw=HW(d);for(let c=0;c<COLS;c++){const u=c/(COLS-1)*2-1,x=ox+Fx*d+Rx*u*hw,z=oz+Fz*d+Rz*u*hw,q=ry(x,z),j=(r*COLS+c)*3;
-    P[j]=x;P[j+1]=(q.y!=null?q.y:e[13])+(q.off?.08:.21);   /* the drawn road sits ~.15 above the road line */P[j+2]=z;const v=q.on?I(d,u)*k*(q.off?.45:1):0;Cl[j]=v*col.r;Cl[j+1]=v*col.g;Cl[j+2]=v*col.b}}
+    P[j]=x;P[j+1]=(q.y!=null?q.y:e[13])+(q.off?.08:.21);   /* the drawn road sits ~.15 above the road line */P[j+2]=z;let v=q.on?I(d,u)*k*(q.off?.45:1):0;if(blk&&v>0){if(d>blk.d-.5)v*=.12;else if(d>38)v*=Math.max(0,1-(d-38)/14)}   /* (474) the rival's light stops at your car (it's in the way) and doesn't reach as far */Cl[j]=v*col.r;Cl[j+1]=v*col.g;Cl[j+2]=v*col.b}}
   m.geometry.attributes.position.needsUpdate=true;m.geometry.attributes.color.needsUpdate=true;m.visible=true}
  const col=new THREE.Color();
  function tick(){try{if(typeof tougeWorld==='undefined'||!tougeWorld.visible){if(B.me)B.me.visible=false;if(B.him)B.him.visible=false;return}
@@ -21007,10 +21021,17 @@ const animeCutscene=window.animeCutscene=(()=>{
    fr468=(fr468+1)|0;let near=true;try{const cp=typeof camera!=='undefined'?camera.position:null;if(cp&&typeof rival!=='undefined')near=Math.hypot(rival.position.x-cp.x,rival.position.z-cp.z)<170}catch(e){}
    if(!near){if(B.him)B.him.visible=false}else if(fr468&1){}else
    {let lit=false,lamp=null;try{if(typeof rival!=='undefined'&&rival.visible&&typeof rivalHeadlightSets!=='undefined')for(const s of rivalHeadlightSets)for(const l of s.lights)if(l.intensity>0){let p=l;let ok=true;for(;p;p=p.parent)if(!p.visible){ok=false;break}if(ok){lit=true;lamp=l}}}catch(e){}
-    if(lit&&lamp){col.copy(lamp.color);const k=Math.min(1.25,lamp.intensity/32)*.11;rival.updateMatrixWorld();lay(B.him,rival,k,col)}else if(B.him)B.him.visible=false}
+    if(lit&&lamp){col.copy(lamp.color);const k=Math.min(1.25,lamp.intensity/32)*.11;rival.updateMatrixWorld();let blk={d:1e9};try{const e=rival.matrixWorld.elements,fx=-e[8],fz=-e[10],fl=Math.hypot(fx,fz)||1,ox=e[12]+fx/fl*1.9,oz=e[14]+fz/fl*1.9,dx=car.position.x-ox,dz=car.position.z-oz,al=(dx*fx+dz*fz)/fl,lat=Math.abs((dx*-fz+dz*fx)/fl);if(al>0&&lat<HW(al)*.8)blk.d=al}catch(e){}lay(B.him,rival,k*.8,col,blk)}else if(B.him)B.him.visible=false}
   }catch(e){}}
  {const o=updatePlayerVehiclePose;updatePlayerVehiclePose=function(dt){const r=o.apply(this,arguments);tick();return r}}
  window.__beams=B;window.__beamTick=tick;
+ /* (474) the rival's spotlights: no brighter than yours, and when you're in front of him they stop at your car (a spotlight
+    shines through everything, so from 60 m back it was lighting the road ahead of you) */
+ try{if(typeof updateRivalHeadlights==='function'){const o=updateRivalHeadlights;updateRivalHeadlights=function(){const r=o.apply(this,arguments);try{
+   const L=typeof canyonHeadlights!=='undefined'?canyonHeadlights:null,mine=L&&L[0]?L[0].intensity:32;
+   for(const set of rivalHeadlightSets)for(const l of set.lights){if(!(l.intensity>0))continue;l.intensity=Math.min(l.intensity,Math.max(20,mine*1.05));
+    try{const p=new THREE.Vector3(),t=new THREE.Vector3();l.getWorldPosition(p);l.target.getWorldPosition(t);const fx=t.x-p.x,fz=t.z-p.z,fl=Math.hypot(fx,fz)||1,dx=car.position.x-p.x,dz=car.position.z-p.z,al=(dx*fx+dz*fz)/fl,lat=Math.abs((dx*-fz+dz*fx)/fl);
+     if(al>0&&lat<al*.55+2)l.distance=Math.max(6,Math.min(l.distance,al+1.5))}catch(e){}}}catch(e){}return r}}}catch(e){}
 })();
 
 // ============================================================================================================
