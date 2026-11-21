@@ -512,7 +512,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=482',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=483',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -4111,7 +4111,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 482';
+window.__BUILD='BUILD 483';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5640,9 +5640,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795302228'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795305144'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795302228'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795305144'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -6023,8 +6023,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795302228'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795302228'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795305144'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795305144'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6482,7 +6482,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795302228',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795305144',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6496,7 +6496,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795302228',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795305144',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -20756,7 +20756,23 @@ const animeAssists=window.animeAssists=(()=>{
   [O,'hudRival','RIVAL CARD',[true,false],'The rival portrait.']];
  const SEL=ROWS.map((r,i)=>Array.isArray(r)?i:-1).filter(i=>i>=0);
  let row=0;const lab=(r,v)=>r[0]===D?(v==='custom'?'CUSTOM <small style="font-size:.55em;opacity:.8">('+S.story.toUpperCase()+' RIVALS)</small>':v.toUpperCase()):r[3]===VOL?`<span class="bar"><i style="width:${v*10}%"></i></span>${v*10}%`:r[1]==='hudSize'?v+'%':v===true?'ON':v===false?'OFF':String(v).toUpperCase();
- function render(){P.innerHTML=`<div class="box"><h3>GAME OPTIONS</h3>${ROWS.map((r,i)=>Array.isArray(r)?`<div class="row${SEL[row]===i?' sel':''}" data-i="${i}"><div class="k">${r[2]}<small>${r[4]}</small></div><div class="v">◀ ${lab(r,r[0][r[1]])} ▶</div></div>`:`<h4>${r.h}</h4>`).join('')}<div class="hint">↑ ↓ CHOOSE · ← → CHANGE · ESC / B BACK</div></div>`;
+ function render(){if(window.__optOld){renderOld();return}
+  /* (483) GAME OPTIONS in the title screen's style: three diagonal thirds. The sections on the left, the chosen
+     section's settings in the middle (slanted bars, title tabs, arrows at the ends), the chosen setting explained on the right */
+  const cur=SEL[row];let sec=-1;const SECS=[],secOf=[];ROWS.forEach((r,i)=>{if(!Array.isArray(r)){SECS.push({h:r.h,first:-1,n:0});sec++}else{secOf[i]=sec;const S_=SECS[sec];if(S_.first<0)S_.first=i;S_.n++}});
+  const cs=secOf[cur],R=ROWS[cur],PIC={DIFFICULTY:'Bunta-smirk.webp',ASSISTS:'Iketani-advice.webp',DRIVING:'bunta-training.webp',SOUND:'Itsuki-cheer.webp',DISPLAY:'ae86-garage-still.webp',HUD:'ryosuke-notes.webp'};
+  const rows=ROWS.map((r,i)=>Array.isArray(r)&&secOf[i]===cs?`<div class="row${cur===i?' sel':''}" data-i="${i}"><span class="k">${r[2]}</span><span class="arw">◀</span><span class="v">${lab(r,r[0][r[1]])}</span><span class="arw">▶</span></div>`:'').join('');
+  P.innerHTML=`<div class="o3"><div class="bg"></div><div class="lp"></div>
+   <div class="ttl"><small>OPTIONS · オプション</small>GAME OPTIONS</div>
+   <div class="secs">${SECS.map((S_,si)=>`<div class="sec${si===cs?' sel':''}" data-s="${S_.first}"><b>${S_.h}</b><small>${S_.n} SETTING${S_.n>1?'S':''}</small></div>`).join('')}</div>
+   <div class="back3">✕ BACK</div>
+   <div class="rows">${rows}</div>
+   <div class="info"><div class="in"><img src="assets/images/${PIC[SECS[cs].h]||'Takumi.webp'}" alt="" onerror="this.style.display='none'"><div class="sh"></div></div><div class="tx"><b>${R[2]}</b><p>${R[4]}</p></div></div>
+   <div class="hint">↑ ↓ CHOOSE · ← → CHANGE · ESC / B BACK</div></div>`;
+  P.querySelectorAll('.row').forEach(el=>el.onclick=e=>{row=SEL.indexOf(+el.dataset.i);const r=el.getBoundingClientRect();change(e.clientX<r.left+r.width/2?-1:1)});
+  P.querySelectorAll('.sec').forEach(el=>el.onclick=e=>{e.stopPropagation();row=Math.max(0,SEL.indexOf(+el.dataset.s));try{uiSelectSound()}catch(_){}render()});
+  {const b=P.querySelector('.back3');if(b)b.onclick=e=>{e.stopPropagation();close()}}}
+ function renderOld(){P.innerHTML=`<div class="box"><h3>GAME OPTIONS</h3>${ROWS.map((r,i)=>Array.isArray(r)?`<div class="row${SEL[row]===i?' sel':''}" data-i="${i}"><div class="k">${r[2]}<small>${r[4]}</small></div><div class="v">◀ ${lab(r,r[0][r[1]])} ▶</div></div>`:`<h4>${r.h}</h4>`).join('')}<div class="hint">↑ ↓ CHOOSE · ← → CHANGE · ESC / B BACK</div></div>`;
   P.querySelectorAll('.row').forEach(el=>el.onclick=e=>{row=SEL.indexOf(+el.dataset.i);const r=el.getBoundingClientRect();change(e.clientX<r.left+r.width/2?-1:1)});
   const se=P.querySelector('.row.sel');if(se&&se.scrollIntoView)try{se.scrollIntoView({block:'nearest'})}catch(e){}}
  function change(s){const r=ROWS[SEL[row]],L=r[3],o=r[0],cur=o===D&&o.mode==='custom'?S.story:o[r[1]],i=Math.max(0,L.indexOf(cur));
@@ -20795,6 +20811,53 @@ const animeAssists=window.animeAssists=(()=>{
  (function tick(){requestAnimationFrame(tick);try{updateLine()}catch(e){}})();
  return {S,_line:()=>{buildLine();return line},_data:()=>{buildLine();return {P:lineP,V:vT?Array.from(vT):null}}};
 })();
+
+// (483) GAME OPTIONS · the three-thirds layout (see render)
+(()=>{const K=.28,S='#assistsP .o3',L1=y=>`calc(33.333vw + ${(50-y)*K}vh)`,L2=y=>`calc(66.667vw + ${(50-y)*K}vh)`,G='1.1vw',RT=15,RH=7.2,RS=9.4,ST=24,SH=7.4,SS=9.6;
+ const st=document.createElement('style');st.textContent=`
+#assistsP{background:#100e14!important;overflow:hidden!important}
+${S}{position:fixed;inset:0;color:#fff;font-family:'Barlow Condensed',sans-serif}
+${S} .bg{position:absolute;inset:0;background:repeating-linear-gradient(105deg,transparent 0 140px,rgba(255,255,255,.025) 140px 176px),radial-gradient(ellipse at 50% 110%,#3a161b 0%,#1a1520 50%,#0f0d13 100%)}
+${S} .lp{position:absolute;inset:0;background:#ee1c25;clip-path:polygon(0 0,${L1(0)} 0,${L1(100)} 100%,0 100%)}
+${S} .lp:after{content:'';position:absolute;inset:0;clip-path:polygon(0 0,calc(${L1(0)} - 6px) 0,calc(${L1(100)} - 6px) 100%,0 100%);background:radial-gradient(circle,rgba(255,255,255,.05) 1.2px,transparent 1.6px) 0 0/8px 8px,radial-gradient(ellipse at 30% 40%,#232030 0%,#15121c 70%)}
+${S} .ttl{position:absolute;left:3vw;top:6vh;font:400 clamp(28px,3.2vw,56px)/1 'MangaMaster BB',Bangers,Bangers,Impact,sans-serif;letter-spacing:.02em;-webkit-text-stroke:2px #14101c;paint-order:stroke fill;text-shadow:4px 4px 0 #ee1c25}
+${S} .ttl small{display:block;font:italic 700 clamp(10px,.9vw,15px) 'Barlow Condensed',sans-serif;letter-spacing:.34em;color:#cfc9d9;-webkit-text-stroke:0;text-shadow:none;margin-bottom:.8vh}
+${S} .secs{position:absolute;left:0;top:${ST}vh;width:100vw;pointer-events:none}
+${S} .sec{position:relative;height:${SH}vh;margin-bottom:${SS-SH}vh;width:21vw;cursor:pointer;pointer-events:auto;display:flex;flex-direction:column;justify-content:center;padding-left:calc(${SH*K}vh + 1.2vw);box-sizing:border-box}
+${[...Array(8)].map((_,n)=>`${S} .sec:nth-child(${n+1}){margin-left:calc(${L1(ST+n*SS+SH/2)} - ${G} - 21vw)}`).join('\n')}
+${S} .sec:before{content:'';position:absolute;inset:0;z-index:-1;background:rgba(20,16,28,.78);clip-path:polygon(${SH*K}vh 0,100% 0,calc(100% - ${SH*K}vh) 100%,0 100%)}
+${S} .sec{isolation:isolate}
+${S} .sec.sel:before{background:#ee1c25}
+${S} .sec b{font:400 clamp(18px,1.9vw,32px)/1 'MangaMaster BB',Bangers,Bangers,Impact,sans-serif;letter-spacing:.03em;-webkit-text-stroke:1px #14101c;paint-order:stroke fill;text-shadow:2px 2px 0 #14101c}
+${S} .sec small{font:italic 700 clamp(9px,.68vw,11px) 'Barlow Condensed',sans-serif;letter-spacing:.24em;color:#bdb6c9;margin-top:.4vh}
+${S} .sec.sel small{color:#fff}
+${S} .back3{position:absolute;left:calc(${L1(3)} + 1.6vw);top:2.2vh;cursor:pointer;font:italic 700 clamp(14px,1.2vw,20px) 'Barlow Condensed',sans-serif;letter-spacing:.18em;color:#e6e1ee;padding-left:.6vw;border-left:3px solid transparent}
+${S} .back3:hover{color:#fff;border-left-color:#ee1c25}
+${S} .rows{position:absolute;left:0;top:${RT}vh;width:100vw;pointer-events:none}
+${S} .row{border:0!important;background:none!important;padding:0!important;gap:0!important;grid-template-columns:none!important;position:relative;height:${RH}vh;margin-bottom:${RS-RH}vh;width:calc(33.333vw - 2*${G});display:flex;align-items:center;cursor:pointer;pointer-events:auto;isolation:isolate}
+${[...Array(9)].map((_,n)=>`${S} .row:nth-child(${n+1}){margin-left:calc(${L1(RT+n*RS+RH/2)} + ${G})}`).join('\n')}
+${S} .row:before{content:'';position:absolute;inset:0;z-index:-1;background:rgba(20,16,28,.78);clip-path:polygon(${RH*K}vh 0,100% 0,calc(100% - ${RH*K}vh) 100%,0 100%)}
+${S} .row.sel:before{background:#ee1c25}
+${S} .row .k{position:absolute;left:calc(${RH*K}vh + .2vw);top:-1.35vh;padding:.25vh .8vw .3vh;background:#14101c;color:#cfc9d9;white-space:nowrap;font:italic 700 clamp(9px,.72vw,12px) 'Barlow Condensed',sans-serif;letter-spacing:.24em;clip-path:polygon(.5vh 0,100% 0,calc(100% - .5vh) 100%,0 100%)}
+${S} .row.sel .k{background:#fff;color:#ee1c25}
+${S} .row .arw{width:2vw;flex:none;text-align:center;font:400 clamp(12px,1.1vw,18px) Comic Neue,Arial,sans-serif;color:rgba(255,255,255,.4)}
+${S} .row .arw:nth-child(2){margin-left:calc(${RH*K/2}vh + .9vw)}
+${S} .row .arw:last-child{margin-right:calc(${RH*K/2}vh + .9vw)}
+${S} .row.sel .arw{color:#fff}
+${S} .row .v{flex:1;min-width:0;text-align:center;white-space:nowrap;font:400 clamp(16px,1.6vw,26px)/1 'MangaMaster BB',Bangers,Bangers,Impact,sans-serif;letter-spacing:.04em;-webkit-text-stroke:1px #14101c;paint-order:stroke fill;text-shadow:2px 2px 0 #14101c}
+${S} .row .v small{font-family:'Barlow Condensed',sans-serif!important;-webkit-text-stroke:0}
+${S} .row .v .bar{display:inline-block;width:clamp(80px,9vw,150px);height:.5em;border:2px solid #fff;vertical-align:middle;margin:0 .35em;position:relative}
+${S} .row .v .bar i{position:absolute;inset:0 auto 0 0;background:#fff}
+${S} .info{position:absolute;left:calc(${L2(96)} + ${G});right:calc(1.4vw - ${89*K}vh);top:7vh;bottom:4vh;background:#fff;clip-path:polygon(${89*K}vh 0,100% 0,calc(100% - ${89*K}vh) 100%,0 100%);filter:drop-shadow(7px 7px 0 #ee1c25)}
+${S} .info .in{position:absolute;inset:5px;clip-path:polygon(${89*K}vh 0,100% 0,calc(100% - ${89*K}vh) 100%,0 100%);background:#14101c;overflow:hidden}
+${S} .info img{position:absolute;left:0;top:0;width:100%;height:56%;object-fit:cover;object-position:50% 28%;filter:contrast(1.05)}
+${S} .info .sh{position:absolute;left:0;right:0;top:30%;height:27%;background:linear-gradient(180deg,transparent,#14101c)}
+${S} .info .tx{position:absolute;left:calc(${89*K*.4}vh + 1.6vw);right:calc(${89*K}vh + 1.2vw);top:54%}
+${S} .info b{display:block;font:400 clamp(20px,2.1vw,36px)/1.05 'MangaMaster BB',Bangers,Bangers,Impact,sans-serif;letter-spacing:.03em;-webkit-text-stroke:1px #14101c;paint-order:stroke fill;text-shadow:3px 3px 0 #ee1c25}
+${S} .info p{margin:1.4vh 0 0;font:500 clamp(13px,1.05vw,17px)/1.45 'Barlow Condensed',Comic Neue,Arial,sans-serif;letter-spacing:.03em;color:#e6e1ee}
+${S} .hint{position:absolute;left:calc(${L1(97)} + 1.6vw);bottom:2.2vh;font:italic 700 clamp(10px,.82vw,13px) 'Barlow Condensed',sans-serif;letter-spacing:.22em;color:rgba(236,232,244,.6)}
+@media(max-width:760px){${S} .lp,${S} .secs,${S} .info{display:none}${S} .rows{top:12vh}${S} .row{margin-left:4vw!important;width:92vw}}`;
+ document.head.appendChild(st)})();
 
 // ============================================================================================
 // BUILD 385 · HUD options · remembered camera · manual-gear shift light · race ranks · chapter select · photo mode
