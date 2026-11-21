@@ -512,7 +512,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=465',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=466',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -4111,7 +4111,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 465';
+window.__BUILD='BUILD 466';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5640,9 +5640,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795218538'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795222181'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795218538'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795222181'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -6023,8 +6023,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795218538'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795218538'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795222181'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795222181'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6482,7 +6482,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795218538',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795222181',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6496,7 +6496,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795218538',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795222181',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -8162,10 +8162,19 @@ const animeCrowd=window.animeCrowd=(()=>{
  function walk(base,metres){let i=Math.max(0,Math.min(N-1,base|0)),m=metres;
   if(m>=0){while(m>0&&i<N-1&&tougeCenters[i+1]){const d=tougeCenters[i].distanceTo(tougeCenters[i+1]);if(m<d)return {i,t:m/d,extra:0};m-=d;i++}return {i:N-1,t:1,extra:m}}
   while(m<0&&i>0&&tougeCenters[i]){const d=tougeCenters[i].distanceTo(tougeCenters[i-1]);if(-m<d)return {i:i-1,t:1+m/d,extra:0};m+=d;i--}return {i:0,t:0,extra:m}}
+ // (466) the paved surfaces (road, shoulder, start/finish aprons) sit above the ground mesh: anyone standing on them is put
+ // on top, found by looking straight down at those meshes
+ let PAVE=null;const rcP=new THREE.Raycaster(),dn=new THREE.Vector3(0,-1,0),up3=new THREE.Vector3(0,1,0),o3=new THREE.Vector3();
+ function paveY(x,z,y){try{if(!PAVE||!PAVE.length){PAVE=[];tougeWorld.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||o.isSkinnedMesh)return;const m=o.material;if(!m||Array.isArray(m))return;const c=m.color&&m.color.getHex();
+     if(o.name==='frRoadExt'||c===0x77746a||(typeof asphalt!=='undefined'&&m===asphalt))PAVE.push(o)})}
+   // both ways: a face is only hit from its front side, and these strips may face up or down
+   rcP.set(o3.set(x,y+4,z),dn);rcP.far=8;let h=rcP.intersectObjects(PAVE,false)[0];if(!h){rcP.set(o3.set(x,y-3,z),up3);rcP.far=7;h=rcP.intersectObjects(PAVE,false)[0]}return h?h.point.y:null}catch(e){return null}}
  function place(f){const base=f.kind==='finish'?finishIdx():f.kind==='start'?0:f.at;const w=walk(base,f.along),i=w.i,T=tougeTangents[i];
   v.copy(tougeCenters[i]).lerp(tougeCenters[Math.min(N,i+1)],w.t).addScaledVector(T,w.extra);sd.set(-T.z,0,T.x).normalize();
   const fd=f.dist+(window.__wideAt?__wideAt(i):0);{const px=v.x+sd.x*f.sign*fd,pz=v.z+sd.z*f.sign*fd;let py=roadsideGroundY(i,f.sign,fd)+(v.y-tougeCenters[i].y)*(w.extra?1:0)-.03;
-   try{const AG=window.__FR&&window.akinaGround;if(AG&&AG.HM){const g=AG.HM(px,pz);if(Number.isFinite(g))py=g-.03}}catch(e){}   /* (461) feet on the ground that's actually drawn there */
+   try{const AG=window.__FR&&window.akinaGround;if(AG&&AG.HM){const g=AG.HM(px,pz);if(Number.isFinite(g))py=g-.03;
+    /* (466) standing on the road or its shoulder (start/finish crowds): on top of the drawn asphalt, which sits above the ground */
+    const sy=paveY(px,pz,py);if(sy!=null&&sy>py)py=sy}}catch(e){}   /* (461) feet on the ground that's actually drawn there */
    f.obj.position.set(px,py,pz)}
   f.baseY=f.obj.position.y;f.obj.rotation.y=Math.atan2(f.sign*sd.x,f.sign*sd.z)+f.yaw}
  function placeAll(){for(const f of fans)place(f)}
@@ -8205,17 +8214,20 @@ const animeCrowd=window.animeCrowd=(()=>{
    build();hideOld();ready=true;
    // people hanging around the car park by the lake: little groups chatting by the cars, a couple
    // wandering towards the water. They stay out whatever the event (it's a busy summit).
-   const lotRoot=new THREE.Group();tougeWorld.add(lotRoot);const lotFans=[];
+   const lotRoot=new THREE.Group();lotRoot.name='crowdLot';tougeWorld.add(lotRoot);const lotFans=[];
    const tryLot=()=>{const P=window.__carPark;if(!P)return setTimeout(tryLot,500);
     const groups=[[-.32,.0,3],[.05,.02,4],[.36,-.05,3],[-.1,.48,2],[.22,.5,2]];let g=0;
     for(const [u,v,n] of groups){g++;for(let k=0;k<n;k++){const a=k/n*6.283+rnd(),r=.9+rnd()*.5;
       const lx=u*P.W+Math.cos(a)*r,lz=v*P.D+Math.sin(a)*r,x=P.x+P.fw.x*lx+P.sd.x*lz,z=P.z+P.fw.z*lx+P.sd.z*lz;
       const M=models[(g*3+k)%models.length];const o=SkeletonUtils.clone(M.scene);o.scale.setScalar(M.k*(.97+rnd()*.06));
-      o.traverse(q=>{if(q.isMesh){q.material=M.mat;q.castShadow=false}});o.position.set(x,P.y,z);
+      o.traverse(q=>{if(q.isMesh){q.material=M.mat;q.castShadow=false}});let fy=P.y;try{const AG=window.__FR&&window.akinaGround;if(AG&&AG.HM){fy=AG.HM(x,z);const sy=paveY(x,z,fy);if(sy!=null&&sy>fy)fy=sy}}catch(e){}o.position.set(x,fy,z);   /* (466) on whatever is drawn under their feet */
       // face the middle of their group, like they're talking
       const gx=P.x+P.fw.x*u*P.W+P.sd.x*v*P.D,gz=P.z+P.fw.z*u*P.W+P.sd.z*v*P.D;o.rotation.y=Math.atan2(gx-x,gz-z)+Math.PI;
-      lotRoot.add(o);lotFans.push({obj:o,rig:makeFanRig(THREE,o),style:[0,0,1,3,0,2][(g+k)%6],speed:.8+rnd()*.4,phase:rnd()*10,baseY:P.y})}}};
+      lotRoot.add(o);lotFans.push({obj:o,rig:makeFanRig(THREE,o),style:[0,0,1,3,0,2][(g+k)%6],speed:.8+rnd()*.4,phase:rnd()*10,baseY:fy})}}};
    tryLot();
+   // (466) the road and its aprons may be built after the people are first placed: seat everyone again once they exist
+   const reseatLot=()=>{try{PAVE=null;for(const f of lotFans){const o=f.obj,x=o.position.x,z=o.position.z;const AG=window.__FR&&window.akinaGround;if(!AG||!AG.HM)continue;let fy=AG.HM(x,z);const sy=paveY(x,z,fy);if(sy!=null&&sy>fy)fy=sy;f.baseY=fy;o.position.y=fy}}catch(e){}};
+   for(const t of [2500,6000,12000,25000])setTimeout(()=>{reseatLot();try{PAVE=null;placeAll()}catch(e){}},t);
    {const o=animateCanyonSpectators;animateCanyonSpectators=function(t){o(t);try{const cam=typeof camera!=='undefined'?camera:null;
      for(const f of lotFans){const d=cam?cam.position.distanceToSquared(f.obj.position):0;f.obj.visible=d<260*260;if(!f.obj.visible)continue;
       f.rig.pose(f.style,t*f.speed+f.phase,0,0)}}catch(e){}}}
@@ -8245,7 +8257,7 @@ const animeCrowd=window.animeCrowd=(()=>{
     files:()=>models.map(m=>m.file),
     fisher:i=>window.__fanKit.person(null,'fish',i)};
    const credit=document.getElementById('modelCredit');if(credit)credit.innerHTML+='<br>Spectators: anime character models by samiibrahem614 · CC BY 4.0';
-   window.__crowd={n:fans.length,models:models.length,start:fans.filter(f=>f.kind==='start').length,finish:fans.filter(f=>f.kind==='finish').length,course:fans.filter(f=>f.kind==='course').length,
+   window.__paveDbg=()=>({n:PAVE?PAVE.length:-1});window.__paveY=(x,z,y)=>{PAVE=null;return paveY(x,z,y)};window.__crowd={n:fans.length,models:models.length,start:fans.filter(f=>f.kind==='start').length,finish:fans.filter(f=>f.kind==='finish').length,course:fans.filter(f=>f.kind==='course').length,
     groups:[...new Set(fans.filter(f=>f.kind==='course').map(f=>f.group))].length,adjacentSame:fans.filter(f=>fans.some(g=>g!==f&&g.group===f.group&&g.m===f.m&&Math.abs(g.along-f.along)<4.2)).length}})
   .catch(e=>console.warn('crowd',e));
  // keep them on the ground when the stage changes the hills, and follow the finish line
@@ -16611,6 +16623,7 @@ window.__mergeStatic=window.__mergeStatic||function(group,ok){group.updateMatrix
   const spots=[[-1,-5.5,6.6],[-1,-2.2,7.6],[-1,1.4,6.8],[-1,4.6,7.9],[-1,8.2,6.9],[1,-4.4,7.2],[1,-.8,6.5],[1,2.8,7.7],[1,6.3,6.8],[1,9.6,7.4]];
   spots.forEach(([side,along,dist],k)=>{const g=atS(along),j=(Math.random()-.5)*.6,x=g.x+g.lx*side*(dist+j),z=g.z+g.lz*side*(dist+j);
    let y=g.y;try{const AG=window.akinaGround;y=AG&&AG.HM?AG.HM(x,z):(typeof roadElevation==='function'?roadElevation(x,z):g.y)}catch(e){}
+   try{const sy=window.__paveY&&__paveY(x,z,y);if(sy!=null&&sy>y)y=sy}catch(e){}   /* (466) standing on the shoulder/apron: on top of it, not in it */
    if(!(y>g.y-2.2&&y<g.y+2.6))return;   // a drop or a bank there: nobody stands on it
    const p=F.person(null,AN[k%AN.length],seed+k*7);p.obj.traverse(o=>{if(o.isMesh)o.castShadow=true});p.obj.position.set(x,y,z);
    const fx=-g.lx*side,fz=-g.lz*side;p.obj.rotation.y=Math.atan2(-fx,-fz)+(Math.random()-.5)*.5;   // facing the road (the models face -z)
@@ -16634,6 +16647,7 @@ window.__mergeStatic=window.__mergeStatic||function(group,ok){group.updateMatrix
   const spots=[[-1,S-14,6.8],[-1,S-6,7.6],[-1,S+1,6.6],[-1,S+7,7.4],[-1,S+13,6.9],[-1,S+20,7.8],[-1,S+27,6.7],[1,S-11,7.2],[1,S-3,6.5],[1,S+4,7.6],[1,S+10,6.8],[1,S+16,7.5],[1,S+23,6.6],[1,S+30,7.3]];
   spots.forEach(([side,along,dist],k)=>{const g=atS(F0+along),j=(Math.random()-.5)*.6,x=g.x+g.lx*side*(dist+j),z=g.z+g.lz*side*(dist+j);
    let y=g.y;try{const AG=window.akinaGround;y=AG&&AG.HM?AG.HM(x,z):(typeof roadElevation==='function'?roadElevation(x,z):g.y)}catch(e){}
+   try{const sy=window.__paveY&&__paveY(x,z,y);if(sy!=null&&sy>y)y=sy}catch(e){}   /* (466) standing on the shoulder/apron: on top of it, not in it */
    if(!(y>g.y-2.2&&y<g.y+2.6))return;
    const p=F.person(null,AN[k%AN.length],seed+k*11);p.obj.traverse(o=>{if(o.isMesh)o.castShadow=true});p.obj.position.set(x,y,z);
    const fx=-g.lx*side,fz=-g.lz*side;p.obj.rotation.y=Math.atan2(-fx,-fz)+(Math.random()-.5)*.5;
