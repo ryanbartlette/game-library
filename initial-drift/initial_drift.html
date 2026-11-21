@@ -512,7 +512,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=478',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=479',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -4111,7 +4111,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 478';
+window.__BUILD='BUILD 479';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5640,9 +5640,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795287588'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795294145'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795287588'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795294145'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -6023,8 +6023,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795287588'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795287588'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795294145'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795294145'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6482,7 +6482,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795287588',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795294145',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6496,7 +6496,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795287588',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795294145',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -17546,6 +17546,106 @@ html body #courseMenu #driftModeChoices button .mSub{font-size:clamp(10px,.85vw,
 (()=>{const hide=()=>{try{for(const id of ['driftTimeTrial','vsBattle']){const b=document.getElementById(id);if(!b)continue;b.style.setProperty('display','none','important');
   if(typeof modeButtons!=='undefined'){const i=modeButtons.indexOf(b);if(i>=0){modeButtons.splice(i,1);if(typeof selectedArcadeMode!=='undefined'&&selectedArcadeMode>=modeButtons.length)selectedArcadeMode=0;try{highlightArcadeMode()}catch(e){}}}}}catch(e){}};
  hide();setTimeout(hide,500);setTimeout(hide,2000)})();
+
+// ============================================================================================================
+// (479) HASHIRIKOMI SET-UP · in the title screen's style: the course in a big slanted panel on the left (same red divider,
+// same 15.5 degree slant), the settings as light slanted bars that step along that slant, the rival (face + car) in a strip
+// top-right and the driver in the big panel below it. Restyle only: the same rows, keys and clicks as before.
+// ============================================================================================================
+(()=>{try{const root=document.getElementById('pracSel');if(!root)return;root.classList.add('lay3');
+ const K=.28,S=`html body #pracSel.lay3`;
+ const st=document.createElement('style');st.textContent=`
+${S}{background:#100e14!important}
+${S} .bg{position:absolute!important;inset:0!important;transform:none!important;width:auto!important;height:auto!important;animation:none!important;background:repeating-linear-gradient(105deg,transparent 0 140px,rgba(255,255,255,.025) 140px 176px),radial-gradient(ellipse at 30% 110%,#3a161b 0%,#1a1520 50%,#0f0d13 100%)!important}
+${S} h2{position:absolute!important;left:auto!important;right:2vw!important;top:2.2vh!important;width:auto!important;margin:0!important;padding:0!important;transform:none!important;background:none!important;font:400 clamp(18px,1.7vw,28px)/1 'MangaMaster BB',Bangers,Bangers,Impact,sans-serif!important;letter-spacing:.04em!important;color:#fff!important;-webkit-text-stroke:1px #14101c!important;text-shadow:3px 3px 0 #ee1c25!important;text-align:right!important}
+${S} h2 small{display:inline!important;font:700 clamp(11px,.9vw,15px) Dela Gothic One,'Noto Sans JP',sans-serif!important;letter-spacing:.2em!important;color:#fff!important;margin-left:.6em!important}
+${S} .back3{position:absolute;left:47vw;top:2.2vh;z-index:5;cursor:pointer;font:italic 700 clamp(14px,1.2vw,20px) 'Barlow Condensed',Bangers,sans-serif;letter-spacing:.18em;color:#e6e1ee;padding-left:.6vw;border-left:3px solid transparent}
+${S} .back3:hover{color:#fff;border-left-color:#ee1c25}
+/* the course panel */
+${S} .cmap{position:absolute!important;left:-2vw!important;top:0!important;right:auto!important;bottom:auto!important;width:47vw!important;height:100vh!important;margin:0!important;padding:0!important;transform:none!important;border:0!important;box-shadow:none!important;background:#ee1c25!important;clip-path:polygon(0 0,100% 0,calc(100% - ${100*K}vh) 100%,0 100%)!important;z-index:1}
+${S} .cmap:before{content:''!important;display:block!important;position:absolute!important;inset:0 6px 0 0!important;clip-path:polygon(0 0,100% 0,calc(100% - ${100*K}vh) 100%,0 100%)!important;background:radial-gradient(circle,rgba(255,255,255,.05) 1.2px,transparent 1.6px) 0 0/8px 8px,radial-gradient(ellipse at 40% 45%,#232030 0%,#15121c 70%)!important;border:0!important;transform:none!important}
+${S} .cmap i{position:absolute!important;left:6.6vw!important;top:5.6vh!important;z-index:2;font:italic 700 clamp(11px,.95vw,15px) 'Barlow Condensed',sans-serif!important;letter-spacing:.36em!important;color:#cfc9d9!important;text-shadow:none!important}
+${S} .cmap .cname{position:absolute!important;left:6.4vw!important;top:8.6vh!important;width:32vw!important;z-index:2;text-align:left!important;font:400 clamp(30px,3.5vw,60px)/.98 'MangaMaster BB',Bangers,Bangers,Impact,sans-serif!important;letter-spacing:.02em!important;color:#fff!important;-webkit-text-stroke:2px #14101c!important;paint-order:stroke fill;text-shadow:4px 4px 0 #ee1c25!important;transform:none!important}
+${S} .cmap canvas{position:absolute!important;left:5vw!important;top:27vh!important;width:30vw!important;height:58vh!important;z-index:2;background:none!important;border:0!important;transform:none!important}
+${S} .cmap b{position:absolute!important;left:6.6vw!important;right:auto!important;bottom:4.6vh!important;top:auto!important;width:auto!important;z-index:2;text-align:left!important;font:400 clamp(18px,1.9vw,32px) 'MangaMaster BB',Bangers,Bangers,Impact,sans-serif!important;letter-spacing:.03em!important;color:#fff!important;-webkit-text-stroke:1px #14101c!important;text-shadow:3px 3px 0 #ee1c25!important}
+${S} .cmap b small{display:block!important;font:italic 700 clamp(10px,.8vw,13px) 'Barlow Condensed',sans-serif!important;letter-spacing:.3em!important;color:#a9a3b5!important;-webkit-text-stroke:0!important;text-shadow:none!important;margin-top:.5vh!important}
+/* the settings */
+${S} .rows{position:absolute!important;left:44vw!important;top:13vh!important;right:auto!important;bottom:auto!important;width:24vw!important;transform:none!important;z-index:3;display:block!important}
+${S} .row{position:relative!important;height:7.2vh!important;min-height:0!important;margin:0 0 1.3vh 0!important;padding:0!important;display:flex!important;align-items:center!important;background:none!important;border:0!important;box-shadow:none!important;transform:none!important;clip-path:none!important}
+${[...Array(9)].map((_,n)=>`${S} .rows>*:nth-child(${n+1}){margin-left:-${(n*8.5*K).toFixed(2)}vh!important}`).join('\n')}
+${S} .row:before{content:''!important;display:block!important;position:absolute!important;inset:0!important;z-index:0;background:rgba(20,16,28,.74)!important;clip-path:polygon(${7.2*K}vh 0,100% 0,calc(100% - ${7.2*K}vh) 100%,0 100%)!important;border:0!important;transform:none!important}
+${S} .row.sel:before{background:#ee1c25!important}
+${S} .row .k{position:relative!important;z-index:1;width:6.4vw!important;padding-left:2.6vw!important;flex:none!important;text-align:left!important;font:italic 700 clamp(10px,.85vw,14px) 'Barlow Condensed',sans-serif!important;letter-spacing:.3em!important;color:#bdb6c9!important;text-shadow:none!important}
+${S} .row.sel .k{color:#fff!important}
+${S} .row .arw{position:relative!important;z-index:1;width:2vw!important;flex:none!important;text-align:center!important;font:400 clamp(12px,1.1vw,18px) Comic Neue,Arial,sans-serif!important;color:rgba(255,255,255,.4)!important;text-shadow:none!important;opacity:1!important;visibility:visible!important}
+${S} .row.sel .arw{color:#fff!important}
+${S} .row .v{position:relative!important;z-index:1;flex:1!important;min-width:0;text-align:center!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:400 clamp(15px,1.45vw,24px)/1.05 'MangaMaster BB',Bangers,Bangers,Impact,sans-serif!important;letter-spacing:.03em!important;color:#fff!important;-webkit-text-stroke:1px #14101c!important;paint-order:stroke fill;text-shadow:2px 2px 0 #14101c!important}
+${S} .row .v small{display:block!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:italic 700 clamp(9px,.68vw,11px) 'Barlow Condensed',sans-serif!important;letter-spacing:.18em!important;color:#d9d4e2!important;-webkit-text-stroke:0!important;text-shadow:none!important;margin-top:.3vh!important;text-transform:uppercase}
+${S} .row .v small span{color:#ff8a8f!important}
+${S} .go{position:relative!important;display:block!important;width:18vw!important;height:8.4vh!important;margin-top:2.2vh!important;margin-right:0!important;padding:0!important;border:0!important;box-shadow:none!important;transform:none!important;background:#fff!important;clip-path:polygon(${8.4*K}vh 0,100% 0,calc(100% - ${8.4*K}vh) 100%,0 100%)!important;font:400 clamp(24px,2.4vw,40px) 'MangaMaster BB',Bangers,Bangers,Impact,sans-serif!important;letter-spacing:.06em!important;color:#fff!important;text-shadow:3px 3px 0 #14101c!important;cursor:pointer;left:2.4vw}
+${S} .go:before{content:''!important;display:block!important;position:absolute!important;inset:4px!important;z-index:-1;background:#ee1c25!important;clip-path:polygon(${8.4*K}vh 0,100% 0,calc(100% - ${8.4*K}vh) 100%,0 100%)!important;border:0!important;transform:none!important}
+${S} .go{isolation:isolate}
+${S} .go.sel{filter:drop-shadow(0 0 12px rgba(238,28,37,.7))}
+/* the rival strip (bigger), and the driver panel */
+${S} .who{border:0!important;box-shadow:none!important;transform:none!important;margin:0!important}
+${S} .who.rv{position:absolute!important;left:auto!important;right:1.4vw!important;top:7vh!important;bottom:auto!important;width:31vw!important;height:24vh!important;background:#ee1c25!important;clip-path:polygon(${24*K}vh 0,100% 0,calc(100% - ${24*K}vh) 100%,0 100%)!important;filter:drop-shadow(6px 6px 0 #14101c);z-index:3}
+${S} .who.rv .in{position:absolute!important;inset:4px!important;clip-path:polygon(${24*K}vh 0,100% 0,calc(100% - ${24*K}vh) 100%,0 100%)!important;background:#000!important}
+${S} .who.rv img.face{position:absolute!important;left:0!important;top:0!important;width:52%!important;height:100%!important;object-fit:cover!important;object-position:50% 24%!important;filter:grayscale(.3) contrast(1.2) brightness(.9);border:0!important}
+${S} .who.rv .in:after{content:'';position:absolute;left:0;top:0;bottom:0;width:52%;background:linear-gradient(180deg,rgba(0,0,0,.7) 0%,transparent 26%,transparent 62%,rgba(0,0,0,.85) 100%),linear-gradient(90deg,rgba(0,0,0,.6),transparent 40%);pointer-events:none}
+${S} .who.rv img.car{position:absolute!important;left:auto!important;right:0!important;top:0!important;bottom:0!important;width:58%!important;height:100%!important;object-fit:cover!important;object-position:50% 55%!important;border:0!important;border-left:6px solid #ee1c25!important;clip-path:polygon(${24*K}vh 0,100% 0,100% 100%,0 100%)!important}
+${S} .who.rv b{position:absolute!important;left:calc(${24*K}vh + 1vw)!important;top:auto!important;bottom:1.4vh!important;right:auto!important;z-index:3;font:400 clamp(20px,2.1vw,36px)/1 'MangaMaster BB',Bangers,Bangers,Impact,sans-serif!important;color:#fff!important;-webkit-text-stroke:1px #14101c!important;paint-order:stroke fill;text-shadow:3px 3px 0 var(--acc,#ee1c25)!important}
+${S} .who.rv .carTag{position:absolute!important;left:auto!important;right:calc(${24*K}vh + .6vw)!important;bottom:1.2vh!important;top:auto!important;z-index:3;width:auto!important;max-width:15vw;padding:.3vh .7vw!important;background:rgba(20,16,28,.86)!important;border:0!important;clip-path:none!important}
+${S} .who.rv .carTag .cn{font:italic 700 clamp(10px,.8vw,13px) 'Barlow Condensed',sans-serif!important;letter-spacing:.2em!important;color:#fff!important;white-space:nowrap}
+${S} .who.rv .carTag .cd{display:none!important}
+${S} .who.rv:before{content:'RIVAL';position:absolute;left:calc(${24*K}vh + 1vw);top:1.2vh;z-index:4;font:italic 700 clamp(10px,.8vw,13px) 'Barlow Condensed',sans-serif;letter-spacing:.34em;color:#e8e3ef}
+${S} .who.rv.none .in{background:radial-gradient(ellipse at 60% 120%,#3a2a20 0%,#0c0a10 60%)!important}
+${S} .who.rv.none .clk{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2;font:400 clamp(20px,2vw,34px)/1.05 'MangaMaster BB',Bangers,Bangers,Impact,sans-serif;color:#fff;-webkit-text-stroke:1px #14101c;text-shadow:3px 3px 0 #ee1c25;text-align:center}
+${S} .who.rv.none .clk i{font-style:normal;font-size:1.6em;line-height:1;margin-bottom:.2em}
+${S} .who.me{position:absolute!important;left:auto!important;right:-6vh!important;top:34vh!important;bottom:4vh!important;height:auto!important;width:calc(31vw + 12vh)!important;background:#fff!important;clip-path:polygon(${62*K}vh 0,100% 0,calc(100% - ${62*K}vh) 100%,0 100%)!important;filter:drop-shadow(7px 7px 0 #ee1c25);z-index:2}
+${S} .who.me .in{position:absolute!important;inset:5px!important;clip-path:polygon(${62*K}vh 0,100% 0,calc(100% - ${62*K}vh) 100%,0 100%)!important;background:#111!important}
+${S} .who.me img.face{position:absolute!important;left:0!important;top:0!important;width:100%!important;height:68%!important;object-fit:cover!important;object-position:40% 24%!important;border:0!important}
+${S} .who.me img.car{position:absolute!important;left:0!important;bottom:0!important;top:auto!important;width:100%!important;height:36%!important;object-fit:cover!important;object-position:50% 60%!important;border:0!important;clip-path:polygon(0 18%,100% 0,100% 100%,0 100%)!important}
+${S} .who.me b{position:absolute!important;left:calc(${62*K*.3}vh + 2vw)!important;top:52%!important;bottom:auto!important;z-index:3;font:400 clamp(26px,2.8vw,48px)/1 'MangaMaster BB',Bangers,Bangers,Impact,sans-serif!important;color:#fff!important;-webkit-text-stroke:2px #14101c!important;paint-order:stroke fill;text-shadow:3px 3px 0 #ee1c25!important}
+${S} .who.me .carTag{position:absolute!important;left:calc(${62*K*.18}vh + 2vw)!important;right:auto!important;bottom:1.4vh!important;top:auto!important;z-index:3;width:auto!important;padding:.4vh .8vw!important;background:rgba(20,16,28,.86)!important;border:0!important;clip-path:none!important}
+${S} .who.me .carTag .cn{font:italic 700 clamp(10px,.8vw,13px) 'Barlow Condensed',sans-serif!important;letter-spacing:.2em!important;color:#fff!important;white-space:nowrap}
+${S} .who.me .carTag .cd{font:italic 700 clamp(9px,.66vw,11px) 'Barlow Condensed',sans-serif!important;letter-spacing:.18em!important;color:#bdb6c9!important}
+${S} .hint{position:absolute!important;left:40vw!important;right:auto!important;bottom:2.2vh!important;top:auto!important;width:auto!important;transform:none!important;font:italic 700 clamp(10px,.82vw,13px) 'Barlow Condensed',sans-serif!important;letter-spacing:.22em!important;color:rgba(236,232,244,.6)!important;text-shadow:none!important;z-index:3}
+@media(max-width:760px){${S} .cmap,${S} .who.rv{display:none!important}${S} .rows{left:4vw!important;width:92vw!important}${S} .rows>*{margin-left:0!important}${S} .who.me{display:none!important}}`;
+ document.head.appendChild(st);
+ // after every render: the BACK link, and the empty rival strip when it's just you
+ const post=()=>{try{if(!root.querySelector('.back3')){const b=document.createElement('div');b.className='back3';b.textContent='✕ BACK';b.onclick=()=>{try{animePractice.close()}catch(e){try{dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',code:'Escape'}))}catch(_){}}};root.appendChild(b)}
+   if(!root.querySelector('.who.rv')){const me=root.querySelector('.who.me');if(me){const d=document.createElement('div');d.className='who rv none';d.innerHTML='<div class="in"><div class="clk"><i>⏱</i>JUST YOU<br>AND THE CLOCK</div></div>';me.after(d)}}}catch(e){}};
+ new MutationObserver(()=>post()).observe(root,{childList:true});post();
+}catch(e){console.warn('prac lay3',e)}})();
+
+// (479b) the screen in three equal parts cut by two parallel diagonals: the course on the left, the settings in the middle
+// (every row the same width, so both its arrows step along the slant), the rival and the driver on the right
+(()=>{try{const root=document.getElementById('pracSel');if(!root)return;
+ const K=.28,S='html body #pracSel.lay3',L1=(y)=>`calc(33.333vw + ${(50-y)*K}vh)`,L2=(y)=>`calc(66.667vw + ${(50-y)*K}vh)`,G='1.1vw';
+ const RT=12.5,RH=7.2,RS=8.6;   // settings: top, row height, row step (vh)
+ const st=document.createElement('style');st.textContent=`
+${S} .cmap{left:0!important;width:100vw!important;clip-path:polygon(0 0,${L1(0)} 0,${L1(100)} 100%,0 100%)!important}
+${S} .cmap:before{inset:0!important;clip-path:polygon(0 0,calc(${L1(0)} - 6px) 0,calc(${L1(100)} - 6px) 100%,0 100%)!important}
+${S} .cmap i{left:3.2vw!important}
+${S} .cmap .cname{left:3vw!important;width:34vw!important;font-size:clamp(22px,2.5vw,44px)!important;white-space:nowrap}
+${S} .cmap canvas{left:2.6vw!important;top:27vh!important;width:24vw!important;height:56vh!important}
+${S} .cmap b{left:3.2vw!important;font-size:clamp(16px,1.7vw,28px)!important}
+${S} .rows{left:0!important;top:${RT}vh!important;width:100vw!important;pointer-events:none}
+${S} .rows>*{pointer-events:auto}
+${[...Array(9)].map((_,n)=>{const y=RT+n*RS+RH/2;return `${S} .rows>.row:nth-child(${n+1}){margin-left:calc(${L1(y)} + ${G})!important;width:calc(33.333vw - 2*${G})!important}`}).join('\n')}
+${S} .row{height:${RH}vh!important;margin-bottom:${RS-RH}vh!important}
+${S} .row .k{width:6vw!important;padding-left:2.4vw!important}
+${S} .row .k{white-space:nowrap!important;letter-spacing:.22em!important}
+${S} .cmap i{display:block!important}
+${S} .who.rv .carTag{top:1.1vh!important;bottom:auto!important;max-width:17vw!important}
+${S} .who.rv:before{top:auto!important;bottom:calc(1.4vh + clamp(20px,2.1vw,36px) + .4vh)!important}
+${S} .rows>.go{left:0!important;margin-left:calc(${L1(RT+6*RS+4.2)} + ${G} + (33.333vw - 2*${G} - 24vw)/2)!important;width:24vw!important;margin-top:${RS-RH+1}vh!important}
+${S} .back3{left:calc(${L1(3)} + 1.6vw)!important}
+${S} .hint{left:calc(${L1(97)} + 1.6vw)!important}
+${S} .who.rv{left:calc(${L2(31)} + ${G})!important;right:1.4vw!important;width:auto!important;top:7vh!important;height:24vh!important}
+${S} .bg:after{content:'';position:absolute;inset:0;background:#ee1c25;clip-path:polygon(${L2(0)} 0,calc(${L2(0)} + 5px) 0,calc(${L2(100)} + 5px) 100%,${L2(100)} 100%)}
+${S} .who.me{left:calc(${L2(96)} + ${G})!important;right:calc(1.4vw - ${62*K}vh)!important;width:auto!important;top:34vh!important;bottom:4vh!important}`;
+ document.head.appendChild(st)}catch(e){}})();
 
 // ============================================================================================
 // SPLIT TIMES + RUN DATA (temporary, for tuning the rivals) · Hashirikomi on the FR course is cut into 12 equal sectors,
