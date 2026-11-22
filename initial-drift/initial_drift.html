@@ -4111,7 +4111,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 490';
+window.__BUILD='BUILD 491';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -19003,7 +19003,7 @@ html body #speed #arcadeTach{position:relative;z-index:1;overflow:visible}
  // only where there's something to see: practice and other free runs (the ends of the mountain), and real story races (the
  // finish-line crowd). The story's other runs (the tofu delivery, the run home, a side-story demo) go straight to what's next.
  const rollWanted=()=>{try{const story=!!(window.__race||window.__storyPrologue||window.__storyDelivery);if(window.animePractice&&animePractice.PRAC)return true;if(!story)return true;if(window.__storyDelivery)return true;   /* (build 403) the tofu delivery rolls on over the line and looks around too */return !!(window.__realStoryRace&&__realStoryRace())}catch(e){return true}};
- window.__finishRoll=f=>{if(phase!=='off'||used)return;if(!rollWanted()){used=true;f();return}used=true;window.__tofuStop=undefined;window.__tofuA=null;window.__crowdA=null;   // the finish check fires every frame the car is near the line: only the first one counts
+ window.__finishRoll=f=>{if(phase!=='off'||used)return;if(!rollWanted()){used=true;f();return}used=true;window.__tofuStop=undefined;window.__tofuA=null;window.__crowdA=null;window.__endStopM=undefined;window.__endA=null;   // the finish check fires every frame the car is near the line: only the first one counts
   cb=f;phase='roll';v0=null;sel=0;mark();t0=performance.now();window.__coastOn=true;
   ov.querySelector('.time').textContent=typeof elapsed==='number'?fmtT(elapsed):'';ov.className='on';void ov.offsetWidth;ov.classList.add('slam');if(window.__FR)setTimeout(()=>{if(phase==='roll')ov.classList.add('fade')},1700);
   let lastT=performance.now();(function roll(){if(phase!=='roll'&&phase!=='ask')return;requestAnimationFrame(roll);try{const nowT=performance.now(),dt=Math.min(.1,(nowT-lastT)/1000);lastT=nowT;
@@ -19019,6 +19019,12 @@ html body #speed #arcadeTach{position:relative;z-index:1;overflow:visible}
       if(r){const N=tougeCenters.length-1,E=tougeCenters[N],t=tougeTangents[N],al=(r.e.x-E.x)*t.x+(r.e.z-E.z)*t.z;   // the shop stands past the end of the run, beside the straight run-off
        if(stageFinishIndex>=N-2&&al>-30&&al<400)window.__tofuStop=Math.max(al,0)*1.5/* half as far again past the shop: deeper into town, so you see it */}}stopAt=window.__tofuStop}}catch(e){}
    let crowdStop=null;try{if(window.__realStoryRace&&__realStoryRace()){const C=typeof centers!=='undefined'?centers:tougeCenters,T=typeof tangents!=='undefined'?tangents:tougeTangents,fi=Math.min(C.length-1,stageFinishIndex),fp=C[fi],ft=T[fi];crowdStop=Math.max(0,(window.__finStopM||26)-((pos.x-fp.x)*ft.x+(pos.z-fp.z)*ft.z))}}catch(e){}   /* metres still to go to the spot among the fans, measured from the line (works past the end of the course too) */
+   /* (491) a finish at the very end of the road (the summit of the dawn delivery, an uphill run): find how much pavement there
+      is past the end and pull up well before it runs out, instead of rolling on off the road into the bank */
+   let endRem=null;try{const C=centers,T=tangents,N=C.length-1,fi=Math.min(N,stageFinishIndex);
+    if(window.__endStopM===undefined){window.__endStopM=null;if(fi>=N-3&&window.__paveY&&typeof tougeCenters!=='undefined'){const E=tougeCenters[N],t=tougeTangents[N];let m=0;for(let d=2;d<=60;d+=2){const y=__paveY(E.x+t.x*d,E.z+t.z*d,E.y);if(y==null)break;m=d}if(m<60)window.__endStopM=Math.max(6,m-2)}   /* (the road meshes are in the map's own frame: probe along tougeCenters, measure the car along centers) */}
+    if(window.__endStopM!=null){const E=C[N],t=T[N];endRem=Math.max(0,__endStopM-((pos.x-E.x)*t.x+(pos.z-E.z)*t.z))}}catch(e){}
+   if(endRem!=null)crowdStop=crowdStop==null?endRem:Math.min(crowdStop,endRem);
    if(crowdStop!=null){const rem=crowdStop;if(window.__crowdA==null)window.__crowdA=Math.max(5,v*v/Math.max(2,2*rem));const vt=Math.sqrt(2*__crowdA*rem);keys.ArrowDown=false;   // pull up steadily, right among the fans
     if(v>vt)speed=Math.sign(speed||1)*Math.max(vt,v-dt*40);if(rem<.5||v<.3)speed=0}
    else if(stopAt!=null){const N=tougeCenters.length-1,E=tougeCenters[N],tg=tougeTangents[N],rem=Math.max(0,stopAt-((pos.x-E.x)*tg.x+(pos.z-E.z)*tg.z));if(window.__tofuA==null)window.__tofuA=Math.max(6,v*v/Math.max(2,2*rem));const vt=Math.sqrt(2*__tofuA*rem);keys.ArrowDown=false;
@@ -21226,6 +21232,9 @@ const animeCutscene=window.animeCutscene=(()=>{
  {const o=updatePlayerVehiclePose;updatePlayerVehiclePose=function(dt){const r=o.apply(this,arguments);tick();return r}}
  window.__skids={mesh,clear,count:()=>used,_demo:(pts)=>{let a=null;for(const p of pts){const y=ry(p[0],p[1]);if(y==null)continue;const b={x:p[0],y,z:p[1]};if(a)strip(a,b,W,.6,.6);a=b}flush();return used}};
 }catch(e){console.warn('skids',e)}})();
+// (491) which rival is on the road: the story chapter's opponent (this used to live in the VS Battle code; when that was
+// removed in 485 the story fell back to the old stage number and chapter 1 put Ryosuke's FC on the road instead of Keisuke)
+if(!window.__opp)window.__opp=()=>window.__race?window.__race.opp:canyonStage;
 // (490) STRAIGHT LAUNCH · for the first 2.5 s after GO (a standing start or a rolling start's hand-over) the car can't be turned
 // by the launch itself: wheelspin and the wet can't swing the tail. Unless you're steering or on the handbrake, the sideways
 // slide and drift angle are held at zero and the heading stays where it was at GO.
