@@ -512,7 +512,7 @@ const FR_COURSE=__PASS?FR_PASSES[__PASS]:FR_AKINA;
 window.__COURSE_SHAPES=(()=>{const o={};const sh=c=>{const R=c.RUNP||[0,c.pts.length-1],a=Math.min(R[0],R[1]),b=Math.max(R[0],R[1]),P=[];for(let i=a;i<=b;i+=2)P.push([c.pts[i][0],c.pts[i][2],c.pts[i][1]]);return P};o.akina=sh(FR_AKINA);for(const k in FR_PASSES)o[k]=sh(FR_PASSES[k]);return o})();
 // the course edits live in their own file next to the page (initial-drift/course-edits.json), so the page stays small
 // however much the course is edited. Read before anything else is built (a blocking read, on purpose).
-const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=484',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
+const FR_EDITS=__PASS?null:(()=>{try{const x=new XMLHttpRequest();x.open('GET','course-edits.json?v=485',false);x.send();if(x.status>=200&&x.status<300)return JSON.parse(x.responseText)}catch(e){console.warn('course edits',e)}return null})();
 // ============================================================================================
 // EDITS STORE · what the ground editor changed besides the ground itself: scenery (trees, shrubs, rocks, grass) and the
 // corner boards, as erase circles and placed items. Baked edits ship in the build (FR_EDITS); your own unexported
@@ -4111,7 +4111,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 484';
+window.__BUILD='BUILD 485';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -5640,9 +5640,9 @@ const animeCars=window.animeCars=(()=>{
 
  let player=install({group:ae86,build:buildAE86,set:makeSet(),plate:['群馬','50','な','86-14'],blur:[0x2a2c31,.262],name:'ae86'});
  player.model.root.position.y=.05;                       // tyre contact matches the old wheels
- let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795306619'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
+ let fd=install({group:rivalBody,build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795310548'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245],fit:true,name:'fd'});
  const fcSet=makeSet();
- let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795306619'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
+ let fc=install({group:fcBody,build:buildFC,set:Object.assign(fcSet,{paint:fcSet.white,tailRound:fcSet.tailRoundFC,tailAmber:fcSet.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795310548'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245],fit:true,name:'fc'});
  const impSet=makeSet();
  let imp=install({group:subaruBody,build:buildImpreza,set:Object.assign(impSet,{paint:impSet.blue,paintShade:impSet.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236],fit:true,name:'imp'});
 
@@ -6023,8 +6023,8 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
  // ---- Lone Wolf: drive any unlocked driver's car. The physics stay the same; only the
  // body, wheels, lamps and plates change. Cars are built the first time they're picked.
  let aeCar=player;const alt={};
- let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795306619'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
-  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795306619'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
+ let ALT={fd:()=>({build:buildFD,set:makeSet(),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795310548'},plate:['群馬','33','る','17-34'],blur:[0xc3c8d0,.245]}),
+  fc:()=>{const st=makeSet();return{build:buildFC,set:Object.assign(st,{paint:st.white,tailRound:st.tailRoundFC,tailAmber:st.tailAmberFC}),opts:{decalUrl:'assets/images/redsuns-logo.webp?v=1795310548'},plate:['群馬','33','れ','13-08'],blur:[0xc3c8d0,.245]}},
   imp:()=>{const st=makeSet();return{build:buildImpreza,set:Object.assign(st,{paint:st.blue,paintShade:st.blueShade}),plate:['群馬','300','さ','22-08'],blur:[0xc9a24a,.236]}}};
 
  // ---- Downloaded AE86 model (assets/models/*.glb): same anime cel look with its own
@@ -6482,7 +6482,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
   scaleBrakes(m,+R.brakeSize||1);rimsDone(m);return true}
  window.__swapRims=swapRims;window.__trueAxle=trueAxle;
  function logoDecals(m,set,L,cb){const DG=DecalGeometry||window.__DecalGeometry;if(!m||!m.frame||!DG)return false;   /* (the garage hands its own in before any FD has loaded) */
-  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795306619',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
+  new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795310548',tex=>{try{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;const aspect=(tex.image.width||1)/(tex.image.height||1);
    const frame=m.frame,root=m.root,sv=frame.rotation.y;frame.rotation.y=0;root.updateMatrixWorld(true);const invF=new THREE.Matrix4().copy(frame.matrixWorld).invert(),ws=root.getWorldScale(new THREE.Vector3()).x||1;
    const inSpin=o=>{for(let p=o;p;p=p.parent)if((m.wheels||[]).some(w=>w.spin===p||w.steerG===p))return true;return false};
    let rz=-1.25,top=.62;const rear=(m.wheels||[]).filter(w=>!w.front);if(rear.length){const b=new THREE.Box3(),v=new THREE.Vector3();let zs=0;for(const w of rear){b.expandByObject(w.spin);zs+=(w.steerG||w.spin).getWorldPosition(v).applyMatrix4(invF).z}b.applyMatrix4(invF);rz=zs/rear.length;top=b.max.y}   /* the wheel's own pivot (the middle of its tyre): a bounding box could be pulled off by brake parts */
@@ -6496,7 +6496,7 @@ const k=c.key||c.name,L=(window.__carLab&&__carLab[k])||(window.__LAB&&__LAB[k])
     for(const mesh of panels){if(!new THREE.Box3().setFromObject(mesh).intersectsBox(zone))continue;let geo;try{geo=facing(new DG(mesh,hit.point,ob.rotation,sz),n,.6,hit.point,.1*ws)}catch(e){continue}if(!geo.attributes.position.count)continue;geo.applyMatrix4(invF);
      const d=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,fog:true}));d.renderOrder=3;d.userData.flatDecal=true;d.userData.teamLogo=true;frame.add(d);out.push(d)}}
    frame.rotation.y=sv;root.updateMatrixWorld(true);if(cb)cb(out)}catch(e){console.warn('logo decals',e)}},undefined,()=>{});return true}
- function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795306619',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
+ function logoFor(c){new THREE.TextureLoader().load('assets/images/redsuns-logo.webp?v=1795310548',tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;try{c.model.placeLogo(tex,(tex.image.width||1)/(tex.image.height||1))}catch(e){console.warn('FD logo',e)}},undefined,e=>console.warn('FD logo missing',e))}
  function useFD(gltf,Decal){try{fdSrc=gltf;DecalGeometry=Decal;
   // Keisuke's rival car
   const set=makeSet(),old=fd,oldWheelsLo=(()=>{rivalBody.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(rivalBody.matrixWorld).invert();return Math.min(...old.model.wheels.map(w=>new THREE.Box3().setFromObject(w.spin).applyMatrix4(inv).min.y))})();
@@ -11586,7 +11586,9 @@ const animeCareer=window.animeCareer=(()=>{
  // story mode: the opening dawn delivery skips the board (stock AE86, uphill to the hotel)
  function storyDawn(){order=ORDERS[0];mode='delivery';weather='dawn';window.__tofuWeather='dawn';try{applyCanyonElevation(1)}catch(e){}pendingHome=false;
   akinaCourse.run('dawn');if(typeof animeTofu!=='undefined')animeTofu.setLimit(akinaCourse.limitFor('dawn'));restoreAll();resetWheels();resetDrift()}
- function board(f){if(window.__storyDelivery){storyDawn();f();return true}cb=f;sel=Math.min(sel,ORDERS.length-1);if(!unlocked(ORDERS[sel]))sel=0;
+ function board(f){if(window.__storyDelivery){storyDawn();f();return true}   /* (485) the old Tofu Run board and garage are gone: anything else that lands here goes back to the title screen */
+  {location.href=location.pathname;return true}
+  cb=f;sel=Math.min(sel,ORDERS.length-1);if(!unlocked(ORDERS[sel]))sel=0;
   renderBoard();if(typeof animeTofu!=='undefined')animeTofu.music('car');return true}   // same song as the driver select
  // the story races never use Tofu Run paint, parts or weather
  {const o=startCanyonEvent;startCanyonEvent=function(ev){if(ev!=='time'){window.__tofuWeather='sunset';mode='delivery';restoreAll();resetWheels()}return o.apply(this,arguments)}}
@@ -13747,7 +13749,7 @@ const driverProfile=window.driverProfile=(()=>{
   const t=document.createElement('div');t.textContent='EVERYTHING UNLOCKED';t.style.cssText='position:fixed;left:50%;top:40%;transform:translate(-50%,-50%) rotate(-4deg);z-index:200;background:#ee1c25;color:#fff;border:4px solid #111;padding:2vh 3vw;font:400 clamp(30px,4vw,64px) Bangers,Bangers,Impact,sans-serif;letter-spacing:.08em;box-shadow:8px 8px 0 #e8263b';
   document.body.appendChild(t);setTimeout(()=>location.reload(),1100)}catch(e){console.warn('unlock all',e)}}
  window.__unlockAll=unlockAll;
- addEventListener('keydown',e=>{if(e.code!=='KeyU'||!e.shiftKey||e.repeat||e.ctrlKey||e.metaKey)return;const m=document.getElementById('courseMenu');if(!m||m.style.display==='none')return;e.preventDefault();unlockAll()},true);
+ /* (485) Shift+U unlock-all shortcut removed */
 })();
 
 // ============================================================================
@@ -15725,194 +15727,6 @@ const akinaMagic=window.akinaMagic=(()=>{
  return {root,fuji,lampSpots};
 })();
 
-// ============================================================================
-// VS BATTLE · pick your driver, your opponent and the course, then race
-// Outside the story: your Tofu Run garage (parts and paint) counts here, and any unlocked
-// driver can take on any rival you've reached in Touge Legends, on any of the three courses:
-//  · UPHILL · DAY        (the Keisuke course, START → CP2)
-//  · DOWNHILL · NIGHT    (the Ryosuke course, top → past the first of the five hairpins)
-//  · DOWNHILL · STORM    (the Bunta course, the whole pass in the rain)
-// No cutscenes, no unlocks, no story: a VS card, the countdown, a result screen
-// (REMATCH · CHANGE SETUP · MAIN MENU). The story always stays the stock AE86.
-// ============================================================================
-const animeVS=window.animeVS=(()=>{
- window.__vs=null;
- window.__opp=()=>window.__vs?window.__vs.opp:window.__race?window.__race.opp:canyonStage;   // who you're racing (story: the stage's rival)
- const IMG=n=>'assets/images/'+n;
- const OPP=[{s:1,name:'KEISUKE',last:'TAKAHASHI',car:'RX-7 FD3S',face:'Keisuke.webp',carImg:'vs-fd.webp',acc:'#ffcf1f',q:'Bring it on! I won\'t lose twice!',lock:''},
-  {s:2,name:'RYOSUKE',last:'TAKAHASHI',car:'RX-7 FC3S',face:'Ryosuke.webp',carImg:'vs-fc.webp',acc:'#9d5cff',q:'Show me what you\'ve learned.',lock:'BEAT KEISUKE IN TOUGE LEGENDS'},
-  {s:3,name:'BUNTA',last:'FUJIWARA',car:'IMPREZA 22B',face:'Bunta.webp',carImg:'vs-impreza.webp',acc:'#3d7bff',q:'Hmph. Don\'t make me wait at the bottom.',lock:'BEAT RYOSUKE IN TOUGE LEGENDS'}];
- const COURSE=[{s:1,n:'UPHILL',w:'DAY',jp:'上り · 昼',img:'stage-1.webp',d:'From the start line up through the five hairpins and the long sweepers.'},
-  {s:2,n:'DOWNHILL',w:'NIGHT',jp:'下り · 夜',img:'stage-2-night.webp',fb:'stage-2.webp',d:'From the lake down the zigzags in the dark, out of the first hairpin.'},
-  {s:3,n:'DOWNHILL',w:'STORM',jp:'下り · 嵐',img:'stage-3-storm.webp',fb:'stage-3.webp',d:'The whole pass, top to bottom, on a soaking wet road. Rain tires help.'}];
- const oppOpen=o=>o.s===1||!!(animeChars.unlocked||{})[o.s-1];
- let row=0,cSel=0,oSel=0,kSel=0,bSel=0,showing=false;   // rows: 0 driver · 1 opponent · 2 course · 3 buttons
- const css=document.createElement('style');css.textContent=`
-#vsSel{position:fixed;inset:0;z-index:65;display:none;overflow:hidden;background:#0c0a12;font-family:Bangers,Bangers,Impact,sans-serif;color:#fff;user-select:none}
-#vsSel.on{display:block}
-#vsSel .bgL{position:absolute;left:50%;top:50%;width:170vmax;height:170vmax;margin:-85vmax 0 0 -85vmax;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,255,255,0) 0 4deg,rgba(255,255,255,.06) 4deg 5deg,rgba(255,255,255,0) 5deg 10deg);animation:vsSpin 50s linear infinite}
-#vsSel .tone{position:absolute;inset:0;background:radial-gradient(circle,rgba(255,255,255,.06) 1.2px,transparent 1.6px) 0 0/8px 8px;pointer-events:none}
-#vsSel h1{position:absolute;left:3vw;top:2.4vh;margin:0;font:400 clamp(44px,6vw,96px)/.9 Bangers,Bangers,Impact,sans-serif;color:#fff5b8;-webkit-text-stroke:3px #14101c;paint-order:stroke fill;text-shadow:6px 6px 0 #e8263b,11px 11px 0 #14101c;transform:rotate(-2deg)}
-#vsSel h1 small{display:block;font:900 clamp(11px,1vw,15px) Dela Gothic One,'Noto Sans JP',Comic Neue,Arial,sans-serif;letter-spacing:.4em;color:#f6db7a;-webkit-text-stroke:0;text-shadow:none;margin-top:.6vh}
-#vsSel .rows{position:absolute;left:3vw;right:3vw;top:17vh;bottom:13vh;display:grid;grid-template-rows:1fr 1fr 1fr;gap:1.6vh}
-#vsSel .row{display:grid;grid-template-columns:clamp(110px,11vw,180px) 1fr;gap:1vw;align-items:stretch;opacity:.6;transition:opacity .2s}
-#vsSel .row.on{opacity:1}
-#vsSel .lab{display:flex;flex-direction:column;justify-content:center;font-size:clamp(20px,2.2vw,36px);letter-spacing:.06em;line-height:1;color:#fff;-webkit-text-stroke:2px #14101c;paint-order:stroke fill;text-shadow:3px 3px 0 #e8263b}
-#vsSel .lab small{font:900 clamp(9px,.8vw,12px) Comic Neue,Arial,sans-serif;letter-spacing:.2em;color:#d8d2c0;-webkit-text-stroke:0;text-shadow:none;margin-top:.5vh}
-#vsSel .opts{display:flex;gap:1vw;min-width:0}
-#vsSel .o{position:relative;flex:1;cursor:pointer;background:var(--a,#e8263b);clip-path:polygon(6% 0,100% 0,94% 100%,0 100%);transition:flex .25s,filter .2s}
-#vsSel .o .in{position:absolute;inset:4px;clip-path:polygon(6% 0,100% 0,94% 100%,0 100%);overflow:hidden;background:#111}
-#vsSel .o img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 28%}
-#vsSel .o .sh{position:absolute;inset:0;background:linear-gradient(0deg,rgba(12,10,18,.9),rgba(12,10,18,0) 60%)}
-#vsSel .o b{position:absolute;left:9%;bottom:12%;font-size:clamp(18px,2vw,32px);line-height:1;-webkit-text-stroke:2px #111;paint-order:stroke fill;text-shadow:3px 3px 0 var(--a)}
-#vsSel .o b small{display:block;font:900 clamp(8px,.75vw,12px) Comic Neue,Arial,sans-serif;letter-spacing:.14em;-webkit-text-stroke:0;text-shadow:1px 1px 0 #000;margin-top:.3vh}
-#vsSel .o:not(.cur){filter:brightness(.5) saturate(.7)}
-#vsSel .row.on .o.cur{flex:1.5;filter:none}
-#vsSel .o.cur{box-shadow:none}
-#vsSel .o.lock img{filter:grayscale(1) brightness(.3) blur(1px)}
-#vsSel .o .lk{display:none;position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);font:900 clamp(8px,.7vw,11px) Comic Neue,Arial,sans-serif;letter-spacing:.1em;background:#111;color:#f6db7a;border:2px solid #f6db7a;padding:.4vh .6vw;white-space:nowrap}
-#vsSel .o.lock .lk{display:block}
-#vsSel .foot{position:absolute;left:3vw;right:3vw;bottom:2.4vh;display:flex;align-items:center;justify-content:space-between;gap:2vw}
-#vsSel .info{flex:1;font:700 clamp(12px,1.05vw,17px)/1.3 'Comic Neue',Comic Neue,Arial,sans-serif;color:#e8e2f0;max-width:44vw}
-#vsSel .info b{font:400 clamp(16px,1.5vw,24px) Bangers,Bangers,Impact,sans-serif;letter-spacing:.06em;color:#ee1c25;display:block}
-#vsSel .btns{display:flex;gap:1vw}
-#vsSel .btn{font:400 clamp(18px,1.8vw,30px)/1 Bangers,Bangers,Impact,sans-serif;letter-spacing:.06em;color:#fff;background:#14101c;border:3px solid #fff;padding:1vh 1.6vw;cursor:pointer;box-shadow:5px 5px 0 #e8263b;display:flex;flex-direction:column;align-items:center}
-#vsSel .btn small{font:900 clamp(8px,.7vw,11px) Comic Neue,Arial,sans-serif;letter-spacing:.18em;color:#d8d2c0;margin-top:.3vh}
-#vsSel .btn.go{background:#e8263b}
-#vsSel.btnRow .btn.cur{background:#e8263b;transform:translateY(-3px)}#vsSel.btnRow .btn.go:not(.cur){background:#14101c}
-#vsSel .keys{position:absolute;right:3vw;top:3.6vh;font:900 italic clamp(10px,.9vw,14px) Bangers,Impact,sans-serif;letter-spacing:.18em;color:#d8d2c0}
-#vsSel .keys b{color:#fff;background:#e8263b;padding:.2vh .5vw;margin:0 .3vw}
-#vsSel .tuned{display:block;margin-top:.4vh;font:700 clamp(10px,.85vw,13px) Comic Neue,Arial,sans-serif;color:#9be15d;letter-spacing:.04em}
-/* result */
-#vsRes{position:fixed;inset:0;z-index:66;display:none;place-items:center;background:rgba(12,10,18,.55);font-family:Bangers,Bangers,Impact,sans-serif;color:#fff}
-#vsRes.on{display:grid}
-#vsRes .card{position:relative;min-width:min(620px,86vw);background:#fffaf0;color:#14101c;border:5px solid #14101c;box-shadow:10px 10px 0 var(--a,#e8263b);padding:2.4vh 2.6vw;transform:rotate(-1.2deg);display:flex;flex-direction:column;gap:1.2vh}
-#vsRes h2{margin:0;font-size:clamp(54px,7vw,110px);line-height:.9;color:#fff5b8;-webkit-text-stroke:4px #14101c;paint-order:stroke fill;text-shadow:6px 6px 0 var(--a,#e8263b)}
-#vsRes h2 small{display:block;font:900 clamp(11px,1vw,15px) Dela Gothic One,'Noto Sans JP',Comic Neue,Arial,sans-serif;letter-spacing:.35em;color:#555;-webkit-text-stroke:0;text-shadow:none;margin-top:.6vh}
-#vsRes .who{display:flex;align-items:center;gap:1vw}#vsRes .who img{width:clamp(64px,7vw,110px);aspect-ratio:1;object-fit:cover;object-position:50% 25%;border:3px solid #14101c}
-#vsRes .say{font:800 clamp(15px,1.5vw,24px)/1.2 'MangaMaster BB','Anime Ace','Shantell Sans',Comic Neue,Arial,sans-serif;text-transform:uppercase}
-#vsRes .say em{display:table;font:400 .8em/1 Bangers,Bangers,Impact,sans-serif;font-style:normal;letter-spacing:.14em;color:#fff;background:#14101c;padding:.2em .5em .12em;margin-bottom:.3em}
-#vsRes .row{display:flex;justify-content:space-between;font-size:clamp(20px,2vw,32px);letter-spacing:.04em;border-top:3px dashed #c9bfae;padding-top:.6vh}
-#vsRes .btns{display:flex;gap:1vw;flex-wrap:wrap;margin-top:.6vh}
-#vsRes .btn{flex:1;font:400 clamp(18px,1.7vw,28px)/1 Bangers,Bangers,Impact,sans-serif;letter-spacing:.06em;color:#fff;background:#14101c;border:3px solid #14101c;padding:1vh 1vw;cursor:pointer;text-align:center}
-#vsRes .btn small{display:block;font:900 clamp(8px,.7vw,11px) Comic Neue,Arial,sans-serif;letter-spacing:.14em;color:#d8d2c0;margin-top:.3vh}
-#vsRes .btn.cur{background:#e8263b}
-@keyframes vsSpin{to{transform:rotate(360deg)}}
-@media (max-width:760px){#vsSel .row{grid-template-columns:1fr}#vsSel .lab{display:none}#vsSel .info{display:none}}`;
- document.head.appendChild(css);
- const root=document.createElement('div');root.id='vsSel';document.body.appendChild(root);
- const res=document.createElement('div');res.id='vsRes';document.body.appendChild(res);
- const D=()=>animeChars.D;
- function info(){if(row===0){const d=D()[cSel];if(!animeChars.isOpen(d))return `<b>LOCKED</b>Beat this driver in Touge Legends to drive their car.`;
-   return `<b>${d.name} · ${d.sub}</b>${d.spec}<span class="tuned">Your Tofu Run garage parts and paint are fitted · G to tune</span>`}
-  if(row===1){const o=OPP[oSel];return oppOpen(o)?`<b>${o.name} ${o.last} · ${o.car}</b>“${o.q}”`:`<b>LOCKED</b>${o.lock} to race them here.`}
-  if(row===2){const c=COURSE[kSel];return `<b>${c.n} · ${c.w}</b>${c.d}`}
-  return `<b>READY?</b>Race, or tune your car in the garage first.`}
- function render(){const d=D();
-  root.className='on'+(row===3?' btnRow':'');
-  root.innerHTML=`<div class="bgL"></div><div class="tone"></div><h1>VS BATTLE<small>対決 · ANY DRIVER · ANY RIVAL · ANY ROAD</small></h1>
-  <div class="keys"><b>↑ ↓</b> ROW <b>← →</b> CHOOSE <b>ENTER</b> RACE <b>G</b> GARAGE <b>ESC</b> BACK</div>
-  <div class="rows">
-   <div class="row${row===0?' on':''}" data-r="0"><div class="lab">YOU<small>YOUR DRIVER</small></div><div class="opts">${d.map((x,i)=>`<div class="o${i===cSel?' cur':''}${animeChars.isOpen(x)?'':' lock'}" data-i="${i}" style="--a:${x.acc}"><div class="in"><img src="${x.face}" alt=""><div class="sh"></div><b>${animeChars.isOpen(x)?x.name:'???'}<small>${animeChars.isOpen(x)?x.sub:'LOCKED'}</small></b><div class="lk">🔒 LOCKED</div></div></div>`).join('')}</div></div>
-   <div class="row${row===1?' on':''}" data-r="1"><div class="lab">RIVAL<small>YOUR OPPONENT</small></div><div class="opts">${OPP.map((o,i)=>`<div class="o${i===oSel?' cur':''}${oppOpen(o)?'':' lock'}" data-i="${i}" style="--a:${o.acc}"><div class="in"><img src="${IMG(o.face)}" alt=""><div class="sh"></div><b>${oppOpen(o)?o.name:'???'}<small>${oppOpen(o)?o.car:'LOCKED'}</small></b><div class="lk">🔒 ${o.lock}</div></div></div>`).join('')}</div></div>
-   <div class="row${row===2?' on':''}" data-r="2"><div class="lab">COURSE<small>AKINA</small></div><div class="opts">${COURSE.map((c,i)=>`<div class="o${i===kSel?' cur':''}" data-i="${i}" style="--a:${['#ff9a3d','#5a6bff','#4fb4ff'][i]}"><div class="in"><img src="${IMG(c.img)}" alt="" style="object-position:50% 50%" onerror="if(!this.dataset.f){this.dataset.f=1;this.src='${IMG(c.fb||'stage-1.webp')}'}"><div class="sh"></div><b>${c.n} · ${c.w}<small>${c.jp}</small></b></div></div>`).join('')}</div></div>
-  </div>
-  <div class="foot"><div class="info">${info()}</div><div class="btns"><button class="btn${row===3&&bSel===0?' cur':''}" data-b="0" type="button">🔧 GARAGE<small>G</small></button><button class="btn go${row===3&&bSel===1?' cur':''}" data-b="1" type="button">RACE!<small>ENTER</small></button><button class="btn${row===3&&bSel===2?' cur':''}" data-b="2" type="button">◀ BACK<small>ESC</small></button></div></div>`;
-  root.querySelectorAll('.row').forEach(r=>r.querySelectorAll('.o').forEach(o=>o.onclick=()=>{const R=+r.dataset.r,i=+o.dataset.i;row=R;if(R===0)cSel=i;else if(R===1)oSel=i;else kSel=i;snd();render()}));
-  root.querySelectorAll('.btn').forEach(b=>b.onclick=()=>{bSel=+b.dataset.b;doBtn()})}
- const snd=()=>{try{uiSelectSound()}catch(e){}};
- const menu=document.getElementById('courseMenu');
- function open(){showing=true;menu.style.display='none';try{animeChars.refresh()}catch(e){}
-  // start on the last driver you used, the first opponent you can race
-  const D0=D();cSel=Math.max(0,D0.findIndex(d=>d.id===animeChars.chosen));if(!animeChars.isOpen(D0[cSel]))cSel=0;if(!oppOpen(OPP[oSel]))oSel=0;
-  row=row===3?3:0;render();try{animeTofu.music('car')}catch(e){}}
- function close(){showing=false;root.className='';root.innerHTML=''}
- function back(){snd();close();try{animeTofu.music(null)}catch(e){}menu.style.display='flex';try{syncCanyonTrack()}catch(e){}}
- function shake(){root.querySelector('.row.on .o.cur')?.animate([{transform:'translateX(0)'},{transform:'translateX(-10px)'},{transform:'translateX(10px)'},{transform:'translateX(0)'}],{duration:220})}
- function doBtn(){if(bSel===0)garage();else if(bSel===1)go();else back()}
- function garage(){const d=D()[cSel];if(!animeChars.isOpen(d)){row=0;render();shake();return}
-  snd();close();try{animeCars.setPlayerCar(d.id)}catch(e){}
-  // the garage turntable needs your car on the road: set the battle up on the start line, frozen
-  // (like the story's intro page) while you tune, then step back to this screen
-  const o=OPP[oSel],c=COURSE[kSel];window.__vs={opp:oppOpen(o)?o.s:1,course:c.s,car:d.id,me:{img:d.face,name:d.name+' '+d.last,car:d.sub,acc:d.acc}};
-  try{animeChars.setChosen(d.id);configureRivalStage(c.s);startCanyonEvent('race');positionCanyonFinish();restart();storyActive=true}catch(e){console.warn('vs garage',e)}
-  animeCareer.garage(d.id,()=>{storyActive=false;try{silenceRaceAudio();stopHandbrakeSqueal()}catch(e){}returnToArcade();open()})}
- // ---- start a battle
- function go(){const d=D()[cSel],o=OPP[oSel],c=COURSE[kSel];
-  if(!animeChars.isOpen(d)){row=0;render();shake();return}if(!oppOpen(o)){row=1;render();shake();return}
-  snd();close();try{animeTofu.music(null)}catch(e){}
-  window.__vs={opp:o.s,course:c.s,car:d.id,me:{img:d.face,name:d.name+' '+d.last,car:d.sub,acc:d.acc}};
-  try{animeChars.setChosen(d.id);animeCars.setPlayerCar(d.id)}catch(e){console.warn('vs car',e)}
-  configureRivalStage(c.s);startCanyonEvent('race');positionCanyonFinish();try{positionCanyonFinishFans()}catch(e){}
-  try{animeCareer.applyLook()}catch(e){}
-  storyActive=false;restart()}
- // ---- result
- let rSel=0,won=false;
- function showResult(w){won=w;rSel=0;
-  const o=OPP[window.__vs.opp-1],me=window.__vs.me;
-  const L=w?{1:'...Tch. That car of yours is something else.',2:'Interesting. I\'ll need to revise my data.',3:'Hmph. Not bad, kid. Not bad at all.'}:{1:'HA! Told you I wouldn\'t lose twice!',2:'As calculated. Come back when you\'ve studied the road.',3:'Too slow. Go deliver some more tofu.'};
-  res.style.setProperty('--a',w?me.acc:o.acc);
-  res.innerHTML=`<div class="card"><h2>${w?'YOU WIN!':'YOU LOSE...'}<small>${w?'勝利 · ':'敗北 · '}${me.name} VS ${o.name} · ${COURSE[window.__vs.course-1].n} · ${COURSE[window.__vs.course-1].w}</small></h2>
-   <div class="who"><img src="${IMG(o.face)}" alt=""><div class="say"><em>${o.name}</em>“${L[o.s]}”</div></div>
-   <div class="row"><span>YOUR TIME</span><b>${fmt(elapsed)}</b></div>
-   <div class="btns"><div class="btn cur" data-b="0">REMATCH<small>SAME BATTLE</small></div><div class="btn" data-b="1">CHANGE SETUP<small>DRIVER · RIVAL · COURSE · GARAGE</small></div><div class="btn" data-b="2">MAIN MENU<small>ESC</small></div></div></div>`;
-  res.classList.add('on');res.querySelectorAll('.btn').forEach(b=>{b.onclick=()=>{rSel=+b.dataset.b;pickRes()};b.onmouseenter=()=>{rSel=+b.dataset.b;markRes()}})}
- function markRes(){res.querySelectorAll('.btn').forEach((b,i)=>b.classList.toggle('cur',i===rSel))}
- function hideRes(){res.classList.remove('on');res.innerHTML=''}
- function pickRes(){snd();hideRes();
-  if(rSel===0){restart();try{animeCareer.applyLook()}catch(e){}return}
-  try{silenceRaceAudio();stopHandbrakeSqueal()}catch(e){}
-  const again=rSel===1;returnToArcade();if(again)open()}
- // the result card steps aside while you watch the replay
- setInterval(()=>{if(res.classList.contains('on'))res.style.visibility=window.animeReplay&&animeReplay.active?'hidden':''},200);
- // the game hands every race result to openRivalStory: VS battles get their own screen (no story, no unlocks)
- {const o=openRivalStory;openRivalStory=function(kind,w=false){if(window.__vs&&canyonEvent==='race'){if(kind==='result'){showResult(!!w);return}if(kind==='intro'){restart();return}}return o.apply(this,arguments)}}
- // leaving for the menu, the story or a Tofu Run ends the battle
- {const o=returnToArcade;returnToArcade=function(){window.__vs=null;res.classList.remove('on');return o.apply(this,arguments)}}
- {const o=startCanyonStage;startCanyonStage=function(){window.__vs=null;return o.apply(this,arguments)}}
- {const o=startCanyonEvent;startCanyonEvent=function(ev){if(ev==='time')window.__vs=null;return o.apply(this,arguments)}}
- // ---- keys
- addEventListener('keydown',e=>{
-  if(res.classList.contains('on')){if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Enter','Space','Escape','KeyR'].includes(e.code)){e.preventDefault();e.stopImmediatePropagation()}else return;
-   if(e.repeat)return;
-   if(e.code==='ArrowLeft'||e.code==='ArrowUp'){rSel=(rSel+2)%3;snd();markRes()}else if(e.code==='ArrowRight'||e.code==='ArrowDown'){rSel=(rSel+1)%3;snd();markRes()}
-   else if(e.code==='Enter'||e.code==='Space')pickRes();else if(e.code==='KeyR'){rSel=0;pickRes()}else if(e.code==='Escape'){rSel=2;pickRes()}return}
-  if(!showing)return;
-  if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Enter','Escape','KeyA','KeyD','KeyW','KeyS','Space','KeyG'].includes(e.code)){e.preventDefault();e.stopImmediatePropagation()}else return;
-  if(e.repeat&&(e.code==='Enter'||e.code==='Space'))return;
-  const n=[D().length,OPP.length,COURSE.length,3];
-  if(e.code==='ArrowUp'||e.code==='KeyW'){row=(row+3)%4;snd();render()}
-  else if(e.code==='ArrowDown'||e.code==='KeyS'){row=(row+1)%4;snd();render()}
-  else if(['ArrowLeft','ArrowRight','KeyA','KeyD'].includes(e.code)){const s=e.code==='ArrowLeft'||e.code==='KeyA'?-1:1;
-   if(row===0)cSel=(cSel+s+n[0])%n[0];else if(row===1)oSel=(oSel+s+n[1])%n[1];else if(row===2)kSel=(kSel+s+n[2])%n[2];else bSel=(bSel+s+3)%3;snd();render()}
-  else if(e.code==='KeyG')garage();
-  else if(e.code==='Escape')back();
-  else if(e.code==='Enter'||e.code==='Space'){if(row===3)doBtn();else go()}},true);
- // ---- the main menu gets a third mode: TOUGE LEGENDS · TOFU RUN · VS BATTLE
- const tt=document.getElementById('driftTimeTrial');
- const btn=document.createElement('button');btn.id='vsBattle';btn.type='button';btn.innerHTML='<strong>VS BATTLE</strong>';btn.setAttribute('aria-label','VS Battle');
- tt.insertAdjacentElement('afterend',btn);
- const mcss=document.createElement('style');mcss.textContent=`
-#courseMenu #driftModeChoices #vsBattle{position:relative!important;height:clamp(60px,10.5dvh,96px)!important;background:#111!important;border:4px solid #fff!important;clip-path:polygon(5% 0,100% 0,95% 100%,0 100%)!important;padding:0 7%!important;transform:skew(0)!important;transition:transform .18s,background .18s!important;overflow:visible!important;box-shadow:none!important;margin-left:4.8vw!important;min-height:0!important;text-align:center!important}
-#courseMenu #driftModeChoices #vsBattle strong{font:italic 900 clamp(22px,2.8vw,44px)/1 Bangers,Impact,Comic Neue,'Arial Black',sans-serif!important;color:#fff!important;-webkit-text-stroke:2px #111;paint-order:stroke fill;text-shadow:4px 4px 0 #e8263b!important;letter-spacing:.02em;margin:0!important}
-#courseMenu #driftModeChoices #vsBattle.arcadeSelected,#courseMenu #driftModeChoices #vsBattle:hover,#courseMenu #driftModeChoices #vsBattle:focus-visible{background:#e8263b!important;border-color:#fff!important;transform:translateX(1.4vw) scale(1.04)!important}
-#courseMenu #driftModeChoices #vsBattle.arcadeSelected strong,#courseMenu #driftModeChoices #vsBattle:hover strong,#courseMenu #driftModeChoices #vsBattle:focus-visible strong{color:#fff!important;text-shadow:4px 4px 0 #111!important}`;
- // three plates stacked evenly (the menu's container was sized for two)
- mcss.textContent+=`
-html body #courseMenu #driftModeChoices>div:nth-child(2){height:auto!important;display:flex!important;flex-direction:column!important;gap:1.8vh!important}
-html body #courseMenu #driftModeChoices #driftRace,html body #courseMenu #driftModeChoices #driftTimeTrial,html body #courseMenu #driftModeChoices #vsBattle{position:relative!important;inset:auto!important;top:auto!important;left:auto!important;display:flex!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;width:100%!important;height:clamp(60px,10vh,92px)!important;min-height:60px!important;max-height:92px!important}
-html body #courseMenu #driftModeChoices #vsBattle strong{position:relative!important;width:auto!important;height:auto!important;overflow:visible!important;clip-path:none!important;display:block!important}`;
- document.head.appendChild(mcss);
- try{modeButtons.splice(modeButtons.indexOf(tt)+1,0,btn);
-  // arrow keys follow the plates as they appear on screen, top to bottom
-  {const exit=modeButtons.filter(b=>!document.getElementById('driftModeChoices').contains(b));const plates=modeButtons.filter(b=>!exit.includes(b)).sort((a,b)=>a.getBoundingClientRect().top-b.getBoundingClientRect().top||(a.compareDocumentPosition(b)&4?-1:1));modeButtons.splice(0,modeButtons.length,...plates,...exit);
-   setTimeout(()=>{const p=modeButtons.filter(b=>!exit.includes(b)).sort((a,b)=>a.getBoundingClientRect().top-b.getBoundingClientRect().top);if(p.every(b=>b.getBoundingClientRect().height>0))modeButtons.splice(0,modeButtons.length,...p,...exit)},600)}
-  const sync=b=>()=>{selectedArcadeMode=modeButtons.indexOf(b);highlightArcadeMode()};
-  for(const b of modeButtons){b.addEventListener('mouseenter',sync(b));b.addEventListener('focus',sync(b))}}catch(e){console.warn('vs menu',e)}
- btn.addEventListener('click',()=>{snd();open()});
- return {open,close,get showing(){return showing},OPP,COURSE};
-})();
-
 // ============================================================================================
 // WEATHER SOUND · rain on the roof and thunder with the lightning (every rainy run, any course)
 //  · light rain: assets/audio/rain.mp3 on a loop
@@ -17116,7 +16930,7 @@ const animePractice=window.animePractice=(()=>{
   ['s80','NISSAN SIL-EIGHTY','RWD','vs-s80.webp'],['s13i','NISSAN SILVIA S13 K\'s','RWD','vs-s13.webp'],['s14k','NISSAN SILVIA · KENTA (REDSUNS)','RWD','vs-s14.webp'],['levin','TOYOTA LEVIN AE85 / AE86','RWD','vs-levin.webp'],
   ['evo4','MITSUBISHI LANCER EVO','AWD','vs-evo4.webp'],['evo3','MITSUBISHI LANCER EVO III','AWD','vs-evo3.webp']];
  const WX=[['day','DAWN','the sun comes up as you drive'],['night','DUSK','night falls and the moon rises as you drive'],['moon','NIGHT','a moonlit night, dark the whole way'],['rain','RAIN','light rain'],['storm','STORM','heavy rain, thunder and lightning'],['snow','SNOW','fresh snow, falling flakes, an icy road']];
- const COURSES=[['lot','PARKING LOT · DRIVING SCHOOL'],['akinanew','AKINA · DOWNHILL ↓'],['akinanew_up','AKINA · UPHILL ↑'],['down','AKINA CLASSIC · DOWNHILL ↓'],['up','AKINA CLASSIC · UPHILL ↑'],['usui','USUI · THE LOOP'],['myogi','MYOGI · DOWNHILL ↓'],['myogi_up','MYOGI · UPHILL ↑'],['akagi','AKAGI · DOWNHILL ↓'],['akagi_up','AKAGI · UPHILL ↑'],['irohazaka','IROHAZAKA · DOWNHILL ↓'],['irohazaka_up','IROHAZAKA · UPHILL ↑'],['shomaru','SHOMARU · DOWNHILL ↓'],['shomaru_up','SHOMARU · UPHILL ↑']].filter(c=>!['lot','down','up'].includes(c[0]));   /* (build 429) parking lot and Akina Classic hidden from practice for now (they still work; drop this filter to bring them back) */   /* (build 410) the new passes */
+ const COURSES=[   /* (485) the driving school (lot) is gone */['akinanew','AKINA · DOWNHILL ↓'],['akinanew_up','AKINA · UPHILL ↑'],['down','AKINA CLASSIC · DOWNHILL ↓'],['up','AKINA CLASSIC · UPHILL ↑'],['usui','USUI · THE LOOP'],['myogi','MYOGI · DOWNHILL ↓'],['myogi_up','MYOGI · UPHILL ↑'],['akagi','AKAGI · DOWNHILL ↓'],['akagi_up','AKAGI · UPHILL ↑'],['irohazaka','IROHAZAKA · DOWNHILL ↓'],['irohazaka_up','IROHAZAKA · UPHILL ↑'],['shomaru','SHOMARU · DOWNHILL ↓'],['shomaru_up','SHOMARU · UPHILL ↑']].filter(c=>!['lot','down','up'].includes(c[0]));   /* (build 429) parking lot and Akina Classic hidden from practice for now (they still work; drop this filter to bring them back) */   /* (build 410) the new passes */
  const passOf=c=>/^(usui|myogi|akagi|irohazaka|akinanew|shomaru)/.test(c||'')?c.replace(/_up$/,''):null,isUp=c=>c==='up'||/_up$/.test(c||'');
  const SONGS=['around_the_world','back_on_the_rocks','beat_of_the_rising_sun','boom_boom_japan','dance_around_the_world','dave_rodgers_100','deja_vu','dont_stand_so_close',
   'dont_stop_the_music','get_me_power','goodbye_yellow_brick_road','heartbeat','kimi_ga_iru','love_and_money','mikado','night_of_fire','no_one_sleep_in_tokyo','rage_your_dream',
@@ -17539,6 +17353,7 @@ html body #courseMenu #driftModeChoices button .mSub{font-size:clamp(10px,.85vw,
   // the driver's name on the screen
   {const D=dlist(),d=D.find(x=>x.id===S.driver)||D[0];const b=document.createElement('div');b.style.cssText='position:fixed;right:2vw;top:7vh;z-index:44;font:400 clamp(12px,1.1vw,17px) Bangers,Bangers,Impact,sans-serif;letter-spacing:.14em;color:#fff;background:#111b;padding:.4vh .8vw;border-left:5px solid '+d.acc+';pointer-events:none';
    b.textContent='HASHIRIKOMI · '+d.name+' · '+(window.__swap20v?'AE86 TRUENO 20V':(d.carName||(CARS.find(c=>c[0]===S.car)||CARS[0])[1]))+' · '+(WX.find(w=>w[0]===W)||WX[0])[1];document.body.appendChild(b)}}
+ if(S.course==='lot')S.course='akinanew';
  if(/[?&]pracmenu=1/.test(location.search)){const rq=new URLSearchParams(location.search).get('rival');if(rq){window.__keepRival=1;S.rival=+rq}const iv3=setInterval(()=>{const m=document.getElementById('courseMenu');if(!m||!document.documentElement.classList.contains('idReady'))return;clearInterval(iv3);try{open();history.replaceState(null,'',location.pathname)}catch(e){}},200)}
  return {open,close,get showing(){return showing},get setup(){return S},PRAC};
 })();
@@ -21373,6 +21188,138 @@ const animeCutscene=window.animeCutscene=(()=>{
  {const o=updatePlayerVehiclePose;updatePlayerVehiclePose=function(dt){const r=o.apply(this,arguments);tick();return r}}
  window.__skids={mesh,clear,count:()=>used,_demo:(pts)=>{let a=null;for(const p of pts){const y=ry(p[0],p[1]);if(y==null)continue;const b={x:p[0],y,z:p[1]};if(a)strip(a,b,W,.6,.6);a=b}flush();return used}};
 }catch(e){console.warn('skids',e)}})();
+
+// ============================================================================================================
+// (485) TOUGE LEGENDS (story continue) and CHAPTER SELECT in the three-thirds style of the title screen, Hashirikomi and
+// Game Options. The screens keep their own rows, keys and clicks (story_dawn.js / features.js); this dresses them:
+// left third = title and progress (or the stages), middle = the rows as slanted bars stepping along the diagonal,
+// right = the rival (face + car) and a card for the chapter.
+// ============================================================================================================
+(()=>{try{
+ const K=.28,L1=y=>innerWidth/3+(innerHeight*.5-y)*K;   // the left diagonal's x at height y (px)
+ const IMG=n=>'assets/images/'+n;
+ const webp=n=>String(n||'').replace(/\.(png|jpe?g)$/i,'.webp');
+ const RV=()=>window.animeRivals;
+ const RANKS=()=>{try{return JSON.parse(localStorage.getItem('initialDriftRanks')||'{}')||{}}catch(e){return {}}};
+ const stageOf=c=>String((c&&c.arc)||'').split('·')[0].trim()||'STORY';
+ const picOf=c=>{const s=String((c&&c.sub)||'').toUpperCase();return /RAIN|STORM/.test(s)?'stage-3-storm.webp':/DAWN|SUNSET|EVENING/.test(s)?'stage-1-sunset.webp':/NIGHT/.test(s)?'stage-2-night.webp':'stage-1.webp'};
+ function info(i){const R=RV();if(!R)return null;const c=R.CH[i];if(!c)return null;const o=R.R&&R.R[c.opp];
+  return {i,c,o,title:c.title||'',sub:(c.sub||'').replace(/"/g,''),stage:stageOf(c),pic:picOf(c)}}
+ const css=document.createElement('style');css.textContent=`
+.s3wrap{position:fixed;inset:0;z-index:0;pointer-events:none}
+.s3bg{position:absolute;inset:0;background:repeating-linear-gradient(105deg,transparent 0 140px,rgba(255,255,255,.025) 140px 176px),radial-gradient(ellipse at 50% 110%,#3a161b 0%,#1a1520 50%,#0f0d13 100%)}
+.s3lp{position:absolute;inset:0;background:#ee1c25;clip-path:polygon(0 0,calc(33.333vw + ${50*K}vh) 0,calc(33.333vw - ${50*K}vh) 100%,0 100%)}
+.s3lp:after{content:'';position:absolute;inset:0;clip-path:polygon(0 0,calc(33.333vw + ${50*K}vh - 6px) 0,calc(33.333vw - ${50*K}vh - 6px) 100%,0 100%);background:radial-gradient(circle,rgba(255,255,255,.05) 1.2px,transparent 1.6px) 0 0/8px 8px,radial-gradient(ellipse at 30% 40%,#232030 0%,#15121c 70%)}
+.s3ttl{position:absolute;left:3vw;top:6vh;font:400 clamp(30px,3.4vw,58px)/1 'MangaMaster BB',Bangers,Bangers,Impact,sans-serif;letter-spacing:.02em;color:#fff;-webkit-text-stroke:2px #14101c;paint-order:stroke fill;text-shadow:4px 4px 0 #ee1c25}
+.s3ttl small{display:block;font:italic 700 clamp(10px,.9vw,15px) 'Barlow Condensed',sans-serif;letter-spacing:.34em;color:#cfc9d9;-webkit-text-stroke:0;text-shadow:none;margin-bottom:1vh}
+.s3ttl em{display:block;font:700 clamp(13px,1.2vw,20px) Dela Gothic One,'Noto Sans JP',sans-serif;font-style:normal;letter-spacing:.3em;color:#fff;-webkit-text-stroke:0;text-shadow:none;margin-top:1.2vh}
+.s3stat{position:absolute;left:3vw;font:400 clamp(18px,1.9vw,32px) 'MangaMaster BB',Bangers,Bangers,Impact,sans-serif;color:#fff;-webkit-text-stroke:1px #14101c;text-shadow:3px 3px 0 #ee1c25}
+.s3stat small{display:block;font:italic 700 clamp(9px,.75vw,12px) 'Barlow Condensed',sans-serif;letter-spacing:.3em;color:#a9a3b5;-webkit-text-stroke:0;text-shadow:none;margin-top:.5vh}
+.s3bar{position:absolute;left:3vw;width:19vw;height:8px;background:#2a2433;transform:skew(-15deg)}.s3bar i{position:absolute;inset:0 auto 0 0;background:#ee1c25}
+.s3back{position:absolute;left:calc(33.333vw + ${47*K}vh + 1.6vw);top:2.2vh;pointer-events:auto;cursor:pointer;font:italic 700 clamp(14px,1.2vw,20px) 'Barlow Condensed',sans-serif;letter-spacing:.18em;color:#e6e1ee;padding-left:.6vw;border-left:3px solid transparent}
+.s3back:hover{color:#fff;border-left-color:#ee1c25}
+.s3hint{position:absolute;left:calc(33.333vw - ${47*K}vh + 1.6vw);bottom:2.2vh;font:italic 700 clamp(10px,.82vw,13px) 'Barlow Condensed',sans-serif;letter-spacing:.22em;color:rgba(236,232,244,.6)}
+.s3rv{position:absolute;left:calc(66.667vw + ${(50-31)*K}vh + 1.1vw);right:calc(1.4vw - ${24*K}vh);top:7vh;height:24vh;background:#ee1c25;clip-path:polygon(${24*K}vh 0,100% 0,calc(100% - ${24*K}vh) 100%,0 100%);filter:drop-shadow(6px 6px 0 #14101c)}
+.s3rv .in{position:absolute;inset:4px;clip-path:polygon(${24*K}vh 0,100% 0,calc(100% - ${24*K}vh) 100%,0 100%);overflow:hidden;background:#000}
+.s3rv .f{position:absolute;left:0;top:0;bottom:0;width:52%;background:center 24%/cover no-repeat}
+.s3rv .sh{position:absolute;left:0;top:0;bottom:0;width:52%;background:linear-gradient(180deg,rgba(0,0,0,.6),transparent 30%,transparent 60%,rgba(0,0,0,.85))}
+.s3rv .c{position:absolute;right:0;top:0;bottom:0;width:58%;background:50% 55%/cover no-repeat;clip-path:polygon(${24*K}vh 0,100% 0,100% 100%,0 100%);border-left:6px solid #ee1c25}
+.s3rv .lb{position:absolute;left:calc(${24*K}vh + 1vw);bottom:calc(1.4vh + clamp(20px,2.2vw,38px) + .4vh);font:italic 700 clamp(10px,.8vw,13px) 'Barlow Condensed',sans-serif;letter-spacing:.34em;color:#e8e3ef}
+.s3rv .nm{position:absolute;left:calc(${24*K}vh + 1vw);bottom:1.4vh;font:400 clamp(20px,2.2vw,38px)/1 'MangaMaster BB',Bangers,Bangers,Impact,sans-serif;color:#fff;-webkit-text-stroke:1px #14101c;paint-order:stroke fill;text-shadow:3px 3px 0 var(--acc,#ee1c25)}
+.s3rv .ct{position:absolute;right:calc(${24*K}vh + .6vw);top:1.1vh;font:italic 700 clamp(10px,.8vw,13px) 'Barlow Condensed',sans-serif;letter-spacing:.2em;color:#fff;background:rgba(20,16,28,.86);padding:.3vh .7vw;white-space:nowrap}
+.s3rv.solo .f,.s3rv.solo .c,.s3rv.solo .sh{display:none}.s3rv.solo .in{background:radial-gradient(ellipse at 60% 120%,#3a2a20 0%,#0c0a10 60%)}
+.s3card{position:absolute;left:calc(66.667vw + ${(50-96)*K}vh + 1.1vw);right:calc(1.4vw - ${62*K}vh);top:34vh;bottom:4vh;background:#fff;clip-path:polygon(${62*K}vh 0,100% 0,calc(100% - ${62*K}vh) 100%,0 100%);filter:drop-shadow(7px 7px 0 #ee1c25)}
+.s3card .in{position:absolute;inset:5px;clip-path:polygon(${62*K}vh 0,100% 0,calc(100% - ${62*K}vh) 100%,0 100%);overflow:hidden;background:#14101c}
+.s3card img{position:absolute;left:0;top:0;width:100%;height:56%;object-fit:cover;object-position:50% 40%}
+.s3card .sh{position:absolute;left:0;right:0;top:32%;height:25%;background:linear-gradient(180deg,transparent,#14101c)}
+.s3card .tx{position:absolute;left:calc(${62*K*.42}vh + 1.6vw);right:calc(${62*K}vh + 1.2vw);top:55%}
+.s3card .tx small{display:block;font:italic 700 clamp(10px,.8vw,13px) 'Barlow Condensed',sans-serif;letter-spacing:.3em;color:#ff8a8f;margin-bottom:.8vh}
+.s3card .tx b{display:block;font:400 clamp(22px,2.2vw,38px)/1.05 'MangaMaster BB',Bangers,Bangers,Impact,sans-serif;color:#fff;-webkit-text-stroke:1px #14101c;paint-order:stroke fill;text-shadow:3px 3px 0 #ee1c25}
+.s3card .tx p{margin:1.2vh 0 0;font:500 clamp(13px,1.05vw,17px)/1.4 'Barlow Condensed',Comic Neue,Arial,sans-serif;letter-spacing:.03em;color:#e6e1ee}
+/* the host screens */
+#storyCont.s3,#chapSel.s3{background:#100e14!important;display:none}
+#storyCont.s3.on,#chapSel.s3.on{display:block!important}
+#storyCont.s3 .bx,#chapSel.s3 .bx{position:fixed!important;inset:0!important;z-index:1;transform:none!important;background:none!important;border:0!important;box-shadow:none!important;padding:0!important;margin:0!important;width:auto!important;max-height:none!important;min-width:0!important;pointer-events:none}
+#storyCont.s3 .bx{padding-top:16vh!important;display:block!important;box-sizing:border-box}
+#storyCont.s3 h2,#chapSel.s3 h2,#storyCont.s3 .bx>.hint,#chapSel.s3 .bx>.hint{display:none!important}
+#chapSel.s3 .ls{position:absolute!important;left:0;right:0;top:9vh;bottom:7vh;overflow-y:auto!important;overflow-x:hidden;padding:1.6vh 0 1vh!important;pointer-events:auto;scrollbar-width:none}
+#chapSel.s3 .ls::-webkit-scrollbar{display:none}
+#storyCont.s3 .opt,#chapSel.s3 .opt{position:relative!important;pointer-events:auto;isolation:isolate;box-sizing:border-box;width:calc(33.333vw - 2.2vw)!important;height:7.4vh;margin:0 0 2.2vh!important;padding:0 calc(${7.4*K}vh + 1vw)!important;border:0!important;background:none!important;color:#fff!important;display:flex!important;flex-direction:column;justify-content:center;align-items:center;text-align:center;font:400 clamp(17px,1.7vw,28px)/1 'MangaMaster BB',Bangers,Bangers,Impact,sans-serif!important;letter-spacing:.04em!important;-webkit-text-stroke:1px #14101c;paint-order:stroke fill;text-shadow:2px 2px 0 #14101c;cursor:pointer;transform:none!important}
+#storyCont.s3 .opt:before,#chapSel.s3 .opt:before{content:'';position:absolute;inset:0;z-index:-1;background:rgba(20,16,28,.8);clip-path:polygon(${7.4*K}vh 0,100% 0,calc(100% - ${7.4*K}vh) 100%,0 100%)}
+#storyCont.s3 .opt.sel:before,#chapSel.s3 .opt.sel:before{background:#ee1c25}
+#storyCont.s3 .opt small,#chapSel.s3 .opt small{display:block;font:italic 700 clamp(9px,.68vw,11px) 'Barlow Condensed',sans-serif!important;letter-spacing:.2em!important;color:#e6e1ee!important;-webkit-text-stroke:0;text-shadow:none;margin-top:.5vh;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+#storyCont.s3 .opt .tab,#chapSel.s3 .opt .tab{position:absolute;left:calc(${7.4*K}vh + .2vw);top:-1.35vh;padding:.25vh .8vw .3vh;background:#14101c;color:#cfc9d9;white-space:nowrap;font:italic 700 clamp(9px,.72vw,12px) 'Barlow Condensed',sans-serif;letter-spacing:.24em;-webkit-text-stroke:0;text-shadow:none;clip-path:polygon(.5vh 0,100% 0,calc(100% - .5vh) 100%,0 100%)}
+#storyCont.s3 .opt.sel .tab,#chapSel.s3 .opt.sel .tab{background:#fff;color:#ee1c25}
+#storyCont.s3 .opt[data-o="0"]{height:9vh;font-size:clamp(22px,2.2vw,36px)!important}
+#chapSel.s3 .opt{display:grid!important;grid-template-columns:3vw 1fr 3vw;gap:.4vw;justify-items:center}
+#chapSel.s3 .opt .n{font:400 clamp(15px,1.4vw,24px) 'MangaMaster BB',Bangers,Bangers,Impact,sans-serif!important;color:#ff8a8f!important;min-width:0!important}
+#chapSel.s3 .opt.sel .n{color:#fff!important}
+#chapSel.s3 .opt .tt{font:400 clamp(15px,1.45vw,24px)/1 'MangaMaster BB',Bangers,Bangers,Impact,sans-serif!important;letter-spacing:.03em!important;max-width:100%;overflow:hidden}
+#chapSel.s3 .opt .tt{white-space:nowrap;text-overflow:ellipsis}#chapSel.s3 .opt .tt small{white-space:nowrap}
+#chapSel.s3 .opt .rk{font:400 clamp(20px,1.9vw,32px)/1 'MangaMaster BB',Bangers,Bangers,Impact,sans-serif!important;color:#fff!important}
+#chapSel.s3 .opt .rk small{display:none!important}
+#chapSel.s3 .opt.sel .tt,#chapSel.s3 .opt.sel{color:#fff!important}
+.s3stages{position:absolute;left:0;top:28vh;width:100%}
+.s3stg{position:absolute;width:21vw;height:7.4vh;isolation:isolate;display:flex;flex-direction:column;justify-content:center;padding-left:calc(${7.4*K}vh + 1.2vw);box-sizing:border-box}
+.s3stg:before{content:'';position:absolute;inset:0;z-index:-1;background:rgba(20,16,28,.8);clip-path:polygon(${7.4*K}vh 0,100% 0,calc(100% - ${7.4*K}vh) 100%,0 100%)}
+.s3stg.sel:before{background:#ee1c25}.s3stg.lock{opacity:.45}
+.s3stg b{font:400 clamp(16px,1.6vw,28px)/1 'MangaMaster BB',Bangers,Bangers,Impact,sans-serif;color:#fff;-webkit-text-stroke:1px #14101c;paint-order:stroke fill;text-shadow:2px 2px 0 #14101c}
+.s3stg small{font:italic 700 clamp(9px,.68vw,11px) 'Barlow Condensed',sans-serif;letter-spacing:.24em;color:#e6e1ee;margin-top:.4vh}
+@media(max-width:760px){.s3lp,.s3rv,.s3card,.s3stages{display:none}#storyCont.s3 .opt,#chapSel.s3 .opt{width:92vw!important;margin-left:4vw!important}}`;
+ document.head.appendChild(css);
+ // place the rows along the diagonal (by where each one is on the screen now, so a scrolled list still lines up)
+ function lay(host){if(!host.classList.contains('on'))return;const G=innerWidth*.011;host.querySelectorAll('.opt').forEach(o=>{const r=o.getBoundingClientRect(),y=r.top-(parseFloat(o.style.marginLeft)?0:0)+r.height/2;o.style.setProperty('margin-left',Math.round(L1(y)+G)+'px','important')})}
+ function rival(el,inf,label){if(!el)return;const o=inf&&inf.o,solo=!o||(inf.c.rules&&inf.c.rules.solo);el.classList.toggle('solo',!!solo);el.style.setProperty('--acc',(o&&o.acc)||'#ee1c25');
+  el.querySelector('.lb').textContent=label;el.querySelector('.nm').textContent=solo?(inf?'SOLO RUN':''):(o.name+(o.last&&o.last.startsWith('&')?' '+o.last:''));
+  el.querySelector('.ct').textContent=solo?'':((o.carName||'')+(o.team?' · '+o.team:''));el.querySelector('.ct').style.display=solo?'none':'';
+  if(!solo){el.querySelector('.f').style.backgroundImage=`url(${IMG(o.img+'.webp')})`;el.querySelector('.c').style.backgroundImage=`url(${IMG(webp(o.vs))})`}}
+ function card(el,inf,tag,text){if(!el||!inf)return;el.querySelector('img').src=IMG(inf.pic);el.querySelector('small').textContent=tag;el.querySelector('b').textContent=inf.title;el.querySelector('p').textContent=text}
+ const shell=(extra)=>`<div class="s3wrap"><div class="s3bg"></div><div class="s3lp"></div>${extra}
+   <div class="s3rv"><div class="in"><div class="f"></div><div class="sh"></div><div class="c"></div></div><span class="lb"></span><span class="nm"></span><span class="ct"></span></div>
+   <div class="s3card"><div class="in"><img alt=""><div class="sh"></div><div class="tx"><small></small><b></b><p></p></div></div></div></div>`;
+ // ---- TOUGE LEGENDS (continue / chapter select / new story)
+ const sc=document.getElementById('storyCont');
+ if(sc){sc.classList.add('s3');
+  const dress=()=>{if(!sc.querySelector('.bx')||sc.querySelector('.s3wrap'))return;const R=RV();
+   const st=R&&R.state||{done:-1,beaten:{}},N=R?R.CH.length:1,done=Math.max(0,(st.done|0)+1),beat=Object.keys(st.beaten||{}).length;
+   let k=null;try{k=localStorage.getItem('initialDriftStoryAt')}catch(e){}let ni=R?R.CH.findIndex(c=>c.key===k):-1;if(ni<0&&R)ni=Math.min(N-1,Math.max(0,(st.done|0)+1));
+   const inf=k==='home'?null:info(ni),rk=RANKS(),ranks=R?R.CH.slice(0,done).map(c=>rk[c.key]&&rk[c.key].r).filter(Boolean):[];
+   sc.insertAdjacentHTML('afterbegin',shell(`<div class="s3ttl"><small>STORY MODE</small>TOUGE<br>LEGENDS<em>峠の伝説</em></div>
+     <div class="s3stat" style="top:52vh">${inf?inf.stage:'PROLOGUE'}<small>CHAPTER ${Math.min(done+1,N)} OF ${N} · ${beat} RIVAL${beat===1?'':'S'} BEATEN</small></div>
+     <div class="s3bar" style="top:61vh"><i style="width:${Math.round(100*done/N)}%"></i></div>
+     ${ranks.length?`<div class="s3stat" style="top:67vh;font-size:clamp(15px,1.4vw,24px)">RANKS · ${ranks.join(' ')}<small>YOUR BEST FINISH IN EACH RACE</small></div>`:''}
+     <div class="s3hint">↑ ↓ CHOOSE · ENTER SELECT · ESC BACK</div>`));
+   const T={0:'CONTINUE',3:'CHAPTERS',1:'FROM THE TOP',2:'BACK'};sc.querySelectorAll('.opt').forEach(o=>{if(!o.querySelector('.tab'))o.insertAdjacentHTML('afterbegin',`<span class="tab">${T[o.dataset.o]||''}</span>`)});
+   const bx=sc.querySelector('.bx');if(bx){bx.style.paddingTop='16vh';bx.style.boxSizing='border-box'}
+   if(k==='home'){rival(sc.querySelector('.s3rv'),{o:R&&R.R[1],c:{}},'NEXT RIVAL');card(sc.querySelector('.s3card'),{pic:'stage-1-sunset.webp',title:'THE RUN HOME'},'PROLOGUE · NEXT UP','Down the mountain after the delivery. Something yellow is coming up behind you.')}
+   else{rival(sc.querySelector('.s3rv'),inf,'NEXT RIVAL');card(sc.querySelector('.s3card'),inf,`CHAPTER ${String((inf&&inf.i||0)+1).padStart(2,'0')} · NEXT UP`,inf?inf.sub.split('·').map(x=>x.trim()).join(' · '):'')}
+   requestAnimationFrame(()=>lay(sc))};
+  new MutationObserver(dress).observe(sc,{childList:true});
+  new MutationObserver(()=>requestAnimationFrame(()=>lay(sc))).observe(sc,{attributes:true,attributeFilter:['class']});}
+ // ---- CHAPTER SELECT
+ const cs=document.getElementById('chapSel');
+ if(cs){cs.classList.add('s3');
+  const upd=()=>{const s=cs.querySelector('.opt.sel');if(!s)return;const inf=info(+s.dataset.i);if(!inf)return;const R=RV(),rk=RANKS()[inf.c.key],done=R&&R.state?R.state.done:-1;
+   rival(cs.querySelector('.s3rv'),inf,'RIVAL');card(cs.querySelector('.s3card'),inf,`CHAPTER ${String(inf.i+1).padStart(2,'0')} · ${inf.i>done?'NEXT UP':rk?'RANK '+rk.r:'CLEARED'}`,inf.sub.split('·').map(x=>x.trim()).join(' · '));
+   cs.querySelectorAll('.s3stg').forEach(g=>g.classList.toggle('sel',g.dataset.s===inf.stage))};
+  const dress=()=>{if(!cs.querySelector('.bx')||cs.querySelector('.s3wrap'))return;const R=RV();if(!R)return;const done=R.state?R.state.done:-1;
+   const ST=[];R.CH.forEach((c,i)=>{const s=stageOf(c);let g=ST.find(x=>x.s===s);if(!g)ST.push(g={s,n:0,reach:0});g.n++;if(i<=done+1)g.reach++});
+   const G=innerWidth*.011;
+   cs.insertAdjacentHTML('afterbegin',shell(`<div class="s3ttl"><small>TOUGE LEGENDS</small>CHAPTER<br>SELECT</div>
+     <div class="s3stages">${ST.map((g,n)=>{const y=innerHeight*.28+n*innerHeight*.095+innerHeight*.037;return `<div class="s3stg${g.reach?'':' lock'}" data-s="${g.s}" style="top:${(n*9.5).toFixed(1)}vh;left:${Math.round(L1(y)-G-innerWidth*.21)}px"><b>${g.s}</b><small>${g.reach?g.reach+' / '+g.n+' REACHED':'LOCKED'}</small></div>`}).join('')}</div>
+     <div class="s3stat" style="top:76vh;font-size:clamp(15px,1.4vw,24px)">RANKS · S A B C<small>EASY TOPS OUT AT A</small></div>
+     <div class="s3hint">↑ ↓ CHOOSE · ENTER RACE · ESC BACK</div>`));
+   cs.querySelectorAll('.opt .tt small').forEach(sm=>{sm.textContent=sm.textContent.replace(/^[^·]*STAGE\s*·\s*/,'').replace(/"/g,'')});
+   upd();requestAnimationFrame(()=>lay(cs))};
+  new MutationObserver(dress).observe(cs,{childList:true});
+  new MutationObserver(()=>{upd();requestAnimationFrame(()=>lay(cs))}).observe(cs,{attributes:true,subtree:true,attributeFilter:['class']});
+  cs.addEventListener('scroll',()=>lay(cs),true)}
+ // BACK links (Esc already works; this is for the mouse)
+ for(const h of [sc,cs]){if(!h)continue;h.addEventListener('click',e=>{if(e.target&&e.target.classList&&e.target.classList.contains('s3back'))h.classList.remove('on')})}
+ addEventListener('resize',()=>{for(const h of [sc,cs])if(h)lay(h)});
+}catch(e){console.warn('story3',e)}})();
+// (485) the hidden test stage picker (S on the title screen) is gone: the element leaves the page, so RACE always starts the story
+(()=>{const kill=()=>{const p=document.getElementById('testStagePicker');if(p)p.remove()};kill();setTimeout(kill,0);setTimeout(kill,3000)})();
 
 setTimeout(()=>document.documentElement.classList.add('idReady'),60);   // the anime menu is built: lift the loading cover
 let frameErrorCount=0;
