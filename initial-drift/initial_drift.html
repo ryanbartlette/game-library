@@ -4111,7 +4111,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 492';
+window.__BUILD='BUILD 493';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -19034,9 +19034,9 @@ html body #speed #arcadeTach{position:relative;z-index:1;overflow:visible}
    // sideways slide quickly, so a car crossing the line in a drift straightens up instead of sliding into the wall
    if(typeof nearestInfo==='function'&&typeof yaw==='number'){const C=centers,M=C.length-1,i=nearestInfo(pos.x,pos.z).index,t=tangents[i],p=C[i];if(t&&p){const sg=1;   /* (474) always on down the course: choosing by the car's heading turned a car that crossed the line sideways right round */
      const nx=-t.z,nz=t.x,off=(pos.x-p.x)*nx+(pos.z-p.z)*nz,lim=2.6+(window.__wideAt?__wideAt(i):0),offT=Math.max(-lim,Math.min(lim,off*.55));
-     const mpi=window.M_PER_INDEX||3,L=7+Math.min(v,30)*.55,j=Math.max(0,Math.min(M,i+sg*Math.round(L/mpi))),q=C[j],tj=tangents[j]||t,rest=Math.max(0,L-Math.abs(j-i)*mpi);
+     const mpi=window.M_PER_INDEX||3,L=7+Math.min(v,30)*.55,j=Math.max(0,Math.min(M,i+sg*Math.round(L/mpi))),q=C[j],tj=tangents[j]||t,aE=j>=M?Math.max(0,(pos.x-q.x)*tj.x+(pos.z-q.z)*tj.z):0,rest=Math.max(0,L-Math.abs(j-i)*mpi)+aE;   /* (493) past the very end of the course the aim point stays ahead of the car (it was left at the end of the road, behind you, and turned the car right round) */
      const ax=q.x+tj.x*sg*rest+(-tj.z)*offT,az=q.z+tj.z*sg*rest+tj.x*offT,want=Math.atan2(-(ax-pos.x),-(az-pos.z));
-     let d=want-yaw;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;yaw+=d*Math.min(1,dt*3.2);
+     let d=want-yaw;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;d=Math.max(-.6,Math.min(.6,d));yaw+=d*Math.min(1,dt*3.2)*Math.min(1,v/2.5);   /* (493) only a rolling car turns (never round on the spot once stopped), and never more than a gentle correction */
      try{sideVel*=Math.exp(-dt*6)}catch(e){}
      /* (476) a car that crosses the line in a drift straightens up: the drift angle eases out and the drift is let go (it was
         still being held, so the car carried on rotating and spun round) */
