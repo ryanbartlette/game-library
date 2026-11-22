@@ -4111,7 +4111,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 491';
+window.__BUILD='BUILD 492';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -11624,8 +11624,7 @@ const animeCareer=window.animeCareer=(()=>{
  // story mode: the opening dawn delivery skips the board (stock AE86, uphill to the hotel)
  function storyDawn(){order=ORDERS[0];mode='delivery';weather='dawn';window.__tofuWeather='dawn';try{applyCanyonElevation(1)}catch(e){}pendingHome=false;
   akinaCourse.run('dawn');if(typeof animeTofu!=='undefined')animeTofu.setLimit(akinaCourse.limitFor('dawn'));restoreAll();resetWheels();resetDrift()}
- function board(f){if(window.__storyDelivery){storyDawn();f();return true}   /* (485) the old Tofu Run board and garage are gone: anything else that lands here goes back to the title screen */
-  {location.href=location.pathname;return true}
+ function board(f){if(window.__storyDelivery){storyDawn();f();return true}   /* (492) the board stays: Hashirikomi runs start through it (485's redirect sent every practice run to the title screen) */
   cb=f;sel=Math.min(sel,ORDERS.length-1);if(!unlocked(ORDERS[sel]))sel=0;
   renderBoard();if(typeof animeTofu!=='undefined')animeTofu.music('car');return true}   // same song as the driver select
  // the story races never use Tofu Run paint, parts or weather
@@ -17442,7 +17441,8 @@ ${S} .row .v small span{color:#ff8a8f!important}
 ${S} .go{position:relative!important;display:block!important;width:18vw!important;height:8.4vh!important;margin-top:2.2vh!important;margin-right:0!important;padding:0!important;border:0!important;box-shadow:none!important;transform:none!important;background:#fff!important;clip-path:polygon(${8.4*K}vh 0,100% 0,calc(100% - ${8.4*K}vh) 100%,0 100%)!important;font:400 clamp(24px,2.4vw,40px) 'MangaMaster BB',Bangers,Bangers,Impact,sans-serif!important;letter-spacing:.06em!important;color:#fff!important;text-shadow:3px 3px 0 #14101c!important;cursor:pointer;left:2.4vw}
 ${S} .go:before{content:''!important;display:block!important;position:absolute!important;inset:4px!important;z-index:-1;background:#ee1c25!important;clip-path:polygon(${8.4*K}vh 0,100% 0,calc(100% - ${8.4*K}vh) 100%,0 100%)!important;border:0!important;transform:none!important}
 ${S} .go{isolation:isolate}
-${S} .go.sel{filter:drop-shadow(0 0 12px rgba(238,28,37,.7))}
+${S} .go{background:#ee1c25!important;transition:transform .12s}${S} .go:before{background:#1a1622!important}
+${S} .go.sel{background:#fff!important;transform:scale(1.06);filter:drop-shadow(0 0 14px rgba(238,28,37,.8))}${S} .go.sel:before{background:#ee1c25!important}   /* (492) DRIVE: dark until it's chosen, then red with a white edge and a little pop */
 /* the rival strip (bigger), and the driver panel */
 ${S} .who{border:0!important;box-shadow:none!important;transform:none!important;margin:0!important}
 ${S} .who.rv{position:absolute!important;left:auto!important;right:1.4vw!important;top:7vh!important;bottom:auto!important;width:31vw!important;height:24vh!important;background:#ee1c25!important;clip-path:polygon(${24*K}vh 0,100% 0,calc(100% - ${24*K}vh) 100%,0 100%)!important;filter:drop-shadow(6px 6px 0 #14101c);z-index:3}
