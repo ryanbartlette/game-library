@@ -4111,7 +4111,7 @@ function updateMiniMap(){const __mk=6.83/(window.M_PER_INDEX||6.83);
  if(window.__shadowDot){const [sx,sy]=pt(window.__shadowDot);c.save();c.shadowBlur=5;c.shadowColor='#ffffff';c.fillStyle='#f4f4f4';c.strokeStyle='#1b1b1b';c.lineWidth=2;c.beginPath();c.arc(sx,sy,5.5,0,Math.PI*2);c.fill();c.stroke();c.restore()}
 }
 
-window.__BUILD='BUILD 487';
+window.__BUILD='BUILD 488';
 // AE86 Sprinter Trueno (panda two-tone) — procedural model.
 // Front is -Z, right is +X, ground at y=0 (tyre contact). Length 4.46, width ~1.82, height 1.41.
 // buildAE86(THREE, M) -> { root, wheels, popups, headLenses, tailLamps, setPopups(t), update(dt,speed,steer) }
@@ -21441,5 +21441,51 @@ html body #finRoll .opt.sel .tab{background:#fff;color:#ee1c25}
  new MutationObserver(()=>{if(ov.classList.contains('ask')){fill();requestAnimationFrame(lay)}}).observe(ov,{attributes:true,attributeFilter:['class']});
  addEventListener('resize',()=>{if(ov.classList.contains('ask'))lay()});
 }catch(e){console.warn('finish f3',e)}})();
+</script>
+<script>
+/* (488) RESULTS (practice / delivery) in the three-thirds style: the verdict and the times in the left third, the choices as
+   slanted bars down the diagonal, the driver (and his line) in the big panel on the right */
+(function r3go(){try{const root=document.getElementById('tofuDone');if(!root){setTimeout(r3go,300);return}if(root.dataset.r3)return;root.dataset.r3=1;
+ const K=.28,L1=y=>innerWidth/3+(innerHeight*.5-y)*K,R='html body #tofuDone',TAB=['AGAIN','NEXT','LEAVE'];
+ const css=document.createElement('style');css.textContent=`
+${R}{background:linear-gradient(90deg,rgba(12,10,18,.5),rgba(12,10,18,.3) 45%,rgba(12,10,18,.2))!important}
+${R} .rays,${R} .burst,${R} .sparks,${R} .tofuRow{display:none!important}
+${R}:before{content:'';position:absolute;inset:0;background:#ee1c25;clip-path:polygon(0 0,calc(33.333vw + ${50*K}vh) 0,calc(33.333vw - ${50*K}vh) 100%,0 100%);animation:r3in .25s ease-out}
+${R}:after{content:'';position:absolute;inset:0;pointer-events:none;clip-path:polygon(0 0,calc(33.333vw + ${50*K}vh - 6px) 0,calc(33.333vw - ${50*K}vh - 6px) 100%,0 100%);background:radial-gradient(circle,rgba(255,255,255,.05) 1.2px,transparent 1.6px) 0 0/8px 8px,linear-gradient(160deg,rgba(35,32,48,.97),rgba(21,18,28,.97));animation:r3in .25s ease-out}
+@keyframes r3in{from{transform:translateX(-12vw);opacity:0}}
+${R} .title{left:3vw!important;right:auto!important;top:6vh!important;text-align:left!important;transform:none!important;z-index:3}
+${R} .title b{font:400 clamp(36px,4.2vw,72px)/1 'MangaMaster BB',Bangers,Impact,sans-serif!important;color:#fff!important;-webkit-text-stroke:2px #14101c!important;text-shadow:5px 5px 0 #ee1c25!important;max-width:28vw;animation:none!important}
+${R} .title i{font:700 clamp(13px,1.2vw,20px) 'Noto Sans JP',sans-serif!important;letter-spacing:.3em!important;text-shadow:none!important;margin-top:1.2vh!important}
+${R} .mid{position:static!important;transform:none!important;width:auto!important;display:block!important}
+${R} .card{position:absolute!important;left:3vw;top:36vh;width:24vw;z-index:3;background:none!important;border:0!important;box-shadow:none!important;clip-path:none!important;padding:0!important;margin:0!important;display:block!important;color:#fff!important}
+${R} .row{display:block!important;border:0!important;padding:0!important;margin:0 0 3.6vh!important}
+${R} .row span{display:block;font:italic 700 clamp(9px,.75vw,12px) 'Barlow Condensed',sans-serif!important;letter-spacing:.3em!important;color:#a9a3b5!important;margin-bottom:.6vh}
+${R} .row b{font:400 clamp(26px,3vw,52px)/1 'MangaMaster BB',Bangers,Impact,sans-serif!important;color:#fff!important;-webkit-text-stroke:1px #14101c;text-shadow:3px 3px 0 #ee1c25}
+${R} .row.best b{font-size:clamp(20px,2vw,34px)!important;color:#fff!important}
+${R} .row b.bad{color:#ff8a8f!important}
+${R} .row .diff{display:inline-block;margin-left:.8vw;font:italic 700 clamp(12px,1vw,16px) 'Barlow Condensed',sans-serif!important;-webkit-text-stroke:0;text-shadow:none;color:#5fe08a!important;vertical-align:middle}
+${R} .row .diff.slow{color:#ff8a8f!important}
+${R} .who{position:fixed!important;left:calc(66.667vw + ${(50-96)*K}vh + 1.1vw);right:calc(1.4vw - ${92*K}vh);top:4vh;bottom:4vh;width:auto!important;min-height:0!important;z-index:2;background:#fff!important;clip-path:polygon(${92*K}vh 0,100% 0,calc(100% - ${92*K}vh) 100%,0 100%)!important;filter:drop-shadow(7px 7px 0 #ee1c25)}
+${R} .who .in{inset:5px!important;clip-path:polygon(${92*K}vh 0,100% 0,calc(100% - ${92*K}vh) 100%,0 100%)!important}
+${R} .who img{object-position:45% 22%!important}
+${R} .who .in:after{content:'';position:absolute;left:0;right:0;bottom:0;height:42%;background:linear-gradient(180deg,transparent,rgba(13,11,18,.95) 60%)}
+${R} .say{position:fixed!important;left:calc(66.667vw + ${(50-80)*K}vh + 2vw);right:calc(${92*K*.35}vh + 2vw);bottom:7vh;z-index:3;font:500 clamp(14px,1.15vw,19px)/1.4 'Barlow Condensed',Arial,sans-serif!important;color:#fff!important}
+${R} .say em{font:400 clamp(22px,2.2vw,38px)/1 'MangaMaster BB',Bangers,Impact,sans-serif!important;color:#fff!important;-webkit-text-stroke:1px #14101c!important;text-shadow:3px 3px 0 #ee1c25;letter-spacing:.04em!important;margin-bottom:1vh!important}
+${R} .stamp{left:auto!important;right:6vw!important;top:8vh!important;transform:rotate(-8deg)!important;z-index:4}
+${R} .btns{position:absolute!important;left:0!important;top:26vh!important;bottom:auto!important;transform:none!important;display:block!important;width:100vw;z-index:3}
+${R} .btn{position:relative;box-sizing:border-box;width:calc(33.333vw - 2.2vw)!important;min-width:0!important;height:10vh;margin:0 0 3vh;padding:0!important;border:0!important;background:none!important;clip-path:none!important;transform:none!important;isolation:isolate;display:flex!important;flex-direction:column;align-items:center;justify-content:center;font:400 clamp(20px,2.1vw,34px)/1 'MangaMaster BB',Bangers,Impact,sans-serif!important;letter-spacing:.05em!important;color:#fff!important;-webkit-text-stroke:1px #14101c;paint-order:stroke fill;text-shadow:2px 2px 0 #14101c!important}
+${R} .btn:before{content:'';position:absolute;inset:0;z-index:-1;background:rgba(20,16,28,.9);clip-path:polygon(${10*K}vh 0,100% 0,calc(100% - ${10*K}vh) 100%,0 100%)}
+${R} .btn.sel:before{background:#ee1c25}
+${R} .btn small{font:italic 700 clamp(9px,.7vw,12px) 'Barlow Condensed',sans-serif!important;letter-spacing:.2em!important;color:#e6e1ee!important;-webkit-text-stroke:0;text-shadow:none!important;text-transform:uppercase;margin-top:.7vh!important}
+${R} .btn .tab{position:absolute;left:calc(${10*K}vh + .2vw);top:-1.35vh;padding:.25vh .8vw .3vh;background:#14101c;color:#cfc9d9;white-space:nowrap;font:italic 700 clamp(9px,.72vw,12px) 'Barlow Condensed',sans-serif;letter-spacing:.24em;-webkit-text-stroke:0;text-shadow:none;clip-path:polygon(.5vh 0,100% 0,calc(100% - .5vh) 100%,0 100%)}
+${R} .btn.sel .tab{background:#fff;color:#ee1c25}
+${R} .keys{left:calc(33.333vw - ${47*K}vh + 1.6vw)!important;right:auto!important;text-align:left!important;bottom:2.2vh!important;font:italic 700 clamp(10px,.82vw,13px) 'Barlow Condensed',sans-serif!important;letter-spacing:.22em!important;color:rgba(236,232,244,.65)!important}
+${R} .keys b{color:#fff!important}
+@media(max-width:760px){${R}:before,${R}:after,${R} .who,${R} .say{display:none!important}${R} .btn{width:86vw!important;margin-left:7vw!important}}`;
+ document.head.appendChild(css);
+ const lay=()=>{const G=innerWidth*.011;root.querySelectorAll('.btn').forEach((b,i)=>{if(!b.querySelector('.tab'))b.insertAdjacentHTML('afterbegin',`<span class="tab">${TAB[+b.dataset.i]||''}</span>`);b.style.removeProperty('margin-left');const r=b.getBoundingClientRect();b.style.setProperty('margin-left',Math.round(L1(r.top+r.height/2)+G)+'px','important')})};
+ new MutationObserver(()=>{if(root.classList.contains('on'))requestAnimationFrame(lay)}).observe(root,{attributes:true,attributeFilter:['class'],childList:true});
+ addEventListener('resize',()=>{if(root.classList.contains('on'))lay()});
+}catch(e){console.warn('results r3',e)}})();
 </script>
 </body></html>
